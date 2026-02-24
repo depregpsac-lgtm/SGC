@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MinistryLion (Sistema de Gestión de Conferencias) </title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fas fa-lion"></i>
+                    <h1>MinistryLion</h1>
+                </div>
+                <p class="subtitle">Sistema de Control de Conferencias</p>
+            </div>
+            
+            <div class="login-alert" id="loginAlert" style="display: none;"></div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Correo Electrónico
+                    </label>
+                    <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Contraseña
+                    </label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+            </form>
+            
+           
+            
+            <div class="login-footer">
+                <p>Sistema de Gestión de Conferencias © 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_EMAIL = 'ministrylion@gmail.com';
+        const ADMIN_PASSWORD = 'admin';
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Inicializar admin en localStorage si no existe
+        function inicializarAdminPorDefecto() {
+            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+            const adminExiste = usuarios.some(u => u.correo === ADMIN_EMAIL);
+            
+            if (!adminExiste) {
+                usuarios.push({
+                    nombre: 'Administrador Principal',
+                    correo: ADMIN_EMAIL,
+                    password: ADMIN_PASSWORD,
+                    rol: 'admin',
+                    estado: 'activo',
+                    permisos: ['dashboard', 'conferencias', 'registros', 'reportes', 'configuracion', 'usuarios']
+                });
+                localStorage.setItem('usuarios', JSON.stringify(usuarios));
+            }
+        }
+
+        // Ejecutar al cargar
+        inicializarAdminPorDefecto();
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const loginAlert = document.getElementById('loginAlert');
+            
+            const usuariosAlmacenados = JSON.parse(localStorage.getItem('usuarios')) || [];
+            
+            const usuarioEncontrado = usuariosAlmacenados.find(u => 
+                u.correo.toLowerCase() === email && 
+                u.password === password &&
+                u.estado === 'activo'
+            );
+            
+            if (usuarioEncontrado) {
+                sessionStorage.setItem('userLoggedIn', 'true');
+                sessionStorage.setItem('userEmail', usuarioEncontrado.correo);
+                sessionStorage.setItem('userName', usuarioEncontrado.nombre);
+                sessionStorage.setItem('userRole', usuarioEncontrado.rol);
+                sessionStorage.setItem('userPermisos', JSON.stringify(usuarioEncontrado.permisos || []));
+                
+                loginAlert.style.display = 'flex';
+                loginAlert.style.background = '#d4edda';
+                loginAlert.style.color = '#155724';
+                loginAlert.innerHTML = '<i class="fas fa-check-circle"></i><span>¡Inicio de sesión exitoso!</span>';
+                
+                setTimeout(() => {
+                    window.location.href = 'control-conferencias.html';
+                }, 1000);
+            } else {
+                loginAlert.style.display = 'flex';
+                loginAlert.style.background = '#f8d7da';
+                loginAlert.style.color = '#721c24';
+                loginAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Correo o contraseña incorrectos</span>';
+                
+                document.querySelector('.login-box').classList.add('shake');
+                setTimeout(() => {
+                    document.querySelector('.login-box').classList.remove('shake');
+                }, 500);
+            }
+        });
+
+        window.addEventListener('load', function() {
+            const userLoggedIn = sessionStorage.getItem('userLoggedIn');
+            const currentPage = window.location.pathname.split('/').pop();
+            
+            if (userLoggedIn === 'true' && currentPage === 'index.html') {
+                window.location.href = 'control-conferencias.html';
+            }
+        });
+    </script>
+</body>
+</html>

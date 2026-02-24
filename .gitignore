@@ -1,0 +1,18 @@
+# No subir credenciales reales
+config.js
+*.env
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (si usas npm)
+node_modules/

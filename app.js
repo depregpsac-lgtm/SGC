@@ -255,7 +255,14 @@ async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, con
 async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
     const { data, error } = await window.db
         .from('conferencias')
-        .update({ iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante, updated_at: new Date() })
+        .update({ 
+            iglesia_id, 
+            nombre, 
+            fecha_inicio, 
+            fecha_fin, 
+            conferenciante
+            // ❌ Elimina esta línea: updated_at: new Date()
+        })
         .eq('id', id)
         .select();
     if (error) throw error;

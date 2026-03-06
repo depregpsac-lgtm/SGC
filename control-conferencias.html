@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-    <!-- ✅ Supabase JS Library - CRÍTICO para GitHub Pages (DEL ARCHIVO 1) -->
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ============================================
-           ESTILOS VISUALES DEL ARCHIVO 2
-           ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -18,107 +15,206 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f3f4f6;
+            background: #f5f7fa;
             min-height: 100vh;
+            display: flex;
         }
         
-        .header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
             color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px 0;
+            overflow-y: auto;
+            z-index: 1000;
         }
         
-        .header h1 {
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h1 {
             font-size: 24px;
-        }
-        
-        .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            gap: 10px;
         }
         
-        .nav {
-            background: white;
-            padding: 15px 20px;
+        .user-info-sidebar {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        
+        .user-info-sidebar p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .user-info-sidebar strong {
+            color: #60a5fa;
+        }
+        
+        .nav-sidebar {
+            padding: 20px 0;
+        }
+        
+        .nav-sidebar a {
             display: flex;
-            gap: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin: 4px 10px;
+            border-radius: 8px;
         }
         
-        .nav a {
-            color: #374151;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+        .nav-sidebar a:hover, .nav-sidebar a.active {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+        }
+        
+        .nav-sidebar a.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            right: 10px;
+        }
+        
+        .logout-btn button {
+            width: 100%;
+            padding: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             transition: background 0.3s;
         }
         
-        .nav a:hover {
-            background: #f3f4f6;
+        .logout-btn button:hover {
+            background: #dc2626;
         }
         
+        /* Main Content */
         .main-content {
+            margin-left: 260px;
+            flex: 1;
             padding: 30px;
-            max-width: 1400px;
-            margin: 0 auto;
         }
         
+        .page-header {
+            margin-bottom: 30px;
+        }
+        
+        .page-header h2 {
+            color: #1e293b;
+            font-size: 28px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .page-header p {
+            color: #64748b;
+        }
+        
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
         
         .stat-card {
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
         
-        .stat-card h3 {
-            color: #6b7280;
-            font-size: 14px;
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card .icon {
+            font-size: 32px;
             margin-bottom: 10px;
         }
         
         .stat-card .number {
             font-size: 36px;
             font-weight: bold;
-            color: #1e3a8a;
+            color: #3b82f6;
+            margin: 10px 0;
         }
         
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Sections */
         .section {
             background: white;
             border-radius: 12px;
             padding: 25px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
-        .section h2 {
-            color: #1e3a8a;
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
         }
         
-        .section h3 {
-            color: #1e3a8a;
-            margin: 20px 0 10px;
-            font-size: 18px;
+        .section-header h3 {
+            color: #1e293b;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
+        .section-header .counter {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* Tables */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -127,23 +223,33 @@
         table th, table td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e2e8f0;
         }
         
         table th {
-            background: #f9fafb;
-            color: #374151;
+            background: #f8fafc;
+            color: #475569;
             font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
         }
         
+        table tr:hover {
+            background: #f8fafc;
+        }
+        
+        /* Buttons */
         .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
             transition: all 0.3s;
-            margin: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .btn-primary {
@@ -155,13 +261,13 @@
             background: #2563eb;
         }
         
-        .btn-danger {
-            background: #ef4444;
+        .btn-success {
+            background: #10b981;
             color: white;
         }
         
-        .btn-danger:hover {
-            background: #dc2626;
+        .btn-success:hover {
+            background: #059669;
         }
         
         .btn-warning {
@@ -173,15 +279,21 @@
             background: #d97706;
         }
         
-        .btn-success {
-            background: #10b981;
+        .btn-danger {
+            background: #ef4444;
             color: white;
         }
         
-        .btn-success:hover {
-            background: #059669;
+        .btn-danger:hover {
+            background: #dc2626;
         }
         
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -192,72 +304,91 @@
             background: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
         }
         
         .modal-content {
             background: white;
-            padding: 30px;
             border-radius: 12px;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
-            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         
-        .modal-content h2 {
-            margin-bottom: 20px;
-            color: #1e3a8a;
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 20px 25px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .modal-header h3 {
+            color: #1e293b;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .modal-close {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
-            color: #6b7280;
-            padding: 0;
-            line-height: 1;
+            color: #64748b;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.3s;
         }
         
         .modal-close:hover {
+            background: #f1f5f9;
             color: #ef4444;
         }
         
+        .modal-body {
+            padding: 25px;
+        }
+        
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #374151;
+            margin-bottom: 8px;
+            color: #475569;
             font-weight: 500;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
             font-size: 14px;
         }
         
-        .form-group input:focus, .form-group select:focus {
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #3b82f6;
         }
         
-        .form-actions {
+        .modal-footer {
             display: flex;
-            gap: 10px;
             justify-content: flex-end;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            gap: 10px;
+            padding: 20px 25px;
+            border-top: 2px solid #e2e8f0;
         }
         
         .checkbox-group {
@@ -274,18 +405,19 @@
         }
         
         .duration-display {
-            background: #f3f4f6;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0;
+            background: #eff6ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
             font-weight: 500;
+            color: #1e40af;
         }
         
         .fechas-container {
-            background: #f9fafb;
+            background: #f8fafc;
             padding: 15px;
-            border-radius: 6px;
-            margin: 10px 0;
+            border-radius: 8px;
+            margin: 15px 0;
         }
         
         .fecha-checkbox {
@@ -293,9 +425,10 @@
             margin: 5px;
             padding: 8px 12px;
             background: white;
-            border: 2px solid #e5e7eb;
+            border: 2px solid #e2e8f0;
             border-radius: 6px;
             cursor: pointer;
+            transition: all 0.3s;
         }
         
         .fecha-checkbox.checked {
@@ -305,7 +438,7 @@
         }
         
         .attendance-summary {
-            background: #ecfdf5;
+            background: #d1fae5;
             padding: 10px;
             border-radius: 6px;
             margin: 10px 0;
@@ -324,281 +457,338 @@
         }
         
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
             }
             
-            .nav {
-                justify-content: center;
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
             }
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
-            .modal-content {
-                margin: 10px;
-                max-width: calc(100% - 20px);
-            }
         }
     </style>
 </head>
 <body>
-    <!-- ============================================
-         HEADER - APARIENCIA DEL ARCHIVO 2
-         ============================================ -->
-    <header class="header">
-        <h1>🦁 MinistryLion</h1>
-        <div class="user-info">
-            <span>Usuario: <strong class="usuario-info">Cargando...</strong></span>
-            <span>Rol: <strong class="rol-info">-</strong></span>
-            <button onclick="logout()" class="btn btn-danger">🚪 Cerrar Sesión</button>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>🦁 MinistryLion</h1>
+            <div class="user-info-sidebar">
+                <p>Usuario: <strong class="usuario-info">Cargando...</strong></p>
+                <p>Rol: <strong class="rol-info">-</strong></p>
+            </div>
         </div>
-    </header>
+        
+        <nav class="nav-sidebar">
+            <a href="#dashboard" class="active">📊 Dashboard</a>
+            <a href="#conferencias">📅 Conferencias</a>
+            <a href="#asistentes">👥 Registros</a>
+            <a href="#reportes">📈 Reportes</a>
+            <a href="#configuracion">⚙️ Configuración</a>
+            <a href="#usuarios">👤 Usuarios</a>
+        </nav>
+        
+        <div class="logout-btn">
+            <button onclick="logout()">🚪 Cerrar Sesión</button>
+        </div>
+    </aside>
     
-    <!-- ============================================
-         NAVEGACIÓN - APARIENCIA DEL ARCHIVO 2
-         ============================================ -->
-    <nav class="nav">
-        <a href="#dashboard">📊 Dashboard</a>
-        <a href="#conferencias">📅 Conferencias</a>
-        <a href="#asistentes">👥 Registros</a>
-        <a href="#reportes">📈 Reportes</a>
-        <a href="#configuracion">⚙️ Configuración</a>
-        <a href="#usuarios">👤 Usuarios</a>
-    </nav>
-    
-    <!-- ============================================
-         CONTENIDO PRINCIPAL - APARIENCIA DEL ARCHIVO 2
-         ============================================ -->
+    <!-- Main Content -->
     <main class="main-content">
-        <!-- Estadísticas -->
-        <section id="dashboard" class="section">
-            <h2>📊 Panel Principal</h2>
-            <p style="margin-bottom: 20px; color: #6b7280;">Bienvenido al sistema de control</p>
+        <!-- Dashboard Section -->
+        <section id="dashboard">
+            <div class="page-header">
+                <h2>📊 Panel Principal</h2>
+                <p>Bienvenido al sistema de control</p>
+            </div>
+            
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Total Zonas</h3>
+                    <div class="icon">📍</div>
                     <div class="number" id="statZonas">0</div>
+                    <h3>Total Zonas</h3>
                 </div>
                 <div class="stat-card">
-                    <h3>Total Distritos</h3>
+                    <div class="icon">🏛️</div>
                     <div class="number" id="statDistritos">0</div>
+                    <h3>Total Distritos</h3>
                 </div>
                 <div class="stat-card">
-                    <h3>Total Iglesias</h3>
+                    <div class="icon">⛪</div>
                     <div class="number" id="statIglesias">0</div>
+                    <h3>Total Iglesias</h3>
                 </div>
                 <div class="stat-card">
-                    <h3>Conferencias</h3>
+                    <div class="icon">📅</div>
                     <div class="number" id="statConferencias">0</div>
+                    <h3>Conferencias</h3>
                 </div>
                 <div class="stat-card">
-                    <h3>Total Asistentes</h3>
+                    <div class="icon">👥</div>
                     <div class="number" id="statAsistentes">0</div>
+                    <h3>Total Asistentes</h3>
+                </div>
+            </div>
+            
+            <!-- Próximas Conferencias -->
+            <div class="section">
+                <div class="section-header">
+                    <h3>📅 Próximas Conferencias</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Evento</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Orador</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaProximasConferencias">
+                        <tr><td colspan="4">No hay conferencias registradas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Conferencias Section -->
+        <section id="conferencias" style="display: none;">
+            <div class="page-header">
+                <h2>📅 Gestión de Conferencias</h2>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">
+                    <h3>Conferencias</h3>
+                    <button onclick="abrirModal('modalNuevaConferencia')" class="btn btn-primary">➕ Nueva</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Iglesia</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Días Totales</th>
+                            <th>Conferenciante</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaConferencias">
+                        <tr><td colspan="7">Sin datos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Asistentes Section -->
+        <section id="asistentes" style="display: none;">
+            <div class="page-header">
+                <h2>👥 Registros de Asistentes</h2>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">
+                    <h3>Asistentes <span class="counter" id="contadorAsistentes">0</span></h3>
+                    <button onclick="abrirModal('modalNuevoAsistente')" class="btn btn-primary">➕ Nuevo</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Iglesia</th>
+                            <th>Conferencia</th>
+                            <th>Asistencia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaAsistentes">
+                        <tr><td colspan="6">Sin datos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Reportes Section -->
+        <section id="reportes" style="display: none;">
+            <div class="page-header">
+                <h2>📈 Reportes</h2>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">
+                    <h3>Generar Reporte</h3>
+                </div>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button onclick="generarReporte('preview')" class="btn btn-primary">📄 Generar Vista Previa</button>
+                    <button onclick="generarReporte('pdf')" class="btn btn-success">📥 Descargar PDF</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div class="form-group">
+                        <label>Conferencia *</label>
+                        <select id="reporteConferencia">
+                            <option value="">-- Seleccione Conferencia --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Iglesia</label>
+                        <select id="reporteIglesia">
+                            <option value="">-- Todas las Iglesias --</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </section>
         
-        <!-- Próximas Conferencias - APARIENCIA ARCHIVO 2 -->
-        <section class="section">
-            <h2>📅 Próximas Conferencias</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Evento</th>
-                        <th>Fecha Inicio</th>
-                        <th>Fecha Fin</th>
-                        <th>Orador</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaProximasConferencias">
-                    <tr><td colspan="4">No hay conferencias registradas</td></tr>
-                </tbody>
-            </table>
-        </section>
-        
-        <!-- Gestión de Conferencias -->
-        <section id="conferencias" class="section">
-            <h2>📅 Gestión de Conferencias</h2>
-            <button onclick="abrirModal('modalNuevaConferencia')" class="btn btn-primary">➕ Nueva</button>
-            <table style="margin-top: 15px;">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Iglesia</th>
-                        <th>Inicio</th>
-                        <th>Fin</th>
-                        <th>Días Totales</th>
-                        <th>Conferenciante</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaConferencias">
-                    <tr><td colspan="7">Sin datos</td></tr>
-                </tbody>
-            </table>
-        </section>
-        
-        <!-- Registros de Asistentes - CON CONTADOR -->
-        <section id="asistentes" class="section">
-            <h2>👥 Registros de Asistentes <span id="contadorAsistentes">(0)</span></h2>
-            <button onclick="abrirModal('modalNuevoAsistente')" class="btn btn-primary">➕ Nuevo</button>
-            <table style="margin-top: 15px;">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Iglesia</th>
-                        <th>Conferencia</th>
-                        <th>Asistencia</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaAsistentes">
-                    <tr><td colspan="6">Sin datos</td></tr>
-                </tbody>
-            </table>
-        </section>
-        
-        <!-- Reportes - APARIENCIA ARCHIVO 2 -->
-        <section id="reportes" class="section">
-            <h2>📈 Reportes</h2>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
-                <button onclick="generarReporte('preview')" class="btn btn-primary">📄 Generar Vista Previa</button>
-                <button onclick="generarReporte('pdf')" class="btn btn-success">📥 Descargar PDF</button>
+        <!-- Configuración Section -->
+        <section id="configuracion" style="display: none;">
+            <div class="page-header">
+                <h2>⚙️ Configuración</h2>
+                <p>Estructura: Zonas → Distritos → Iglesias</p>
             </div>
-            <div class="form-group">
-                <label>Conferencia *</label>
-                <select id="reporteConferencia">
-                    <option value="">-- Seleccione Conferencia --</option>
-                </select>
+            
+            <!-- Zonas -->
+            <div class="section">
+                <div class="section-header">
+                    <h3>📍 Zonas <span class="counter" id="contadorZonas">0</span></h3>
+                    <button onclick="abrirModal('modalNuevaZona')" class="btn btn-primary">➕ Registrar</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaZonas">
+                        <tr><td colspan="3">Sin zonas</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="form-group">
-                <label>Iglesia</label>
-                <select id="reporteIglesia">
-                    <option value="">-- Todas las Iglesias --</option>
-                </select>
+            
+            <!-- Distritos -->
+            <div class="section">
+                <div class="section-header">
+                    <h3>🏛️ Distritos <span class="counter" id="contadorDistritos">0</span></h3>
+                    <button onclick="abrirModal('modalNuevoDistrito')" class="btn btn-primary">➕ Registrar</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Zona</th>
+                            <th>Distrito</th>
+                            <th>Responsable</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaDistritos">
+                        <tr><td colspan="4">Sin distritos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Iglesias -->
+            <div class="section">
+                <div class="section-header">
+                    <h3>⛪ Iglesias <span class="counter" id="contadorIglesias">0</span></h3>
+                    <button onclick="abrirModal('modalNuevaIglesia')" class="btn btn-primary">➕ Registrar</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Zona</th>
+                            <th>Distrito</th>
+                            <th>Iglesia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaIglesias">
+                        <tr><td colspan="4">Sin iglesias</td></tr>
+                    </tbody>
+                </table>
             </div>
         </section>
         
-        <!-- Configuración - CON CONTADORES -->
-        <section id="configuracion" class="section">
-            <h2>⚙️ Configuración</h2>
-            <p style="margin-bottom: 15px; color: #6b7280;">Estructura: Zonas → Distritos → Iglesias</p>
+        <!-- Usuarios Section -->
+        <section id="usuarios" style="display: none;">
+            <div class="page-header">
+                <h2>👤 Gestión de Usuarios</h2>
+            </div>
             
-            <h3>📍 Zonas <span id="contadorZonas">(0)</span></h3>
-            <button onclick="abrirModal('modalNuevaZona')" class="btn btn-primary">➕ Registrar</button>
-            <table style="margin-top: 15px;">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaZonas">
-                    <tr><td colspan="3">Sin zonas</td></tr>
-                </tbody>
-            </table>
-            
-            <h3>🏛️ Distritos <span id="contadorDistritos">(0)</span></h3>
-            <button onclick="abrirModal('modalNuevoDistrito')" class="btn btn-primary">➕ Registrar</button>
-            <table style="margin-top: 15px;">
-                <thead>
-                    <tr>
-                        <th>Zona</th>
-                        <th>Distrito</th>
-                        <th>Responsable</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaDistritos">
-                    <tr><td colspan="4">Sin distritos</td></tr>
-                </tbody>
-            </table>
-            
-            <h3>⛪ Iglesias <span id="contadorIglesias">(0)</span></h3>
-            <button onclick="abrirModal('modalNuevaIglesia')" class="btn btn-primary">➕ Registrar</button>
-            <table style="margin-top: 15px;">
-                <thead>
-                    <tr>
-                        <th>Zona</th>
-                        <th>Distrito</th>
-                        <th>Iglesia</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaIglesias">
-                    <tr><td colspan="4">Sin iglesias</td></tr>
-                </tbody>
-            </table>
-        </section>
-        
-        <!-- Gestión de Usuarios -->
-        <section id="usuarios" class="section">
-            <h2>👤 Gestión de Usuarios</h2>
-            <button onclick="abrirModal('modalNuevoUsuario')" class="btn btn-primary">➕ Nuevo</button>
-            <table style="margin-top: 15px;">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Rol</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaUsuarios">
-                    <tr><td colspan="5">Sin usuarios</td></tr>
-                </tbody>
-            </table>
+            <div class="section">
+                <div class="section-header">
+                    <h3>Usuarios del Sistema</h3>
+                    <button onclick="abrirModal('modalNuevoUsuario')" class="btn btn-primary">➕ Nuevo</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaUsuarios">
+                        <tr><td colspan="5">Sin usuarios</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
     
-    <!-- ============================================
-         MODALES - APARIENCIA DEL ARCHIVO 2
-         ============================================ -->
-    
+    <!-- Modales (se mantienen igual que el archivo 1) -->
     <!-- Modal Nueva Conferencia -->
     <div id="modalNuevaConferencia" class="modal">
         <div class="modal-content">
-            <h2>
-                📅 Nueva Conferencia
+            <div class="modal-header">
+                <h3>📅 Nueva Conferencia</h3>
                 <button type="button" class="modal-close" onclick="cerrarModal('modalNuevaConferencia')">×</button>
-            </h2>
+            </div>
             <form id="formConferencia">
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="confNombre" required placeholder="Ej: Conferencia Anual 2026">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="confNombre" required placeholder="Ej: Conferencia Anual 2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Iglesia Sede *</label>
+                        <select id="confIglesia" required>
+                            <option value="">-- Seleccione --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Inicio *</label>
+                        <input type="date" id="confFechaInicio" required onchange="calcularDuracion()">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Fin *</label>
+                        <input type="date" id="confFechaFin" required onchange="calcularDuracion()">
+                    </div>
+                    <div class="duration-display" id="duracionDisplay">
+                        📅 Duración: 0 días
+                    </div>
+                    <div class="fechas-container" id="fechasContainer" style="display: none;">
+                        <label>📋 Fechas:</label>
+                        <div id="fechasLista" style="margin-top: 10px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Conferenciante</label>
+                        <input type="text" id="confConferenciante" placeholder="Nombre del orador principal">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Iglesia Sede *</label>
-                    <select id="confIglesia" required>
-                        <option value="">-- Seleccione --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Fecha Inicio *</label>
-                    <input type="date" id="confFechaInicio" required onchange="calcularDuracion()">
-                </div>
-                <div class="form-group">
-                    <label>Fecha Fin *</label>
-                    <input type="date" id="confFechaFin" required onchange="calcularDuracion()">
-                </div>
-                <div class="duration-display" id="duracionDisplay">
-                    📅 Duración: 0 días
-                </div>
-                <div class="fechas-container" id="fechasContainer" style="display: none;">
-                    <label>📋 Fechas:</label>
-                    <div id="fechasLista" style="margin-top: 10px;"></div>
-                </div>
-                <div class="form-group">
-                    <label>Conferenciante</label>
-                    <input type="text" id="confConferenciante" placeholder="Nombre del orador principal">
-                </div>
-                <div class="form-actions">
+                <div class="modal-footer">
                     <button type="button" onclick="cerrarModal('modalNuevaConferencia')" class="btn">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -609,47 +799,49 @@
     <!-- Modal Nuevo Asistente -->
     <div id="modalNuevoAsistente" class="modal">
         <div class="modal-content">
-            <h2>
-                👥 Nuevo Registro
+            <div class="modal-header">
+                <h3>👥 Nuevo Registro</h3>
                 <button type="button" class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">×</button>
-            </h2>
+            </div>
             <form id="formAsistente">
-                <div class="form-group">
-                    <label>Nombre Completo *</label>
-                    <input type="text" id="asistNombre" required placeholder="Nombre y apellido">
-                </div>
-                <div class="form-group">
-                    <label>Dirección</label>
-                    <input type="text" id="asistDireccion" placeholder="Dirección completa">
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="tel" id="asistTelefono" placeholder="Número de contacto">
-                </div>
-                <div class="form-group">
-                    <label>Invitado Por</label>
-                    <input type="text" id="asistInvitadoPor" placeholder="Persona que lo invitó">
-                </div>
-                <div class="form-group">
-                    <label>Iglesia</label>
-                    <select id="asistIglesia">
-                        <option value="">-- Seleccione --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Conferencia *</label>
-                    <select id="asistConferencia" required onchange="cargarFechasAsistencia()">
-                        <option value="">-- Seleccione --</option>
-                    </select>
-                </div>
-                <div class="fechas-container" id="asistenteFechasContainer" style="display: none;">
-                    <label>✅ Marque los días que asistió:</label>
-                    <div id="asistenteFechasLista" style="margin: 10px 0;"></div>
-                    <div class="attendance-summary" id="asistenciaResumen">
-                        ✅ 0 días asistidos de 0 totales
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="asistNombre" required placeholder="Nombre y apellido">
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" id="asistDireccion" placeholder="Dirección completa">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="asistTelefono" placeholder="Número de contacto">
+                    </div>
+                    <div class="form-group">
+                        <label>Invitado Por</label>
+                        <input type="text" id="asistInvitadoPor" placeholder="Persona que lo invitó">
+                    </div>
+                    <div class="form-group">
+                        <label>Iglesia</label>
+                        <select id="asistIglesia">
+                            <option value="">-- Seleccione --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Conferencia *</label>
+                        <select id="asistConferencia" required onchange="cargarFechasAsistencia()">
+                            <option value="">-- Seleccione --</option>
+                        </select>
+                    </div>
+                    <div class="fechas-container" id="asistenteFechasContainer" style="display: none;">
+                        <label>✅ Marque los días que asistió:</label>
+                        <div id="asistenteFechasLista" style="margin: 10px 0;"></div>
+                        <div class="attendance-summary" id="asistenciaResumen">
+                            ✅ 0 días asistidos de 0 totales
+                        </div>
                     </div>
                 </div>
-                <div class="form-actions">
+                <div class="modal-footer">
                     <button type="button" onclick="cerrarModal('modalNuevoAsistente')" class="btn">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -660,20 +852,22 @@
     <!-- Modal Nueva Zona -->
     <div id="modalNuevaZona" class="modal">
         <div class="modal-content">
-            <h2>
-                📍 Registrar Zona
+            <div class="modal-header">
+                <h3>📍 Registrar Zona</h3>
                 <button type="button" class="modal-close" onclick="cerrarModal('modalNuevaZona')">×</button>
-            </h2>
+            </div>
             <form id="formZona">
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="zonaNombre" required placeholder="Nombre de la zona">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="zonaNombre" required placeholder="Nombre de la zona">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <input type="text" id="zonaDescripcion" placeholder="Descripción opcional">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <input type="text" id="zonaDescripcion" placeholder="Descripción opcional">
-                </div>
-                <div class="form-actions">
+                <div class="modal-footer">
                     <button type="button" onclick="cerrarModal('modalNuevaZona')" class="btn">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -684,30 +878,32 @@
     <!-- Modal Nuevo Distrito -->
     <div id="modalNuevoDistrito" class="modal">
         <div class="modal-content">
-            <h2>
-                🏛️ Registrar Distrito
+            <div class="modal-header">
+                <h3>🏛️ Registrar Distrito</h3>
                 <button type="button" class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">×</button>
-            </h2>
+            </div>
             <form id="formDistrito">
-                <div class="form-group">
-                    <label>Zona *</label>
-                    <select id="distritoZona" required>
-                        <option value="">-- Seleccione --</option>
-                    </select>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Zona *</label>
+                        <select id="distritoZona" required>
+                            <option value="">-- Seleccione --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="distritoNombre" required placeholder="Nombre del distrito">
+                    </div>
+                    <div class="form-group">
+                        <label>Responsable</label>
+                        <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="distritoTelefono" placeholder="Teléfono de contacto">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="distritoNombre" required placeholder="Nombre del distrito">
-                </div>
-                <div class="form-group">
-                    <label>Responsable</label>
-                    <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="tel" id="distritoTelefono" placeholder="Teléfono de contacto">
-                </div>
-                <div class="form-actions">
+                <div class="modal-footer">
                     <button type="button" onclick="cerrarModal('modalNuevoDistrito')" class="btn">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -718,40 +914,42 @@
     <!-- Modal Nueva Iglesia -->
     <div id="modalNuevaIglesia" class="modal">
         <div class="modal-content">
-            <h2>
-                ⛪ Registrar Iglesia
+            <div class="modal-header">
+                <h3>⛪ Registrar Iglesia</h3>
                 <button type="button" class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">×</button>
-            </h2>
+            </div>
             <form id="formIglesia">
-                <div class="form-group">
-                    <label>Zona *</label>
-                    <select id="iglesiaZona" required onchange="cargarDistritosPorZona()">
-                        <option value="">-- Seleccione --</option>
-                    </select>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Zona *</label>
+                        <select id="iglesiaZona" required onchange="cargarDistritosPorZona()">
+                            <option value="">-- Seleccione --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Distrito</label>
+                        <select id="iglesiaDistrito">
+                            <option value="">-- Seleccione --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Iglesia *</label>
+                        <input type="text" id="iglesiaNombre" required placeholder="Nombre de la iglesia">
+                    </div>
+                    <div class="form-group">
+                        <label>Pastor</label>
+                        <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="iglesiaTelefono" placeholder="Teléfono de la iglesia">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Distrito</label>
-                    <select id="iglesiaDistrito">
-                        <option value="">-- Seleccione --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Nombre Iglesia *</label>
-                    <input type="text" id="iglesiaNombre" required placeholder="Nombre de la iglesia">
-                </div>
-                <div class="form-group">
-                    <label>Pastor</label>
-                    <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
-                </div>
-                <div class="form-group">
-                    <label>Dirección</label>
-                    <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="tel" id="iglesiaTelefono" placeholder="Teléfono de la iglesia">
-                </div>
-                <div class="form-actions">
+                <div class="modal-footer">
                     <button type="button" onclick="cerrarModal('modalNuevaIglesia')" class="btn">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -762,67 +960,69 @@
     <!-- Modal Nuevo Usuario -->
     <div id="modalNuevoUsuario" class="modal">
         <div class="modal-content">
-            <h2>
-                👤 Nuevo Usuario
+            <div class="modal-header">
+                <h3>👤 Nuevo Usuario</h3>
                 <button type="button" class="modal-close" onclick="cerrarModal('modalNuevoUsuario')">×</button>
-            </h2>
+            </div>
             <form id="formUsuario">
-                <div class="form-group">
-                    <label>Nombre Completo *</label>
-                    <input type="text" id="usuarioNombreCompleto" required placeholder="Nombre y apellido">
-                </div>
-                <div class="form-group">
-                    <label>📧 Correo Electrónico *</label>
-                    <input type="email" id="usuarioEmail" required placeholder="correo@ejemplo.com">
-                </div>
-                <div class="form-group">
-                    <label>🔑 Contraseña <span style="color: #ef4444; font-size: 12px;">(Requerida)</span></label>
-                    <input type="password" id="usuarioPassword" placeholder="Mínimo 6 caracteres">
-                </div>
-                <div class="form-group">
-                    <label>Rol</label>
-                    <select id="usuarioRol">
-                        <option value="administrador">👑 Administrador</option>
-                        <option value="usuario">👤 Usuario</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Estado</label>
-                    <select id="usuarioEstado">
-                        <option value="activo">✅ Activo</option>
-                        <option value="inactivo">⏸️ Inactivo</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>🔐 Permisos</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="permisos" value="dashboard" id="permisoDashboard" checked>
-                            <label for="permisoDashboard">Dashboard</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="permisos" value="conferencias" id="permisoConferencias" checked>
-                            <label for="permisoConferencias">Conferencias</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="permisos" value="registros" id="permisoRegistros" checked>
-                            <label for="permisoRegistros">Registros</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="permisos" value="reportes" id="permisoReportes" checked>
-                            <label for="permisoReportes">Reportes</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="permisos" value="configuracion" id="permisoConfiguracion" checked>
-                            <label for="permisoConfiguracion">Configuración</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="permisos" value="usuarios" id="permisoUsuarios" checked>
-                            <label for="permisoUsuarios">Usuarios</label>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="usuarioNombreCompleto" required placeholder="Nombre y apellido">
+                    </div>
+                    <div class="form-group">
+                        <label>📧 Correo Electrónico *</label>
+                        <input type="email" id="usuarioEmail" required placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>🔑 Contraseña <span style="color: #ef4444; font-size: 12px;">(Requerida)</span></label>
+                        <input type="password" id="usuarioPassword" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <select id="usuarioRol">
+                            <option value="administrador">👑 Administrador</option>
+                            <option value="usuario">👤 Usuario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="usuarioEstado">
+                            <option value="activo">✅ Activo</option>
+                            <option value="inactivo">⏸️ Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🔐 Permisos</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="dashboard" id="permisoDashboard" checked>
+                                <label for="permisoDashboard">Dashboard</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="conferencias" id="permisoConferencias" checked>
+                                <label for="permisoConferencias">Conferencias</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="registros" id="permisoRegistros" checked>
+                                <label for="permisoRegistros">Registros</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="reportes" id="permisoReportes" checked>
+                                <label for="permisoReportes">Reportes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="configuracion" id="permisoConfiguracion" checked>
+                                <label for="permisoConfiguracion">Configuración</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="usuarios" id="permisoUsuarios" checked>
+                                <label for="permisoUsuarios">Usuarios</label>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-actions">
+                <div class="modal-footer">
                     <button type="button" onclick="cerrarModal('modalNuevoUsuario')" class="btn">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -830,32 +1030,27 @@
         </div>
     </div>
 
-    <!-- ============================================
-         SCRIPTS - CONFIGURACIÓN DEL ARCHIVO 1 (INTACTA)
-         ============================================ -->
+    <!-- Scripts - MISMO ORDEN QUE EL ARCHIVO 1 -->
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="main.js"></script>
     <script>
         // ============================================
-        // INICIALIZACIÓN - FUNCIONALIDAD DEL ARCHIVO 1
+        // FUNCIONES DE INICIALIZACIÓN Y NAVEGACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
-            // Esperar a que config.js inicialice Supabase
             await new Promise(resolve => setTimeout(resolve, 500));
             
-            // Verificar autenticación
             const user = checkAuth();
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
             
-            // Mostrar información del usuario
             document.querySelector('.usuario-info').textContent = user.nombre;
             document.querySelector('.rol-info').textContent = user.rol;
             
-            // Cargar todos los datos
+            // Cargar datos iniciales
             try {
                 await cargarEstadisticas();
                 await cargarProximasConferencias();
@@ -871,10 +1066,62 @@
                 console.error('❌ Error cargando datos:', error);
                 mostrarMensaje('Error cargando datos: ' + error.message, 'error');
             }
+            
+            // Navegación entre secciones
+            document.querySelectorAll('.nav-sidebar a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = link.getAttribute('href').substring(1);
+                    
+                    // Ocultar todas las secciones
+                    document.querySelectorAll('.main-content > section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Mostrar sección objetivo
+                    const targetSection = document.getElementById(target);
+                    if (targetSection) {
+                        targetSection.style.display = 'block';
+                    }
+                    
+                    // Actualizar link activo
+                    document.querySelectorAll('.nav-sidebar a').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                });
+            });
         });
         
         // ============================================
-        // FUNCIONES DE CARGA - FUNCIONALIDAD DEL ARCHIVO 1
+        // FUNCIONES DE MODAL
+        // ============================================
+        function abrirModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+        
+        function cerrarModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                // Resetear formulario
+                const form = modal.querySelector('form');
+                if (form) form.reset();
+                // Resetear modo edición
+                window.editMode = { tipo: null, id: null };
+            }
+        }
+        
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // ============================================
+        // FUNCIONES DE CARGA DE DATOS (DEL ARCHIVO 1)
         // ============================================
         async function cargarEstadisticas() {
             try {
@@ -885,10 +1132,9 @@
                 document.getElementById('statConferencias').textContent = stats.total_conferencias || 0;
                 document.getElementById('statAsistentes').textContent = stats.total_asistentes || 0;
                 
-                // Actualizar contadores (APARIENCIA ARCHIVO 2)
-                document.getElementById('contadorZonas').textContent = `(${stats.total_zonas || 0})`;
-                document.getElementById('contadorDistritos').textContent = `(${stats.total_distritos || 0})`;
-                document.getElementById('contadorIglesias').textContent = `(${stats.total_iglesias || 0})`;
+                document.getElementById('contadorZonas').textContent = stats.total_zonas || 0;
+                document.getElementById('contadorDistritos').textContent = stats.total_distritos || 0;
+                document.getElementById('contadorIglesias').textContent = stats.total_iglesias || 0;
             } catch (error) {
                 console.error('Error cargando estadísticas:', error);
             }
@@ -931,8 +1177,8 @@
                             <td>${calcularDias(c.fecha_inicio, c.fecha_fin)}</td>
                             <td>${c.conferenciante || 'N/A'}</td>
                             <td>
-                                <button onclick="editarConferencia(${c.id})" class="btn btn-warning">✏️</button>
-                                <button onclick="confirmarEliminarConferencia(${c.id})" class="btn btn-danger">🗑️</button>
+                                <button onclick="editarConferencia(${c.id})" class="btn btn-warning btn-sm">✏️</button>
+                                <button onclick="confirmarEliminarConferencia(${c.id})" class="btn btn-danger btn-sm">🗑️</button>
                             </td>
                         </tr>
                     `).join('');
@@ -954,8 +1200,8 @@
                             <td>${z.nombre}</td>
                             <td>${z.descripcion || 'N/A'}</td>
                             <td>
-                                <button onclick="editarZona(${z.id})" class="btn btn-warning">✏️</button>
-                                <button onclick="confirmarEliminarZona(${z.id})" class="btn btn-danger">🗑️</button>
+                                <button onclick="editarZona(${z.id})" class="btn btn-warning btn-sm">✏️</button>
+                                <button onclick="confirmarEliminarZona(${z.id})" class="btn btn-danger btn-sm">🗑️</button>
                             </td>
                         </tr>
                     `).join('');
@@ -978,8 +1224,8 @@
                             <td>${d.nombre}</td>
                             <td>${d.responsable || 'N/A'}</td>
                             <td>
-                                <button onclick="editarDistrito(${d.id})" class="btn btn-warning">✏️</button>
-                                <button onclick="confirmarEliminarDistrito(${d.id})" class="btn btn-danger">🗑️</button>
+                                <button onclick="editarDistrito(${d.id})" class="btn btn-warning btn-sm">✏️</button>
+                                <button onclick="confirmarEliminarDistrito(${d.id})" class="btn btn-danger btn-sm">🗑️</button>
                             </td>
                         </tr>
                     `).join('');
@@ -1002,8 +1248,8 @@
                             <td>${i.distritos?.nombre || 'N/A'}</td>
                             <td>${i.nombre}</td>
                             <td>
-                                <button onclick="editarIglesia(${i.id})" class="btn btn-warning">✏️</button>
-                                <button onclick="confirmarEliminarIglesia(${i.id})" class="btn btn-danger">🗑️</button>
+                                <button onclick="editarIglesia(${i.id})" class="btn btn-warning btn-sm">✏️</button>
+                                <button onclick="confirmarEliminarIglesia(${i.id})" class="btn btn-danger btn-sm">🗑️</button>
                             </td>
                         </tr>
                     `).join('');
@@ -1019,7 +1265,7 @@
             try {
                 const asistentes = await obtenerAsistentes();
                 const tbody = document.getElementById('tablaAsistentes');
-                document.getElementById('contadorAsistentes').textContent = `(${asistentes?.length || 0})`;
+                document.getElementById('contadorAsistentes').textContent = asistentes?.length || 0;
                 
                 if (asistentes && asistentes.length > 0) {
                     tbody.innerHTML = asistentes.map(a => {
@@ -1039,8 +1285,8 @@
                                 <td>${a.conferencias?.nombre || 'N/A'}</td>
                                 <td>${fechasAsistidas}/${fechasTotales} días</td>
                                 <td>
-                                    <button onclick="editarAsistente(${a.id})" class="btn btn-warning">✏️</button>
-                                    <button onclick="confirmarEliminarAsistente(${a.id})" class="btn btn-danger">🗑️</button>
+                                    <button onclick="editarAsistente(${a.id})" class="btn btn-warning btn-sm">✏️</button>
+                                    <button onclick="confirmarEliminarAsistente(${a.id})" class="btn btn-danger btn-sm">🗑️</button>
                                 </td>
                             </tr>
                         `;
@@ -1065,8 +1311,8 @@
                             <td>${u.rol}</td>
                             <td>${u.estado}</td>
                             <td>
-                                <button onclick="editarUsuario(${u.id})" class="btn btn-warning">✏️</button>
-                                <button onclick="confirmarEliminarUsuario(${u.id})" class="btn btn-danger">🗑️</button>
+                                <button onclick="editarUsuario(${u.id})" class="btn btn-warning btn-sm">✏️</button>
+                                <button onclick="confirmarEliminarUsuario(${u.id})" class="btn btn-danger btn-sm">🗑️</button>
                             </td>
                         </tr>
                     `).join('');
@@ -1101,7 +1347,7 @@
         }
         
         // ============================================
-        // FUNCIONES DE UTILIDAD - APARIENCIA ARCHIVO 2
+        // FUNCIONES DE UTILIDAD
         // ============================================
         function calcularDuracion() {
             const inicio = document.getElementById('confFechaInicio').value;
@@ -1119,7 +1365,6 @@
             const dias = calcularDias(inicio, fin);
             display.textContent = `📅 Duración: ${dias} días`;
             
-            // Generar lista de fechas
             fechasLista.innerHTML = '';
             const fechaInicio = new Date(inicio);
             const fechaFin = new Date(fin);
@@ -1143,7 +1388,6 @@
                 return;
             }
             
-            // Obtener fechas de la conferencia
             const conferencias = window.conferenciasCache || [];
             const conferencia = conferencias.find(c => c.id == conferenciaId);
             
@@ -1269,7 +1513,7 @@
         }
         
         // ============================================
-        // MANEJO DE FORMULARIOS - FUNCIONALIDAD ARCHIVO 1
+        // MANEJO DE FORMULARIOS
         // ============================================
         document.getElementById('formConferencia')?.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1325,7 +1569,7 @@
             }
         });
         
-        // Funciones de guardar
+        // Funciones de guardar (llaman a app.js y main.js)
         async function guardarConferencia(e) {
             e.preventDefault();
             const iglesia_id = document.getElementById('confIglesia').value;

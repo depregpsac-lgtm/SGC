@@ -1,7 +1,7 @@
 // config.js
 const SUPABASE_CONFIG = {
     url: 'https://qalzqyjuyptemtrhwsbz.supabase.co',
-    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhbHpxeWp1eXB0ZW10cmh3c2J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NTQ3NDIsImV4cCI6MjA4ODMzMDc0Mn0.TWMMpc9HXHLUSJBZoHL5w4I1E3zVFPk-eDPxYxCjInI'
+    key: 'sb_publishable_6qbyMCMlswqUm_kuCPJtyA_B7m4xFvr'
 };
 
 // Verificar que Supabase esté cargado antes de inicializar
@@ -18,3 +18,4 @@ if (typeof window.supabase !== 'undefined') {
     console.error('❌ La librería de Supabase no se ha cargado');
 
 }
+

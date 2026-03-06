@@ -13,6 +13,32 @@
     <script src="config.js"></script>
     <script src="app.js"></script>
 
+
+    <script>
+// Verificar conexión con Supabase
+window.addEventListener('DOMContentLoaded', async () => {
+    console.log('🔍 Verificando conexión con Supabase...');
+    
+    try {
+        const { data, error } = await window.db
+            .from('zonas')
+            .select('*')
+            .limit(1);
+        
+        if (error) {
+            console.error('❌ Error de conexión:', error);
+            alert('Error de conexión con la base de datos: ' + error.message);
+        } else {
+            console.log('✅ Conexión exitosa a Supabase');
+            console.log('📊 Datos:', data);
+        }
+    } catch (err) {
+        console.error('❌ Error:', err);
+        alert('Error: ' + err.message);
+    }
+});
+</script>
+
 </head>
 <body class="dashboard-page">
     <!-- Sidebar -->

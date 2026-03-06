@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-    <!-- ✅ Supabase JS Library - CRÍTICO para GitHub Pages -->
+    <!-- ✅ Supabase JS Library - CRÍTICO para GitHub Pages (DEL ARCHIVO 1) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* ============================================
+           ESTILOS VISUALES DEL ARCHIVO 2
+           ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -26,6 +29,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .header h1 {
@@ -36,6 +41,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
         
         .nav {
@@ -44,6 +50,7 @@
             display: flex;
             gap: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
         }
         
         .nav a {
@@ -106,6 +113,12 @@
             border-bottom: 2px solid #e5e7eb;
         }
         
+        .section h3 {
+            color: #1e3a8a;
+            margin: 20px 0 10px;
+            font-size: 18px;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -130,6 +143,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s;
+            margin: 2px;
         }
         
         .btn-primary {
@@ -189,11 +203,15 @@
             max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
+            position: relative;
         }
         
         .modal-content h2 {
             margin-bottom: 20px;
             color: #1e3a8a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .modal-close {
@@ -202,7 +220,12 @@
             font-size: 24px;
             cursor: pointer;
             color: #6b7280;
-            float: right;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            color: #ef4444;
         }
         
         .form-group {
@@ -234,6 +257,7 @@
             gap: 10px;
             justify-content: flex-end;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         
         .checkbox-group {
@@ -298,10 +322,32 @@
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(100%); opacity: 0; }
         }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal-content {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- ============================================
+         HEADER - APARIENCIA DEL ARCHIVO 2
+         ============================================ -->
     <header class="header">
         <h1>🦁 MinistryLion</h1>
         <div class="user-info">
@@ -311,7 +357,9 @@
         </div>
     </header>
     
-    <!-- Navegación -->
+    <!-- ============================================
+         NAVEGACIÓN - APARIENCIA DEL ARCHIVO 2
+         ============================================ -->
     <nav class="nav">
         <a href="#dashboard">📊 Dashboard</a>
         <a href="#conferencias">📅 Conferencias</a>
@@ -321,7 +369,9 @@
         <a href="#usuarios">👤 Usuarios</a>
     </nav>
     
-    <!-- Contenido Principal -->
+    <!-- ============================================
+         CONTENIDO PRINCIPAL - APARIENCIA DEL ARCHIVO 2
+         ============================================ -->
     <main class="main-content">
         <!-- Estadísticas -->
         <section id="dashboard" class="section">
@@ -351,7 +401,7 @@
             </div>
         </section>
         
-        <!-- Próximas Conferencias -->
+        <!-- Próximas Conferencias - APARIENCIA ARCHIVO 2 -->
         <section class="section">
             <h2>📅 Próximas Conferencias</h2>
             <table>
@@ -391,7 +441,7 @@
             </table>
         </section>
         
-        <!-- Registros de Asistentes -->
+        <!-- Registros de Asistentes - CON CONTADOR -->
         <section id="asistentes" class="section">
             <h2>👥 Registros de Asistentes <span id="contadorAsistentes">(0)</span></h2>
             <button onclick="abrirModal('modalNuevoAsistente')" class="btn btn-primary">➕ Nuevo</button>
@@ -412,7 +462,7 @@
             </table>
         </section>
         
-        <!-- Reportes -->
+        <!-- Reportes - APARIENCIA ARCHIVO 2 -->
         <section id="reportes" class="section">
             <h2>📈 Reportes</h2>
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
@@ -433,12 +483,12 @@
             </div>
         </section>
         
-        <!-- Configuración - Zonas -->
+        <!-- Configuración - CON CONTADORES -->
         <section id="configuracion" class="section">
             <h2>⚙️ Configuración</h2>
             <p style="margin-bottom: 15px; color: #6b7280;">Estructura: Zonas → Distritos → Iglesias</p>
             
-            <h3 style="margin: 20px 0 10px; color: #1e3a8a;">📍 Zonas <span id="contadorZonas">(0)</span></h3>
+            <h3>📍 Zonas <span id="contadorZonas">(0)</span></h3>
             <button onclick="abrirModal('modalNuevaZona')" class="btn btn-primary">➕ Registrar</button>
             <table style="margin-top: 15px;">
                 <thead>
@@ -453,7 +503,7 @@
                 </tbody>
             </table>
             
-            <h3 style="margin: 20px 0 10px; color: #1e3a8a;">🏛️ Distritos <span id="contadorDistritos">(0)</span></h3>
+            <h3>🏛️ Distritos <span id="contadorDistritos">(0)</span></h3>
             <button onclick="abrirModal('modalNuevoDistrito')" class="btn btn-primary">➕ Registrar</button>
             <table style="margin-top: 15px;">
                 <thead>
@@ -469,7 +519,7 @@
                 </tbody>
             </table>
             
-            <h3 style="margin: 20px 0 10px; color: #1e3a8a;">⛪ Iglesias <span id="contadorIglesias">(0)</span></h3>
+            <h3>⛪ Iglesias <span id="contadorIglesias">(0)</span></h3>
             <button onclick="abrirModal('modalNuevaIglesia')" class="btn btn-primary">➕ Registrar</button>
             <table style="margin-top: 15px;">
                 <thead>
@@ -507,7 +557,9 @@
         </section>
     </main>
     
-    <!-- ==================== MODALES ==================== -->
+    <!-- ============================================
+         MODALES - APARIENCIA DEL ARCHIVO 2
+         ============================================ -->
     
     <!-- Modal Nueva Conferencia -->
     <div id="modalNuevaConferencia" class="modal">
@@ -778,13 +830,15 @@
         </div>
     </div>
 
-    <!-- ✅ ORDEN CRÍTICO PARA GITHUB PAGES - IGUAL QUE EL ARCHIVO 1 -->
+    <!-- ============================================
+         SCRIPTS - CONFIGURACIÓN DEL ARCHIVO 1 (INTACTA)
+         ============================================ -->
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="main.js"></script>
     <script>
         // ============================================
-        // INICIALIZACIÓN - Compatible con GitHub Pages
+        // INICIALIZACIÓN - FUNCIONALIDAD DEL ARCHIVO 1
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
             // Esperar a que config.js inicialice Supabase
@@ -820,7 +874,7 @@
         });
         
         // ============================================
-        // FUNCIONES DE CARGA DE DATOS
+        // FUNCIONES DE CARGA - FUNCIONALIDAD DEL ARCHIVO 1
         // ============================================
         async function cargarEstadisticas() {
             try {
@@ -831,7 +885,7 @@
                 document.getElementById('statConferencias').textContent = stats.total_conferencias || 0;
                 document.getElementById('statAsistentes').textContent = stats.total_asistentes || 0;
                 
-                // Actualizar contadores
+                // Actualizar contadores (APARIENCIA ARCHIVO 2)
                 document.getElementById('contadorZonas').textContent = `(${stats.total_zonas || 0})`;
                 document.getElementById('contadorDistritos').textContent = `(${stats.total_distritos || 0})`;
                 document.getElementById('contadorIglesias').textContent = `(${stats.total_iglesias || 0})`;
@@ -1047,7 +1101,7 @@
         }
         
         // ============================================
-        // FUNCIONES DE UTILIDAD
+        // FUNCIONES DE UTILIDAD - APARIENCIA ARCHIVO 2
         // ============================================
         function calcularDuracion() {
             const inicio = document.getElementById('confFechaInicio').value;
@@ -1215,7 +1269,7 @@
         }
         
         // ============================================
-        // MANEJO DE FORMULARIOS
+        // MANEJO DE FORMULARIOS - FUNCIONALIDAD ARCHIVO 1
         // ============================================
         document.getElementById('formConferencia')?.addEventListener('submit', async (e) => {
             e.preventDefault();

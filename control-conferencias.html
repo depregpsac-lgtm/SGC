@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-    <!-- Supabase JS Library - CRÍTICO: Cargar antes de config.js -->
+    <!-- ✅ Supabase JS Library - CRÍTICO para GitHub Pages -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -26,6 +26,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .header h1 {
@@ -36,6 +38,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
         
         .nav {
@@ -44,6 +47,7 @@
             display: flex;
             gap: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
         }
         
         .nav a {
@@ -109,12 +113,21 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+        }
+        
+        table thead, table tbody {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
         }
         
         table th, table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
+            word-wrap: break-word;
         }
         
         table th {
@@ -130,6 +143,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s;
+            margin: 2px;
         }
         
         .btn-primary {
@@ -159,6 +173,15 @@
             background: #d97706;
         }
         
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -177,14 +200,26 @@
             padding: 30px;
             border-radius: 12px;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
+            position: relative;
         }
         
         .modal-content h2 {
             margin-bottom: 20px;
             color: #1e3a8a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
         }
         
         .form-group {
@@ -198,7 +233,7 @@
             font-weight: 500;
         }
         
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 2px solid #e5e7eb;
@@ -206,7 +241,7 @@
             font-size: 14px;
         }
         
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #3b82f6;
         }
@@ -216,6 +251,60 @@
             gap: 10px;
             justify-content: flex-end;
             margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .duration-display {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
+        .fechas-container {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .fecha-checkbox {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .fecha-checkbox.checked {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        
+        .attendance-summary {
+            background: #ecfdf5;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            color: #059669;
+            font-weight: 500;
         }
         
         @keyframes slideIn {
@@ -227,9 +316,38 @@
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(100%); opacity: 0; }
         }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal-content {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            table th, table td {
+                padding: 8px 4px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <h1>🦁 MinistryLion</h1>
         <div class="user-info">
@@ -239,18 +357,20 @@
         </div>
     </header>
     
+    <!-- Navegación -->
     <nav class="nav">
-        <a href="#">📊 Dashboard</a>
-        <a href="#">📅 Conferencias</a>
-        <a href="#">👥 Registros</a>
-        <a href="#">📈 Reportes</a>
-        <a href="#">⚙️ Configuración</a>
-        <a href="#">👤 Usuarios</a>
+        <a href="#dashboard">📊 Dashboard</a>
+        <a href="#conferencias">📅 Conferencias</a>
+        <a href="#asistentes">👥 Registros</a>
+        <a href="#reportes">📈 Reportes</a>
+        <a href="#configuracion">⚙️ Configuración</a>
+        <a href="#usuarios">👤 Usuarios</a>
     </nav>
     
+    <!-- Contenido Principal -->
     <main class="main-content">
         <!-- Estadísticas -->
-        <section class="section">
+        <section id="dashboard" class="section">
             <h2>📊 Panel Principal</h2>
             <p style="margin-bottom: 20px; color: #6b7280;">Bienvenido al sistema de control</p>
             <div class="stats-grid">
@@ -277,8 +397,26 @@
             </div>
         </section>
         
-        <!-- Conferencias -->
+        <!-- Próximas Conferencias -->
         <section class="section">
+            <h2>📅 Próximas Conferencias</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Evento</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Orador</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProximasConferencias">
+                    <tr><td colspan="4">No hay conferencias registradas</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Gestión de Conferencias -->
+        <section id="conferencias" class="section">
             <h2>📅 Gestión de Conferencias</h2>
             <button onclick="abrirModal('modalNuevaConferencia')" class="btn btn-primary">➕ Nueva</button>
             <table style="margin-top: 15px;">
@@ -299,9 +437,9 @@
             </table>
         </section>
         
-        <!-- Asistentes -->
-        <section class="section">
-            <h2>👥 Registros de Asistentes</h2>
+        <!-- Registros de Asistentes -->
+        <section id="asistentes" class="section">
+            <h2>👥 Registros de Asistentes <span id="contadorAsistentes">(0)</span></h2>
             <button onclick="abrirModal('modalNuevoAsistente')" class="btn btn-primary">➕ Nuevo</button>
             <table style="margin-top: 15px;">
                 <thead>
@@ -320,9 +458,33 @@
             </table>
         </section>
         
-        <!-- Zonas -->
-        <section class="section">
-            <h2>📍 Zonas</h2>
+        <!-- Reportes -->
+        <section id="reportes" class="section">
+            <h2>📈 Reportes</h2>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                <button onclick="generarReporte('preview')" class="btn btn-primary">📄 Generar Vista Previa</button>
+                <button onclick="generarReporte('pdf')" class="btn btn-success">📥 Descargar PDF</button>
+            </div>
+            <div class="form-group">
+                <label>Conferencia *</label>
+                <select id="reporteConferencia">
+                    <option value="">-- Seleccione Conferencia --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Iglesia</label>
+                <select id="reporteIglesia">
+                    <option value="">-- Todas las Iglesias --</option>
+                </select>
+            </div>
+        </section>
+        
+        <!-- Configuración - Zonas -->
+        <section id="configuracion" class="section">
+            <h2>⚙️ Configuración</h2>
+            <p style="margin-bottom: 15px; color: #6b7280;">Estructura: Zonas → Distritos → Iglesias</p>
+            
+            <h3 style="margin: 20px 0 10px; color: #1e3a8a;">📍 Zonas <span id="contadorZonas">(0)</span></h3>
             <button onclick="abrirModal('modalNuevaZona')" class="btn btn-primary">➕ Registrar</button>
             <table style="margin-top: 15px;">
                 <thead>
@@ -336,11 +498,8 @@
                     <tr><td colspan="3">Sin zonas</td></tr>
                 </tbody>
             </table>
-        </section>
-        
-        <!-- Distritos -->
-        <section class="section">
-            <h2>🏛️ Distritos</h2>
+            
+            <h3 style="margin: 20px 0 10px; color: #1e3a8a;">🏛️ Distritos <span id="contadorDistritos">(0)</span></h3>
             <button onclick="abrirModal('modalNuevoDistrito')" class="btn btn-primary">➕ Registrar</button>
             <table style="margin-top: 15px;">
                 <thead>
@@ -355,11 +514,8 @@
                     <tr><td colspan="4">Sin distritos</td></tr>
                 </tbody>
             </table>
-        </section>
-        
-        <!-- Iglesias -->
-        <section class="section">
-            <h2>⛪ Iglesias</h2>
+            
+            <h3 style="margin: 20px 0 10px; color: #1e3a8a;">⛪ Iglesias <span id="contadorIglesias">(0)</span></h3>
             <button onclick="abrirModal('modalNuevaIglesia')" class="btn btn-primary">➕ Registrar</button>
             <table style="margin-top: 15px;">
                 <thead>
@@ -376,8 +532,8 @@
             </table>
         </section>
         
-        <!-- Usuarios -->
-        <section class="section">
+        <!-- Gestión de Usuarios -->
+        <section id="usuarios" class="section">
             <h2>👤 Gestión de Usuarios</h2>
             <button onclick="abrirModal('modalNuevoUsuario')" class="btn btn-primary">➕ Nuevo</button>
             <table style="margin-top: 15px;">
@@ -397,30 +553,44 @@
         </section>
     </main>
     
-    <!-- Modales -->
+    <!-- ==================== MODALES ==================== -->
+    
+    <!-- Modal Nueva Conferencia -->
     <div id="modalNuevaConferencia" class="modal">
         <div class="modal-content">
-            <h2>📅 Nueva Conferencia</h2>
+            <h2>
+                📅 Nueva Conferencia
+                <button type="button" class="modal-close" onclick="cerrarModal('modalNuevaConferencia')">×</button>
+            </h2>
             <form id="formConferencia">
                 <div class="form-group">
                     <label>Nombre *</label>
-                    <input type="text" id="confNombre" required>
+                    <input type="text" id="confNombre" required placeholder="Ej: Conferencia Anual 2026">
                 </div>
                 <div class="form-group">
                     <label>Iglesia Sede *</label>
-                    <select id="confIglesia" required></select>
+                    <select id="confIglesia" required>
+                        <option value="">-- Seleccione --</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Fecha Inicio *</label>
-                    <input type="date" id="confFechaInicio" required>
+                    <input type="date" id="confFechaInicio" required onchange="calcularDuracion()">
                 </div>
                 <div class="form-group">
                     <label>Fecha Fin *</label>
-                    <input type="date" id="confFechaFin" required>
+                    <input type="date" id="confFechaFin" required onchange="calcularDuracion()">
+                </div>
+                <div class="duration-display" id="duracionDisplay">
+                    📅 Duración: 0 días
+                </div>
+                <div class="fechas-container" id="fechasContainer" style="display: none;">
+                    <label>📋 Fechas:</label>
+                    <div id="fechasLista" style="margin-top: 10px;"></div>
                 </div>
                 <div class="form-group">
                     <label>Conferenciante</label>
-                    <input type="text" id="confConferenciante">
+                    <input type="text" id="confConferenciante" placeholder="Nombre del orador principal">
                 </div>
                 <div class="form-actions">
                     <button type="button" onclick="cerrarModal('modalNuevaConferencia')" class="btn">Cancelar</button>
@@ -430,33 +600,48 @@
         </div>
     </div>
     
+    <!-- Modal Nuevo Asistente -->
     <div id="modalNuevoAsistente" class="modal">
         <div class="modal-content">
-            <h2>👥 Nuevo Registro</h2>
+            <h2>
+                👥 Nuevo Registro
+                <button type="button" class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">×</button>
+            </h2>
             <form id="formAsistente">
                 <div class="form-group">
                     <label>Nombre Completo *</label>
-                    <input type="text" id="asistNombre" required>
+                    <input type="text" id="asistNombre" required placeholder="Nombre y apellido">
                 </div>
                 <div class="form-group">
                     <label>Dirección</label>
-                    <input type="text" id="asistDireccion">
+                    <input type="text" id="asistDireccion" placeholder="Dirección completa">
                 </div>
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="tel" id="asistTelefono">
+                    <input type="tel" id="asistTelefono" placeholder="Número de contacto">
                 </div>
                 <div class="form-group">
                     <label>Invitado Por</label>
-                    <input type="text" id="asistInvitadoPor">
+                    <input type="text" id="asistInvitadoPor" placeholder="Persona que lo invitó">
                 </div>
                 <div class="form-group">
                     <label>Iglesia</label>
-                    <select id="asistIglesia"></select>
+                    <select id="asistIglesia">
+                        <option value="">-- Seleccione --</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Conferencia *</label>
-                    <select id="asistConferencia" required></select>
+                    <select id="asistConferencia" required onchange="cargarFechasAsistencia()">
+                        <option value="">-- Seleccione --</option>
+                    </select>
+                </div>
+                <div class="fechas-container" id="asistenteFechasContainer" style="display: none;">
+                    <label>✅ Marque los días que asistió:</label>
+                    <div id="asistenteFechasLista" style="margin: 10px 0;"></div>
+                    <div class="attendance-summary" id="asistenciaResumen">
+                        ✅ 0 días asistidos de 0 totales
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="button" onclick="cerrarModal('modalNuevoAsistente')" class="btn">Cancelar</button>
@@ -466,17 +651,21 @@
         </div>
     </div>
     
+    <!-- Modal Nueva Zona -->
     <div id="modalNuevaZona" class="modal">
         <div class="modal-content">
-            <h2>📍 Registrar Zona</h2>
+            <h2>
+                📍 Registrar Zona
+                <button type="button" class="modal-close" onclick="cerrarModal('modalNuevaZona')">×</button>
+            </h2>
             <form id="formZona">
                 <div class="form-group">
                     <label>Nombre *</label>
-                    <input type="text" id="zonaNombre" required>
+                    <input type="text" id="zonaNombre" required placeholder="Nombre de la zona">
                 </div>
                 <div class="form-group">
                     <label>Descripción</label>
-                    <input type="text" id="zonaDescripcion">
+                    <input type="text" id="zonaDescripcion" placeholder="Descripción opcional">
                 </div>
                 <div class="form-actions">
                     <button type="button" onclick="cerrarModal('modalNuevaZona')" class="btn">Cancelar</button>
@@ -486,25 +675,31 @@
         </div>
     </div>
     
+    <!-- Modal Nuevo Distrito -->
     <div id="modalNuevoDistrito" class="modal">
         <div class="modal-content">
-            <h2>🏛️ Registrar Distrito</h2>
+            <h2>
+                🏛️ Registrar Distrito
+                <button type="button" class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">×</button>
+            </h2>
             <form id="formDistrito">
                 <div class="form-group">
                     <label>Zona *</label>
-                    <select id="distritoZona" required></select>
+                    <select id="distritoZona" required>
+                        <option value="">-- Seleccione --</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Nombre *</label>
-                    <input type="text" id="distritoNombre" required>
+                    <input type="text" id="distritoNombre" required placeholder="Nombre del distrito">
                 </div>
                 <div class="form-group">
                     <label>Responsable</label>
-                    <input type="text" id="distritoResponsable">
+                    <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
                 </div>
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="tel" id="distritoTelefono">
+                    <input type="tel" id="distritoTelefono" placeholder="Teléfono de contacto">
                 </div>
                 <div class="form-actions">
                     <button type="button" onclick="cerrarModal('modalNuevoDistrito')" class="btn">Cancelar</button>
@@ -514,33 +709,41 @@
         </div>
     </div>
     
+    <!-- Modal Nueva Iglesia -->
     <div id="modalNuevaIglesia" class="modal">
         <div class="modal-content">
-            <h2>⛪ Registrar Iglesia</h2>
+            <h2>
+                ⛪ Registrar Iglesia
+                <button type="button" class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">×</button>
+            </h2>
             <form id="formIglesia">
                 <div class="form-group">
                     <label>Zona *</label>
-                    <select id="iglesiaZona" required></select>
+                    <select id="iglesiaZona" required onchange="cargarDistritosPorZona()">
+                        <option value="">-- Seleccione --</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Distrito</label>
-                    <select id="iglesiaDistrito"></select>
+                    <select id="iglesiaDistrito">
+                        <option value="">-- Seleccione --</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Nombre Iglesia *</label>
-                    <input type="text" id="iglesiaNombre" required>
+                    <input type="text" id="iglesiaNombre" required placeholder="Nombre de la iglesia">
                 </div>
                 <div class="form-group">
                     <label>Pastor</label>
-                    <input type="text" id="iglesiaPastor">
+                    <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
                 </div>
                 <div class="form-group">
                     <label>Dirección</label>
-                    <input type="text" id="iglesiaDireccion">
+                    <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
                 </div>
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="tel" id="iglesiaTelefono">
+                    <input type="tel" id="iglesiaTelefono" placeholder="Teléfono de la iglesia">
                 </div>
                 <div class="form-actions">
                     <button type="button" onclick="cerrarModal('modalNuevaIglesia')" class="btn">Cancelar</button>
@@ -550,21 +753,25 @@
         </div>
     </div>
     
+    <!-- Modal Nuevo Usuario -->
     <div id="modalNuevoUsuario" class="modal">
         <div class="modal-content">
-            <h2>👤 Nuevo Usuario</h2>
+            <h2>
+                👤 Nuevo Usuario
+                <button type="button" class="modal-close" onclick="cerrarModal('modalNuevoUsuario')">×</button>
+            </h2>
             <form id="formUsuario">
                 <div class="form-group">
                     <label>Nombre Completo *</label>
-                    <input type="text" id="usuarioNombreCompleto" required>
+                    <input type="text" id="usuarioNombreCompleto" required placeholder="Nombre y apellido">
                 </div>
                 <div class="form-group">
-                    <label>Correo Electrónico *</label>
-                    <input type="email" id="usuarioEmail" required>
+                    <label>📧 Correo Electrónico *</label>
+                    <input type="email" id="usuarioEmail" required placeholder="correo@ejemplo.com">
                 </div>
                 <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="usuarioPassword">
+                    <label>🔑 Contraseña <span style="color: #ef4444; font-size: 12px;">(Requerida)</span></label>
+                    <input type="password" id="usuarioPassword" placeholder="Mínimo 6 caracteres">
                 </div>
                 <div class="form-group">
                     <label>Rol</label>
@@ -580,6 +787,35 @@
                         <option value="inactivo">⏸️ Inactivo</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>🔐 Permisos</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="permisos" value="dashboard" id="permisoDashboard" checked>
+                            <label for="permisoDashboard">Dashboard</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="permisos" value="conferencias" id="permisoConferencias" checked>
+                            <label for="permisoConferencias">Conferencias</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="permisos" value="registros" id="permisoRegistros" checked>
+                            <label for="permisoRegistros">Registros</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="permisos" value="reportes" id="permisoReportes" checked>
+                            <label for="permisoReportes">Reportes</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="permisos" value="configuracion" id="permisoConfiguracion" checked>
+                            <label for="permisoConfiguracion">Configuración</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="permisos" value="usuarios" id="permisoUsuarios" checked>
+                            <label for="permisoUsuarios">Usuarios</label>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button type="button" onclick="cerrarModal('modalNuevoUsuario')" class="btn">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
@@ -588,16 +824,19 @@
         </div>
     </div>
 
-    <!-- ORDEN CRÍTICO: config.js → app.js → main.js -->
+    <!-- ✅ ORDEN CRÍTICO PARA GITHUB PAGES -->
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="main.js"></script>
     <script>
-        // Verificar autenticación y cargar datos al cargar la página
+        // ============================================
+        // INICIALIZACIÓN - Compatible con GitHub Pages
+        // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
             // Esperar a que config.js inicialice Supabase
             await new Promise(resolve => setTimeout(resolve, 500));
             
+            // Verificar autenticación
             const user = checkAuth();
             if (!user) {
                 window.location.href = 'index.html';
@@ -608,15 +847,20 @@
             document.querySelector('.usuario-info').textContent = user.nombre;
             document.querySelector('.rol-info').textContent = user.rol;
             
-            // Cargar datos
+            // Aplicar permisos del usuario
+            aplicarPermisos(user.permisos);
+            
+            // Cargar todos los datos
             try {
                 await cargarEstadisticas();
+                await cargarProximasConferencias();
                 await cargarConferencias();
                 await cargarZonas();
                 await cargarDistritos();
                 await cargarIglesias();
                 await cargarAsistentes();
                 await cargarUsuarios();
+                await cargarSelectsReportes();
                 console.log('✅ Todos los datos cargados correctamente');
             } catch (error) {
                 console.error('❌ Error cargando datos:', error);
@@ -624,7 +868,9 @@
             }
         });
         
-        // Funciones de carga de datos (necesarias para que funcione)
+        // ============================================
+        // FUNCIONES DE CARGA DE DATOS
+        // ============================================
         async function cargarEstadisticas() {
             try {
                 const stats = await obtenerEstadisticas();
@@ -633,8 +879,36 @@
                 document.getElementById('statIglesias').textContent = stats.total_iglesias || 0;
                 document.getElementById('statConferencias').textContent = stats.total_conferencias || 0;
                 document.getElementById('statAsistentes').textContent = stats.total_asistentes || 0;
+                
+                // Actualizar contadores
+                document.getElementById('contadorZonas').textContent = `(${stats.total_zonas || 0})`;
+                document.getElementById('contadorDistritos').textContent = `(${stats.total_distritos || 0})`;
+                document.getElementById('contadorIglesias').textContent = `(${stats.total_iglesias || 0})`;
             } catch (error) {
                 console.error('Error cargando estadísticas:', error);
+            }
+        }
+        
+        async function cargarProximasConferencias() {
+            try {
+                const conferencias = await obtenerConferencias();
+                const tbody = document.getElementById('tablaProximasConferencias');
+                const proximas = conferencias.filter(c => new Date(c.fecha_inicio) >= new Date()).slice(0, 5);
+                
+                if (proximas && proximas.length > 0) {
+                    tbody.innerHTML = proximas.map(c => `
+                        <tr>
+                            <td>${c.nombre}</td>
+                            <td>${formatearFechaCorta(c.fecha_inicio)}</td>
+                            <td>${formatearFechaCorta(c.fecha_fin)}</td>
+                            <td>${c.conferenciante || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4">No hay conferencias registradas</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error cargando próximas conferencias:', error);
             }
         }
         
@@ -740,20 +1014,32 @@
             try {
                 const asistentes = await obtenerAsistentes();
                 const tbody = document.getElementById('tablaAsistentes');
+                document.getElementById('contadorAsistentes').textContent = `(${asistentes?.length || 0})`;
+                
                 if (asistentes && asistentes.length > 0) {
-                    tbody.innerHTML = asistentes.map(a => `
-                        <tr>
-                            <td>${a.nombre_completo}</td>
-                            <td>${a.telefono || 'N/A'}</td>
-                            <td>${a.iglesias?.nombre || 'N/A'}</td>
-                            <td>${a.conferencias?.nombre || 'N/A'}</td>
-                            <td>-</td>
-                            <td>
-                                <button onclick="editarAsistente(${a.id})" class="btn btn-warning">✏️</button>
-                                <button onclick="confirmarEliminarAsistente(${a.id})" class="btn btn-danger">🗑️</button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    tbody.innerHTML = asistentes.map(a => {
+                        let fechasAsistidas = 0;
+                        let fechasTotales = 0;
+                        try {
+                            const fechas = JSON.parse(a.fechas_asistencia || '[]');
+                            fechasTotales = fechas.length;
+                            fechasAsistidas = fechas.filter(f => f.asistio).length;
+                        } catch(e) {}
+                        
+                        return `
+                            <tr>
+                                <td>${a.nombre_completo}</td>
+                                <td>${a.telefono || 'N/A'}</td>
+                                <td>${a.iglesias?.nombre || 'N/A'}</td>
+                                <td>${a.conferencias?.nombre || 'N/A'}</td>
+                                <td>${fechasAsistidas}/${fechasTotales} días</td>
+                                <td>
+                                    <button onclick="editarAsistente(${a.id})" class="btn btn-warning">✏️</button>
+                                    <button onclick="confirmarEliminarAsistente(${a.id})" class="btn btn-danger">🗑️</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
                 } else {
                     tbody.innerHTML = '<tr><td colspan="6">Sin datos</td></tr>';
                 }
@@ -787,18 +1073,122 @@
             }
         }
         
-        // Funciones para actualizar selects
+        async function cargarSelectsReportes() {
+            try {
+                const conferencias = await obtenerConferencias();
+                const iglesias = await obtenerIglesias();
+                
+                const confSelect = document.getElementById('reporteConferencia');
+                const iglSelect = document.getElementById('reporteIglesia');
+                
+                if (confSelect) {
+                    confSelect.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' + 
+                        conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+                }
+                
+                if (iglSelect) {
+                    iglSelect.innerHTML = '<option value="">-- Todas las Iglesias --</option>' + 
+                        iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error cargando selects de reportes:', error);
+            }
+        }
+        
+        // ============================================
+        // FUNCIONES DE UTILIDAD
+        // ============================================
+        function calcularDuracion() {
+            const inicio = document.getElementById('confFechaInicio').value;
+            const fin = document.getElementById('confFechaFin').value;
+            const display = document.getElementById('duracionDisplay');
+            const fechasContainer = document.getElementById('fechasContainer');
+            const fechasLista = document.getElementById('fechasLista');
+            
+            if (!inicio || !fin) {
+                display.textContent = '📅 Duración: 0 días';
+                fechasContainer.style.display = 'none';
+                return;
+            }
+            
+            const dias = calcularDias(inicio, fin);
+            display.textContent = `📅 Duración: ${dias} días`;
+            
+            // Generar lista de fechas
+            fechasLista.innerHTML = '';
+            const fechaInicio = new Date(inicio);
+            const fechaFin = new Date(fin);
+            
+            for (let d = new Date(fechaInicio); d <= fechaFin; d.setDate(d.getDate() + 1)) {
+                const fechaStr = d.toISOString().split('T')[0];
+                const label = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+                fechasLista.innerHTML += `<span class="fecha-checkbox">${fechaStr} - ${label}</span>`;
+            }
+            
+            fechasContainer.style.display = 'dias > 1 ? 'block' : 'none';
+        }
+        
+        function cargarFechasAsistencia() {
+            const conferenciaId = document.getElementById('asistConferencia').value;
+            const container = document.getElementById('asistenteFechasContainer');
+            const lista = document.getElementById('asistenteFechasLista');
+            
+            if (!conferenciaId) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            // Obtener fechas de la conferencia
+            const conferencias = window.conferenciasCache || [];
+            const conferencia = conferencias.find(c => c.id == conferenciaId);
+            
+            if (!conferencia) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            const inicio = new Date(conferencia.fecha_inicio);
+            const fin = new Date(conferencia.fecha_fin);
+            
+            lista.innerHTML = '';
+            for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
+                const fechaStr = d.toISOString().split('T')[0];
+                const label = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+                lista.innerHTML += `
+                    <label class="fecha-checkbox" onclick="toggleFechaAsistencia(this, '${fechaStr}')">
+                        <input type="checkbox" value="${fechaStr}" style="display: none;">
+                        ${label}
+                    </label>
+                `;
+            }
+            
+            container.style.display = 'block';
+            actualizarResumenAsistencia();
+        }
+        
+        function toggleFechaAsistencia(element, fecha) {
+            const checkbox = element.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            element.classList.toggle('checked', checkbox.checked);
+            actualizarResumenAsistencia();
+        }
+        
+        function actualizarResumenAsistencia() {
+            const checkboxes = document.querySelectorAll('#asistenteFechasLista input[type="checkbox"]:checked');
+            const total = document.querySelectorAll('#asistenteFechasLista input[type="checkbox"]').length;
+            const resumen = document.getElementById('asistenciaResumen');
+            resumen.textContent = `✅ ${checkboxes.length} días asistidos de ${total} totales`;
+        }
+        
         function actualizarSelectIglesias(iglesias) {
-            const select = document.getElementById('confIglesia');
-            const select2 = document.getElementById('asistIglesia');
-            if (select) {
-                select.innerHTML = '<option value="">-- Seleccione --</option>' + 
-                    iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
-            }
-            if (select2) {
-                select2.innerHTML = '<option value="">-- Seleccione --</option>' + 
-                    iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
-            }
+            const selects = ['confIglesia', 'asistIglesia'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = '<option value="">-- Seleccione --</option>' + 
+                        iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+                }
+            });
         }
         
         function actualizarSelectConferencias(conferencias) {
@@ -807,19 +1197,18 @@
                 select.innerHTML = '<option value="">-- Seleccione --</option>' + 
                     conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
             }
+            window.conferenciasCache = conferencias;
         }
         
         function actualizarSelectZonas(zonas) {
-            const select = document.getElementById('distritoZona');
-            const select2 = document.getElementById('iglesiaZona');
-            if (select) {
-                select.innerHTML = '<option value="">-- Seleccione --</option>' + 
-                    zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
-            }
-            if (select2) {
-                select2.innerHTML = '<option value="">-- Seleccione --</option>' + 
-                    zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
-            }
+            const selects = ['distritoZona', 'iglesiaZona'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = '<option value="">-- Seleccione --</option>' + 
+                        zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
+                }
+            });
         }
         
         function actualizarSelectDistritos(distritos) {
@@ -830,10 +1219,79 @@
             }
         }
         
-        // Manejar formularios
+        function cargarDistritosPorZona() {
+            const zonaId = document.getElementById('iglesiaZona').value;
+            if (!zonaId) {
+                actualizarSelectDistritos([]);
+                return;
+            }
+            
+            obtenerDistritos().then(distritos => {
+                const filtrados = distritos.filter(d => d.zona_id == zonaId);
+                actualizarSelectDistritos(filtrados);
+            });
+        }
+        
+        function aplicarPermisos(permisos) {
+            if (!permisos) return;
+            const permisosArray = JSON.parse(permisos);
+            
+            // Ocultar secciones sin permiso
+            if (!permisosArray.includes('conferencias')) {
+                document.querySelector('a[href="#conferencias"]')?.style.setProperty('display', 'none');
+            }
+            if (!permisosArray.includes('registros')) {
+                document.querySelector('a[href="#asistentes"]')?.style.setProperty('display', 'none');
+            }
+            if (!permisosArray.includes('reportes')) {
+                document.querySelector('a[href="#reportes"]')?.style.setProperty('display', 'none');
+            }
+            if (!permisosArray.includes('configuracion')) {
+                document.querySelector('a[href="#configuracion"]')?.style.setProperty('display', 'none');
+            }
+            if (!permisosArray.includes('usuarios')) {
+                document.querySelector('a[href="#usuarios"]')?.style.setProperty('display', 'none');
+            }
+        }
+        
+        async function generarReporte(tipo) {
+            const conferenciaId = document.getElementById('reporteConferencia').value;
+            const iglesiaId = document.getElementById('reporteIglesia').value;
+            
+            if (!conferenciaId) {
+                mostrarMensaje('❌ Seleccione una conferencia', 'error');
+                return;
+            }
+            
+            mostrarMensaje('📊 Generando reporte...', 'info');
+            
+            try {
+                const asistentes = await obtenerAsistentes(conferenciaId);
+                const filtrados = iglesiaId ? asistentes.filter(a => a.iglesia_id == iglesiaId) : asistentes;
+                
+                if (tipo === 'preview') {
+                    let contenido = `=== REPORTE DE ASISTENCIA ===\n\n`;
+                    contenido += `Conferencia: ${conferenciaId}\n`;
+                    contenido += `Total Asistentes: ${filtrados.length}\n\n`;
+                    filtrados.forEach((a, i) => {
+                        contenido += `${i+1}. ${a.nombre_completo} - ${a.telefono || 'N/A'}\n`;
+                    });
+                    alert(contenido);
+                } else if (tipo === 'pdf') {
+                    // Aquí iría la lógica para generar PDF
+                    mostrarMensaje('📥 Descargando PDF...', 'success');
+                }
+            } catch (error) {
+                mostrarMensaje('❌ Error generando reporte: ' + error.message, 'error');
+            }
+        }
+        
+        // ============================================
+        // MANEJO DE FORMULARIOS
+        // ============================================
         document.getElementById('formConferencia')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (window.editMode.id) {
+            if (window.editMode?.id) {
                 await guardarConferenciaEditada(e);
             } else {
                 await guardarConferencia(e);
@@ -842,7 +1300,7 @@
         
         document.getElementById('formAsistente')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (window.editMode.id) {
+            if (window.editMode?.id) {
                 await guardarAsistenteEditado(e);
             } else {
                 await guardarAsistente(e);
@@ -851,7 +1309,7 @@
         
         document.getElementById('formZona')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (window.editMode.id) {
+            if (window.editMode?.id) {
                 await guardarZonaEditada(e);
             } else {
                 await guardarZona(e);
@@ -860,7 +1318,7 @@
         
         document.getElementById('formDistrito')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (window.editMode.id) {
+            if (window.editMode?.id) {
                 await guardarDistritoEditado(e);
             } else {
                 await guardarDistrito(e);
@@ -869,7 +1327,7 @@
         
         document.getElementById('formIglesia')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (window.editMode.id) {
+            if (window.editMode?.id) {
                 await guardarIglesiaEditada(e);
             } else {
                 await guardarIglesia(e);
@@ -878,14 +1336,14 @@
         
         document.getElementById('formUsuario')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (window.editMode.id) {
+            if (window.editMode?.id) {
                 await guardarUsuarioEditado(e);
             } else {
                 await guardarUsuario(e);
             }
         });
         
-        // Funciones de guardar (nuevas)
+        // Funciones de guardar (llaman a app.js)
         async function guardarConferencia(e) {
             e.preventDefault();
             const iglesia_id = document.getElementById('confIglesia').value;
@@ -899,7 +1357,9 @@
                 mostrarMensaje('✅ Conferencia creada', 'success');
                 cerrarModal('modalNuevaConferencia');
                 await cargarConferencias();
+                await cargarProximasConferencias();
                 await cargarEstadisticas();
+                await cargarSelectsReportes();
                 e.target.reset();
             } catch (error) {
                 mostrarMensaje('❌ ' + error.message, 'error');
@@ -908,13 +1368,20 @@
         
         async function guardarAsistente(e) {
             e.preventDefault();
+            const checkboxes = document.querySelectorAll('#asistenteFechasLista input[type="checkbox"]');
+            const fechasAsistencia = Array.from(checkboxes).map(cb => ({
+                fecha: cb.value,
+                asistio: cb.checked
+            }));
+            
             const datos = {
                 nombre_completo: document.getElementById('asistNombre').value,
                 direccion: document.getElementById('asistDireccion').value,
                 telefono: document.getElementById('asistTelefono').value,
                 invitado_por: document.getElementById('asistInvitadoPor').value,
                 iglesia_id: document.getElementById('asistIglesia').value || null,
-                conferencia_id: document.getElementById('asistConferencia').value
+                conferencia_id: document.getElementById('asistConferencia').value,
+                fechas_asistencia: JSON.stringify(fechasAsistencia)
             };
             
             try {
@@ -922,6 +1389,7 @@
                 mostrarMensaje('✅ Asistente registrado', 'success');
                 cerrarModal('modalNuevoAsistente');
                 await cargarAsistentes();
+                await cargarEstadisticas();
                 e.target.reset();
             } catch (error) {
                 mostrarMensaje('❌ ' + error.message, 'error');
@@ -992,14 +1460,16 @@
             const password = document.getElementById('usuarioPassword').value;
             const rol = document.getElementById('usuarioRol').value;
             const estado = document.getElementById('usuarioEstado').value;
+            const permisosCheckboxes = document.querySelectorAll('input[name="permisos"]:checked');
+            const permisos = Array.from(permisosCheckboxes).map(cb => cb.value);
             
             if (!password) {
-                mostrarMensaje('La contraseña es requerida', 'error');
+                mostrarMensaje('❌ La contraseña es requerida', 'error');
                 return;
             }
             
             try {
-                await crearUsuario(nombre_completo, email, password, rol, '[]', estado);
+                await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
                 mostrarMensaje('✅ Usuario creado', 'success');
                 cerrarModal('modalNuevoUsuario');
                 await cargarUsuarios();

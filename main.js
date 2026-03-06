@@ -1,8 +1,6 @@
 // main.js - Control de botones Editar y Eliminar
 // ============================================
 
-console.log('🔍 main.js cargado');
-
 // Variable global para modo edición
 window.editMode = {
     tipo: null,  // 'zona', 'distrito', 'iglesia', 'conferencia', 'asistente', 'usuario'
@@ -32,7 +30,11 @@ async function editarZona(id) {
         
         // Abrir modal
         abrirModal('modalNuevaZona');
-        document.querySelector('#modalNuevaZona h2').textContent = '✏️ Editar Zona';
+        // CORREGIDO: Cambiar h2 por h3
+        const tituloModal = document.querySelector('#modalNuevaZona h3');
+        if (tituloModal) {
+            tituloModal.textContent = '✏️ Editar Zona';
+        }
         
     } catch (error) {
         mostrarMensaje('Error cargando zona: ' + error.message, 'error');
@@ -57,7 +59,11 @@ async function guardarZonaEditada(e) {
         // Resetear formulario
         window.editMode = { tipo: null, id: null };
         document.getElementById('formZona').onsubmit = guardarZona;
-        document.querySelector('#modalNuevaZona h2').textContent = '📍 Registrar Zona';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevaZona h3');
+        if (tituloModal) {
+            tituloModal.textContent = '📍 Registrar Zona';
+        }
     } catch (error) {
         mostrarMensaje('❌ Error: ' + error.message, 'error');
     }
@@ -104,7 +110,11 @@ async function editarDistrito(id) {
         document.getElementById('formDistrito').onsubmit = guardarDistritoEditado;
         
         abrirModal('modalNuevoDistrito');
-        document.querySelector('#modalNuevoDistrito h2').textContent = '✏️ Editar Distrito';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevoDistrito h3');
+        if (tituloModal) {
+            tituloModal.textContent = '✏️ Editar Distrito';
+        }
         
     } catch (error) {
         mostrarMensaje('Error: ' + error.message, 'error');
@@ -130,7 +140,11 @@ async function guardarDistritoEditado(e) {
         await cargarEstadisticas();
         window.editMode = { tipo: null, id: null };
         document.getElementById('formDistrito').onsubmit = guardarDistrito;
-        document.querySelector('#modalNuevoDistrito h2').textContent = '🏛️ Registrar Distrito';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevoDistrito h3');
+        if (tituloModal) {
+            tituloModal.textContent = '🏛️ Registrar Distrito';
+        }
     } catch (error) {
         mostrarMensaje('❌ ' + error.message, 'error');
     }
@@ -181,7 +195,11 @@ async function editarIglesia(id) {
         document.getElementById('formIglesia').onsubmit = guardarIglesiaEditada;
         
         abrirModal('modalNuevaIglesia');
-        document.querySelector('#modalNuevaIglesia h2').textContent = '✏️ Editar Iglesia';
+        // CORREGIDO - Esta es la línea que causaba tu error
+        const tituloModal = document.querySelector('#modalNuevaIglesia h3');
+        if (tituloModal) {
+            tituloModal.textContent = '✏️ Editar Iglesia';
+        }
         
     } catch (error) {
         mostrarMensaje('Error: ' + error.message, 'error');
@@ -209,7 +227,11 @@ async function guardarIglesiaEditada(e) {
         await cargarEstadisticas();
         window.editMode = { tipo: null, id: null };
         document.getElementById('formIglesia').onsubmit = guardarIglesia;
-        document.querySelector('#modalNuevaIglesia h2').textContent = '⛪ Registrar Iglesia';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevaIglesia h3');
+        if (tituloModal) {
+            tituloModal.textContent = '⛪ Registrar Iglesia';
+        }
     } catch (error) {
         mostrarMensaje('❌ ' + error.message, 'error');
     }
@@ -257,7 +279,11 @@ async function editarConferencia(id) {
         document.getElementById('formConferencia').onsubmit = guardarConferenciaEditada;
         
         abrirModal('modalNuevaConferencia');
-        document.querySelector('#modalNuevaConferencia h2').textContent = '✏️ Editar Conferencia';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevaConferencia h3');
+        if (tituloModal) {
+            tituloModal.textContent = '✏️ Editar Conferencia';
+        }
         
     } catch (error) {
         mostrarMensaje('Error: ' + error.message, 'error');
@@ -284,7 +310,11 @@ async function guardarConferenciaEditada(e) {
         await cargarEstadisticas();
         window.editMode = { tipo: null, id: null };
         document.getElementById('formConferencia').onsubmit = guardarConferencia;
-        document.querySelector('#modalNuevaConferencia h2').textContent = '📅 Nueva Conferencia';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevaConferencia h3');
+        if (tituloModal) {
+            tituloModal.textContent = '📅 Nueva Conferencia';
+        }
     } catch (error) {
         mostrarMensaje('❌ ' + error.message, 'error');
     }
@@ -335,7 +365,11 @@ async function editarAsistente(id) {
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
         abrirModal('modalNuevoAsistente');
-        document.querySelector('#modalNuevoAsistente h2').textContent = '✏️ Editar Asistente';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevoAsistente h3');
+        if (tituloModal) {
+            tituloModal.textContent = '✏️ Editar Asistente';
+        }
         
     } catch (error) {
         mostrarMensaje('Error: ' + error.message, 'error');
@@ -364,7 +398,11 @@ async function guardarAsistenteEditado(e) {
         await cargarAsistentes();
         window.editMode = { tipo: null, id: null };
         document.getElementById('formAsistente').onsubmit = guardarAsistente;
-        document.querySelector('#modalNuevoAsistente h2').textContent = '👥 Nuevo Registro';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevoAsistente h3');
+        if (tituloModal) {
+            tituloModal.textContent = '👥 Nuevo Registro';
+        }
     } catch (error) {
         mostrarMensaje('❌ ' + error.message, 'error');
     }
@@ -414,7 +452,11 @@ async function editarUsuario(id) {
         document.getElementById('formUsuario').onsubmit = guardarUsuarioEditado;
         
         abrirModal('modalNuevoUsuario');
-        document.querySelector('#modalNuevoUsuario h2').textContent = '✏️ Editar Usuario';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevoUsuario h3');
+        if (tituloModal) {
+            tituloModal.textContent = '✏️ Editar Usuario';
+        }
         
     } catch (error) {
         mostrarMensaje('Error: ' + error.message, 'error');
@@ -440,14 +482,18 @@ async function guardarUsuarioEditado(e) {
     window.tempPassword = password;
 
     try {
-        await actualizarUsuario(window.editMode.id, nombre_completo, email, rol, JSON.stringify(permisos), estado);
+        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario actualizado', 'success');
         cerrarModal('modalNuevoUsuario');
         await cargarUsuarios();
         window.editMode = { tipo: null, id: null };
         window.tempPassword = '';
         document.getElementById('formUsuario').onsubmit = guardarUsuario;
-        document.querySelector('#modalNuevoUsuario h2').textContent = '👤 Nuevo Usuario';
+        // CORREGIDO
+        const tituloModal = document.querySelector('#modalNuevoUsuario h3');
+        if (tituloModal) {
+            tituloModal.textContent = '👤 Nuevo Usuario';
+        }
     } catch (error) {
         mostrarMensaje('❌ ' + error.message, 'error');
     }
@@ -492,30 +538,6 @@ function mostrarMensaje(mensaje, tipo = 'info') {
         toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
-}
-
-// Funciones de modal (necesarias para los modales)
-function abrirModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'flex';
-        modal.style.position = 'fixed';
-        modal.style.top = '0';
-        modal.style.left = '0';
-        modal.style.width = '100%';
-        modal.style.height = '100%';
-        modal.style.background = 'rgba(0,0,0,0.5)';
-        modal.style.justifyContent = 'center';
-        modal.style.alignItems = 'center';
-        modal.style.zIndex = '1000';
-    }
-}
-
-function cerrarModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-    }
 }
 
 // Animaciones para toast

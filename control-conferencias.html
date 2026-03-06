@@ -551,7 +551,8 @@
             <div class="section" style="display: block;">
                 <div class="section-header">
                     <h2>Conferencias</h2>
-                    <button onclick="abrirModal('modalNuevaConferencia')" class="btn btn-primary">➕ Nueva</button>
+                    <!-- BOTÓN MODIFICADO PARA CARGAR IGLESIAS -->
+                    <button onclick="abrirModalConferencia()" class="btn btn-primary">➕ Nueva</button>
                 </div>
                 <table>
                     <thead>
@@ -581,7 +582,6 @@
             <div class="section" style="display: block;">
                 <div class="section-header">
                     <h2>Asistentes <span class="counter" id="contadorAsistentes">0</span></h2>
-                    <!-- BOTÓN MODIFICADO PARA CARGAR SELECTS -->
                     <button onclick="abrirModalAsistente()" class="btn btn-primary">➕ Nuevo</button>
                 </div>
                 <table>
@@ -749,7 +749,7 @@
                     <div class="form-group">
                         <label>Iglesia Sede *</label>
                         <select id="confIglesia" required>
-                            <option value="">-- Seleccione --</option>
+                            <option value="">-- Seleccione Iglesia --</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -1101,8 +1101,32 @@
         }
         
         // ============================================
-        // FUNCIONES PARA CARGAR SELECTS EN ASISTENTES
+        // FUNCIONES PARA CARGAR SELECTS
         // ============================================
+        
+        // Función para abrir modal de conferencia cargando iglesias
+        async function abrirModalConferencia() {
+            try {
+                // Cargar iglesias desde la base de datos
+                const iglesias = await obtenerIglesias();
+                const select = document.getElementById('confIglesia');
+                
+                if (select && iglesias) {
+                    select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>';
+                    iglesias.forEach(iglesia => {
+                        const option = document.createElement('option');
+                        option.value = iglesia.id;
+                        option.textContent = iglesia.nombre;
+                        select.appendChild(option);
+                    });
+                }
+                
+                abrirModal('modalNuevaConferencia');
+            } catch (error) {
+                console.error('Error cargando iglesias:', error);
+                mostrarMensaje('Error cargando iglesias: ' + error.message, 'error');
+            }
+        }
         
         // Cargar iglesias en el modal de asistente
         async function cargarIglesiasEnAsistente() {

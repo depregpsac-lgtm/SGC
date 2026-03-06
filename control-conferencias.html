@@ -1473,6 +1473,7 @@
             return diffDays;
         }
         
+        // NUEVA FUNCIÓN: Cargar fechas de asistencia cuando se selecciona una conferencia
         function cargarFechasAsistencia() {
             const conferenciaId = document.getElementById('asistConferencia').value;
             const container = document.getElementById('asistenteFechasContainer');
@@ -1483,6 +1484,7 @@
                 return;
             }
             
+            // Obtener la conferencia seleccionada
             if (!window.conferenciasCache) {
                 obtenerConferencias().then(conferencias => {
                     window.conferenciasCache = conferencias;

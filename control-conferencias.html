@@ -1199,20 +1199,24 @@
                 const conferencias = await obtenerConferencias();
                 const tbody = document.getElementById('tablaConferencias');
                 if (conferencias && conferencias.length > 0) {
-                    tbody.innerHTML = conferencias.map(c => `
-                        <tr>
-                            <td>${c.nombre}</td>
-                            <td>${c.iglesias?.nombre || 'N/A'}</td>
-                            <td>${formatearFechaCorta(c.fecha_inicio)}</td>
-                            <td>${formatearFechaCorta(c.fecha_fin)}</td>
-                            <td>${calcularDias(c.fecha_inicio, c.fecha_fin)}</td>
-                            <td>${c.conferenciante || 'N/A'}</td>
-                            <td>
-                                <button onclick="editarConferencia(${c.id})" class="btn btn-warning btn-sm">✏️</button>
-                                <button onclick="confirmarEliminarConferencia(${c.id})" class="btn btn-danger btn-sm">🗑️</button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    tbody.innerHTML = conferencias.map(c => {
+                        // Calcular días correctamente
+                        const dias = calcularDiasCorrecto(c.fecha_inicio, c.fecha_fin);
+                        return `
+                            <tr>
+                                <td>${c.nombre}</td>
+                                <td>${c.iglesias?.nombre || 'N/A'}</td>
+                                <td>${formatearFechaCorta(c.fecha_inicio)}</td>
+                                <td>${formatearFechaCorta(c.fecha_fin)}</td>
+                                <td>${dias}</td>
+                                <td>${c.conferenciante || 'N/A'}</td>
+                                <td>
+                                    <button onclick="editarConferencia(${c.id})" class="btn btn-warning btn-sm">✏️</button>
+                                    <button onclick="confirmarEliminarConferencia(${c.id})" class="btn btn-danger btn-sm">🗑️</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
                 } else {
                     tbody.innerHTML = '<tr><td colspan="7">Sin datos</td></tr>';
                 }
@@ -1378,8 +1382,10 @@
         }
         
         // ============================================
-        // FUNCIONES DE UTILIDAD
+        // FUNCIONES DE UTILIDAD - CORREGIDAS
         // ============================================
+        
+        // Función corregida para calcular duración mostrando días reales
         function calcularDuracion() {
             const inicio = document.getElementById('confFechaInicio').value;
             const fin = document.getElementById('confFechaFin').value;
@@ -1393,12 +1399,13 @@
                 return;
             }
             
-            const dias = calcularDias(inicio, fin);
-            display.textContent = `📅 Duración: ${dias} días`;
+            const dias = calcularDiasCorrecto(inicio, fin);
+            display.textContent = `📅 Duración: ${dias} día${dias !== 1 ? 's' : ''}`;
             
+            // Generar lista de fechas
             fechasLista.innerHTML = '';
-            const fechaInicio = new Date(inicio);
-            const fechaFin = new Date(fin);
+            const fechaInicio = new Date(inicio + 'T00:00:00');
+            const fechaFin = new Date(fin + 'T00:00:00');
             
             for (let d = new Date(fechaInicio); d <= fechaFin; d.setDate(d.getDate() + 1)) {
                 const fechaStr = d.toISOString().split('T')[0];
@@ -1407,6 +1414,23 @@
             }
             
             fechasContainer.style.display = dias > 1 ? 'block' : 'none';
+        }
+        
+        // Función corregida para calcular días correctamente (sin restar un día)
+        function calcularDiasCorrecto(inicio, fin) {
+            if (!inicio || !fin) return 0;
+            
+            // Crear fechas sin hora para evitar problemas de zona horaria
+            const fechaInicio = new Date(inicio + 'T00:00:00');
+            const fechaFin = new Date(fin + 'T00:00:00');
+            
+            // Calcular diferencia en milisegundos
+            const diffTime = fechaFin - fechaInicio;
+            
+            // Convertir a días y sumar 1 (porque incluye ambos días)
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            
+            return diffDays;
         }
         
         function cargarFechasAsistencia() {
@@ -1437,13 +1461,13 @@
                 return;
             }
             
-            const inicio = new Date(conferencia.fecha_inicio);
-            const fin = new Date(conferencia.fecha_fin);
+            const inicio = new Date(conferencia.fecha_inicio + 'T00:00:00');
+            const fin = new Date(conferencia.fecha_fin + 'T00:00:00');
             
             lista.innerHTML = '';
             for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
                 const fechaStr = d.toISOString().split('T')[0];
-                const label = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+                const label = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
                 lista.innerHTML += `
                     <label class="fecha-checkbox" onclick="toggleFechaAsistencia(this, '${fechaStr}')">
                         <input type="checkbox" value="${fechaStr}" style="display: none;">

@@ -26,8 +26,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
         }
         
         .header h1 {
@@ -38,7 +36,6 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            flex-wrap: wrap;
         }
         
         .nav {
@@ -47,7 +44,6 @@
             display: flex;
             gap: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            flex-wrap: wrap;
         }
         
         .nav a {
@@ -113,21 +109,12 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            overflow-x: auto;
-            display: block;
-        }
-        
-        table thead, table tbody {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
         }
         
         table th, table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
-            word-wrap: break-word;
         }
         
         table th {
@@ -143,7 +130,6 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s;
-            margin: 2px;
         }
         
         .btn-primary {
@@ -200,18 +186,14 @@
             padding: 30px;
             border-radius: 12px;
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
-            position: relative;
         }
         
         .modal-content h2 {
             margin-bottom: 20px;
             color: #1e3a8a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .modal-close {
@@ -220,6 +202,7 @@
             font-size: 24px;
             cursor: pointer;
             color: #6b7280;
+            float: right;
         }
         
         .form-group {
@@ -233,7 +216,7 @@
             font-weight: 500;
         }
         
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 10px;
             border: 2px solid #e5e7eb;
@@ -241,7 +224,7 @@
             font-size: 14px;
         }
         
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: #3b82f6;
         }
@@ -251,7 +234,6 @@
             gap: 10px;
             justify-content: flex-end;
             margin-top: 20px;
-            flex-wrap: wrap;
         }
         
         .checkbox-group {
@@ -315,34 +297,6 @@
         @keyframes slideOut {
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(100%); opacity: 0; }
-        }
-        
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .nav {
-                justify-content: center;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .modal-content {
-                margin: 10px;
-                max-width: calc(100% - 20px);
-            }
-            
-            table {
-                font-size: 12px;
-            }
-            
-            table th, table td {
-                padding: 8px 4px;
-            }
         }
     </style>
 </head>
@@ -824,7 +778,7 @@
         </div>
     </div>
 
-    <!-- ✅ ORDEN CRÍTICO PARA GITHUB PAGES -->
+    <!-- ✅ ORDEN CRÍTICO PARA GITHUB PAGES - IGUAL QUE EL ARCHIVO 1 -->
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="main.js"></script>
@@ -846,9 +800,6 @@
             // Mostrar información del usuario
             document.querySelector('.usuario-info').textContent = user.nombre;
             document.querySelector('.rol-info').textContent = user.rol;
-            
-            // Aplicar permisos del usuario
-            aplicarPermisos(user.permisos);
             
             // Cargar todos los datos
             try {
@@ -1125,7 +1076,7 @@
                 fechasLista.innerHTML += `<span class="fecha-checkbox">${fechaStr} - ${label}</span>`;
             }
             
-            fechasContainer.style.display = 'dias > 1 ? 'block' : 'none';
+            fechasContainer.style.display = dias > 1 ? 'block' : 'none';
         }
         
         function cargarFechasAsistencia() {
@@ -1232,28 +1183,6 @@
             });
         }
         
-        function aplicarPermisos(permisos) {
-            if (!permisos) return;
-            const permisosArray = JSON.parse(permisos);
-            
-            // Ocultar secciones sin permiso
-            if (!permisosArray.includes('conferencias')) {
-                document.querySelector('a[href="#conferencias"]')?.style.setProperty('display', 'none');
-            }
-            if (!permisosArray.includes('registros')) {
-                document.querySelector('a[href="#asistentes"]')?.style.setProperty('display', 'none');
-            }
-            if (!permisosArray.includes('reportes')) {
-                document.querySelector('a[href="#reportes"]')?.style.setProperty('display', 'none');
-            }
-            if (!permisosArray.includes('configuracion')) {
-                document.querySelector('a[href="#configuracion"]')?.style.setProperty('display', 'none');
-            }
-            if (!permisosArray.includes('usuarios')) {
-                document.querySelector('a[href="#usuarios"]')?.style.setProperty('display', 'none');
-            }
-        }
-        
         async function generarReporte(tipo) {
             const conferenciaId = document.getElementById('reporteConferencia').value;
             const iglesiaId = document.getElementById('reporteIglesia').value;
@@ -1278,7 +1207,6 @@
                     });
                     alert(contenido);
                 } else if (tipo === 'pdf') {
-                    // Aquí iría la lógica para generar PDF
                     mostrarMensaje('📥 Descargando PDF...', 'success');
                 }
             } catch (error) {
@@ -1343,7 +1271,7 @@
             }
         });
         
-        // Funciones de guardar (llaman a app.js)
+        // Funciones de guardar
         async function guardarConferencia(e) {
             e.preventDefault();
             const iglesia_id = document.getElementById('confIglesia').value;

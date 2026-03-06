@@ -1,6 +1,8 @@
 // main.js - Control de botones Editar y Eliminar
 // ============================================
 
+console.log('🔍 main.js cargado');
+
 // Variable global para modo edición
 window.editMode = {
     tipo: null,  // 'zona', 'distrito', 'iglesia', 'conferencia', 'asistente', 'usuario'
@@ -41,12 +43,11 @@ async function guardarZonaEditada(e) {
     e.preventDefault();
     const nombre = document.getElementById('zonaNombre').value;
     const descripcion = document.getElementById('zonaDescripcion').value;
-    
     if (!nombre) {
         mostrarMensaje('El nombre es requerido', 'error');
         return;
     }
-    
+
     try {
         await actualizarZona(window.editMode.id, nombre, descripcion);
         mostrarMensaje('✅ Zona actualizada exitosamente', 'success');
@@ -116,12 +117,11 @@ async function guardarDistritoEditado(e) {
     const nombre = document.getElementById('distritoNombre').value;
     const responsable = document.getElementById('distritoResponsable').value;
     const telefono = document.getElementById('distritoTelefono').value;
-    
     if (!zona_id || !nombre) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarDistrito(window.editMode.id, zona_id, nombre, responsable, telefono);
         mostrarMensaje('✅ Distrito actualizado', 'success');
@@ -196,12 +196,11 @@ async function guardarIglesiaEditada(e) {
     const pastor = document.getElementById('iglesiaPastor').value;
     const direccion = document.getElementById('iglesiaDireccion').value;
     const telefono = document.getElementById('iglesiaTelefono').value;
-    
     if (!zona_id || !nombre) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarIglesia(window.editMode.id, zona_id, distrito_id, nombre, pastor, direccion, telefono);
         mostrarMensaje('✅ Iglesia actualizada', 'success');
@@ -272,12 +271,11 @@ async function guardarConferenciaEditada(e) {
     const fecha_inicio = document.getElementById('confFechaInicio').value;
     const fecha_fin = document.getElementById('confFechaFin').value;
     const conferenciante = document.getElementById('confConferenciante').value;
-    
     if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarConferencia(window.editMode.id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
         mostrarMensaje('✅ Conferencia actualizada', 'success');
@@ -354,12 +352,11 @@ async function guardarAsistenteEditado(e) {
         iglesia_id: document.getElementById('asistIglesia').value || null,
         conferencia_id: document.getElementById('asistConferencia').value
     };
-    
     if (!datos.nombre_completo || !datos.conferencia_id) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarAsistente(window.editMode.id, datos);
         mostrarMensaje('✅ Asistente actualizado', 'success');
@@ -431,18 +428,17 @@ async function guardarUsuarioEditado(e) {
     const password = document.getElementById('usuarioPassword').value;
     const rol = document.getElementById('usuarioRol').value;
     const estado = document.getElementById('usuarioEstado').checked ? 'activo' : 'inactivo';
-    
     const permisosCheckboxes = document.querySelectorAll('input[name="permisos"]:checked');
     const permisos = Array.from(permisosCheckboxes).map(cb => cb.value);
-    
+
     if (!nombre_completo || !email) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
     }
-    
+
     // Guardar contraseña temporal si se ingresó una nueva
     window.tempPassword = password;
-    
+
     try {
         await actualizarUsuario(window.editMode.id, nombre_completo, email, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario actualizado', 'success');
@@ -463,7 +459,6 @@ async function confirmarEliminarUsuario(id) {
         mostrarMensaje('❌ No puedes eliminar tu propia cuenta', 'error');
         return;
     }
-    
     if (confirm('⚠️ ¿Eliminar este usuario?\n\nEsta acción no se puede deshacer.')) {
         try {
             await eliminarUsuario(id);
@@ -481,19 +476,7 @@ async function confirmarEliminarUsuario(id) {
 function mostrarMensaje(mensaje, tipo = 'info') {
     // Crear toast temporal
     const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 500;
-        z-index: 9999;
-        animation: slideIn 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    `;
-    
+    toast.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15);`;
     if (tipo === 'success') {
         toast.style.background = 'linear-gradient(135deg, #10b981, #059669)';
     } else if (tipo === 'error') {
@@ -501,26 +484,41 @@ function mostrarMensaje(mensaje, tipo = 'info') {
     } else {
         toast.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
     }
-    
+
     toast.textContent = mensaje;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
 
+// Funciones de modal (necesarias para los modales)
+function abrirModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.background = 'rgba(0,0,0,0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '1000';
+    }
+}
+
+function cerrarModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
 // Animaciones para toast
 const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-`;
+style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);

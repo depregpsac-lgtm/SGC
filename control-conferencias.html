@@ -551,7 +551,6 @@
             <div class="section" style="display: block;">
                 <div class="section-header">
                     <h2>Conferencias</h2>
-                    <!-- BOTÓN MODIFICADO PARA CARGAR IGLESIAS -->
                     <button onclick="abrirModalConferencia()" class="btn btn-primary">➕ Nueva</button>
                 </div>
                 <table>
@@ -1328,13 +1327,30 @@
                 
                 if (asistentes && asistentes.length > 0) {
                     tbody.innerHTML = asistentes.map(a => {
+                        // CORRECCIÓN: Calcular correctamente los días asistidos
                         let fechasAsistidas = 0;
                         let fechasTotales = 0;
+                        
                         try {
-                            const fechas = JSON.parse(a.fechas_asistencia || '[]');
+                            // Parsear el JSON de fechas_asistencia
+                            const fechasData = a.fechas_asistencia;
+                            let fechas = [];
+                            
+                            if (typeof fechasData === 'string') {
+                                fechas = JSON.parse(fechasData);
+                            } else if (Array.isArray(fechasData)) {
+                                fechas = fechasData;
+                            }
+                            
+                            // Contar total de fechas y cuántas tienen asistio=true
                             fechasTotales = fechas.length;
-                            fechasAsistidas = fechas.filter(f => f.asistio).length;
-                        } catch(e) {}
+                            fechasAsistidas = fechas.filter(f => f.asistio === true).length;
+                            
+                        } catch(e) {
+                            console.error('Error parseando fechas_asistencia:', e);
+                            fechasAsistidas = 0;
+                            fechasTotales = 0;
+                        }
                         
                         return `
                             <tr>

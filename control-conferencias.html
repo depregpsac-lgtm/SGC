@@ -1012,21 +1012,17 @@
         // FUNCIONES DE NAVEGACIÓN
         // ============================================
         function showSection(sectionId) {
-            // Ocultar todas las secciones
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
             
-            // Mostrar sección seleccionada
             document.getElementById(sectionId).classList.add('active');
             
-            // Actualizar menú activo
             document.querySelectorAll('.nav-menu li').forEach(li => {
                 li.classList.remove('active');
             });
             event.target.closest('li').classList.add('active');
             
-            // Actualizar UI según la sección
             actualizarUI();
         }
         
@@ -1036,7 +1032,6 @@
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
             
-            // Si es el modal de registro, cargar conferencias
             if (modalId === 'registroModal') {
                 cargarConferenciasEnSelect();
             }
@@ -1045,11 +1040,9 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
             
-            // Limpiar formularios
             const form = document.querySelector(`#${modalId} form`);
             if (form) form.reset();
             
-            // Limpiar fechas de asistencia
             if (modalId === 'registroModal') {
                 document.getElementById('fechasAsistencia').innerHTML = '';
                 document.getElementById('resumenAsistencia').textContent = '✅ 0 días asistidos de 0 totales';
@@ -1082,7 +1075,6 @@
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
                 document.getElementById('duracionDias').textContent = diffDays;
                 
-                // Mostrar fechas
                 mostrarFechasConferencia(fechaInicio, diffDays);
             }
         }
@@ -1194,7 +1186,6 @@
         // ACTUALIZAR UI
         // ============================================
         function actualizarUI() {
-            // Actualizar estadísticas
             document.getElementById('totalZonas').textContent = data.zonas.length;
             document.getElementById('totalDistritos').textContent = data.distritos.length;
             document.getElementById('totalIglesias').textContent = data.iglesias.length;
@@ -1206,10 +1197,7 @@
             document.getElementById('totalIglesiasBadge').textContent = data.iglesias.length;
             document.getElementById('totalAsistentesBadge').textContent = data.asistentes.length;
             
-            // Actualizar tablas
             actualizarTablas();
-            
-            // Cargar selects
             cargarSelects();
         }
         
@@ -1240,7 +1228,7 @@
                 `).join('');
             }
             
-            // Tabla de asistentes - CORREGIDA PARA MOSTRAR ASISTENCIA CORRECTAMENTE
+            // Tabla de asistentes - CORREGIDA
             const asistTable = document.getElementById('asistentesTable');
             if (data.asistentes.length === 0) {
                 asistTable.innerHTML = '<tr><td colspan="6">Sin datos</td></tr>';
@@ -1362,7 +1350,6 @@
         // CARGAR SELECTS
         // ============================================
         function cargarSelects() {
-            // Select de iglesias en conferencia
             const confIglesiaSelect = document.getElementById('confIglesia');
             confIglesiaSelect.innerHTML = '<option value="">-- Seleccione Iglesia --</option>';
             data.iglesias.forEach(igl => {
@@ -1372,7 +1359,6 @@
                 confIglesiaSelect.appendChild(option);
             });
             
-            // Select de zonas en distrito
             const distZonaSelect = document.getElementById('distritoZona');
             distZonaSelect.innerHTML = '<option value="">-- Seleccione --</option>';
             data.zonas.forEach(zona => {
@@ -1382,7 +1368,6 @@
                 distZonaSelect.appendChild(option);
             });
             
-            // Select de zonas en iglesia
             const iglZonaSelect = document.getElementById('iglesiaZona');
             iglZonaSelect.innerHTML = '<option value="">-- Seleccione --</option>';
             data.zonas.forEach(zona => {
@@ -1392,7 +1377,6 @@
                 iglZonaSelect.appendChild(option);
             });
             
-            // Select de conferencia en reporte
             const repConfSelect = document.getElementById('reporteConferencia');
             repConfSelect.innerHTML = '<option value="">-- Seleccione Conferencia --</option>';
             data.conferencias.forEach(conf => {
@@ -1402,7 +1386,6 @@
                 repConfSelect.appendChild(option);
             });
             
-            // Select de iglesia en reporte
             const repIglSelect = document.getElementById('reporteIglesia');
             repIglSelect.innerHTML = '<option value="">-- Todas las Iglesias --</option>';
             data.iglesias.forEach(igl => {
@@ -1412,7 +1395,6 @@
                 repIglSelect.appendChild(option);
             });
             
-            // Select de iglesia en registro
             const regIglSelect = document.getElementById('regIglesia');
             regIglSelect.innerHTML = '<option value="">-- Seleccione Iglesia --</option>';
             data.iglesias.forEach(igl => {

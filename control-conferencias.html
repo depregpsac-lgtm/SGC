@@ -1796,5 +1796,58 @@
             }
         }
     </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- 1. Lógica para Filtrar el Menú al Cargar ---
+    function aplicarPermisosMenu() {
+        // Simulación: Obtener usuario actual (en un sistema real, esto viene del backend/session)
+        const usuarioActual = JSON.parse(localStorage.getItem('currentUser')) || { permisos: [] };
+        
+        // Si es administrador supremo (opcional), vería todo. Si no, filtramos.
+        const permisosUsuario = usuarioActual.permisos || [];
+
+        // Ocultar elementos del menú sin permiso
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const permisoRequerido = item.getAttribute('data-permission');
+            if (!permisosUsuario.includes(permisoRequerido)) {
+                item.style.display = 'none'; // Ocultar el enlace
+                // Opcional: Ocultar el padre (li) si existe para limpiar el diseño
+                if(item.parentElement.tagName === 'LI') {
+                    item.parentElement.style.display = 'none';
+                }
+            }
+        });
+
+        // Actualizar UI de usuario
+        document.getElementById('usuario-nombre').innerText = usuarioActual.nombre || 'Cargando...';
+        document.getElementById('usuario-rol').innerText = usuarioActual.rol || '-';
+    }
+
+    // --- 2. Lógica para Guardar Permisos al Crear Usuario ---
+    const btnGuardarUsuario = document.querySelector('#modal-nuevo-usuario button[type="submit"]'); // Ajusta el selector según tu botón guarder
+    
+    if(btnGuardarUsuario) {
+        btnGuardarUsuario.addEventListener('click', function(e) {
+            // Prevenir envío real si es solo demo
+            // e.preventDefault(); 
+            
+            // Recopilar permisos seleccionados
+            const checkboxes = document.querySelectorAll('input[name="permisos"]:checked');
+            const permisosSeleccionados = Array.from(checkboxes).map(cb => cb.value);
+
+            // Simular guardado del nuevo usuario con sus permisos
+            // En producción, esto se envía a tu base de datos
+            console.log("Permisos asignados:", permisosSeleccionados);
+            
+            // Ejemplo: Guardar en localStorage para pruebas
+            // localStorage.setItem('users', JSON.stringify(...));
+        });
+    }
+
+    // Ejecutar al inicio
+    aplicarPermisosMenu();
+});
+</script>
 </body>
 </html>

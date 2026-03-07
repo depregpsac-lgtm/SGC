@@ -471,13 +471,12 @@
         </div>
         
         <nav class="nav">
-            <!-- Agrega class="nav-item" y data-permission -->
-            <a href="#dashboard" class="nav-item" data-permission="dashboard">📊 Dashboard</a>
-            <a href="#conferencias" class="nav-item" data-permission="conferencias">📅 Conferencias</a>
-            <a href="#asistentes" class="nav-item" data-permission="registros">👥 Registros</a>
-            <a href="#reportes" class="nav-item" data-permission="reportes">📈 Reportes</a>
-            <a href="#configuracion" class="nav-item" data-permission="configuracion">⚙️ Configuración</a>
-            <a href="#usuarios" class="nav-item" data-permission="usuarios">👤 Usuarios</a>
+            <a href="#dashboard" class="nav-link active" data-section="dashboard">📊 Dashboard</a>
+            <a href="#conferencias" class="nav-link" data-section="conferencias">📅 Conferencias</a>
+            <a href="#asistentes" class="nav-link" data-section="asistentes">👥 Registros</a>
+            <a href="#reportes" class="nav-link" data-section="reportes">📈 Reportes</a>
+            <a href="#configuracion" class="nav-link" data-section="configuracion">⚙️ Configuración</a>
+            <a href="#usuarios" class="nav-link" data-section="usuarios">👤 Usuarios</a>
         </nav>
         
         <div class="logout-btn">
@@ -976,15 +975,34 @@
                             <option value="inactivo">⏸️ Inactivo</option>
                         </select>
                     </div>
-                    🔐 Permisos
-<label><input type="checkbox" name="permisos" value="dashboard"> Dashboard</label>
-<label><input type="checkbox" name="permisos" value="conferencias"> Conferencias</label>
-<label><input type="checkbox" name="permisos" value="registros"> Registros</label>
-<label><input type="checkbox" name="permisos" value="reportes"> Reportes</label>
-<label><input type="checkbox" name="permisos" value="configuracion"> Configuración</label>
-<label><input type="checkbox" name="permisos" value="usuarios"> Usuarios</label>
-                        
-                    
+                    <div class="form-group">
+                        <label>🔐 Permisos</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="dashboard" id="permisoDashboard" checked>
+                                <label for="permisoDashboard">Dashboard</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="conferencias" id="permisoConferencias" checked>
+                                <label for="permisoConferencias">Conferencias</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="registros" id="permisoRegistros" checked>
+                                <label for="permisoRegistros">Registros</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="reportes" id="permisoReportes" checked>
+                                <label for="permisoReportes">Reportes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="configuracion" id="permisoConfiguracion" checked>
+                                <label for="permisoConfiguracion">Configuración</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="permisos" value="usuarios" id="permisoUsuarios" checked>
+                                <label for="permisoUsuarios">Usuarios</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1796,58 +1814,5 @@
             }
         }
     </script>
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // --- 1. Lógica para Filtrar el Menú al Cargar ---
-    function aplicarPermisosMenu() {
-        // Simulación: Obtener usuario actual (en un sistema real, esto viene del backend/session)
-        const usuarioActual = JSON.parse(localStorage.getItem('currentUser')) || { permisos: [] };
-        
-        // Si es administrador supremo (opcional), vería todo. Si no, filtramos.
-        const permisosUsuario = usuarioActual.permisos || [];
-
-        // Ocultar elementos del menú sin permiso
-        document.querySelectorAll('.nav-item').forEach(item => {
-            const permisoRequerido = item.getAttribute('data-permission');
-            if (!permisosUsuario.includes(permisoRequerido)) {
-                item.style.display = 'none'; // Ocultar el enlace
-                // Opcional: Ocultar el padre (li) si existe para limpiar el diseño
-                if(item.parentElement.tagName === 'LI') {
-                    item.parentElement.style.display = 'none';
-                }
-            }
-        });
-
-        // Actualizar UI de usuario
-        document.getElementById('usuario-nombre').innerText = usuarioActual.nombre || 'Cargando...';
-        document.getElementById('usuario-rol').innerText = usuarioActual.rol || '-';
-    }
-
-    // --- 2. Lógica para Guardar Permisos al Crear Usuario ---
-    const btnGuardarUsuario = document.querySelector('#modal-nuevo-usuario button[type="submit"]'); // Ajusta el selector según tu botón guarder
-    
-    if(btnGuardarUsuario) {
-        btnGuardarUsuario.addEventListener('click', function(e) {
-            // Prevenir envío real si es solo demo
-            // e.preventDefault(); 
-            
-            // Recopilar permisos seleccionados
-            const checkboxes = document.querySelectorAll('input[name="permisos"]:checked');
-            const permisosSeleccionados = Array.from(checkboxes).map(cb => cb.value);
-
-            // Simular guardado del nuevo usuario con sus permisos
-            // En producción, esto se envía a tu base de datos
-            console.log("Permisos asignados:", permisosSeleccionados);
-            
-            // Ejemplo: Guardar en localStorage para pruebas
-            // localStorage.setItem('users', JSON.stringify(...));
-        });
-    }
-
-    // Ejecutar al inicio
-    aplicarPermisosMenu();
-});
-</script>
 </body>
 </html>

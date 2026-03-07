@@ -470,14 +470,15 @@
             </div>
         </div>
         
-        <nav class="nav">
-            <a href="#dashboard" class="nav-link active" data-section="dashboard">📊 Dashboard</a>
-            <a href="#conferencias" class="nav-link" data-section="conferencias">📅 Conferencias</a>
-            <a href="#asistentes" class="nav-link" data-section="asistentes">👥 Registros</a>
-            <a href="#reportes" class="nav-link" data-section="reportes">📈 Reportes</a>
-            <a href="#configuracion" class="nav-link" data-section="configuracion">⚙️ Configuración</a>
-            <a href="#usuarios" class="nav-link" data-section="usuarios">👤 Usuarios</a>
-        </nav>
+       <!-- Ejemplo de cómo deberían quedar los enlaces del menú -->
+    <nav>
+    <a href="#dashboard" data-permission="dashboard" class="menu-link">📊 Dashboard</a>
+    <a href="#conferencias" data-permission="conferencias" class="menu-link">📅 Conferencias</a>
+    <a href="#asistentes" data-permission="registros" class="menu-link">👥 Registros</a>
+    <a href="#reportes" data-permission="reportes" class="menu-link">📈 Reportes</a>
+    <a href="#configuracion" data-permission="configuracion" class="menu-link">⚙️ Configuración</a>
+    <a href="#usuarios" data-permission="usuarios" class="menu-link">👤 Usuarios</a>
+    </nav>
         
         <div class="logout-btn">
             <button onclick="logout()">🚪 Cerrar Sesión</button>
@@ -941,6 +942,17 @@
     </div>
     
     <!-- Modal Nuevo Usuario -->
+ <!-- Dentro del modal "👤 Nuevo Usuario" -->
+<div class="permisos-container">
+    <label><input type="checkbox" name="permisos" value="dashboard"> Dashboard</label>
+    <label><input type="checkbox" name="permisos" value="conferencias"> Conferencias</label>
+    <label><input type="checkbox" name="permisos" value="registros"> Registros</label>
+    <label><input type="checkbox" name="permisos" value="reportes"> Reportes</label>
+    <label><input type="checkbox" name="permisos" value="configuracion"> Configuración</label>
+    <label><input type="checkbox" name="permisos" value="usuarios"> Usuarios</label>
+</div>
+
+    
     <div id="modalNuevoUsuario" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1813,6 +1825,59 @@
                 mostrarMensaje('❌ ' + error.message, 'error');
             }
         }
+
+        <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Simulación de usuario logueado (Esto debería venir de tu Backend/Session)
+    // Ejemplo: const usuarioPermisos = ['dashboard', 'conferencias', 'registros']; 
+    // Para pruebas, asumimos que cargamos los permisos desde localStorage o una variable global
+    const usuarioPermisos = obtenerPermisosUsuario(); 
+
+    // 2. Aplicar permisos al menú lateral
+    const menuLinks = document.querySelectorAll('.menu-link');
+    menuLinks.forEach(link => {
+        const permisoRequerido = link.getAttribute('data-permission');
+        if (!usuarioPermisos.includes(permisoRequerido)) {
+            link.style.display = 'none'; // Ocultar enlace del menú
+        }
+    });
+
+    // 3. Aplicar permisos a las secciones de contenido (Opcional pero recomendado)
+    // Asumiendo que cada sección tiene un ID como #dashboard, #conferencias, etc.
+    const secciones = document.querySelectorAll('section, div[id]'); 
+    secciones.forEach(seccion => {
+        const id = seccion.id;
+        // Mapeo simple de IDs a permisos (ajusta según tu estructura real)
+        if (id === 'dashboard' && !usuarioPermisos.includes('dashboard')) seccion.style.display = 'none';
+        if (id === 'conferencias' && !usuarioPermisos.includes('conferencias')) seccion.style.display = 'none';
+        if (id === 'asistentes' && !usuarioPermisos.includes('registros')) seccion.style.display = 'none';
+        if (id === 'reportes' && !usuarioPermisos.includes('reportes')) seccion.style.display = 'none';
+        if (id === 'configuracion' && !usuarioPermisos.includes('configuracion')) seccion.style.display = 'none';
+        if (id === 'usuarios' && !usuarioPermisos.includes('usuarios')) seccion.style.display = 'none';
+    });
+
+    // 4. Lógica para Guardar Usuario con Permisos
+    const btnGuardarUsuario = document.querySelector('#modalUsuario button[type="submit"]'); // Ajusta el selector
+    if(btnGuardarUsuario) {
+        btnGuardarUsuario.addEventListener('click', (e) => {
+            // Recopilar permisos seleccionados
+            const checkboxes = document.querySelectorAll('input[name="permisos"]:checked');
+            const permisosSeleccionados = Array.from(checkboxes).map(cb => cb.value);
+            
+            // Aquí enviarías 'permisosSeleccionados' a tu base de datos junto con los datos del usuario
+            console.log("Permisos a guardar:", permisosSeleccionados);
+            localStorage.setItem('permisosUsuario', JSON.stringify(permisosSeleccionados)); // Ejemplo local
+        });
+    }
+});
+
+// Función auxiliar para obtener permisos (Simulación)
+function obtenerPermisosUsuario() {
+    // En producción, esto viene de tu API de login
+    const stored = localStorage.getItem('permisosUsuario');
+    return stored ? JSON.parse(stored) : ['dashboard']; // Por defecto solo dashboard si no hay nada
+}
+</script>
     </script>
 </body>
 </html>

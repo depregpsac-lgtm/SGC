@@ -442,103 +442,138 @@
         }
 
         /* Report Section */
-        .report-form {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
+.report-form {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
 
-        .report-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
+.report-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
 
-        .report-preview {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
+.report-preview {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
 
-        .report-preview-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #1e3c72;
-        }
+.report-preview-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #1e3c72;
+}
 
-        .report-preview-header h2 {
-            color: #1e3c72;
-            margin-bottom: 10px;
-        }
+.report-preview-header h2 {
+    color: #1e3c72;
+    margin-bottom: 10px;
+}
 
-        .report-preview-header p {
-            color: #7f8c8d;
-        }
+.report-preview-header p {
+    color: #7f8c8d;
+}
 
-        .report-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
+.report-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
 
-        .report-info-item {
-            text-align: center;
-        }
+.report-info-item {
+    text-align: center;
+}
 
-        .report-info-item .label {
-            color: #7f8c8d;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
+.report-info-item .label {
+    color: #7f8c8d;
+    font-size: 12px;
+    text-transform: uppercase;
+}
 
-        .report-info-item .value {
-            color: #1e3c72;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 5px;
-        }
+.report-info-item .value {
+    color: #1e3c72;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 5px;
+}
 
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 
-        .report-table th,
-        .report-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
+.report-table th,
+.report-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
 
-        .report-table th {
-            background: #1e3c72;
-            color: white;
-        }
+.report-table th {
+    background: #1e3c72;
+    color: white;
+}
 
-        .report-table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
+.report-table tr:nth-child(even) {
+    background: #f8f9fa;
+}
 
-        .report-table tr:hover {
-            background: #e8f4f8;
-        }
+.report-table tr:hover {
+    background: #e8f4f8;
+}
 
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-            font-style: italic;
-        }
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.btn-info {
+    background: #3498db;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #2980b9;
+}
+
+.attendance-days {
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+.attendance-days span {
+    display: inline-block;
+    background: #e8f4f8;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin: 2px;
+}
+
+.attendance-days span.attended {
+    background: #27ae60;
+    color: white;
+}
+
+@media print {
+    .sidebar, .header, .report-actions, .nav-menu, .logout-btn {
+        display: none !important;
+    }
+    .main-content { margin-left: 0; }
+    .report-preview { box-shadow: none; }
+}
 
         /* Configuration Sections */
         .config-section {
@@ -678,6 +713,7 @@
             color: white;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -825,102 +861,101 @@
                 </table>
             </div>
         </section>
+<!-- Reportes Section -->
+<section id="reportes" class="section">
+    <div class="header">
+        <h2>📈 Reportes de Asistencia</h2>
+        <p>Genera reportes detallados por conferencia e iglesia</p>
+    </div>
 
-        <!-- Reportes Section -->
-        <section id="reportes" class="section">
-            <div class="header">
-                <h2>📈 Reportes de Asistencia</h2>
-                <p>Genera reportes detallados por conferencia e iglesia</p>
+    <!-- Formulario de Filtros -->
+    <div class="report-form">
+        <h3>🔍 Filtrar Reporte</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>📅 Conferencia <span class="required">*</span></label>
+                <select id="reporteConferencia" onchange="cargarIglesiasPorConferencia()">
+                    <option value="">-- Seleccione Conferencia --</option>
+                </select>
             </div>
-
-            <!-- Formulario de Filtros -->
-            <div class="report-form">
-                <h3>🔍 Filtrar Reporte</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>📅 Conferencia <span class="required">*</span></label>
-                        <select id="reporteConferencia" onchange="cargarIglesiasPorConferencia()">
-                            <option value="">-- Seleccione Conferencia --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>⛪ Iglesia <span class="required">*</span></label>
-                        <select id="reporteIglesia">
-                            <option value="">-- Primero seleccione conferencia --</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="report-actions">
-                    <button class="btn btn-primary" onclick="generarVistaPrevia()">📄 Generar Vista Previa</button>
-                    <button class="btn btn-success" onclick="descargarPDF()">📥 Descargar PDF</button>
-                    <button class="btn btn-info" onclick="imprimirReporte()">🖨️ Imprimir</button>
-                </div>
+            <div class="form-group">
+                <label>⛪ Iglesia <span class="required">*</span></label>
+                <select id="reporteIglesia">
+                    <option value="">-- Primero seleccione conferencia --</option>
+                </select>
             </div>
+        </div>
+        <div class="report-actions">
+            <button class="btn btn-primary" onclick="generarVistaPrevia()">📄 Generar Vista Previa</button>
+            <button class="btn btn-success" onclick="descargarPDF()">📥 Descargar PDF</button>
+            <button class="btn btn-info" onclick="imprimirReporte()">🖨️ Imprimir</button>
+        </div>
+    </div>
 
-            <!-- Vista Previa del Reporte -->
-            <div class="report-preview" id="reportPreview" style="display: none;">
-                <div class="report-preview-header">
-                    <h2>🦁 MinistryLion</h2>
-                    <p>Reporte de Asistencia a Conferencias</p>
-                    <p id="reportFechaGeneracion"></p>
-                </div>
+    <!-- Vista Previa del Reporte -->
+    <div class="report-preview" id="reportPreview" style="display: none;">
+        <div class="report-preview-header">
+            <h2>🦁 MinistryLion</h2>
+            <p>Reporte de Asistencia a Conferencias</p>
+            <p id="reportFechaGeneracion"></p>
+        </div>
 
-                <div class="report-info">
-                    <div class="report-info-item">
-                        <div class="label">Conferencia</div>
-                        <div class="value" id="reportConferencia">-</div>
-                    </div>
-                    <div class="report-info-item">
-                        <div class="label">Iglesia</div>
-                        <div class="value" id="reportIglesia">-</div>
-                    </div>
-                    <div class="report-info-item">
-                        <div class="label">Fecha Inicio</div>
-                        <div class="value" id="reportFechaInicio">-</div>
-                    </div>
-                    <div class="report-info-item">
-                        <div class="label">Fecha Fin</div>
-                        <div class="value" id="reportFechaFin">-</div>
-                    </div>
-                    <div class="report-info-item">
-                        <div class="label">Total Asistentes</div>
-                        <div class="value" id="reportTotalAsistentes">0</div>
-                    </div>
-                    <div class="report-info-item">
-                        <div class="label">Promedio Asistencia</div>
-                        <div class="value" id="reportPromedioAsistencia">0%</div>
-                    </div>
-                </div>
-
-                <h3 style="color: #1e3c72; margin-bottom: 15px;">📋 Detalle de Registros</h3>
-                <div style="overflow-x: auto;">
-                    <table class="report-table" id="reportTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Nombre Completo</th>
-                                <th>Teléfono</th>
-                                <th>Dirección</th>
-                                <th>Invitado Por</th>
-                                <th>Días Asistidos</th>
-                                <th>% Asistencia</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reportTableBody">
-                            <tr>
-                                <td colspan="7" class="no-data">Seleccione conferencia e iglesia para generar el reporte</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #1e3c72; text-align: center;">
-                    <p style="color: #7f8c8d; font-size: 12px;">
-                        Documento generado el <span id="reportFooterDate"></span> - MinistryLion Sistema de Control
-                    </p>
-                </div>
+        <div class="report-info">
+            <div class="report-info-item">
+                <div class="label">Conferencia</div>
+                <div class="value" id="reportConferencia">-</div>
             </div>
-        </section>
+            <div class="report-info-item">
+                <div class="label">Iglesia</div>
+                <div class="value" id="reportIglesia">-</div>
+            </div>
+            <div class="report-info-item">
+                <div class="label">Fecha Inicio</div>
+                <div class="value" id="reportFechaInicio">-</div>
+            </div>
+            <div class="report-info-item">
+                <div class="label">Fecha Fin</div>
+                <div class="value" id="reportFechaFin">-</div>
+            </div>
+            <div class="report-info-item">
+                <div class="label">Total Asistentes</div>
+                <div class="value" id="reportTotalAsistentes">0</div>
+            </div>
+            <div class="report-info-item">
+                <div class="label">Promedio Asistencia</div>
+                <div class="value" id="reportPromedioAsistencia">0%</div>
+            </div>
+        </div>
+
+        <h3 style="color: #1e3c72; margin-bottom: 15px;">📋 Detalle de Registros</h3>
+        <div style="overflow-x: auto;">
+            <table class="report-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre Completo</th>
+                        <th>Teléfono</th>
+                        <th>Dirección</th>
+                        <th>Invitado Por</th>
+                        <th>Días Asistidos</th>
+                        <th>% Asistencia</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <tr>
+                        <td colspan="7" class="no-data">Seleccione conferencia e iglesia para generar el reporte</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #1e3c72; text-align: center;">
+            <p style="color: #7f8c8d; font-size: 12px;">
+                Documento generado el <span id="reportFooterDate"></span> - MinistryLion Sistema de Control
+            </p>
+        </div>
+    </div>
+</section>
 
         <!-- Configuración Section -->
         <section id="configuracion" class="section">
@@ -1426,30 +1461,226 @@
             cargarDistritosPorZona();
         }
 
-        function cargarSelectsReportes() {
-            // Conferencias para reportes
-            const confSelect = document.getElementById('reporteConferencia');
-            if (confSelect) {
-                const firstOption = confSelect.options[0];
-                confSelect.innerHTML = '';
-                confSelect.appendChild(firstOption);
-                conferencias.forEach(conf => {
-                    const option = document.createElement('option');
-                    option.value = conf.id;
-                    option.textContent = conf.nombre;
-                    confSelect.appendChild(option);
-                });
-            }
+      // ============================================
+// CARGAR SELECTS REPORTES
+// ============================================
+function cargarSelectsReportes() {
+    const confSelect = document.getElementById('reporteConferencia');
+    if (confSelect) {
+        const firstOption = confSelect.options[0];
+        confSelect.innerHTML = '';
+        confSelect.appendChild(firstOption);
+        conferencias.forEach(conf => {
+            const option = document.createElement('option');
+            option.value = conf.id;
+            option.textContent = conf.nombre;
+            confSelect.appendChild(option);
+        });
+    }
 
-            // Resetear iglesia
-            const iglesiaSelect = document.getElementById('reporteIglesia');
-            if (iglesiaSelect) {
-                iglesiaSelect.innerHTML = '<option value="">-- Primero seleccione conferencia --</option>';
-            }
+    const iglesiaSelect = document.getElementById('reporteIglesia');
+    if (iglesiaSelect) {
+        iglesiaSelect.innerHTML = '<option value="">-- Primero seleccione conferencia --</option>';
+    }
 
-            // Ocultar vista previa
-            document.getElementById('reportPreview').style.display = 'none';
+    document.getElementById('reportPreview').style.display = 'none';
+}
+
+// ============================================
+// CARGAR IGLESIAS POR CONFERENCIA
+// ============================================
+function cargarIglesiasPorConferencia() {
+    const confId = document.getElementById('reporteConferencia').value;
+    const iglesiaSelect = document.getElementById('reporteIglesia');
+    
+    if (!confId) {
+        iglesiaSelect.innerHTML = '<option value="">-- Primero seleccione conferencia --</option>';
+        return;
+    }
+    
+    const iglesiasConRegistros = new Set();
+    asistentes.forEach(asist => {
+        if (asist.conferenciaId == confId && asist.iglesiaId) {
+            iglesiasConRegistros.add(asist.iglesiaId);
         }
+    });
+    
+    const firstOption = document.createElement('option');
+    firstOption.value = '';
+    firstOption.textContent = '-- Todas las Iglesias --';
+    iglesiaSelect.innerHTML = '';
+    iglesiaSelect.appendChild(firstOption);
+    
+    const allOption = document.createElement('option');
+    allOption.value = 'all';
+    allOption.textContent = '📋 Todas las Iglesias con Registros';
+    iglesiaSelect.appendChild(allOption);
+    
+    iglesias.forEach(iglesia => {
+        if (iglesiasConRegistros.has(iglesia.id)) {
+            const option = document.createElement('option');
+            option.value = iglesia.id;
+            option.textContent = iglesia.nombre;
+            iglesiaSelect.appendChild(option);
+        }
+    });
+    
+    if (iglesiasConRegistros.size === 0) {
+        iglesias.forEach(iglesia => {
+            const option = document.createElement('option');
+            option.value = iglesia.id;
+            option.textContent = iglesia.nombre;
+            iglesiaSelect.appendChild(option);
+        });
+    }
+}
+
+// ============================================
+// GENERAR VISTA PREVIA
+// ============================================
+function generarVistaPrevia() {
+    const confId = document.getElementById('reporteConferencia').value;
+    const iglesiaId = document.getElementById('reporteIglesia').value;
+    
+    if (!confId) {
+        alert('Por favor seleccione una conferencia');
+        return;
+    }
+    
+    if (!iglesiaId) {
+        alert('Por favor seleccione una iglesia');
+        return;
+    }
+    
+    const conferencia = conferencias.find(c => c.id == confId);
+    if (!conferencia) {
+        alert('Conferencia no encontrada');
+        return;
+    }
+    
+    let asistentesFiltrados = asistentes.filter(a => a.conferenciaId == confId);
+    
+    if (iglesiaId !== 'all') {
+        asistentesFiltrados = asistentesFiltrados.filter(a => a.iglesiaId == iglesiaId);
+    }
+    
+    document.getElementById('reportPreview').style.display = 'block';
+    
+    document.getElementById('reportConferencia').textContent = conferencia.nombre;
+    
+    if (iglesiaId === 'all') {
+        document.getElementById('reportIglesia').textContent = 'Todas las Iglesias';
+    } else {
+        const iglesia = iglesias.find(i => i.id == iglesiaId);
+        document.getElementById('reportIglesia').textContent = iglesia ? iglesia.nombre : 'No especificada';
+    }
+    
+    document.getElementById('reportFechaInicio').textContent = formatoFecha(conferencia.fechaInicio);
+    document.getElementById('reportFechaFin').textContent = formatoFecha(conferencia.fechaFin);
+    document.getElementById('reportTotalAsistentes').textContent = asistentesFiltrados.length;
+    
+    let totalPorcentaje = 0;
+    asistentesFiltrados.forEach(asist => {
+        totalPorcentaje += asist.porcentajeAsistencia || 0;
+    });
+    const promedio = asistentesFiltrados.length > 0 ? 
+        Math.round(totalPorcentaje / asistentesFiltrados.length) : 0;
+    document.getElementById('reportPromedioAsistencia').textContent = promedio + '%';
+    
+    const fechaGeneracion = new Date();
+    document.getElementById('reportFechaGeneracion').textContent = 
+        'Generado: ' + fechaGeneracion.toLocaleDateString('es-ES', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    document.getElementById('reportFooterDate').textContent = 
+        fechaGeneracion.toLocaleDateString('es-ES');
+    
+    const tbody = document.getElementById('reportTableBody');
+    if (asistentesFiltrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">No hay registros para los filtros seleccionados</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = asistentesFiltrados.map((asist, index) => {
+        let diasHTML = '';
+        if (asist.diasAsistidos && asist.diasAsistidos.length > 0) {
+            const startDate = new Date(conferencia.fechaInicio);
+            asist.diasAsistidos.forEach((dia, i) => {
+                const diaFecha = new Date(dia);
+                const diaNumero = Math.ceil((diaFecha - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                diasHTML += `<span class="attended">D${diaNumero}</span>`;
+            });
+        } else {
+            diasHTML = '<span style="color: #e74c3c;">Sin registro</span>';
+        }
+        
+        return `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${asist.nombre}</strong></td>
+                <td>${asist.telefono || 'N/A'}</td>
+                <td>${asist.direccion || 'N/A'}</td>
+                <td>${asist.invitadoPor || 'N/A'}</td>
+                <td class="attendance-days">${diasHTML}</td>
+                <td>
+                    <span class="badge ${asist.porcentajeAsistencia >= 80 ? 'badge-success' : 
+                        asist.porcentajeAsistencia >= 50 ? 'badge-warning' : 'badge-danger'}">
+                        ${asist.porcentajeAsistencia || 0}%
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    document.getElementById('reportPreview').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ============================================
+// DESCARGAR PDF
+// ============================================
+function descargarPDF() {
+    const preview = document.getElementById('reportPreview');
+    
+    if (preview.style.display === 'none') {
+        alert('Primero genere la vista previa del reporte');
+        return;
+    }
+    
+    const confId = document.getElementById('reporteConferencia').value;
+    const iglesiaId = document.getElementById('reporteIglesia').value;
+    
+    const conferencia = conferencias.find(c => c.id == confId);
+    const iglesia = iglesias.find(i => i.id == iglesiaId);
+    
+    const nombreArchivo = `Reporte_${conferencia?.nombre || 'Conferencia'}_${iglesia?.nombre || 'Todas_Iglesias'}.pdf`;
+    
+    const opt = {
+        margin: 10,
+        filename: nombreArchivo,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+    
+    html2pdf().set(opt).from(preview).save().then(() => {
+        alert('PDF generado exitosamente');
+    });
+}
+
+// ============================================
+// IMPRIMIR REPORTE
+// ============================================
+function imprimirReporte() {
+    const preview = document.getElementById('reportPreview');
+    
+    if (preview.style.display === 'none') {
+        alert('Primero genere la vista previa del reporte');
+        return;
+    }
+    
+    window.print();
+}
 
         function cargarDistritosPorZona() {
             const zonaId = document.getElementById('iglesiaZona')?.value;

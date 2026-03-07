@@ -816,13 +816,21 @@
                             <option value="">-- Seleccione Conferencia --</option>
                         </select>
                     </div>
-                    <div class="fechas-container" id="asistenteFechasContainer" style="display: none;">
-                        <label>✅ Marque los días que asistió:</label>
-                        <div id="asistenteFechasLista" style="margin: 10px 0;"></div>
-                        <div class="attendance-summary" id="asistenciaResumen">
-                            ✅ 0 días asistidos de 0 totales
-                        </div>
+                    <div class="full-width">
+                    <label style="color: #667eea; font-weight: 600;">📅 Cotejo de Asistencia por Fecha</label>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                        <i class="fas fa-info-circle"></i> Las fechas mostradas corresponden EXACTAMENTE a la conferencia seleccionada
+                    </p>
+                    <div id="infoFechasConferencia" style="background: #e8f4fd; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; border-left: 4px solid #667eea;">
+                        <strong>📅 Fechas planificadas:</strong> <span id="fechasConferenciaTexto"></span>
                     </div>
+                    <div id="contenedorFechas" class="fechas-asistencia">
+                        <p style="color: #999; font-style: italic;">Primero seleccione una conferencia</p>
+                    </div>
+                    <p id="totalDiasSeleccionados" style="margin-top: 10px; font-weight: 600; color: #667eea;">
+                        0 días asistidos
+                    </p>
+                </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" onclick="cerrarModal('modalNuevoAsistente')" class="btn">Cancelar</button>

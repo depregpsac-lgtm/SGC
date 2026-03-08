@@ -1,22 +1,16 @@
 // app.js - Funciones para conectar con Supabase
 // ============================================
 console.log('🔍 app.js cargado');
-console.log('🔍 window.db existe:', !!window.db);
 
 // ============================================
 // AUTENTICACIÓN
 // ============================================
 async function login(email, password) {
-    console.log('🔐 Intentando login...', email);
     try {
-        // Verificar que window.db exista
         if (!window.db) {
-            console.error('❌ window.db no existe');
-            throw new Error('No hay conexión con la base de datos. Recarga la página.');
+            throw new Error('No hay conexión con la base de datos');
         }
         
-        // Buscar usuario en la tabla usuarios_sistema
-        console.log('📡 Consultando base de datos...');
         const { data, error } = await window.db
             .from('usuarios_sistema')
             .select('*')
@@ -24,25 +18,14 @@ async function login(email, password) {
             .eq('estado', 'activo')
             .single();
         
-        console.log('📡 Respuesta:', { data, error });
-        
         if (error || !data) {
-            console.error('❌ Error de consulta:', error);
-            return { 
-                success: false, 
-                error: 'Credenciales inválidas o usuario inactivo' 
-            };
+            return { success: false, error: 'Credenciales inválidas' };
         }
         
-        // Verificar password
         if (data.password_hash !== password) {
-            return { 
-                success: false, 
-                error: 'Contraseña incorrecta' 
-            };
+            return { success: false, error: 'Contraseña incorrecta' };
         }
         
-        // Guardar sesión en localStorage
         localStorage.setItem('user', JSON.stringify({
             id: data.id,
             nombre: data.nombre_completo,
@@ -51,17 +34,9 @@ async function login(email, password) {
             permisos: data.permisos
         }));
         
-        console.log('✅ Login exitoso:', data.nombre_completo);
-        return { 
-            success: true, 
-            user: data 
-        };
+        return { success: true, user: data };
     } catch (error) {
-        console.error('❌ Error en login:', error);
-        return { 
-            success: false, 
-            error: 'Error de conexión: ' + error.message 
-        };
+        return { success: false, error: error.message };
     }
 }
 
@@ -80,18 +55,12 @@ function checkAuth() {
 }
 
 // ============================================
-// VERIFICAR PERMISOS
+// PERMISOS
 // ============================================
 function tienePermiso(permiso) {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) return false;
-    
-    // Los administradores tienen todos los permisos
-    if (user.rol === 'administrador') {
-        return true;
-    }
-    
-    // Verificar permisos específicos
+    if (user.rol === 'administrador') return true;
     const permisos = JSON.parse(user.permisos || '[]');
     return permisos.includes(permiso);
 }
@@ -102,22 +71,16 @@ function esAdministrador() {
 }
 
 // ============================================
-// ZONAS
+// ZONAS ✅ EDITAR Y ELIMINAR
 // ============================================
 async function obtenerZonas() {
-    const { data, error } = await window.db
-        .from('zonas')
-        .select('*')
-        .order('nombre');
+    const { data, error } = await window.db.from('zonas').select('*').order('nombre');
     if (error) throw error;
     return data;
 }
 
 async function crearZona(nombre, descripcion) {
-    const { data, error } = await window.db
-        .from('zonas')
-        .insert([{ nombre, descripcion }])
-        .select();
+    const { data, error } = await window.db.from('zonas').insert([{ nombre, descripcion }]).select();
     if (error) throw error;
     return data;
 }
@@ -134,38 +97,28 @@ async function actualizarZona(id, nombre, descripcion) {
 
 async function eliminarZona(id) {
     const { data: distritos, error: checkError } = await window.db
-        .from('distritos')
-        .select('id')
-        .eq('zona_id', id)
-        .limit(1);
+        .from('distritos').select('id').eq('zona_id', id).limit(1);
     if (checkError) throw checkError;
     if (distritos && distritos.length > 0) {
         throw new Error('No se puede eliminar: hay distritos asociados');
     }
-    const { error } = await window.db
-        .from('zonas')
-        .delete()
-        .eq('id', id);
+    const { error } = await window.db.from('zonas').delete().eq('id', id);
     if (error) throw error;
 }
 
 // ============================================
-// DISTRITOS
+// DISTRITOS ✅ EDITAR Y ELIMINAR
 // ============================================
 async function obtenerDistritos() {
     const { data, error } = await window.db
-        .from('distritos')
-        .select(`*, zonas (nombre)`)
-        .order('nombre');
+        .from('distritos').select(`*, zonas (nombre)`).order('nombre');
     if (error) throw error;
     return data;
 }
 
 async function crearDistrito(zona_id, nombre, responsable, telefono) {
     const { data, error } = await window.db
-        .from('distritos')
-        .insert([{ zona_id, nombre, responsable, telefono }])
-        .select();
+        .from('distritos').insert([{ zona_id, nombre, responsable, telefono }]).select();
     if (error) throw error;
     return data;
 }
@@ -174,46 +127,35 @@ async function actualizarDistrito(id, zona_id, nombre, responsable, telefono) {
     const { data, error } = await window.db
         .from('distritos')
         .update({ zona_id, nombre, responsable, telefono, updated_at: new Date() })
-        .eq('id', id)
-        .select();
+        .eq('id', id).select();
     if (error) throw error;
     return data;
 }
 
 async function eliminarDistrito(id) {
     const { data: iglesias, error: checkError } = await window.db
-        .from('iglesias')
-        .select('id')
-        .eq('distrito_id', id)
-        .limit(1);
+        .from('iglesias').select('id').eq('distrito_id', id).limit(1);
     if (checkError) throw checkError;
     if (iglesias && iglesias.length > 0) {
         throw new Error('No se puede eliminar: hay iglesias asociadas');
     }
-    const { error } = await window.db
-        .from('distritos')
-        .delete()
-        .eq('id', id);
+    const { error } = await window.db.from('distritos').delete().eq('id', id);
     if (error) throw error;
 }
 
 // ============================================
-// IGLESIAS
+// IGLESIAS ✅ EDITAR Y ELIMINAR
 // ============================================
 async function obtenerIglesias() {
     const { data, error } = await window.db
-        .from('iglesias')
-        .select(`*, zonas (nombre), distritos (nombre)`)
-        .order('nombre');
+        .from('iglesias').select(`*, zonas (nombre), distritos (nombre)`).order('nombre');
     if (error) throw error;
     return data;
 }
 
 async function crearIglesia(zona_id, distrito_id, nombre, pastor, direccion, telefono) {
     const { data, error } = await window.db
-        .from('iglesias')
-        .insert([{ zona_id, distrito_id, nombre, pastor, direccion, telefono }])
-        .select();
+        .from('iglesias').insert([{ zona_id, distrito_id, nombre, pastor, direccion, telefono }]).select();
     if (error) throw error;
     return data;
 }
@@ -222,52 +164,35 @@ async function actualizarIglesia(id, zona_id, distrito_id, nombre, pastor, direc
     const { data, error } = await window.db
         .from('iglesias')
         .update({ zona_id, distrito_id, nombre, pastor, direccion, telefono, updated_at: new Date() })
-        .eq('id', id)
-        .select();
+        .eq('id', id).select();
     if (error) throw error;
     return data;
 }
 
 async function eliminarIglesia(id) {
     const { data: conferencias, error: checkError } = await window.db
-        .from('conferencias')
-        .select('id')
-        .eq('iglesia_id', id)
-        .limit(1);
+        .from('conferencias').select('id').eq('iglesia_id', id).limit(1);
     if (checkError) throw checkError;
     if (conferencias && conferencias.length > 0) {
         throw new Error('No se puede eliminar: hay conferencias asociadas');
     }
-    const { error } = await window.db
-        .from('iglesias')
-        .delete()
-        .eq('id', id);
+    const { error } = await window.db.from('iglesias').delete().eq('id', id);
     if (error) throw error;
 }
 
 // ============================================
-// CONFERENCIAS
+// CONFERENCIAS ✅ EDITAR Y ELIMINAR
 // ============================================
 async function obtenerConferencias() {
     const { data, error } = await window.db
-        .from('conferencias')
-        .select(`*, iglesias (nombre)`)
-        .order('fecha_inicio', { ascending: false });
+        .from('conferencias').select(`*, iglesias (nombre)`).order('fecha_inicio', { ascending: false });
     if (error) throw error;
     return data;
 }
 
 async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
     const { data, error } = await window.db
-        .from('conferencias')
-        .insert([{
-            iglesia_id,
-            nombre,
-            fecha_inicio,
-            fecha_fin,
-            conferenciante
-        }])
-        .select();
+        .from('conferencias').insert([{ iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante }]).select();
     if (error) throw error;
     return data;
 }
@@ -275,46 +200,29 @@ async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, con
 async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
     const { data, error } = await window.db
         .from('conferencias')
-        .update({
-            iglesia_id,
-            nombre,
-            fecha_inicio,
-            fecha_fin,
-            conferenciante
-        })
-        .eq('id', id)
-        .select();
+        .update({ iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante })
+        .eq('id', id).select();
     if (error) throw error;
     return data;
 }
 
 async function eliminarConferencia(id) {
     const { data: asistentes, error: checkError } = await window.db
-        .from('asistentes')
-        .select('id')
-        .eq('conferencia_id', id)
-        .limit(1);
+        .from('asistentes').select('id').eq('conferencia_id', id).limit(1);
     if (checkError) throw checkError;
     if (asistentes && asistentes.length > 0) {
         throw new Error('No se puede eliminar: hay asistentes registrados');
     }
-    const { error } = await window.db
-        .from('conferencias')
-        .delete()
-        .eq('id', id);
+    const { error } = await window.db.from('conferencias').delete().eq('id', id);
     if (error) throw error;
 }
 
 // ============================================
-// ASISTENTES
+// ASISTENTES ✅ EDITAR Y ELIMINAR
 // ============================================
 async function obtenerAsistentes(conferencia_id = null) {
-    let query = window.db
-        .from('asistentes')
-        .select(`*, iglesias (nombre), conferencias (nombre)`);
-    if (conferencia_id) {
-        query = query.eq('conferencia_id', conferencia_id);
-    }
+    let query = window.db.from('asistentes').select(`*, iglesias (nombre), conferencias (nombre)`);
+    if (conferencia_id) query = query.eq('conferencia_id', conferencia_id);
     const { data, error } = await query.order('nombre_completo');
     if (error) throw error;
     return data;
@@ -331,8 +239,7 @@ async function crearAsistente(datos) {
             iglesia_id: datos.iglesia_id,
             conferencia_id: datos.conferencia_id,
             fechas_asistencia: datos.fechas_asistencia || '[]'
-        }])
-        .select();
+        }]).select();
     if (error) throw error;
     return data;
 }
@@ -350,28 +257,22 @@ async function actualizarAsistente(id, datos) {
             fechas_asistencia: datos.fechas_asistencia || '[]',
             updated_at: new Date()
         })
-        .eq('id', id)
-        .select();
+        .eq('id', id).select();
     if (error) throw error;
     return data;
 }
 
 async function eliminarAsistente(id) {
-    const { error } = await window.db
-        .from('asistentes')
-        .delete()
-        .eq('id', id);
+    const { error } = await window.db.from('asistentes').delete().eq('id', id);
     if (error) throw error;
 }
 
 // ============================================
-// USUARIOS
+// USUARIOS ✅ EDITAR Y ELIMINAR
 // ============================================
 async function obtenerUsuarios() {
     const { data, error } = await window.db
-        .from('usuarios_sistema')
-        .select('*')
-        .order('nombre_completo');
+        .from('usuarios_sistema').select('*').order('nombre_completo');
     if (error) throw error;
     return data;
 }
@@ -379,8 +280,7 @@ async function obtenerUsuarios() {
 async function crearUsuario(nombre_completo, email, password_hash, rol, permisos, estado) {
     const { data, error } = await window.db
         .from('usuarios_sistema')
-        .insert([{ nombre_completo, email, password_hash, rol, permisos, estado }])
-        .select();
+        .insert([{ nombre_completo, email, password_hash, rol, permisos, estado }]).select();
     if (error) throw error;
     return data;
 }
@@ -393,8 +293,7 @@ async function actualizarUsuario(id, nombre_completo, email, password_hash, rol,
     const { data, error } = await window.db
         .from('usuarios_sistema')
         .update(updateData)
-        .eq('id', id)
-        .select();
+        .eq('id', id).select();
     if (error) throw error;
     return data;
 }
@@ -402,17 +301,12 @@ async function actualizarUsuario(id, nombre_completo, email, password_hash, rol,
 async function eliminarUsuario(id) {
     const { data: admins, error: checkError } = await window.db
         .from('usuarios_sistema')
-        .select('id')
-        .eq('rol', 'administrador')
-        .eq('estado', 'activo');
+        .select('id').eq('rol', 'administrador').eq('estado', 'activo');
     if (checkError) throw checkError;
     if (admins && admins.length <= 1) {
-        throw new Error('No se puede eliminar: debe haber al menos un administrador activo');
+        throw new Error('Debe haber al menos un administrador activo');
     }
-    const { error } = await window.db
-        .from('usuarios_sistema')
-        .delete()
-        .eq('id', id);
+    const { error } = await window.db.from('usuarios_sistema').delete().eq('id', id);
     if (error) throw error;
 }
 
@@ -421,37 +315,28 @@ async function eliminarUsuario(id) {
 // ============================================
 async function obtenerEstadisticas() {
     try {
-        const { data, error } = await window.db
-            .from('vista_estadisticas')
-            .select('*')
-            .single();
+        const { data, error } = await window.db.from('vista_estadisticas').select('*').single();
         if (error) throw error;
         return data;
     } catch (error) {
-        console.log('Vista de estadísticas no disponible');
         return {
-            total_zonas: 0,
-            total_distritos: 0,
-            total_iglesias: 0,
-            total_conferencias: 0,
-            total_asistentes: 0
+            total_zonas: 0, total_distritos: 0, total_iglesias: 0,
+            total_conferencias: 0, total_asistentes: 0
         };
     }
 }
 
 // ============================================
-// UTILIDADES - MENSAJES TOAST
+// UTILIDADES
 // ============================================
 function mostrarMensaje(mensaje, tipo = 'info') {
     const toast = document.createElement('div');
-    toast.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15);`;
-    if (tipo === 'success') {
-        toast.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-    } else if (tipo === 'error') {
-        toast.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-    } else {
-        toast.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
-    }
+    toast.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 15px 25px; 
+        border-radius: 8px; color: white; font-weight: 500; z-index: 9999; 
+        animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15);`;
+    if (tipo === 'success') toast.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    else if (tipo === 'error') toast.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+    else toast.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
     toast.textContent = mensaje;
     document.body.appendChild(toast);
     setTimeout(() => {
@@ -460,9 +345,6 @@ function mostrarMensaje(mensaje, tipo = 'info') {
     }, 3000);
 }
 
-// ============================================
-// UTILIDADES - FECHAS
-// ============================================
 function fechaISOaLocal(fechaISO) {
     if (!fechaISO) return '';
     const fecha = new Date(fechaISO + 'T00:00:00');
@@ -487,27 +369,13 @@ function calcularDias(inicio, fin) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
-function formatearFecha(fecha) {
-    if (!fecha) return '';
-    const fechaLocal = fechaISOaLocal(fecha);
-    const [year, month, day] = fechaLocal.split('-');
-    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-    return `${day} de ${meses[parseInt(month) - 1]} de ${year}`;
-}
-
-function formatearFechaCorta(fecha) {
-    if (!fecha) return '';
-    return formatearFechaParaTabla(fecha);
-}
-
-// ============================================
-// ANIMACIONES PARA TOAST
-// ============================================
 if (!document.getElementById('toast-styles')) {
     const style = document.createElement('style');
     style.id = 'toast-styles';
-    style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
+    style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } 
+        to { transform: translateX(0); opacity: 1; } } 
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } 
+        to { transform: translateX(100%); opacity: 0; } }`;
     document.head.appendChild(style);
 }
 
@@ -548,6 +416,5 @@ window.mostrarMensaje = mostrarMensaje;
 window.fechaISOaLocal = fechaISOaLocal;
 window.formatearFechaParaTabla = formatearFechaParaTabla;
 window.calcularDias = calcularDias;
-window.formatearFecha = formatearFecha;
-window.formatearFechaCorta = formatearFechaCorta;
-console.log('✅ app.js cargado correctamente con todas las funciones');
+
+console.log('✅ app.js cargado con TODAS las funciones CRUD');

@@ -427,6 +427,28 @@ async function guardarConferencia(e) {
     }
 }
 
+function actualizarDuracionConferencia() {
+    const inicio = document.getElementById('confFechaInicio').value;
+    const fin = document.getElementById('confFechaFin').value;
+    const duracionElement = document.querySelector('#modalNuevaConferencia .duracion-conferencia');
+    
+    if (inicio && fin && duracionElement) {
+        const dias = calcularDias(inicio, fin);
+        duracionElement.textContent = `📅 Duración: ${dias} días`;
+    }
+}
+
+// Agregar listeners para los inputs de fecha
+document.addEventListener('DOMContentLoaded', () => {
+    const confInicio = document.getElementById('confFechaInicio');
+    const confFin = document.getElementById('confFechaFin');
+    
+    if (confInicio && confFin) {
+        confInicio.addEventListener('change', actualizarDuracionConferencia);
+        confFin.addEventListener('change', actualizarDuracionConferencia);
+    }
+});
+
 // ============================================
 // ASISTENTES - Editar/Eliminar
 // ============================================
@@ -662,6 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

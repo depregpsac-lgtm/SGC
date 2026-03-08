@@ -363,7 +363,6 @@ async function confirmarEliminarConferencia(id) {
     }
 }
 
-// Esta función debería estar en main.js - si no existe, agrégala
 async function cargarConferencias() {
     try {
         const conferencias = await obtenerConferencias();
@@ -437,6 +436,17 @@ function actualizarDuracionConferencia() {
         duracionElement.textContent = `📅 Duración: ${dias} días`;
     }
 }
+
+// Agregar listeners para los inputs de fecha
+document.addEventListener('DOMContentLoaded', () => {
+    const confInicio = document.getElementById('confFechaInicio');
+    const confFin = document.getElementById('confFechaFin');
+    
+    if (confInicio && confFin) {
+        confInicio.addEventListener('change', actualizarDuracionConferencia);
+        confFin.addEventListener('change', actualizarDuracionConferencia);
+    }
+});
 
 // Agregar listeners para los inputs de fecha
 document.addEventListener('DOMContentLoaded', () => {
@@ -684,6 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

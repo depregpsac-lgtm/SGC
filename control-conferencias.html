@@ -816,16 +816,17 @@
                             <option value="">-- Seleccione Conferencia --</option>
                         </select>
                     </div>
-                    <div class="fechas-container" id="asistenteFechasContainer" style="display: none;">
-                        <label>✅ Marque los días que asistió:</label>
-                        <!-- Dentro del modalNuevoAsistente -->
-                        <div id="asistenteFechasLista" style="display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0;">
-                        <!-- Las fechas se generarán dinámicamente -->
-                        </div>
-
-                        <div id="asistenciaResumen" class="contador-asistencia">
-                        ✅ <strong>0</strong> días asistidos de <strong>0</strong> totales
-                        </div>
+                   <!-- Dentro del modal modalNuevoAsistente -->
+                    <div class="mb-3">
+                    <label class="form-label">✅ Marque los días que asistió:</label>
+                    <div id="fechasAsistenciaContainer" class="fechas-container">
+                    <!-- Los botones se generan dinámicamente -->
+                    </div>
+                    <div class="contador-asistencia mt-2 p-2 rounded">
+                    ✅ <strong>0</strong> días asistidos de <strong>0</strong> totales
+                    </div>
+                    <!-- Campo oculto para guardar el total -->
+                    <input type="hidden" id="diasAsistidosInput" name="dias_asistidos" value="0">
                     </div>
                     </div>
                 </div>

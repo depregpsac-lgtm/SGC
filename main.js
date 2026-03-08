@@ -293,33 +293,32 @@ async function editarConferencia(id) {
     }
 }
 
-async function guardarConferenciaEditada(e) {
+async function guardarConferencia(e) {
     e.preventDefault();
+    
     const iglesia_id = document.getElementById('confIglesia').value;
     const nombre = document.getElementById('confNombre').value;
     const fecha_inicio = document.getElementById('confFechaInicio').value;
     const fecha_fin = document.getElementById('confFechaFin').value;
     const conferenciante = document.getElementById('confConferenciante').value;
+    
     if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
     }
-
+    
     try {
-        await actualizarConferencia(window.editMode.id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
-        mostrarMensaje('✅ Conferencia actualizada', 'success');
+        await crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
+        mostrarMensaje('✅ Conferencia creada exitosamente', 'success');
         cerrarModal('modalNuevaConferencia');
         await cargarConferencias();
         await cargarEstadisticas();
-        window.editMode = { tipo: null, id: null };
-        document.getElementById('formConferencia').onsubmit = guardarConferencia;
-        // CORREGIDO
-        const tituloModal = document.querySelector('#modalNuevaConferencia h3');
-        if (tituloModal) {
-            tituloModal.textContent = '📅 Nueva Conferencia';
-        }
+        
+        // Resetear formulario
+        document.getElementById('formConferencia').reset();
+        
     } catch (error) {
-        mostrarMensaje('❌ ' + error.message, 'error');
+        mostrarMensaje('❌ Error: ' + error.message, 'error');
     }
 }
 
@@ -571,5 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 

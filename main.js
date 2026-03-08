@@ -12,6 +12,51 @@ window.editMode = {
 };
 
 // ============================================
+// CONTROL DE MENÚ POR PERMISOS ✅ NUEVO
+// ============================================
+function aplicarPermisosMenu() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return;
+    
+    const esAdmin = user.rol === 'administrador';
+    const permisos = JSON.parse(user.permisos || '[]');
+    
+    // Mapeo de permisos a elementos del menú
+    const menuItems = {
+        'dashboard': document.querySelectorAll('[data-permiso="dashboard"]'),
+        'conferencias': document.querySelectorAll('[data-permiso="conferencias"]'),
+        'registros': document.querySelectorAll('[data-permiso="registros"]'),
+        'reportes': document.querySelectorAll('[data-permiso="reportes"]'),
+        'configuracion': document.querySelectorAll('[data-permiso="configuracion"]'),
+        'usuarios': document.querySelectorAll('[data-permiso="usuarios"]')
+    };
+    
+    // Ocultar/mostrar cada elemento del menú según permisos
+    for (const [permiso, elementos] of Object.entries(menuItems)) {
+        elementos.forEach(el => {
+            if (esAdmin || permisos.includes(permiso)) {
+                el.style.display = 'block';
+                el.closest('li')?.style.setProperty('display', 'block', 'important');
+            } else {
+                el.style.display = 'none';
+                el.closest('li')?.style.setProperty('display', 'none', 'important');
+            }
+        });
+    }
+    
+    // Mostrar información del usuario
+    const userInfo = document.getElementById('userInfo');
+    if (userInfo) {
+        userInfo.innerHTML = `
+            <div style="font-size: 0.9em;">👤 ${user.nombre}</div>
+            <div style="font-size: 0.8em; opacity: 0.8;">${user.rol === 'administrador' ? '👑 Administrador' : '👤 Usuario'}</div>
+        `;
+    }
+    
+    console.log('✅ Permisos de menú aplicados:', { rol: user.rol, permisos });
+}
+
+// ============================================
 // FUNCIONES DE FECHAS
 // ============================================
 function fechaISOaLocal(fechaISO) {
@@ -1067,6 +1112,9 @@ async function cargarEstadisticas() {
 // EVENT LISTENERS - INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+    // ✅ Aplicar permisos de menú al cargar
+    aplicarPermisosMenu();
+    
     // Listeners para inputs de fecha de conferencia
     const confInicio = document.getElementById('confFechaInicio');
     const confFin = document.getElementById('confFechaFin');
@@ -1211,8 +1259,10 @@ window.actualizarSelectZonas = actualizarSelectZonas;
 window.actualizarSelectDistritos = actualizarSelectDistritos;
 window.actualizarSelectIglesias = actualizarSelectIglesias;
 window.actualizarSelectConferencias = actualizarSelectConferencias;
+window.aplicarPermisosMenu = aplicarPermisosMenu;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -543,7 +543,39 @@ async function confirmarEliminarAsistente(id) {
         } catch (error) {
             mostrarMensaje('❌ ' + error.message, 'error');
         }
+    }  
+}
+
+// ============================================
+// FUNCIONES DE ASISTENCIA - ACTUALIZACIÓN EN TIEMPO REAL
+// ============================================
+
+function actualizarContadorAsistencia() {
+    const botonesSeleccionados = document.querySelectorAll('.fecha-asistencia.seleccionada');
+    const totalDias = document.querySelectorAll('.fecha-asistencia').length;
+    const diasAsistidos = botonesSeleccionados.length;
+    
+    const contadorElement = document.querySelector('.contador-asistencia');
+    if (contadorElement) {
+        contadorElement.textContent = `✅ ${diasAsistidos} días asistidos de ${totalDias} totales`;
+        
+        // Actualizar estilo según progreso
+        if (diasAsistidos === 0) {
+            contadorElement.style.background = '#fee2e2';
+            contadorElement.style.color = '#dc2626';
+        } else if (diasAsistidos === totalDias) {
+            contadorElement.style.background = '#d1fae5';
+            contadorElement.style.color = '#059669';
+        } else {
+            contadorElement.style.background = '#d1fae5';
+            contadorElement.style.color = '#059669';
+        }
     }
+}
+
+function toggleFechaAsistencia(boton) {
+    boton.classList.toggle('seleccionada');
+    actualizarContadorAsistencia();
 }
 
 // ============================================
@@ -694,6 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

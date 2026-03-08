@@ -293,7 +293,7 @@ async function editarConferencia(id) {
     }
 }
 
-async function guardarConferencia(e) {
+async function guardarConferenciaEditada(e) {
     e.preventDefault();
     
     const iglesia_id = document.getElementById('confIglesia').value;
@@ -308,17 +308,24 @@ async function guardarConferencia(e) {
     }
     
     try {
-        await crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
-        mostrarMensaje('✅ Conferencia creada exitosamente', 'success');
+        await actualizarConferencia(window.editMode.id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
+        mostrarMensaje('✅ Conferencia actualizada', 'success');
         cerrarModal('modalNuevaConferencia');
         await cargarConferencias();
         await cargarEstadisticas();
         
-        // Resetear formulario
-        document.getElementById('formConferencia').reset();
+        // Resetear modo edición
+        window.editMode = { tipo: null, id: null };
+        document.getElementById('formConferencia').onsubmit = guardarConferencia;
+        
+        // Restaurar título del modal
+        const tituloModal = document.querySelector('#modalNuevaConferencia h3');
+        if (tituloModal) {
+            tituloModal.textContent = '📅 Nueva Conferencia';
+        }
         
     } catch (error) {
-        mostrarMensaje('❌ Error: ' + error.message, 'error');
+        mostrarMensaje('❌ ' + error.message, 'error');
     }
 }
 
@@ -604,6 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

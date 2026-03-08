@@ -42,10 +42,6 @@
             padding: 20px 0;
         }
         
-        .sidebar-menu li {
-            display: block;
-        }
-        
         .sidebar-menu li a {
             display: block;
             padding: 12px 20px;
@@ -297,15 +293,14 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <h2>🦁 MinistryLion</h2>
-            <div id="userInfo">Usuario: Cargando...</div>
+            <p id="userInfo">Usuario: Cargando...</p>
         </div>
         <ul class="sidebar-menu">
-            <li data-permiso="dashboard"><a href="#" onclick="mostrarSeccion('dashboard')">📊 Dashboard</a></li>
-            <li data-permiso="conferencias"><a href="#" onclick="mostrarSeccion('conferencias')">📅 Conferencias</a></li>
-            <li data-permiso="registros"><a href="#" onclick="mostrarSeccion('registros')">👥 Registros</a></li>
-            <li data-permiso="reportes"><a href="#" onclick="mostrarSeccion('reportes')">📈 Reportes</a></li>
-            <li data-permiso="configuracion"><a href="#" onclick="mostrarSeccion('configuracion')">⚙️ Configuración</a></li>
-            <li data-permiso="usuarios"><a href="#" onclick="mostrarSeccion('usuarios')">👤 Usuarios</a></li>
+            <li><a href="#" onclick="mostrarSeccion('dashboard')">📊 Dashboard</a></li>
+            <li><a href="#" onclick="mostrarSeccion('conferencias')">📅 Conferencias</a></li>
+            <li><a href="#" onclick="mostrarSeccion('registros')">👥 Registros</a></li>
+            <li><a href="#" onclick="mostrarSeccion('configuracion')">⚙️ Configuración</a></li>
+            <li><a href="#" onclick="mostrarSeccion('usuarios')">👤 Usuarios</a></li>
             <li><a href="#" onclick="logout()">🚪 Cerrar Sesión</a></li>
         </ul>
     </div>
@@ -341,16 +336,8 @@
             </div>
         </div>
 
-        <!-- Sección Dashboard -->
-        <div id="seccionDashboard" class="section" data-permiso="dashboard">
-            <div class="section-header">
-                <h2>📊 Dashboard General</h2>
-            </div>
-            <p>Bienvenido al sistema de control de conferencias MinistryLion</p>
-        </div>
-
         <!-- Sección Conferencias -->
-        <div id="seccionConferencias" class="section" data-permiso="conferencias">
+        <div id="seccionConferencias" class="section">
             <div class="section-header">
                 <h2>📅 Gestión de Conferencias</h2>
                 <button class="btn btn-primary" onclick="abrirModal('modalNuevaConferencia')">+ Nueva Conferencia</button>
@@ -374,7 +361,7 @@
         </div>
 
         <!-- Sección Registros -->
-        <div id="seccionRegistros" class="section" data-permiso="registros">
+        <div id="seccionRegistros" class="section">
             <div class="section-header">
                 <h2>👥 Registros de Asistentes</h2>
                 <button class="btn btn-primary" onclick="abrirModal('modalNuevoAsistente')">+ Nuevo Registro</button>
@@ -396,16 +383,8 @@
             </table>
         </div>
 
-        <!-- Sección Reportes -->
-        <div id="seccionReportes" class="section" data-permiso="reportes">
-            <div class="section-header">
-                <h2>📈 Reportes y Estadísticas</h2>
-            </div>
-            <p>Funcionalidad de reportes en desarrollo...</p>
-        </div>
-
         <!-- Sección Configuración -->
-        <div id="seccionConfiguracion" class="section" data-permiso="configuracion">
+        <div id="seccionConfiguracion" class="section">
             <div class="section-header">
                 <h2>⚙️ Configuración</h2>
             </div>
@@ -460,7 +439,7 @@
         </div>
 
         <!-- Sección Usuarios -->
-        <div id="seccionUsuarios" class="section" data-permiso="usuarios">
+        <div id="seccionUsuarios" class="section">
             <div class="section-header">
                 <h2>👤 Gestión de Usuarios</h2>
                 <button class="btn btn-primary" onclick="abrirModal('modalNuevoUsuario')">+ Nuevo Usuario</button>
@@ -725,37 +704,39 @@
     <script src="app.js"></script>
     <script src="main.js"></script>
     <script>
-        // Mostrar secciones según permisos
+        // Inicializar usuario
+        function mostrarInfoUsuario() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                document.getElementById('userInfo').textContent = `Usuario: ${user.nombre} (${user.rol})`;
+                document.getElementById('userDisplay').textContent = `👤 ${user.nombre}`;
+            }
+        }
+        
+        // Mostrar secciones
         function mostrarSeccion(seccion) {
-            // Ocultar todas las secciones
-            document.querySelectorAll('.section').forEach(sec => {
-                sec.style.display = 'none';
-            });
+            document.getElementById('seccionConferencias').style.display = 'none';
+            document.getElementById('seccionRegistros').style.display = 'none';
+            document.getElementById('seccionConfiguracion').style.display = 'none';
+            document.getElementById('seccionUsuarios').style.display = 'none';
             
-            // Mostrar la sección seleccionada si tiene permiso
-            const seccionElement = document.getElementById('seccion' + seccion.charAt(0).toUpperCase() + seccion.slice(1));
-            if (seccionElement) {
-                const permiso = seccionElement.getAttribute('data-permiso');
-                if (!permiso || window.tienePermiso(permiso) || window.esAdministrador()) {
-                    seccionElement.style.display = 'block';
-                } else {
-                    mostrarMensaje('❌ No tienes permiso para acceder a esta sección', 'error');
-                }
+            if (seccion === 'dashboard' || seccion === 'conferencias') {
+                document.getElementById('seccionConferencias').style.display = 'block';
+            } else if (seccion === 'registros') {
+                document.getElementById('seccionRegistros').style.display = 'block';
+            } else if (seccion === 'configuracion') {
+                document.getElementById('seccionConfiguracion').style.display = 'block';
+            } else if (seccion === 'usuarios') {
+                document.getElementById('seccionUsuarios').style.display = 'block';
             }
         }
         
         // Inicializar al cargar
         document.addEventListener('DOMContentLoaded', () => {
-            // Verificar autenticación
-            const user = checkAuth();
-            if (user) {
-                document.getElementById('userDisplay').textContent = `👤 ${user.nombre}`;
-                // Aplicar permisos de menú
-                aplicarPermisosMenu();
-                // Mostrar sección por defecto
-                mostrarSeccion('dashboard');
-            }
+            mostrarInfoUsuario();
+            mostrarSeccion('conferencias');
         });
     </script>
 </body>
 </html>
+

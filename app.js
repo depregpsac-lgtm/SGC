@@ -537,6 +537,28 @@ function formatearFechaTabla(fecha) {
     const fechaLocal = fechaParaInput(fecha);
     const [year, month, day] = fechaLocal.split('-');
     return `${day}/${month}/${year}`;
+
+    // ============================================
+// UTILIDADES - FECHAS (AGREGAR ESTO)
+// ============================================
+
+// Convertir fecha ISO a formato YYYY-MM-DD sin timezone
+function fechaISOaLocal(fechaISO) {
+    if (!fechaISO) return '';
+    const fecha = new Date(fechaISO);
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Formatear fecha para mostrar en tablas (DD/MM/YYYY)
+function formatearFechaParaTabla(fecha) {
+    if (!fecha) return '';
+    const fechaLocal = fechaISOaLocal(fecha);
+    const [year, month, day] = fechaLocal.split('-');
+    return `${day}/${month}/${year}`;
+}
 }
 
 

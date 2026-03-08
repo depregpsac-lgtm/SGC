@@ -570,25 +570,30 @@ async function cargarAsistentes() {
 // ============================================
 // FUNCIONES DE ASISTENCIA - FECHAS Y CONTADOR
 // ============================================
+// ============================================
+// FUNCIONES DE ASISTENCIA - FECHAS Y CONTADOR (CORREGIDAS)
+// ============================================
+
 function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (!container) return;
     
+    // Limpiar contenedor ANTES de generar nuevos botones
     container.innerHTML = '';
-    
+
     const inicio = new Date(fechaInicio + 'T00:00:00');
     const fin = new Date(fechaFin + 'T00:00:00');
     const fechas = [];
-    
+
     let actual = new Date(inicio);
     while (actual <= fin) {
         fechas.push(new Date(actual));
         actual.setDate(actual.getDate() + 1);
     }
-    
+
     const diasSemana = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
     const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-    
+
     fechas.forEach(fecha => {
         const diaSemana = diasSemana[fecha.getDay()];
         const dia = fecha.getDate();
@@ -601,19 +606,33 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
         boton.className = 'fecha-asistencia';
         boton.dataset.fecha = fechaISO;
         boton.textContent = `${diaSemana}, ${dia} ${mes} ${año}`;
-        boton.onclick = () => toggleFechaAsistencia(boton);
+        
+        // Event listener directo (más confiable que onclick inline)
+        boton.addEventListener('click', function() {
+            toggleFechaAsistencia(this);
+        });
+        
         container.appendChild(boton);
     });
-    
+
+    // Actualizar contador después de generar botones
     actualizarContadorAsistencia();
 }
 
 function toggleFechaAsistencia(boton) {
+    // Toggle de clase sin afectar otros botones
     boton.classList.toggle('seleccionada');
+    
+    // Actualizar contador inmediatamente
     actualizarContadorAsistencia();
+    
+    // Debug en consola para verificar
+    console.log('📅 Fecha toggleada:', boton.dataset.fecha, 
+                'Seleccionada:', boton.classList.contains('seleccionada'));
 }
 
 function actualizarContadorAsistencia() {
+    // Contar TODOS los botones con clase 'seleccionada'
     const botonesSeleccionados = document.querySelectorAll('.fecha-asistencia.seleccionada');
     const totalDias = document.querySelectorAll('.fecha-asistencia').length;
     const diasAsistidos = botonesSeleccionados.length;
@@ -622,6 +641,7 @@ function actualizarContadorAsistencia() {
     if (contadorElement) {
         contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> días asistidos de <strong>${totalDias}</strong> totales`;
         
+        // Cambiar colores según asistencia
         if (diasAsistidos === 0) {
             contadorElement.style.background = '#fee2e2';
             contadorElement.style.color = '#dc2626';
@@ -633,6 +653,14 @@ function actualizarContadorAsistencia() {
             contadorElement.style.color = '#d97706';
         }
     }
+    
+    // Actualizar campo oculto para el formulario
+    const inputDiasAsistidos = document.getElementById('diasAsistidosInput');
+    if (inputDiasAsistidos) {
+        inputDiasAsistidos.value = diasAsistidos;
+    }
+    
+    console.log('📊 Contador actualizado:', diasAsistidos, 'de', totalDias);
 }
 
 function obtenerFechasSeleccionadas() {
@@ -644,12 +672,15 @@ function marcarFechasGuardadas(fechasGuardadas) {
     if (!fechasGuardadas || fechasGuardadas.length === 0) return;
     
     const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
+    
     fechas.forEach(fechaISO => {
         const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
         if (boton) {
             boton.classList.add('seleccionada');
         }
     });
+    
+    // Actualizar contador DESPUÉS de marcar todas las fechas
     actualizarContadorAsistencia();
 }
 
@@ -815,6 +846,7 @@ window.marcarFechasGuardadas = marcarFechasGuardadas;
 window.actualizarDuracionConferencia = actualizarDuracionConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

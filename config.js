@@ -1,6 +1,5 @@
 // config.js - Configuración de Supabase
 // ============================================
-
 const SUPABASE_CONFIG = {
     url: 'https://qalzqyjuyptemtrhwsbz.supabase.co',
     key: 'sb_publishable_6qbyMCMlswqUm_kuCPJtyA_B7m4xFvr'
@@ -13,7 +12,6 @@ function initSupabase() {
         console.error('❌ La librería de Supabase no se ha cargado. Verifica el script CDN en el HTML.');
         return false;
     }
-    
     try {
         // Crear cliente de Supabase
         window.db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);

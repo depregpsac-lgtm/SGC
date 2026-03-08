@@ -244,9 +244,16 @@ async function obtenerConferencias() {
 }
 
 async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
+    // Asegurar formato YYYY-MM-DD
     const { data, error } = await window.db
         .from('conferencias')
-        .insert([{ iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante }])
+        .insert([{ 
+            iglesia_id, 
+            nombre, 
+            fecha_inicio, 
+            fecha_fin, 
+            conferenciante 
+        }])
         .select();
     if (error) throw error;
     return data;
@@ -255,20 +262,18 @@ async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, con
 async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
     const { data, error } = await window.db
         .from('conferencias')
-        .update({ 
-            iglesia_id, 
-            nombre, 
-            fecha_inicio, 
-            fecha_fin, 
+        .update({
+            iglesia_id,
+            nombre,
+            fecha_inicio,
+            fecha_fin,
             conferenciante
-            // ❌ Elimina esta línea: updated_at: new Date()
         })
         .eq('id', id)
         .select();
     if (error) throw error;
     return data;
 }
-
 async function eliminarConferencia(id) {
     // Verificar si hay asistentes dependientes
     const { data: asistentes, error: checkError } = await window.db

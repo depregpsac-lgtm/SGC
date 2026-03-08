@@ -1068,6 +1068,19 @@ if (!window.db) {
     console.log('🔍 Iniciando conexión con Supabase...');
     initSupabase();
 }
+
+     // Inicializar al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar autenticación
+            const user = checkAuth();
+            if (user) {
+                document.getElementById('userDisplay').textContent = `👤 ${user.nombre}`;
+                // Aplicar permisos de menú
+                aplicarPermisosMenu();
+                // Mostrar sección por defecto
+                mostrarSeccion('dashboard');
+            }
+        });
 </script>
 
 <!-- Funciones de la aplicación -->
@@ -2197,6 +2210,8 @@ async function obtenerEstadisticas() {
         return { total_zonas: 0, total_distritos: 0, total_iglesias: 0, total_conferencias: 0, total_asistentes: 0 };
     }
 }
+
+    
 
 // Exportar funciones globales
 window.showSection = showSection;

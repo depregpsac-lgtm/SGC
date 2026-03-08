@@ -379,8 +379,8 @@ async function cargarConferencias() {
                 tr.innerHTML = `
                     <td>${conf.nombre}</td>
                     <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
-                    <td>${formatearFechaTabla(conf.fecha_inicio)}</td>
-                    <td>${formatearFechaTabla(conf.fecha_fin)}</td>
+                    <td>${formatearFechaParaTabla(conf.fecha_inicio)}</td>
+                    <td>${formatearFechaParaTabla(conf.fecha_fin)}</td>
                     <td>${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</td>
                     <td>${conf.conferenciante || '-'}</td>
                     <td>
@@ -662,6 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

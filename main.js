@@ -267,19 +267,22 @@ async function editarConferencia(id) {
         const iglesias = await obtenerIglesias();
         actualizarSelectIglesias(iglesias);
         
-        // Llenar formulario
+        // Llenar formulario - CORREGIDO: Usar fechaISOaLocal
         document.getElementById('confIglesia').value = data.iglesia_id;
         document.getElementById('confNombre').value = data.nombre;
-        document.getElementById('confFechaInicio').value = data.fecha_inicio;
-        document.getElementById('confFechaFin').value = data.fecha_fin;
+        document.getElementById('confFechaInicio').value = fechaISOaLocal(data.fecha_inicio);
+        document.getElementById('confFechaFin').value = fechaISOaLocal(data.fecha_fin);
         document.getElementById('confConferenciante').value = data.conferenciante || '';
+        
+        // Actualizar duración
+        actualizarDuracionConferencia();
         
         // Configurar edición
         window.editMode = { tipo: 'conferencia', id: id };
         document.getElementById('formConferencia').onsubmit = guardarConferenciaEditada;
         
         abrirModal('modalNuevaConferencia');
-        // CORREGIDO
+        
         const tituloModal = document.querySelector('#modalNuevaConferencia h3');
         if (tituloModal) {
             tituloModal.textContent = '✏️ Editar Conferencia';
@@ -544,3 +547,4 @@ function mostrarMensaje(mensaje, tipo = 'info') {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+

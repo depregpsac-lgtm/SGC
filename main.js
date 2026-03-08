@@ -573,6 +573,97 @@ async function confirmarEliminarAsistente(id) {
 }
 
 // ============================================
+// FUNCIONES DE ASISTENCIA - FECHAS Y CONTADOR
+// ============================================
+
+// Generar botones de fecha basados en la conferencia seleccionada
+function generarBotonesFechas(fechaInicio, fechaFin) {
+    const container = document.getElementById('fechasAsistenciaContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+    const fechas = [];
+    
+    let actual = new Date(inicio);
+    while (actual <= fin) {
+        fechas.push(new Date(actual));
+        actual.setDate(actual.getDate() + 1);
+    }
+    
+    const diasSemana = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+    const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    
+    fechas.forEach(fecha => {
+        const diaSemana = diasSemana[fecha.getDay()];
+        const dia = fecha.getDate();
+        const mes = meses[fecha.getMonth()];
+        const año = fecha.getFullYear();
+        const fechaISO = fecha.toISOString().split('T')[0];
+        
+        const boton = document.createElement('button');
+        boton.type = 'button';
+        boton.className = 'fecha-asistencia';
+        boton.dataset.fecha = fechaISO;
+        boton.textContent = `${diaSemana}, ${dia} ${mes} ${año}`;
+        boton.onclick = () => toggleFechaAsistencia(boton);
+        container.appendChild(boton);
+    });
+    
+    actualizarContadorAsistencia();
+}
+
+// Alternar selección de fecha
+function toggleFechaAsistencia(boton) {
+    boton.classList.toggle('seleccionada');
+    actualizarContadorAsistencia();
+}
+
+// Actualizar contador de días asistidos
+function actualizarContadorAsistencia() {
+    const botonesSeleccionados = document.querySelectorAll('.fecha-asistencia.seleccionada');
+    const totalDias = document.querySelectorAll('.fecha-asistencia').length;
+    const diasAsistidos = botonesSeleccionados.length;
+    
+    const contadorElement = document.querySelector('.contador-asistencia');
+    if (contadorElement) {
+        contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> días asistidos de <strong>${totalDias}</strong> totales`;
+        
+        if (diasAsistidos === 0) {
+            contadorElement.style.background = '#fee2e2';
+            contadorElement.style.color = '#dc2626';
+        } else if (diasAsistidos === totalDias) {
+            contadorElement.style.background = '#d1fae5';
+            contadorElement.style.color = '#059669';
+        } else {
+            contadorElement.style.background = '#fef3c7';
+            contadorElement.style.color = '#d97706';
+        }
+    }
+}
+
+// Obtener fechas seleccionadas
+function obtenerFechasSeleccionadas() {
+    const seleccionadas = document.querySelectorAll('.fecha-asistencia.seleccionada');
+    return Array.from(seleccionadas).map(boton => boton.dataset.fecha);
+}
+
+// Marcar fechas ya guardadas (para edición)
+function marcarFechasGuardadas(fechasGuardadas) {
+    if (!fechasGuardadas || fechasGuardadas.length === 0) return;
+    
+    const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
+    fechas.forEach(fechaISO => {
+        const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
+        if (boton) {
+            boton.classList.add('seleccionada');
+        }
+    });
+    actualizarContadorAsistencia();
+}
+
+// ============================================
 // FUNCIONES DE ASISTENCIA - ACTUALIZACIÓN EN TIEMPO REAL
 // ============================================
 
@@ -754,6 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

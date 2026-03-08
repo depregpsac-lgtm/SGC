@@ -491,17 +491,20 @@ async function editarAsistente(id) {
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
         abrirModal('modalNuevoAsistente');
-        // CORREGIDO
         const tituloModal = document.querySelector('#modalNuevoAsistente h3');
         if (tituloModal) {
             tituloModal.textContent = '✏️ Editar Asistente';
         }
         
+        // Actualizar contador después de cargar el modal
+        setTimeout(() => {
+            actualizarContadorAsistencia();
+        }, 100);
+        
     } catch (error) {
         mostrarMensaje('Error: ' + error.message, 'error');
     }
 }
-
 async function guardarAsistenteEditado(e) {
     e.preventDefault();
     const datos = {
@@ -726,6 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

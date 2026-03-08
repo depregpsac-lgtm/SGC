@@ -376,6 +376,35 @@ async function cargarConferencias() {
     }
 }
 
+async function guardarConferencia(e) {
+    e.preventDefault();
+    
+    const iglesia_id = document.getElementById('confIglesia').value;
+    const nombre = document.getElementById('confNombre').value;
+    const fecha_inicio = document.getElementById('confFechaInicio').value;
+    const fecha_fin = document.getElementById('confFechaFin').value;
+    const conferenciante = document.getElementById('confConferenciante').value;
+    
+    if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
+        mostrarMensaje('Complete los campos requeridos', 'error');
+        return;
+    }
+    
+    try {
+        await crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
+        mostrarMensaje('✅ Conferencia creada exitosamente', 'success');
+        cerrarModal('modalNuevaConferencia');
+        await cargarConferencias();
+        await cargarEstadisticas();
+        
+        // Limpiar formulario
+        document.getElementById('formConferencia').reset();
+        
+    } catch (error) {
+        mostrarMensaje('❌ Error: ' + error.message, 'error');
+    }
+}
+
 // ============================================
 // ASISTENTES - Editar/Eliminar
 // ============================================
@@ -611,6 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

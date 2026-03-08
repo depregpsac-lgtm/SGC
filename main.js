@@ -623,7 +623,7 @@ function toggleFechaAsistencia(boton) {
 }
 
 function actualizarContadorAsistencia() {
-    // ✅ Contar TODOS los botones con clase 'seleccionada' (no solo el último)
+    // ✅ Contar TODOS los botones con clase 'seleccionada'
     const botonesSeleccionados = document.querySelectorAll('.fecha-asistencia.seleccionada');
     const totalDias = document.querySelectorAll('.fecha-asistencia').length;
     const diasAsistidos = botonesSeleccionados.length;
@@ -651,7 +651,6 @@ function actualizarContadorAsistencia() {
         inputDiasAsistidos.value = diasAsistidos;
     }
 }
-
 function obtenerFechasSeleccionadas() {
     const seleccionadas = document.querySelectorAll('.fecha-asistencia.seleccionada');
     return Array.from(seleccionadas).map(boton => boton.dataset.fecha);
@@ -895,6 +894,7 @@ window.abrirModal = abrirModal;
 window.cerrarModal = cerrarModal;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -4,2237 +4,738 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Iconos -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- Estilos personalizados -->
     <style>
-        :root {
-            --primary: #0d6efd;
-            --secondary: #6c757d;
-            --success: #198754;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #0dcaf0;
-            --light: #f8f9fa;
-            --dark: #212529;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        body { 
-            background-color: #f4f6f9; 
-            font-family: 'Segoe UI', system-ui, sans-serif;
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
         }
-        .sidebar { 
-            min-height: 100vh; 
-            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); 
-            color: white; 
-            position: fixed;
+        
+        .sidebar {
             width: 250px;
-            z-index: 1000;
+            background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
         }
-        .sidebar .brand {
-            padding: 1.5rem;
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .sidebar .brand h4 {
-            margin: 0;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+        
+        .sidebar-header h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
         }
-        .sidebar .brand small {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.85rem;
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
         }
-        .sidebar a { 
-            color: rgba(255,255,255,0.85); 
-            text-decoration: none; 
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        
+        .sidebar-menu li a {
+            display: block;
             padding: 12px 20px;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-        .sidebar a:hover, .sidebar a.active { 
-            background: rgba(255,255,255,0.1); 
             color: white;
-            border-left-color: var(--primary);
+            text-decoration: none;
+            transition: background 0.3s;
         }
-        .sidebar a i {
-            width: 20px;
-            text-align: center;
+        
+        .sidebar-menu li a:hover {
+            background: rgba(255,255,255,0.1);
         }
-        .main-content { 
-            margin-left: 250px; 
-            padding: 2rem;
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
         }
-        .card-counter { 
-            background: white; 
-            border-radius: 12px; 
-            padding: 1.5rem; 
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            transition: transform 0.2s ease;
-            border: none;
-        }
-        .card-counter:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-        }
-        .card-counter i { 
-            font-size: 2rem; 
-            color: var(--primary);
-            width: 50px;
-            height: 50px;
+        
+        .header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            background: rgba(13, 110, 253, 0.1);
-            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .card-counter h3 { 
-            font-size: 1.75rem; 
-            font-weight: 700; 
-            margin: 0.5rem 0 0;
-            color: var(--dark);
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        .card-counter p { 
-            color: var(--secondary); 
-            margin: 0;
-            font-size: 0.9rem;
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .content-section { display: none; }
-        .content-section.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        .stat-card h3 {
+            font-size: 2em;
+            color: #2d5a87;
+            margin-bottom: 5px;
         }
-        .table th {
+        
+        .stat-card p {
+            color: #666;
+        }
+        
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #2d5a87;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1e3a5f;
+        }
+        
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+            padding: 5px 10px;
+            margin-right: 5px;
+        }
+        
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 5px 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        table th {
             background: #f8f9fa;
             font-weight: 600;
-            border-top: none;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
-        .btn-edit { background: #0d6efd; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; }
-        .btn-edit:hover { background: #0b5ed7; }
-        .btn-delete { background: #dc3545; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; margin-left: 5px; }
-        .btn-delete:hover { background: #bb2d3b; }
-        .fecha-asistencia {
-            padding: 8px 12px;
-            margin: 4px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-            min-width: 140px;
-            text-align: center;
+        
+        table tr:hover {
+            background: #f8f9fa;
         }
-        .fecha-asistencia:hover {
-            border-color: var(--primary);
-            background: #eff6ff;
-            transform: scale(1.02);
-        }
-        .fecha-asistencia.seleccionada {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border-color: #047857;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-        .contador-asistencia {
-            font-weight: 600;
-            padding: 12px 16px;
-            border-radius: 10px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-        .badge-asistencia {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        .search-bar {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            margin-bottom: 1.5rem;
-        }
-        .search-bar .form-control {
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            padding: 10px 15px;
-        }
-        .search-bar .form-control:focus {
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-            border-color: var(--primary);
-        }
-        .modal-content {
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        }
-        .modal-header {
-            border-bottom: 1px solid #eef2f7;
-            padding: 1.25rem 1.5rem;
-        }
-        .modal-body {
-            padding: 1.5rem;
-        }
-        .modal-footer {
-            border-top: 1px solid #eef2f7;
-            padding: 1rem 1.5rem;
-        }
-        .form-label {
-            font-weight: 500;
-            color: #374151;
-            font-size: 0.9rem;
-        }
-        .form-control, .form-select {
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            padding: 10px 14px;
-        }
-        .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-            border-color: var(--primary);
-        }
-        .fechas-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            padding: 8px;
-            background: #f8fafc;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-        }
-        .fechas-container::-webkit-scrollbar {
-            width: 6px;
-        }
-        .fechas-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        .toast {
+        
+        .modal {
+            display: none;
             position: fixed;
-            top: 20px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .modal.show {
+            display: block;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
             right: 20px;
-            z-index: 9999;
-            animation: slideIn 0.3s ease;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
         }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        
+        .form-group {
+            margin-bottom: 15px;
         }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
         }
-        .loading {
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .fecha-asistencia {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(13, 110, 253, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s linear infinite;
+            padding: 8px 12px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .fecha-asistencia.seleccionada {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
         }
-        .empty-state {
+        
+        .contador-asistencia {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
             text-align: center;
-            padding: 3rem 1rem;
-            color: var(--secondary);
         }
-        .empty-state i {
-            font-size: 3rem;
-            color: #cbd5e1;
-            margin-bottom: 1rem;
+        
+        .badge-asistencia {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
         }
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .card-counter h3 {
-                font-size: 1.5rem;
-            }
+        
+        .badge-estado.activo {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .badge-estado.inactivo {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .permisos-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .form-actions .btn {
+            flex: 1;
+        }
+        
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background: #4b5563;
         }
     </style>
 </head>
 <body>
-
-<div class="container-fluid p-0">
-    <div class="row g-0">
-        <!-- Sidebar -->
-        <aside class="col-md-2 sidebar p-0">
-            <div class="brand text-center">
-                <h4>🦁 MinistryLion</h4>
-                <small id="userInfo">Usuario: <span id="userName">Cargando...</span><br>Rol: <span id="userRole">-</span></small>
-            </div>
-            <nav class="mt-3">
-                <a href="#" onclick="showSection('dashboard', this)" class="active" data-section="dashboard">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-                <a href="#" onclick="showSection('conferencias', this)" data-section="conferencias">
-                    <i class="bi bi-calendar-event"></i> Conferencias
-                </a>
-                <a href="#" onclick="showSection('asistentes', this)" data-section="asistentes">
-                    <i class="bi bi-people"></i> Registros
-                </a>
-                <a href="#" onclick="showSection('reportes', this)" data-section="reportes">
-                    <i class="bi bi-graph-up"></i> Reportes
-                </a>
-                <a href="#" onclick="showSection('configuracion', this)" data-section="configuracion">
-                    <i class="bi bi-gear"></i> Configuración
-                </a>
-                <a href="#" onclick="showSection('usuarios', this)" data-section="usuarios">
-                    <i class="bi bi-person-badge"></i> Usuarios
-                </a>
-                <a href="#" onclick="logout()" class="text-danger mt-4">
-                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                </a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="col-md-10 main-content">
-            
-            <!-- DASHBOARD -->
-            <section id="dashboard" class="content-section active">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="mb-1">📊 Panel Principal</h2>
-                        <p class="text-muted mb-0">Bienvenido al sistema de control de conferencias</p>
-                    </div>
-                    <div>
-                        <span class="badge bg-primary fs-6" id="currentDate"></span>
-                    </div>
-                </div>
-                
-                <div class="row g-4 mb-4">
-                    <div class="col-md-2">
-                        <div class="card-counter text-center">
-                            <i class="bi bi-geo-alt"></i>
-                            <h3 id="dashZonas">0</h3>
-                            <p>Total Zonas</p>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="card-counter text-center">
-                            <i class="bi bi-building"></i>
-                            <h3 id="dashDistritos">0</h3>
-                            <p>Total Distritos</p>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="card-counter text-center">
-                            <i class="bi bi-church"></i>
-                            <h3 id="dashIglesias">0</h3>
-                            <p>Total Iglesias</p>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="card-counter text-center">
-                            <i class="bi bi-calendar-check"></i>
-                            <h3 id="dashConferencias">0</h3>
-                            <p>Conferencias</p>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="card-counter text-center">
-                            <i class="bi bi-people-fill"></i>
-                            <h3 id="dashAsistentes">0</h3>
-                            <p>Total Asistentes</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0">📅 Próximas Conferencias</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Evento</th>
-                                        <th>Fecha Inicio</th>
-                                        <th>Fecha Fin</th>
-                                        <th>Iglesia Sede</th>
-                                        <th>Conferenciante</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableProximasConferencias">
-                                    <tr><td colspan="5" class="text-center py-4">No hay conferencias registradas</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- CONFERENCIAS -->
-            <section id="conferencias" class="content-section">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="mb-1">📅 Gestión de Conferencias</h2>
-                        <p class="text-muted mb-0">Administra las conferencias de tu organización</p>
-                    </div>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaConferencia">
-                        <i class="bi bi-plus-lg"></i> Nueva Conferencia
-                    </button>
-                </div>
-                
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Iglesia</th>
-                                        <th>Inicio</th>
-                                        <th>Fin</th>
-                                        <th>Días</th>
-                                        <th>Conferenciante</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableConferencias">
-                                    <tr><td colspan="7" class="text-center py-4">Cargando datos...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ASISTENTES / REGISTROS ✅ FUNCIONALIDAD COMPLETA INTEGRADA -->
-            <section id="asistentes" class="content-section">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="mb-1">👥 Registros de Asistentes</h2>
-                        <p class="text-muted mb-0">Gestiona la asistencia y participación</p>
-                    </div>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoAsistente" onclick="prepararModalNuevoAsistente()">
-                        <i class="bi bi-plus-lg"></i> Nuevo Registro
-                    </button>
-                </div>
-                
-                <!-- Barra de búsqueda y filtros -->
-                <div class="search-bar">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label small text-muted">🔍 Buscar por nombre</label>
-                            <input type="text" id="searchNombre" class="form-control" placeholder="Nombre del asistente..." onkeyup="filtrarAsistentes()">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label small text-muted">📞 Teléfono</label>
-                            <input type="text" id="searchTelefono" class="form-control" placeholder="Teléfono..." onkeyup="filtrarAsistentes()">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label small text-muted">⛪ Iglesia</label>
-                            <select id="searchIglesia" class="form-select" onchange="filtrarAsistentes()">
-                                <option value="">Todas las iglesias</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button class="btn btn-outline-secondary w-100" onclick="limpiarFiltros()">
-                                <i class="bi bi-x-circle"></i> Limpiar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Contador de resultados -->
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted small" id="asistentesCount">0 asistentes encontrados</span>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" onclick="exportarCSV()">
-                            <i class="bi bi-file-earmark-spreadsheet"></i> Exportar CSV
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Teléfono</th>
-                                        <th>Iglesia</th>
-                                        <th>Conferencia</th>
-                                        <th>Días Asistidos</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableAsistentes">
-                                    <tr><td colspan="6" class="text-center py-4">Cargando registros...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- REPORTES -->
-            <section id="reportes" class="content-section">
-                <h2 class="mb-4">📈 Reportes y Estadísticas</h2>
-                
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0">📄 Generar Reporte de Asistencia</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="formReportes" onsubmit="generarReporte(event)">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Conferencia *</label>
-                                    <select class="form-select" id="reporteConferencia" required onchange="cargarIglesiasParaReporte()">
-                                        <option value="">-- Seleccione Conferencia --</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Iglesia</label>
-                                    <select class="form-select" id="reporteIglesia">
-                                        <option value="">Todas las iglesias</option>
-                                    </select>
-                                </div>
-                                <div class="col-12">
-                                    <hr class="my-3">
-                                    <button type="submit" class="btn btn-info text-white me-2">
-                                        <i class="bi bi-eye"></i> Vista Previa
-                                    </button>
-                                    <button type="button" class="btn btn-danger" onclick="descargarPDF()">
-                                        <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                
-                <!-- Vista previa del reporte -->
-                <div id="previewReporte" class="card border-0 shadow-sm d-none">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">📋 Vista Previa</h5>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('previewReporte').classList.add('d-none')">
-                            <i class="bi bi-x"></i> Cerrar
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center mb-4">
-                            <h4>MinistryLion</h4>
-                            <p class="text-muted">Sistema de Gestión de Conferencias</p>
-                            <hr>
-                            <h5 id="previewTitulo">Reporte de Asistencia</h5>
-                            <p class="text-muted small" id="previewFechas"></p>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nombre</th>
-                                        <th>Teléfono</th>
-                                        <th>Iglesia</th>
-                                        <th>Días Asistidos</th>
-                                        <th>Fechas</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="previewTableBody">
-                                </tbody>
-                                <tfoot class="table-light">
-                                    <tr>
-                                        <td colspan="4" class="text-end"><strong>Total:</strong></td>
-                                        <td><strong id="previewTotalDias">0 días</strong></td>
-                                        <td><strong id="previewTotalPersonas">0 personas</strong></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                        <p class="text-muted small mt-3 text-center">
-                            Reporte generado automáticamente por MinistryLion - Sistema de Control de Conferencias<br>
-                            © 2026 Todos los derechos reservados
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- CONFIGURACIÓN -->
-            <section id="configuracion" class="content-section">
-                <h2 class="mb-4">⚙️ Configuración</h2>
-                <p class="text-muted mb-4">Estructura organizacional: <strong>Zonas → Distritos → Iglesias</strong></p>
-                
-                <div class="row g-4">
-                    <!-- Zonas -->
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">📍 Zonas <span class="badge bg-secondary" id="countZonas">0</span></h5>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaZona">
-                                    <i class="bi bi-plus"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-sm mb-0">
-                                        <thead>
-                                            <tr><th>Nombre</th><th>Acciones</th></tr>
-                                        </thead>
-                                        <tbody id="tableZonas">
-                                            <tr><td colspan="2" class="text-center py-3">Sin zonas</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Distritos -->
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">🏛️ Distritos <span class="badge bg-secondary" id="countDistritos">0</span></h5>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoDistrito">
-                                    <i class="bi bi-plus"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-sm mb-0">
-                                        <thead>
-                                            <tr><th>Distrito</th><th>Acciones</th></tr>
-                                        </thead>
-                                        <tbody id="tableDistritos">
-                                            <tr><td colspan="2" class="text-center py-3">Sin distritos</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Iglesias -->
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">⛪ Iglesias <span class="badge bg-secondary" id="countIglesias">0</span></h5>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaIglesia">
-                                    <i class="bi bi-plus"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-sm mb-0">
-                                        <thead>
-                                            <tr><th>Iglesia</th><th>Acciones</th></tr>
-                                        </thead>
-                                        <tbody id="tableIglesias">
-                                            <tr><td colspan="2" class="text-center py-3">Sin iglesias</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- USUARIOS -->
-            <section id="usuarios" class="content-section">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="mb-1">👤 Gestión de Usuarios</h2>
-                        <p class="text-muted mb-0">Administra el acceso al sistema</p>
-                    </div>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
-                        <i class="bi bi-plus-lg"></i> Nuevo Usuario
-                    </button>
-                </div>
-                
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Correo</th>
-                                        <th>Rol</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableUsuarios">
-                                    <tr><td colspan="5" class="text-center py-4">Cargando usuarios...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </main>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>🦁 MinistryLion</h2>
+            <p id="userInfo">Usuario: Cargando...</p>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" onclick="mostrarSeccion('dashboard')">📊 Dashboard</a></li>
+            <li><a href="#" onclick="mostrarSeccion('conferencias')">📅 Conferencias</a></li>
+            <li><a href="#" onclick="mostrarSeccion('registros')">👥 Registros</a></li>
+            <li><a href="#" onclick="mostrarSeccion('configuracion')">⚙️ Configuración</a></li>
+            <li><a href="#" onclick="mostrarSeccion('usuarios')">👤 Usuarios</a></li>
+            <li><a href="#" onclick="logout()">🚪 Cerrar Sesión</a></li>
+        </ul>
     </div>
-</div>
 
-<!-- ============================================ -->
-<!-- MODALES -->
-<!-- ============================================ -->
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>📊 Panel Principal</h1>
+            <div id="userDisplay"></div>
+        </div>
 
-<!-- Modal Nueva Conferencia -->
-<div class="modal fade" id="modalNuevaConferencia" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">📅 Nueva Conferencia</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="statZonas">0</h3>
+                <p>Total Zonas</p>
             </div>
-            <div class="modal-body">
-                <form id="formConferencia">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" name="nombre" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Iglesia Sede *</label>
-                            <select class="form-select" name="iglesia_id" id="confIglesia" required>
-                                <option value="">-- Seleccione Iglesia --</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha Inicio *</label>
-                            <input type="date" class="form-control" name="fecha_inicio" id="confFechaInicio" required onchange="actualizarDuracionConferencia()">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha Fin *</label>
-                            <input type="date" class="form-control" name="fecha_fin" id="confFechaFin" required onchange="actualizarDuracionConferencia()">
-                        </div>
-                        <div class="col-12">
-                            <div class="alert alert-info py-2 mb-0">
-                                <i class="bi bi-calendar-range"></i> 
-                                <span class="duracion-conferencia">📅 Duración: 0 días</span>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Conferenciante</label>
-                            <input type="text" class="form-control" name="conferenciante">
-                        </div>
-                    </div>
-                </form>
+            <div class="stat-card">
+                <h3 id="statDistritos">0</h3>
+                <p>Total Distritos</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarConferencia(event)">Guardar</button>
+            <div class="stat-card">
+                <h3 id="statIglesias">0</h3>
+                <p>Total Iglesias</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="statConferencias">0</h3>
+                <p>Conferencias</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="statAsistentes">0</h3>
+                <p>Total Asistentes</p>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Modal Nuevo Asistente / Registro ✅ CON FECHAS Y CONTADOR FUNCIONAL -->
-<div class="modal fade" id="modalNuevoAsistente" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalAsistenteTitulo">👥 Nuevo Registro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <!-- Sección Conferencias -->
+        <div id="seccionConferencias" class="section">
+            <div class="section-header">
+                <h2>📅 Gestión de Conferencias</h2>
+                <button class="btn btn-primary" onclick="abrirModal('modalNuevaConferencia')">+ Nueva Conferencia</button>
             </div>
-            <div class="modal-body">
-                <form id="formAsistente">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nombre Completo *</label>
-                            <input type="text" class="form-control" id="asistNombre" name="nombre_completo" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Teléfono</label>
-                            <input type="tel" class="form-control" id="asistTelefono" name="telefono">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Dirección</label>
-                            <input type="text" class="form-control" id="asistDireccion" name="direccion">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Invitado Por</label>
-                            <input type="text" class="form-control" id="asistInvitadoPor" name="invitado_por">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Iglesia</label>
-                            <select class="form-select" id="asistIglesia" name="iglesia_id">
-                                <option value="">-- Sin iglesia --</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Conferencia *</label>
-                            <select class="form-select" id="asistConferencia" name="conferencia_id" required onchange="cargarFechasParaAsistente()">
-                                <option value="">-- Seleccione Conferencia --</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Sección de selección de fechas ✅ CORREGIDA -->
-                        <div class="col-12">
-                            <label class="form-label">✅ Marque los días que asistió:</label>
-                            <div class="alert alert-light py-2 mb-2 small">
-                                <i class="bi bi-info-circle"></i> Las fechas mostradas corresponden EXACTAMENTE a la conferencia seleccionada
-                            </div>
-                            <div id="fechasAsistenciaContainer" class="fechas-container">
-                                <p class="text-muted small mb-0">Seleccione una conferencia para ver las fechas disponibles</p>
-                            </div>
-                            <div class="contador-asistencia mt-2">
-                                ✅ <strong id="contadorDias">0</strong> días asistidos de <strong id="totalDias">0</strong> totales
-                            </div>
-                            <!-- Campo oculto para guardar el total de días -->
-                            <input type="hidden" id="diasAsistidosInput" name="dias_asistidos" value="0">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarAsistente(event)">Guardar Registro</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Cotejo de Asistencia (Funcionalidad del segundo documento) -->
-<div class="modal fade" id="modalCotejoAsistencia" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">✅ Cotejo de Asistencia por Fecha</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info">
-                    <i class="bi bi-calendar-check"></i> 
-                    <strong>Conferencia:</strong> <span id="cotejoConferencia"></span><br>
-                    <strong>Asistente:</strong> <span id="cotejoAsistente"></span>
-                </div>
-                <div id="cotejoFechasContainer" class="fechas-container">
-                    <!-- Se llena dinámicamente -->
-                </div>
-                <div class="contador-asistencia mt-3">
-                    ✅ <strong id="cotejoContador">0</strong> días asistidos de <strong id="cotejoTotal">0</strong> totales
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarCotejoAsistencia()">Actualizar Asistencia</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Zona -->
-<div class="modal fade" id="modalNuevaZona" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalZonaTitulo">📍 Registrar Zona</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formZona">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre *</label>
-                        <input type="text" class="form-control" id="zonaNombre" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" id="zonaDescripcion" name="descripcion" rows="2"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarZona(event)">Guardar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Distrito -->
-<div class="modal fade" id="modalNuevoDistrito" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalDistritoTitulo">🏛️ Registrar Distrito</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formDistrito">
-                    <div class="mb-3">
-                        <label class="form-label">Zona *</label>
-                        <select class="form-select" id="distritoZona" name="zona_id" required>
-                            <option value="">-- Seleccione --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nombre *</label>
-                        <input type="text" class="form-control" id="distritoNombre" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Responsable</label>
-                        <input type="text" class="form-control" id="distritoResponsable" name="responsable">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Teléfono</label>
-                        <input type="tel" class="form-control" id="distritoTelefono" name="telefono">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarDistrito(event)">Guardar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Iglesia -->
-<div class="modal fade" id="modalNuevaIglesia" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalIglesiaTitulo">⛪ Registrar Iglesia</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formIglesia">
-                    <div class="mb-3">
-                        <label class="form-label">Zona *</label>
-                        <select class="form-select" id="iglesiaZona" name="zona_id" required onchange="filtrarDistritosPorZona()">
-                            <option value="">-- Seleccione --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Distrito</label>
-                        <select class="form-select" id="iglesiaDistrito" name="distrito_id">
-                            <option value="">-- Sin distrito --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nombre Iglesia *</label>
-                        <input type="text" class="form-control" id="iglesiaNombre" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Pastor</label>
-                        <input type="text" class="form-control" id="iglesiaPastor" name="pastor">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Dirección</label>
-                        <input type="text" class="form-control" id="iglesiaDireccion" name="direccion">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Teléfono</label>
-                        <input type="tel" class="form-control" id="iglesiaTelefono" name="telefono">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarIglesia(event)">Guardar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Usuario -->
-<div class="modal fade" id="modalNuevoUsuario" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalUsuarioTitulo">👤 Nuevo Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formUsuario">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre Completo *</label>
-                        <input type="text" class="form-control" id="usuarioNombreCompleto" name="nombre_completo" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">📧 Correo Electrónico *</label>
-                        <input type="email" class="form-control" id="usuarioEmail" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">🔑 Contraseña <span class="text-muted small">(Requerida para nuevo usuario)</span></label>
-                        <input type="password" class="form-control" id="usuarioPassword" name="password">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Rol</label>
-                        <select class="form-select" id="usuarioRol" name="rol">
-                            <option value="usuario">👤 Usuario</option>
-                            <option value="admin">👑 Administrador</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select" id="usuarioEstado" name="estado">
-                            <option value="activo">✅ Activo</option>
-                            <option value="inactivo">⏸️ Inactivo</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">🔐 Permisos de Acceso</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="permisos" value="dashboard" id="permDashboard" checked>
-                            <label class="form-check-label" for="permDashboard">Dashboard</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="permisos" value="conferencias" id="permConferencias" checked>
-                            <label class="form-check-label" for="permConferencias">Conferencias</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="permisos" value="asistentes" id="permAsistentes" checked>
-                            <label class="form-check-label" for="permAsistentes">Registros</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="permisos" value="reportes" id="permReportes">
-                            <label class="form-check-label" for="permReportes">Reportes</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="permisos" value="configuracion" id="permConfig">
-                            <label class="form-check-label" for="permConfig">Configuración</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="permisos" value="usuarios" id="permUsuarios">
-                            <label class="form-check-label" for="permUsuarios">Usuarios</label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarUsuario(event)">Guardar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================ -->
-<!-- SCRIPTS -->
-<!-- ============================================ -->
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Supabase JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Configuración de Supabase -->
-<script>
-// config.js inline
-const SUPABASE_CONFIG = {
-    url: 'https://qalzqyjuyptemtrhwsbz.supabase.co',
-    key: 'sb_publishable_6qbyMCMlswqUm_kuCPJtyA_B7m4xFvr'
-};
-
-function initSupabase() {
-    if (typeof supabase === 'undefined') {
-        console.error('❌ La librería de Supabase no se ha cargado');
-        return false;
-    }
-    try {
-        window.db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
-        console.log('✅ Supabase inicializado correctamente');
-        return true;
-    } catch (error) {
-        console.error('❌ Error al inicializar Supabase:', error);
-        return false;
-    }
-}
-
-if (!window.db) {
-    console.log('🔍 Iniciando conexión con Supabase...');
-    initSupabase();
-}
-</script>
-
-<!-- Funciones de la aplicación -->
-<script>
-// ============================================
-// VARIABLES GLOBALES
-// ============================================
-window.editMode = { tipo: null, id: null, data: null };
-window.tempPassword = '';
-let todasLasConferencias = [];
-let todasLasIglesias = [];
-let todosLosAsistentes = [];
-
-// ============================================
-// FUNCIONES DE FECHAS (CORREGIDAS PARA TIMEZONE)
-// ============================================
-function fechaISOaLocal(fechaISO) {
-    if (!fechaISO) return '';
-    const fecha = new Date(fechaISO + 'T00:00:00');
-    const year = fecha.getFullYear();
-    const month = String(fecha.getMonth() + 1).padStart(2, '0');
-    const day = String(fecha.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-function formatearFechaParaTabla(fecha) {
-    if (!fecha) return '';
-    const fechaLocal = fechaISOaLocal(fecha);
-    const [year, month, day] = fechaLocal.split('-');
-    return `${day}/${month}/${year}`;
-}
-
-function calcularDias(inicio, fin) {
-    if (!inicio || !fin) return 0;
-    const d1 = new Date(inicio + 'T00:00:00');
-    const d2 = new Date(fin + 'T00:00:00');
-    const diffTime = Math.abs(d2 - d1);
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-}
-
-// ============================================
-// NAVEGACIÓN ENTRE SECCIONES
-// ============================================
-function showSection(sectionId, element) {
-    // Ocultar todas las secciones
-    document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-    // Mostrar la seleccionada
-    document.getElementById(sectionId).classList.add('active');
-    
-    // Actualizar menú activo
-    document.querySelectorAll('.sidebar a').forEach(el => el.classList.remove('active'));
-    if (element) element.classList.add('active');
-    
-    // Cargar datos según la sección
-    cargarDatosSeccion(sectionId);
-}
-
-async function cargarDatosSeccion(seccion) {
-    try {
-        switch(seccion) {
-            case 'dashboard':
-                await cargarEstadisticas();
-                await cargarProximasConferencias();
-                break;
-            case 'conferencias':
-                await cargarConferencias();
-                break;
-            case 'asistentes':
-                await cargarAsistentes();
-                await cargarIglesiasParaFiltros();
-                break;
-            case 'reportes':
-                await cargarConferenciasParaReporte();
-                break;
-            case 'configuracion':
-                await cargarZonas();
-                await cargarDistritos();
-                await cargarIglesias();
-                break;
-            case 'usuarios':
-                await cargarUsuarios();
-                break;
-        }
-    } catch (error) {
-        console.error('Error cargando sección:', error);
-        mostrarMensaje('Error cargando datos', 'error');
-    }
-}
-
-// ============================================
-// FUNCIONES DE ASISTENCIA - FECHAS Y CONTADOR ✅ CORREGIDAS
-// ============================================
-
-// Generar botones de fechas para una conferencia
-function generarBotonesFechas(fechaInicio, fechaFin, contenedorId = 'fechasAsistenciaContainer') {
-    const container = document.getElementById(contenedorId);
-    if (!container) return;
-    
-    // ✅ Limpiar contenedor ANTES de generar nuevos botones
-    container.innerHTML = '';
-
-    const inicio = new Date(fechaInicio + 'T00:00:00');
-    const fin = new Date(fechaFin + 'T00:00:00');
-    const fechas = [];
-
-    let actual = new Date(inicio);
-    while (actual <= fin) {
-        fechas.push(new Date(actual));
-        actual.setDate(actual.getDate() + 1);
-    }
-
-    const diasSemana = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
-    const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-
-    fechas.forEach(fecha => {
-        const diaSemana = diasSemana[fecha.getDay()];
-        const dia = fecha.getDate();
-        const mes = meses[fecha.getMonth()];
-        const año = fecha.getFullYear();
-        const fechaISO = fecha.toISOString().split('T')[0];
-        
-        const boton = document.createElement('button');
-        boton.type = 'button';
-        boton.className = 'fecha-asistencia';
-        boton.dataset.fecha = fechaISO;
-        boton.textContent = `${diaSemana}, ${dia} ${mes} ${año}`;
-        
-        // ✅ Usar addEventListener para evitar conflictos
-        boton.addEventListener('click', function() {
-            toggleFechaAsistencia(this, contenedorId);
-        });
-        
-        container.appendChild(boton);
-    });
-
-    // ✅ Actualizar contador después de generar todos los botones
-    actualizarContadorAsistencia(contenedorId);
-}
-
-// Toggle de selección de fecha
-function toggleFechaAsistencia(boton, contenedorId = 'fechasAsistenciaContainer') {
-    boton.classList.toggle('seleccionada');
-    actualizarContadorAsistencia(contenedorId);
-}
-
-// Actualizar contador de días asistidos ✅ CORREGIDO: cuenta TODOS los seleccionados
-function actualizarContadorAsistencia(contenedorId = 'fechasAsistenciaContainer') {
-    const container = document.getElementById(contenedorId);
-    if (!container) return;
-    
-    // ✅ Contar TODOS los botones con clase 'seleccionada' dentro del contenedor
-    const botonesSeleccionados = container.querySelectorAll('.fecha-asistencia.seleccionada');
-    const totalDias = container.querySelectorAll('.fecha-asistencia').length;
-    const diasAsistidos = botonesSeleccionados.length;
-    
-    // Actualizar contador visual
-    if (contenedorId === 'fechasAsistenciaContainer') {
-        document.getElementById('contadorDias').textContent = diasAsistidos;
-        document.getElementById('totalDias').textContent = totalDias;
-        document.getElementById('diasAsistidosInput').value = diasAsistidos;
-    } else if (contenedorId === 'cotejoFechasContainer') {
-        document.getElementById('cotejoContador').textContent = diasAsistidos;
-        document.getElementById('cotejoTotal').textContent = totalDias;
-    }
-    
-    // Cambiar colores según asistencia (solo para modal principal)
-    if (contenedorId === 'fechasAsistenciaContainer') {
-        const contadorElement = document.querySelector('#modalNuevoAsistente .contador-asistencia');
-        if (contadorElement) {
-            if (diasAsistidos === 0) {
-                contadorElement.style.background = '#fee2e2';
-                contadorElement.style.color = '#dc2626';
-            } else if (diasAsistidos === totalDias && totalDias > 0) {
-                contadorElement.style.background = '#d1fae5';
-                contadorElement.style.color = '#059669';
-            } else {
-                contadorElement.style.background = '#fef3c7';
-                contadorElement.style.color = '#d97706';
-            }
-        }
-    }
-}
-
-// Obtener fechas seleccionadas como array
-function obtenerFechasSeleccionadas(contenedorId = 'fechasAsistenciaContainer') {
-    const container = document.getElementById(contenedorId);
-    if (!container) return [];
-    const seleccionadas = container.querySelectorAll('.fecha-asistencia.seleccionada');
-    return Array.from(seleccionadas).map(boton => boton.dataset.fecha);
-}
-
-// Marcar fechas guardadas (para edición)
-function marcarFechasGuardadas(fechasGuardadas, contenedorId = 'fechasAsistenciaContainer') {
-    if (!fechasGuardadas || fechasGuardadas.length === 0) return;
-    
-    const container = document.getElementById(contenedorId);
-    if (!container) return;
-    
-    const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
-    
-    fechas.forEach(fechaISO => {
-        const boton = container.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
-        if (boton) {
-            boton.classList.add('seleccionada');
-        }
-    });
-    
-    // ✅ Actualizar contador DESPUÉS de marcar todas las fechas
-    actualizarContadorAsistencia(contenedorId);
-}
-
-// ============================================
-// PREPARAR MODAL NUEVO ASISTENTE
-// ============================================
-async function prepararModalNuevoAsistente() {
-    // Resetear formulario
-    document.getElementById('formAsistente').reset();
-    document.getElementById('modalAsistenteTitulo').textContent = '👥 Nuevo Registro';
-    
-    // Limpiar fechas
-    const container = document.getElementById('fechasAsistenciaContainer');
-    if (container) {
-        container.innerHTML = '<p class="text-muted small mb-0">Seleccione una conferencia para ver las fechas disponibles</p>';
-    }
-    document.getElementById('contadorDias').textContent = '0';
-    document.getElementById('totalDias').textContent = '0';
-    document.getElementById('diasAsistidosInput').value = '0';
-    
-    // Resetear modo edición
-    window.editMode = { tipo: null, id: null, data: null };
-    
-    // Cargar opciones si no están cargadas
-    if (todasLasIglesias.length === 0) {
-        todasLasIglesias = await obtenerIglesias();
-    }
-    if (todasLasConferencias.length === 0) {
-        todasLasConferencias = await obtenerConferencias();
-    }
-    
-    actualizarSelectIglesias(todasLasIglesias, 'asistIglesia');
-    actualizarSelectConferencias(todasLasConferencias, 'asistConferencia');
-}
-
-// ============================================
-// CARGAR FECHAS PARA ASISTENTE
-// ============================================
-async function cargarFechasParaAsistente() {
-    const conferenciaId = document.getElementById('asistConferencia').value;
-    const container = document.getElementById('fechasAsistenciaContainer');
-    
-    // Limpiar antes de cargar
-    if (container) container.innerHTML = '';
-    actualizarContadorAsistencia('fechasAsistenciaContainer');
-    
-    if (!conferenciaId) {
-        if (container) {
-            container.innerHTML = '<p class="text-muted small mb-0">Seleccione una conferencia para ver las fechas disponibles</p>';
-        }
-        return;
-    }
-    
-    try {
-        const conferencia = todasLasConferencias.find(c => c.id == conferenciaId);
-        if (conferencia) {
-            generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin, 'fechasAsistenciaContainer');
-            
-            // Si estamos editando, marcar fechas guardadas
-            if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
-                setTimeout(() => {
-                    marcarFechasGuardadas(window.editMode.data.fechas_asistencia, 'fechasAsistenciaContainer');
-                }, 100);
-            }
-        }
-    } catch (error) {
-        console.error('Error cargando fechas:', error);
-        mostrarMensaje('Error al cargar fechas', 'error');
-    }
-}
-
-// ============================================
-// CARGAR DATOS - FUNCIONES PRINCIPALES
-// ============================================
-
-// Cargar estadísticas del dashboard
-async function cargarEstadisticas() {
-    try {
-        const stats = await obtenerEstadisticas();
-        document.getElementById('dashZonas').textContent = stats.total_zonas || 0;
-        document.getElementById('dashDistritos').textContent = stats.total_distritos || 0;
-        document.getElementById('dashIglesias').textContent = stats.total_iglesias || 0;
-        document.getElementById('dashConferencias').textContent = stats.total_conferencias || 0;
-        document.getElementById('dashAsistentes').textContent = stats.total_asistentes || 0;
-    } catch (error) {
-        console.error('Error cargando estadísticas:', error);
-    }
-}
-
-// Cargar próximas conferencias
-async function cargarProximasConferencias() {
-    try {
-        const hoy = new Date().toISOString().split('T')[0];
-        const conferencias = await obtenerConferencias();
-        const proximas = conferencias.filter(c => c.fecha_fin >= hoy).slice(0, 5);
-        
-        const tbody = document.getElementById('tableProximasConferencias');
-        if (!tbody) return;
-        
-        if (proximas.length > 0) {
-            tbody.innerHTML = proximas.map(conf => `
-                <tr>
-                    <td><strong>${conf.nombre}</strong></td>
-                    <td>${formatearFechaParaTabla(conf.fecha_inicio)}</td>
-                    <td>${formatearFechaParaTabla(conf.fecha_fin)}</td>
-                    <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
-                    <td>${conf.conferenciante || '-'}</td>
-                </tr>
-            `).join('');
-        } else {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">No hay conferencias próximas</td></tr>';
-        }
-    } catch (error) {
-        console.error('Error cargando conferencias:', error);
-    }
-}
-
-// Cargar conferencias en tabla
-async function cargarConferencias() {
-    try {
-        const conferencias = await obtenerConferencias();
-        todasLasConferencias = conferencias;
-        
-        const tbody = document.getElementById('tableConferencias');
-        if (!tbody) return;
-        
-        if (conferencias && conferencias.length > 0) {
-            tbody.innerHTML = conferencias.map(conf => `
-                <tr>
-                    <td><strong>${conf.nombre}</strong></td>
-                    <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
-                    <td>${formatearFechaParaTabla(conf.fecha_inicio)}</td>
-                    <td>${formatearFechaParaTabla(conf.fecha_fin)}</td>
-                    <td><span class="badge bg-info">${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</span></td>
-                    <td>${conf.conferenciante || '-'}</td>
-                    <td>
-                        <button class="btn-edit" onclick="editarConferencia(${conf.id})">✏️</button>
-                        <button class="btn-delete" onclick="confirmarEliminarConferencia(${conf.id})">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        } else {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">Sin conferencias registradas</td></tr>';
-        }
-    } catch (error) {
-        console.error('Error cargando conferencias:', error);
-        document.getElementById('tableConferencias').innerHTML = '<tr><td colspan="7" class="text-center py-4 text-danger">Error cargando datos</td></tr>';
-    }
-}
-
-// Cargar asistentes con filtros
-async function cargarAsistentes() {
-    try {
-        const asistentes = await obtenerAsistentes();
-        todosLosAsistentes = asistentes;
-        filtrarAsistentes(); // Aplicar filtros si existen
-    } catch (error) {
-        console.error('Error cargando asistentes:', error);
-        document.getElementById('tableAsistentes').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Error cargando registros</td></tr>';
-    }
-}
-
-// Filtrar asistentes (funcionalidad del segundo documento)
-function filtrarAsistentes() {
-    const nombreFilter = document.getElementById('searchNombre').value.toLowerCase();
-    const telefonoFilter = document.getElementById('searchTelefono').value.toLowerCase();
-    const iglesiaFilter = document.getElementById('searchIglesia').value;
-    
-    const filtrados = todosLosAsistentes.filter(asist => {
-        const coincideNombre = !nombreFilter || asist.nombre_completo.toLowerCase().includes(nombreFilter);
-        const coincideTelefono = !telefonoFilter || (asist.telefono && asist.telefono.includes(telefonoFilter));
-        const coincideIglesia = !iglesiaFilter || asist.iglesia_id == iglesiaFilter;
-        return coincideNombre && coincideTelefono && coincideIglesia;
-    });
-    
-    renderizarAsistentes(filtrados);
-    document.getElementById('asistentesCount').textContent = `${filtrados.length} asistentes encontrados`;
-}
-
-// Renderizar asistentes en tabla
-function renderizarAsistentes(asistentes) {
-    const tbody = document.getElementById('tableAsistentes');
-    if (!tbody) return;
-    
-    if (asistentes && asistentes.length > 0) {
-        tbody.innerHTML = asistentes.map(asist => {
-            const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
-            const diasAsistidos = fechasAsistencia.length;
-            return `
-                <tr>
-                    <td><strong>${asist.nombre_completo}</strong></td>
-                    <td>${asist.telefono || '-'}</td>
-                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
-                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
-                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
-                    <td>
-                        <button class="btn-edit" onclick="editarAsistente(${asist.id})">✏️</button>
-                        <button class="btn-delete" onclick="confirmarEliminarAsistente(${asist.id})">🗑️</button>
-                        <button class="btn btn-sm btn-outline-info ms-1" onclick="abrirCotejoAsistencia(${asist.id})">📅</button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-    } else {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">No se encontraron registros</td></tr>';
-    }
-}
-
-// Limpiar filtros
-function limpiarFiltros() {
-    document.getElementById('searchNombre').value = '';
-    document.getElementById('searchTelefono').value = '';
-    document.getElementById('searchIglesia').value = '';
-    filtrarAsistentes();
-}
-
-// Cargar iglesias para filtros
-async function cargarIglesiasParaFiltros() {
-    try {
-        const iglesias = await obtenerIglesias();
-        const select = document.getElementById('searchIglesia');
-        if (!select) return;
-        
-        select.innerHTML = '<option value="">Todas las iglesias</option>' + 
-            iglesias.map(ig => `<option value="${ig.id}">${ig.nombre}</option>`).join('');
-    } catch (error) {
-        console.error('Error cargando iglesias para filtros:', error);
-    }
-}
-
-// ============================================
-// FUNCIONES DE GUARDADO - CONFERENCIAS
-// ============================================
-async function guardarConferencia(e) {
-    if (e) e.preventDefault();
-    
-    const form = document.getElementById('formConferencia');
-    const formData = new FormData(form);
-    
-    const data = {
-        iglesia_id: formData.get('iglesia_id'),
-        nombre: formData.get('nombre'),
-        fecha_inicio: formData.get('fecha_inicio'),
-        fecha_fin: formData.get('fecha_fin'),
-        conferenciante: formData.get('conferenciante')
-    };
-    
-    if (!data.iglesia_id || !data.nombre || !data.fecha_inicio || !data.fecha_fin) {
-        mostrarMensaje('Complete los campos requeridos', 'error');
-        return;
-    }
-    
-    try {
-        if (window.editMode.tipo === 'conferencia' && window.editMode.id) {
-            await actualizarConferencia(window.editMode.id, data.iglesia_id, data.nombre, data.fecha_inicio, data.fecha_fin, data.conferenciante);
-            mostrarMensaje('✅ Conferencia actualizada', 'success');
-        } else {
-            await crearConferencia(data.iglesia_id, data.nombre, data.fecha_inicio, data.fecha_fin, data.conferenciante);
-            mostrarMensaje('✅ Conferencia creada', 'success');
-        }
-        
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevaConferencia')).hide();
-        form.reset();
-        await cargarConferencias();
-        await cargarEstadisticas();
-        
-        window.editMode = { tipo: null, id: null, data: null };
-        document.querySelector('#modalNuevaConferencia .modal-title').textContent = '📅 Nueva Conferencia';
-    } catch (error) {
-        mostrarMensaje('❌ ' + error.message, 'error');
-    }
-}
-
-async function editarConferencia(id) {
-    try {
-        const { data, error } = await window.db.from('conferencias').select('*').eq('id', id).single();
-        if (error) throw error;
-        
-        document.getElementById('confIglesia').value = data.iglesia_id;
-        document.getElementById('confNombre').value = data.nombre;
-        document.getElementById('confFechaInicio').value = fechaISOaLocal(data.fecha_inicio);
-        document.getElementById('confFechaFin').value = fechaISOaLocal(data.fecha_fin);
-        document.getElementById('confConferenciante').value = data.conferenciante || '';
-        
-        actualizarDuracionConferencia();
-        
-        window.editMode = { tipo: 'conferencia', id: id, data: data };
-        document.querySelector('#modalNuevaConferencia .modal-title').textContent = '✏️ Editar Conferencia';
-        
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevaConferencia')).show();
-    } catch (error) {
-        mostrarMensaje('Error: ' + error.message, 'error');
-    }
-}
-
-async function confirmarEliminarConferencia(id) {
-    if (confirm('⚠️ ¿Eliminar esta conferencia?\n\nTambién se eliminarán los asistentes registrados.')) {
-        try {
-            await eliminarConferencia(id);
-            mostrarMensaje('✅ Conferencia eliminada', 'success');
-            await cargarConferencias();
-            await cargarEstadisticas();
-        } catch (error) {
-            mostrarMensaje('❌ ' + error.message, 'error');
-        }
-    }
-}
-
-function actualizarDuracionConferencia() {
-    const inicio = document.getElementById('confFechaInicio').value;
-    const fin = document.getElementById('confFechaFin').value;
-    const duracionElement = document.querySelector('#modalNuevaConferencia .duracion-conferencia');
-    if (inicio && fin && duracionElement) {
-        const dias = calcularDias(inicio, fin);
-        duracionElement.textContent = `📅 Duración: ${dias} días`;
-    }
-}
-
-// ============================================
-// FUNCIONES DE GUARDADO - ASISTENTES ✅ CORREGIDAS
-// ============================================
-async function guardarAsistente(e) {
-    if (e) e.preventDefault();
-    
-    // ✅ Obtener fechas seleccionadas ANTES de guardar
-    const fechasAsistencia = obtenerFechasSeleccionadas('fechasAsistenciaContainer');
-    
-    const datos = {
-        nombre_completo: document.getElementById('asistNombre').value,
-        direccion: document.getElementById('asistDireccion').value,
-        telefono: document.getElementById('asistTelefono').value,
-        invitado_por: document.getElementById('asistInvitadoPor').value,
-        iglesia_id: document.getElementById('asistIglesia').value || null,
-        conferencia_id: document.getElementById('asistConferencia').value,
-        fechas_asistencia: JSON.stringify(fechasAsistencia)
-    };
-    
-    if (!datos.nombre_completo || !datos.conferencia_id) {
-        mostrarMensaje('Complete los campos requeridos', 'error');
-        return;
-    }
-    
-    try {
-        if (window.editMode.tipo === 'asistente' && window.editMode.id) {
-            await actualizarAsistente(window.editMode.id, datos);
-            mostrarMensaje('✅ Asistente actualizado', 'success');
-        } else {
-            await crearAsistente(datos);
-            mostrarMensaje('✅ Registro guardado', 'success');
-        }
-        
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevoAsistente')).hide();
-        document.getElementById('formAsistente').reset();
-        await cargarAsistentes();
-        await cargarEstadisticas();
-        
-        window.editMode = { tipo: null, id: null, data: null };
-        document.getElementById('modalAsistenteTitulo').textContent = '👥 Nuevo Registro';
-    } catch (error) {
-        mostrarMensaje('❌ ' + error.message, 'error');
-    }
-}
-
-async function editarAsistente(id) {
-    try {
-        const { data, error } = await window.db.from('asistentes').select('*').eq('id', id).single();
-        if (error) throw error;
-        
-        // Cargar datos en formulario
-        document.getElementById('asistNombre').value = data.nombre_completo;
-        document.getElementById('asistDireccion').value = data.direccion || '';
-        document.getElementById('asistTelefono').value = data.telefono || '';
-        document.getElementById('asistInvitadoPor').value = data.invitado_por || '';
-        document.getElementById('asistIglesia').value = data.iglesia_id || '';
-        document.getElementById('asistConferencia').value = data.conferencia_id;
-        
-        // Guardar datos para modo edición
-        window.editMode = { tipo: 'asistente', id: id, data: data };
-        document.getElementById('modalAsistenteTitulo').textContent = '✏️ Editar Asistente';
-        
-        // Si hay conferencia, generar fechas y marcar las guardadas
-        if (data.conferencia_id) {
-            const conferencia = todasLasConferencias.find(c => c.id === data.conferencia_id);
-            if (conferencia) {
-                generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin, 'fechasAsistenciaContainer');
-                // Pequeño delay para asegurar que los botones estén renderizados
-                setTimeout(() => {
-                    if (data.fechas_asistencia) {
-                        marcarFechasGuardadas(data.fechas_asistencia, 'fechasAsistenciaContainer');
-                    }
-                }, 100);
-            }
-        }
-        
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevoAsistente')).show();
-    } catch (error) {
-        mostrarMensaje('Error: ' + error.message, 'error');
-    }
-}
-
-async function confirmarEliminarAsistente(id) {
-    if (confirm('⚠️ ¿Eliminar este registro de asistente?')) {
-        try {
-            await eliminarAsistente(id);
-            mostrarMensaje('✅ Registro eliminado', 'success');
-            await cargarAsistentes();
-        } catch (error) {
-            mostrarMensaje('❌ ' + error.message, 'error');
-        }
-    }
-}
-
-// ============================================
-// COTEJO DE ASISTENCIA (Funcionalidad del segundo documento)
-// ============================================
-async function abrirCotejoAsistente(id) {
-    try {
-        const { data: asistente, error: err1 } = await window.db
-            .from('asistentes')
-            .select('*, conferencias(nombre, fecha_inicio, fecha_fin)')
-            .eq('id', id)
-            .single();
-        
-        if (err1) throw err1;
-        
-        document.getElementById('cotejoConferencia').textContent = asistente.conferencias?.nombre || 'Sin conferencia';
-        document.getElementById('cotejoAsistente').textContent = asistente.nombre_completo;
-        
-        // Generar fechas para cotejo
-        if (asistente.conferencias?.fecha_inicio && asistente.conferencias?.fecha_fin) {
-            generarBotonesFechas(asistente.conferencias.fecha_inicio, asistente.conferencias.fecha_fin, 'cotejoFechasContainer');
-            
-            // Marcar fechas guardadas
-            if (asistente.fechas_asistencia) {
-                setTimeout(() => {
-                    marcarFechasGuardadas(asistente.fechas_asistencia, 'cotejoFechasContainer');
-                }, 100);
-            }
-        }
-        
-        // Guardar ID para guardar después
-        window.cotejoAsistenteId = id;
-        
-        bootstrap.Modal.getInstance(document.getElementById('modalCotejoAsistencia')).show();
-    } catch (error) {
-        mostrarMensaje('Error: ' + error.message, 'error');
-    }
-}
-
-async function guardarCotejoAsistencia() {
-    if (!window.cotejoAsistenteId) return;
-    
-    const fechasAsistencia = obtenerFechasSeleccionadas('cotejoFechasContainer');
-    
-    try {
-        await window.db
-            .from('asistentes')
-            .update({ 
-                fechas_asistencia: JSON.stringify(fechasAsistencia),
-                updated_at: new Date()
-            })
-            .eq('id', window.cotejoAsistenteId);
-        
-        mostrarMensaje('✅ Asistencia actualizada', 'success');
-        bootstrap.Modal.getInstance(document.getElementById('modalCotejoAsistencia')).hide();
-        await cargarAsistentes();
-        
-        window.cotejoAsistenteId = null;
-    } catch (error) {
-        mostrarMensaje('❌ ' + error.message, 'error');
-    }
-}
-
-// ============================================
-// FUNCIONES DE GUARDADO - CONFIGURACIÓN
-// ============================================
-async function guardarZona(e) {
-    if (e) e.preventDefault();
-    const nombre = document.getElementById('zonaNombre').value;
-    const descripcion = document.getElementById('zonaDescripcion').value;
-    
-    if (!nombre) { mostrarMensaje('El nombre es requerido', 'error'); return; }
-    
-    try {
-        if (window.editMode.tipo === 'zona' && window.editMode.id) {
-            await actualizarZona(window.editMode.id, nombre, descripcion);
-            mostrarMensaje('✅ Zona actualizada', 'success');
-        } else {
-            await crearZona(nombre, descripcion);
-            mostrarMensaje('✅ Zona creada', 'success');
-        }
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevaZona')).hide();
-        document.getElementById('formZona').reset();
-        await cargarZonas();
-        await cargarEstadisticas();
-        window.editMode = { tipo: null, id: null, data: null };
-        document.querySelector('#modalNuevaZona .modal-title').textContent = '📍 Registrar Zona';
-    } catch (error) {
-        mostrarMensaje('❌ ' + error.message, 'error');
-    }
-}
-
-async function editarZona(id) {
-    try {
-        const { data, error } = await window.db.from('zonas').select('*').eq('id', id).single();
-        if (error) throw error;
-        document.getElementById('zonaNombre').value = data.nombre;
-        document.getElementById('zonaDescripcion').value = data.descripcion || '';
-        window.editMode = { tipo: 'zona', id: id, data: data };
-        document.querySelector('#modalNuevaZona .modal-title').textContent = '✏️ Editar Zona';
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevaZona')).show();
-    } catch (error) {
-        mostrarMensaje('Error: ' + error.message, 'error');
-    }
-}
-
-async function confirmarEliminarZona(id) {
-    if (confirm('⚠️ ¿Eliminar esta zona?')) {
-        try {
-            await eliminarZona(id);
-            mostrarMensaje('✅ Zona eliminada', 'success');
-            await cargarZonas();
-            await cargarEstadisticas();
-        } catch (error) {
-            mostrarMensaje('❌ ' + error.message, 'error');
-        }
-    }
-}
-
-async function cargarZonas() {
-    try {
-        const zonas = await obtenerZonas();
-        document.getElementById('countZonas').textContent = zonas.length;
-        const tbody = document.getElementById('tableZonas');
-        if (!tbody) return;
-        if (zonas.length > 0) {
-            tbody.innerHTML = zonas.map(z => `
-                <tr>
-                    <td>${z.nombre}</td>
-                    <td>
-                        <button class="btn-edit btn-sm" onclick="editarZona(${z.id})">✏️</button>
-                        <button class="btn-delete btn-sm" onclick="confirmarEliminarZona(${z.id})">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        } else {
-            tbody.innerHTML = '<tr><td colspan="2" class="text-center py-3">Sin zonas</td></tr>';
-        }
-    } catch (error) {
-        console.error('Error cargando zonas:', error);
-    }
-}
-
-// ... (Funciones similares para distritos, iglesias y usuarios - simplificadas por espacio)
-// Para distritos, iglesias y usuarios, seguir el mismo patrón que zonas
-
-async function guardarDistrito(e) {
-    if (e) e.preventDefault();
-    // Implementar lógica similar a guardarZona
-    mostrarMensaje('✅ Función en desarrollo', 'info');
-}
-
-async function guardarIglesia(e) {
-    if (e) e.preventDefault();
-    // Implementar lógica similar a guardarZona
-    mostrarMensaje('✅ Función en desarrollo', 'info');
-}
-
-async function guardarUsuario(e) {
-    if (e) e.preventDefault();
-    // Implementar lógica similar a guardarZona
-    mostrarMensaje('✅ Función en desarrollo', 'info');
-}
-
-async function cargarDistritos() {
-    // Implementar carga similar a cargarZonas
-    document.getElementById('countDistritos').textContent = '0';
-}
-
-async function cargarIglesias() {
-    // Implementar carga similar a cargarZonas
-    document.getElementById('countIglesias').textContent = '0';
-}
-
-async function cargarUsuarios() {
-    // Implementar carga de usuarios
-    document.getElementById('tableUsuarios').innerHTML = '<tr><td colspan="5" class="text-center py-4">Función en desarrollo</td></tr>';
-}
-
-// Helpers para selects
-function actualizarSelectIglesias(iglesias, selectId) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    const currentValue = select.value;
-    select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>' + 
-        iglesias.map(ig => `<option value="${ig.id}">${ig.nombre}</option>`).join('');
-    if (currentValue) select.value = currentValue;
-}
-
-function actualizarSelectConferencias(conferencias, selectId) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    const currentValue = select.value;
-    select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' + 
-        conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-    if (currentValue) select.value = currentValue;
-}
-
-// ============================================
-// REPORTES
-// ============================================
-async function cargarConferenciasParaReporte() {
-    try {
-        const conferencias = await obtenerConferencias();
-        const select = document.getElementById('reporteConferencia');
-        if (!select) return;
-        select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' + 
-            conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-    } catch (error) {
-        console.error('Error cargando conferencias para reporte:', error);
-    }
-}
-
-async function cargarIglesiasParaReporte() {
-    const conferenciaId = document.getElementById('reporteConferencia').value;
-    const select = document.getElementById('reporteIglesia');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">Todas las iglesias</option>';
-    
-    if (conferenciaId) {
-        try {
-            const { data, error } = await window.db
-                .from('asistentes')
-                .select('iglesias(*)')
-                .eq('conferencia_id', conferenciaId)
-                .not('iglesia_id', 'is', null);
-            
-            if (!error && data) {
-                const iglesiasUnicas = [...new Map(data.map(item => [item.iglesias?.id, item.iglesias]).values()).values()];
-                select.innerHTML += iglesiasUnicas.map(ig => 
-                    `<option value="${ig?.id}">${ig?.nombre}</option>`
-                ).join('');
-            }
-        } catch (error) {
-            console.error('Error cargando iglesias para reporte:', error);
-        }
-    }
-}
-
-async function generarReporte(e) {
-    if (e) e.preventDefault();
-    
-    const conferenciaId = document.getElementById('reporteConferencia').value;
-    const iglesiaId = document.getElementById('reporteIglesia').value;
-    
-    if (!conferenciaId) {
-        mostrarMensaje('Seleccione una conferencia', 'error');
-        return;
-    }
-    
-    try {
-        let query = window.db.from('asistentes').select('*, iglesias(nombre), conferencias(nombre, fecha_inicio, fecha_fin)');
-        query = query.eq('conferencia_id', conferenciaId);
-        if (iglesiaId) query = query.eq('iglesia_id', iglesiaId);
-        
-        const { data, error } = await query;
-        if (error) throw error;
-        
-        // Renderizar vista previa
-        const preview = document.getElementById('previewReporte');
-        const tbody = document.getElementById('previewTableBody');
-        
-        document.getElementById('previewTitulo').textContent = `Reporte: ${data[0]?.conferencias?.nombre || ''}`;
-        document.getElementById('previewFechas').textContent = 
-            `${formatearFechaParaTabla(data[0]?.conferencias?.fecha_inicio)} - ${formatearFechaParaTabla(data[0]?.conferencias?.fecha_fin)}`;
-        
-        if (data && data.length > 0) {
-            let totalDias = 0;
-            tbody.innerHTML = data.map((asist, index) => {
-                const fechas = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
-                totalDias += fechas.length;
-                return `
+            <table id="tablaConferencias">
+                <thead>
                     <tr>
-                        <td>${index + 1}</td>
-                        <td>${asist.nombre_completo}</td>
-                        <td>${asist.telefono || '-'}</td>
-                        <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
-                        <td><strong>${fechas.length}</strong></td>
-                        <td class="small">${fechas.map(f => formatearFechaParaTabla(f)).join(', ') || '-'}</td>
+                        <th>Nombre</th>
+                        <th>Iglesia</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Días</th>
+                        <th>Conferenciante</th>
+                        <th>Acciones</th>
                     </tr>
-                `;
-            }).join('');
-            document.getElementById('previewTotalDias').textContent = `${totalDias} días`;
-            document.getElementById('previewTotalPersonas').textContent = `${data.length} personas`;
-        } else {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">Sin registros</td></tr>';
-            document.getElementById('previewTotalDias').textContent = '0 días';
-            document.getElementById('previewTotalPersonas').textContent = '0 personas';
+                </thead>
+                <tbody>
+                    <tr><td colspan="7">Cargando datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sección Registros -->
+        <div id="seccionRegistros" class="section">
+            <div class="section-header">
+                <h2>👥 Registros de Asistentes</h2>
+                <button class="btn btn-primary" onclick="abrirModal('modalNuevoAsistente')">+ Nuevo Registro</button>
+            </div>
+            <table id="tablaAsistentes">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th>Conferencia</th>
+                        <th>Días Asistidos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6">Cargando registros...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sección Configuración -->
+        <div id="seccionConfiguracion" class="section">
+            <div class="section-header">
+                <h2>⚙️ Configuración</h2>
+            </div>
+            
+            <h3>📍 Zonas</h3>
+            <button class="btn btn-primary" style="margin-bottom: 15px;" onclick="abrirModal('modalNuevaZona')">+ Nueva Zona</button>
+            <table id="tablaZonas">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="3">Sin zonas</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 30px;">🏛️ Distritos</h3>
+            <button class="btn btn-primary" style="margin-bottom: 15px;" onclick="abrirModal('modalNuevoDistrito')">+ Nuevo Distrito</button>
+            <table id="tablaDistritos">
+                <thead>
+                    <tr>
+                        <th>Distrito</th>
+                        <th>Zona</th>
+                        <th>Responsable</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="4">Sin distritos</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 30px;">⛪ Iglesias</h3>
+            <button class="btn btn-primary" style="margin-bottom: 15px;" onclick="abrirModal('modalNuevaIglesia')">+ Nueva Iglesia</button>
+            <table id="tablaIglesias">
+                <thead>
+                    <tr>
+                        <th>Iglesia</th>
+                        <th>Zona</th>
+                        <th>Distrito</th>
+                        <th>Pastor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="5">Sin iglesias</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sección Usuarios -->
+        <div id="seccionUsuarios" class="section">
+            <div class="section-header">
+                <h2>👤 Gestión de Usuarios</h2>
+                <button class="btn btn-primary" onclick="abrirModal('modalNuevoUsuario')">+ Nuevo Usuario</button>
+            </div>
+            <table id="tablaUsuarios">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="5">Cargando usuarios...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Conferencia -->
+    <div id="modalNuevaConferencia" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModal('modalNuevaConferencia')">&times;</span>
+            <h3>📅 Nueva Conferencia</h3>
+            <form id="formConferencia">
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="confNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Iglesia Sede *</label>
+                    <select id="confIglesia" required>
+                        <option value="">-- Seleccione Iglesia --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha Inicio *</label>
+                    <input type="date" id="confFechaInicio" required>
+                </div>
+                <div class="form-group">
+                    <label>Fecha Fin *</label>
+                    <input type="date" id="confFechaFin" required>
+                </div>
+                <div class="duracion-conferencia" style="margin: 10px 0; padding: 10px; background: #f0f9ff; border-radius: 5px;">
+                    📅 Duración: 0 días
+                </div>
+                <div class="form-group">
+                    <label>Conferenciante</label>
+                    <input type="text" id="confConferenciante">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="cerrarModal('modalNuevaConferencia')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Asistente -->
+    <div id="modalNuevoAsistente" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">&times;</span>
+            <h3>👥 Nuevo Registro</h3>
+            <form id="formAsistente">
+                <div class="form-group">
+                    <label>Nombre Completo *</label>
+                    <input type="text" id="asistNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="asistTelefono">
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="asistDireccion">
+                </div>
+                <div class="form-group">
+                    <label>Invitado Por</label>
+                    <input type="text" id="asistInvitadoPor">
+                </div>
+                <div class="form-group">
+                    <label>Iglesia</label>
+                    <select id="asistIglesia">
+                        <option value="">-- Sin iglesia --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Conferencia *</label>
+                    <select id="asistConferencia" required>
+                        <option value="">-- Seleccione Conferencia --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>✅ Marque los días que asistió:</label>
+                    <div id="fechasAsistenciaContainer" style="margin: 10px 0;"></div>
+                    <div class="contador-asistencia">
+                        ✅ <strong>0</strong> días asistidos de <strong>0</strong> totales
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Zona -->
+    <div id="modalNuevaZona" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModal('modalNuevaZona')">&times;</span>
+            <h3>📍 Registrar Zona</h3>
+            <form id="formZona">
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="zonaNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="zonaDescripcion" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Distrito -->
+    <div id="modalNuevoDistrito" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</span>
+            <h3>🏛️ Registrar Distrito</h3>
+            <form id="formDistrito">
+                <div class="form-group">
+                    <label>Zona *</label>
+                    <select id="distritoZona" required>
+                        <option value="">-- Seleccione --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="distritoNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Responsable</label>
+                    <input type="text" id="distritoResponsable">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="distritoTelefono">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="cerrarModal('modalNuevoDistrito')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Iglesia -->
+    <div id="modalNuevaIglesia" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</span>
+            <h3>⛪ Registrar Iglesia</h3>
+            <form id="formIglesia">
+                <div class="form-group">
+                    <label>Zona *</label>
+                    <select id="iglesiaZona" required>
+                        <option value="">-- Seleccione --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Distrito</label>
+                    <select id="iglesiaDistrito">
+                        <option value="">-- Sin distrito --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Iglesia *</label>
+                    <input type="text" id="iglesiaNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Pastor</label>
+                    <input type="text" id="iglesiaPastor">
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="iglesiaDireccion">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="iglesiaTelefono">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="cerrarModal('modalNuevaIglesia')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Usuario -->
+    <div id="modalNuevoUsuario" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModal('modalNuevoUsuario')">&times;</span>
+            <h3>👤 Nuevo Usuario</h3>
+            <form id="formUsuario">
+                <div class="form-group">
+                    <label>Nombre Completo *</label>
+                    <input type="text" id="usuarioNombreCompleto" required>
+                </div>
+                <div class="form-group">
+                    <label>📧 Correo Electrónico *</label>
+                    <input type="email" id="usuarioEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>🔑 Contraseña</label>
+                    <input type="password" id="usuarioPassword">
+                    <small style="color: #666;">(Requerida para nuevo usuario)</small>
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select id="usuarioRol">
+                        <option value="usuario">👤 Usuario</option>
+                        <option value="administrador">👑 Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <div>
+                        <input type="checkbox" id="usuarioEstado" checked>
+                        <label for="usuarioEstado" style="display: inline;">✅ Activo</label>
+                        <span style="margin-left: 15px;">⏸️ Inactivo</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>🔐 Permisos de Acceso</label>
+                    <div class="permisos-grid">
+                        <div><input type="checkbox" name="permisos" value="dashboard"> Dashboard</div>
+                        <div><input type="checkbox" name="permisos" value="conferencias"> Conferencias</div>
+                        <div><input type="checkbox" name="permisos" value="registros"> Registros</div>
+                        <div><input type="checkbox" name="permisos" value="reportes"> Reportes</div>
+                        <div><input type="checkbox" name="permisos" value="configuracion"> Configuración</div>
+                        <div><input type="checkbox" name="permisos" value="usuarios"> Usuarios</div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="cerrarModal('modalNuevoUsuario')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script src="main.js"></script>
+    <script>
+        // Inicializar usuario
+        function mostrarInfoUsuario() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                document.getElementById('userInfo').textContent = `Usuario: ${user.nombre} (${user.rol})`;
+                document.getElementById('userDisplay').textContent = `👤 ${user.nombre}`;
+            }
         }
         
-        preview.classList.remove('d-none');
-        preview.scrollIntoView({ behavior: 'smooth' });
+        // Mostrar secciones
+        function mostrarSeccion(seccion) {
+            document.getElementById('seccionConferencias').style.display = 'none';
+            document.getElementById('seccionRegistros').style.display = 'none';
+            document.getElementById('seccionConfiguracion').style.display = 'none';
+            document.getElementById('seccionUsuarios').style.display = 'none';
+            
+            if (seccion === 'dashboard' || seccion === 'conferencias') {
+                document.getElementById('seccionConferencias').style.display = 'block';
+            } else if (seccion === 'registros') {
+                document.getElementById('seccionRegistros').style.display = 'block';
+            } else if (seccion === 'configuracion') {
+                document.getElementById('seccionConfiguracion').style.display = 'block';
+            } else if (seccion === 'usuarios') {
+                document.getElementById('seccionUsuarios').style.display = 'block';
+            }
+        }
         
-    } catch (error) {
-        mostrarMensaje('Error: ' + error.message, 'error');
-    }
-}
-
-function descargarPDF() {
-    // En producción, usar jsPDF o similar
-    mostrarMensaje('📥 Generando PDF...', 'info');
-    setTimeout(() => {
-        mostrarMensaje('✅ PDF descargado (simulado)', 'success');
-    }, 1500);
-}
-
-function exportarCSV() {
-    if (todosLosAsistentes.length === 0) {
-        mostrarMensaje('No hay datos para exportar', 'error');
-        return;
-    }
-    
-    const headers = ['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días Asistidos', 'Fechas'];
-    const rows = todosLosAsistentes.map(asist => {
-        const fechas = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
-        return [
-            asist.nombre_completo,
-            asist.telefono || '',
-            asist.iglesias?.nombre || '',
-            asist.conferencias?.nombre || '',
-            fechas.length,
-            fechas.join(';')
-        ];
-    });
-    
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `asistentes_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    
-    mostrarMensaje('✅ CSV exportado', 'success');
-}
-
-// ============================================
-// UTILIDADES
-// ============================================
-function mostrarMensaje(mensaje, tipo = 'info') {
-    const toast = document.createElement('div');
-    toast.className = 'toast align-items-center text-white border-0';
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    toast.setAttribute('aria-atomic', 'true');
-    
-    const colors = {
-        success: 'linear-gradient(135deg, #10b981, #059669)',
-        error: 'linear-gradient(135deg, #ef4444, #dc2626)',
-        info: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-        warning: 'linear-gradient(135deg, #f59e0b, #d97706)'
-    };
-    
-    toast.style.cssText = `background: ${colors[tipo] || colors.info}; position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 10px; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); animation: slideIn 0.3s ease;`;
-    toast.innerHTML = `<div class="d-flex"><div class="toast-body">${mensaje}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-    }, 3500);
-}
-
-function logout() {
-    localStorage.removeItem('user');
-    window.location.href = 'index.html';
-}
-
-// ============================================
-// INICIALIZACIÓN
-// ============================================
-document.addEventListener('DOMContentLoaded', async () => {
-    // Verificar autenticación
-    const user = localStorage.getItem('user');
-    if (!user) {
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    const userData = JSON.parse(user);
-    document.getElementById('userName').textContent = userData.nombre || userData.email;
-    document.getElementById('userRole').textContent = userData.rol || 'usuario';
-    
-    // Fecha actual
-    const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-ES', opcionesFecha);
-    
-    // Cargar datos iniciales
-    await cargarDatosSeccion('dashboard');
-    
-    // Event listeners para fechas de conferencia
-    const confInicio = document.getElementById('confFechaInicio');
-    const confFin = document.getElementById('confFechaFin');
-    if (confInicio && confFin) {
-        confInicio.addEventListener('change', actualizarDuracionConferencia);
-        confFin.addEventListener('change', actualizarDuracionConferencia);
-    }
-    
-    console.log('✅ Aplicación inicializada correctamente');
-});
-
-// ============================================
-// FUNCIONES DE BASE DE DATOS (Supabase)
-// ============================================
-async function obtenerZonas() {
-    const { data, error } = await window.db.from('zonas').select('*').order('nombre');
-    if (error) throw error;
-    return data || [];
-}
-
-async function crearZona(nombre, descripcion) {
-    const { data, error } = await window.db.from('zonas').insert([{ nombre, descripcion }]).select();
-    if (error) throw error;
-    return data;
-}
-
-async function actualizarZona(id, nombre, descripcion) {
-    const { data, error } = await window.db.from('zonas').update({ nombre, descripcion, updated_at: new Date() }).eq('id', id).select();
-    if (error) throw error;
-    return data;
-}
-
-async function eliminarZona(id) {
-    const { error } = await window.db.from('zonas').delete().eq('id', id);
-    if (error) throw error;
-}
-
-// ... Funciones similares para distritos, iglesias, conferencias, asistentes, usuarios
-// (Implementar según la estructura de tu base de datos)
-
-async function obtenerConferencias() {
-    const { data, error } = await window.db.from('conferencias').select('*, iglesias(nombre)').order('fecha_inicio', { ascending: false });
-    if (error) throw error;
-    return data || [];
-}
-
-async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
-    const { data, error } = await window.db.from('conferencias').insert([{ iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante }]).select();
-    if (error) throw error;
-    return data;
-}
-
-async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
-    const { data, error } = await window.db.from('conferencias').update({ iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante, updated_at: new Date() }).eq('id', id).select();
-    if (error) throw error;
-    return data;
-}
-
-async function eliminarConferencia(id) {
-    const { error } = await window.db.from('conferencias').delete().eq('id', id);
-    if (error) throw error;
-}
-
-async function obtenerAsistentes() {
-    const { data, error } = await window.db.from('asistentes').select('*, iglesias(nombre), conferencias(nombre)').order('nombre_completo');
-    if (error) throw error;
-    return data || [];
-}
-
-async function crearAsistente(datos) {
-    const { data, error } = await window.db.from('asistentes').insert([{
-        nombre_completo: datos.nombre_completo,
-        direccion: datos.direccion,
-        telefono: datos.telefono,
-        invitado_por: datos.invitado_por,
-        iglesia_id: datos.iglesia_id,
-        conferencia_id: datos.conferencia_id,
-        fechas_asistencia: datos.fechas_asistencia || '[]'
-    }]).select();
-    if (error) throw error;
-    return data;
-}
-
-async function actualizarAsistente(id, datos) {
-    const { data, error } = await window.db.from('asistentes').update({
-        nombre_completo: datos.nombre_completo,
-        direccion: datos.direccion,
-        telefono: datos.telefono,
-        invitado_por: datos.invitado_por,
-        iglesia_id: datos.iglesia_id,
-        conferencia_id: datos.conferencia_id,
-        fechas_asistencia: datos.fechas_asistencia || '[]',
-        updated_at: new Date()
-    }).eq('id', id).select();
-    if (error) throw error;
-    return data;
-}
-
-async function eliminarAsistente(id) {
-    const { error } = await window.db.from('asistentes').delete().eq('id', id);
-    if (error) throw error;
-}
-
-async function obtenerIglesias() {
-    const { data, error } = await window.db.from('iglesias').select('*, zonas(nombre), distritos(nombre)').order('nombre');
-    if (error) throw error;
-    return data || [];
-}
-
-async function obtenerEstadisticas() {
-    try {
-        const { data, error } = await window.db.from('vista_estadisticas').select('*').single();
-        if (error) throw error;
-        return data;
-    } catch {
-        return { total_zonas: 0, total_distritos: 0, total_iglesias: 0, total_conferencias: 0, total_asistentes: 0 };
-    }
-}
-
-// Exportar funciones globales
-window.showSection = showSection;
-window.guardarConferencia = guardarConferencia;
-window.editarConferencia = editarConferencia;
-window.confirmarEliminarConferencia = confirmarEliminarConferencia;
-window.actualizarDuracionConferencia = actualizarDuracionConferencia;
-window.prepararModalNuevoAsistente = prepararModalNuevoAsistente;
-window.cargarFechasParaAsistente = cargarFechasParaAsistente;
-window.guardarAsistente = guardarAsistente;
-window.editarAsistente = editarAsistente;
-window.confirmarEliminarAsistente = confirmarEliminarAsistente;
-window.filtrarAsistentes = filtrarAsistentes;
-window.limpiarFiltros = limpiarFiltros;
-window.abrirCotejoAsistente = abrirCotejoAsistente;
-window.guardarCotejoAsistencia = guardarCotejoAsistencia;
-window.generarBotonesFechas = generarBotonesFechas;
-window.toggleFechaAsistencia = toggleFechaAsistencia;
-window.actualizarContadorAsistencia = actualizarContadorAsistencia;
-window.obtenerFechasSeleccionadas = obtenerFechasSeleccionadas;
-window.marcarFechasGuardadas = marcarFechasGuardadas;
-window.guardarZona = guardarZona;
-window.editarZona = editarZona;
-window.confirmarEliminarZona = confirmarEliminarZona;
-window.cargarZonas = cargarZonas;
-window.guardarDistrito = guardarDistrito;
-window.guardarIglesia = guardarIglesia;
-window.guardarUsuario = guardarUsuario;
-window.cargarConferenciasParaReporte = cargarConferenciasParaReporte;
-window.cargarIglesiasParaReporte = cargarIglesiasParaReporte;
-window.generarReporte = generarReporte;
-window.descargarPDF = descargarPDF;
-window.exportarCSV = exportarCSV;
-window.logout = logout;
-window.mostrarMensaje = mostrarMensaje;
-
-console.log('✅ control-conferencias.html cargado correctamente');
-</script>
-
+        // Inicializar al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            mostrarInfoUsuario();
+            mostrarSeccion('conferencias');
+        });
+    </script>
 </body>
 </html>

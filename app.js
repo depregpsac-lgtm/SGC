@@ -9,11 +9,13 @@ console.log('🔍 window.db existe:', !!window.db);
 async function login(email, password) {
     console.log('🔐 Intentando login...', email);
     try {
+        // Verificar que window.db exista
         if (!window.db) {
             console.error('❌ window.db no existe');
             throw new Error('No hay conexión con la base de datos. Recarga la página.');
         }
         
+        // Buscar usuario en la tabla usuarios_sistema
         console.log('📡 Consultando base de datos...');
         const { data, error } = await window.db
             .from('usuarios_sistema')
@@ -32,6 +34,7 @@ async function login(email, password) {
             };
         }
         
+        // Verificar password
         if (data.password_hash !== password) {
             return { 
                 success: false, 
@@ -39,6 +42,7 @@ async function login(email, password) {
             };
         }
         
+        // Guardar sesión en localStorage
         localStorage.setItem('user', JSON.stringify({
             id: data.id,
             nombre: data.nombre_completo,
@@ -73,6 +77,28 @@ function checkAuth() {
         return false;
     }
     return JSON.parse(user);
+}
+
+// ============================================
+// VERIFICAR PERMISOS
+// ============================================
+function tienePermiso(permiso) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return false;
+    
+    // Los administradores tienen todos los permisos
+    if (user.rol === 'administrador') {
+        return true;
+    }
+    
+    // Verificar permisos específicos
+    const permisos = JSON.parse(user.permisos || '[]');
+    return permisos.includes(permiso);
+}
+
+function esAdministrador() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    return user && user.rol === 'administrador';
 }
 
 // ============================================
@@ -491,6 +517,8 @@ if (!document.getElementById('toast-styles')) {
 window.login = login;
 window.logout = logout;
 window.checkAuth = checkAuth;
+window.tienePermiso = tienePermiso;
+window.esAdministrador = esAdministrador;
 window.obtenerZonas = obtenerZonas;
 window.crearZona = crearZona;
 window.actualizarZona = actualizarZona;

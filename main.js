@@ -289,11 +289,11 @@ async function editarConferencia(id) {
         const iglesias = await obtenerIglesias();
         actualizarSelectIglesias(iglesias);
         
-        // Llenar formulario - USAR fechaISOaLocal para inputs type="date"
+        // Llenar formulario - USAR fechaParaInput para los dates
         document.getElementById('confIglesia').value = data.iglesia_id;
         document.getElementById('confNombre').value = data.nombre;
-        document.getElementById('confFechaInicio').value = obtenerFechaLocal(data.fecha_inicio);
-        document.getElementById('confFechaFin').value = obtenerFechaLocal(data.fecha_fin);
+        document.getElementById('confFechaInicio').value = fechaParaInput(data.fecha_inicio);
+        document.getElementById('confFechaFin').value = fechaParaInput(data.fecha_fin);
         document.getElementById('confConferenciante').value = data.conferenciante || '';
         
         // Configurar edición
@@ -360,6 +360,7 @@ async function confirmarEliminarConferencia(id) {
     }
 }
 
+// Esta función debería estar en main.js - si no existe, agrégala
 async function cargarConferencias() {
     try {
         const conferencias = await obtenerConferencias();
@@ -367,28 +368,26 @@ async function cargarConferencias() {
         
         if (!tbody) return;
         
-       // Ejemplo de cómo debería verse en cargarConferencias:
-tbody.innerHTML = '';
-
-if (conferencias && conferencias.length > 0) {
-    conferencias.forEach(conf => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${conf.nombre}</td>
-            <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
-            <td>${fechaISOaLocal(conf.fecha_inicio)}</td>
-            <td>${fechaISOaLocal(conf.fecha_fin)}</td>
-            <td>${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</td>
-            <td>${conf.conferenciante || '-'}</td>
-            <td>
-                <button onclick="editarConferencia(${conf.id})" class="btn-edit">✏️</button>
-                <button onclick="confirmarEliminarConferencia(${conf.id})" class="btn-delete">🗑️</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-} 
-        else {
+        tbody.innerHTML = '';
+        
+        if (conferencias && conferencias.length > 0) {
+            conferencias.forEach(conf => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${conf.nombre}</td>
+                    <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${formatearFechaTabla(conf.fecha_inicio)}</td>
+                    <td>${formatearFechaTabla(conf.fecha_fin)}</td>
+                    <td>${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</td>
+                    <td>${conf.conferenciante || '-'}</td>
+                    <td>
+                        <button onclick="editarConferencia(${conf.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarConferencia(${conf.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
             tbody.innerHTML = '<tr><td colspan="7">Sin conferencias registradas</td></tr>';
         }
     } catch (error) {
@@ -660,6 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

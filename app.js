@@ -480,3 +480,36 @@ if (!document.getElementById('toast-styles')) {
     style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
     document.head.appendChild(style);
 }
+
+// ============================================
+// UTILIDADES - FECHAS
+// ============================================
+
+// Convertir fecha ISO a formato YYYY-MM-DD (sin timezone)
+function fechaISOaLocal(fechaISO) {
+    if (!fechaISO) return '';
+    const fecha = new Date(fechaISO);
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Formatear fecha para mostrar en tablas (DD/MM/YYYY)
+function formatearFechaParaTabla(fecha) {
+    if (!fecha) return '';
+    const fechaLocal = fechaISOaLocal(fecha);
+    const [year, month, day] = fechaLocal.split('-');
+    return `${day}/${month}/${year}`;
+}
+
+// Calcular días entre dos fechas (inclusive)
+function calcularDias(inicio, fin) {
+    if (!inicio || !fin) return 0;
+    const d1 = new Date(inicio + 'T00:00:00');
+    const d2 = new Date(fin + 'T00:00:00');
+    const diffTime = Math.abs(d2 - d1);
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+}
+
+

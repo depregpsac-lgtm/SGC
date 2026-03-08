@@ -509,6 +509,18 @@ async function editarAsistente(id) {
         document.getElementById('asistIglesia').value = data.iglesia_id || '';
         document.getElementById('asistConferencia').value = data.conferencia_id;
         
+        // Generar botones de fecha si hay conferencia
+        if (data.conferencia_id) {
+            const conferencia = conferencias.find(c => c.id === data.conferencia_id);
+            if (conferencia) {
+                generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
+                // Marcar fechas ya asistidas
+                setTimeout(() => {
+                    marcarFechasGuardadas(data.fechas_asistencia);
+                }, 100);
+            }
+        }
+        
         // Configurar edición
         window.editMode = { tipo: 'asistente', id: id };
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
@@ -519,30 +531,30 @@ async function editarAsistente(id) {
             tituloModal.textContent = '✏️ Editar Asistente';
         }
         
-        // Actualizar contador después de cargar el modal
-        setTimeout(() => {
-            actualizarContadorAsistencia();
-        }, 100);
-        
     } catch (error) {
         mostrarMensaje('Error: ' + error.message, 'error');
     }
 }
 async function guardarAsistenteEditado(e) {
     e.preventDefault();
+    
+    const fechasAsistencia = obtenerFechasSeleccionadas();
+    
     const datos = {
         nombre_completo: document.getElementById('asistNombre').value,
         direccion: document.getElementById('asistDireccion').value,
         telefono: document.getElementById('asistTelefono').value,
         invitado_por: document.getElementById('asistInvitadoPor').value,
         iglesia_id: document.getElementById('asistIglesia').value || null,
-        conferencia_id: document.getElementById('asistConferencia').value
+        conferencia_id: document.getElementById('asistConferencia').value,
+        fechas_asistencia: JSON.stringify(fechasAsistencia)
     };
+    
     if (!datos.nombre_completo || !datos.conferencia_id) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
     }
-
+    
     try {
         await actualizarAsistente(window.editMode.id, datos);
         mostrarMensaje('✅ Asistente actualizado', 'success');
@@ -550,7 +562,6 @@ async function guardarAsistenteEditado(e) {
         await cargarAsistentes();
         window.editMode = { tipo: null, id: null };
         document.getElementById('formAsistente').onsubmit = guardarAsistente;
-        // CORREGIDO
         const tituloModal = document.querySelector('#modalNuevoAsistente h3');
         if (tituloModal) {
             tituloModal.textContent = '👥 Nuevo Registro';
@@ -570,6 +581,42 @@ async function confirmarEliminarAsistente(id) {
             mostrarMensaje('❌ ' + error.message, 'error');
         }
     }  
+}
+
+async function cargarAsistentes() {
+    try {
+        const asistentes = await obtenerAsistentes();
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>
+                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('Error cargando asistentes:', error);
+    }
 }
 
 // ============================================
@@ -845,6 +892,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

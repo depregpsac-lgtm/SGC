@@ -371,26 +371,28 @@ async function cargarConferencias() {
         
         if (!tbody) return;
         
-        tbody.innerHTML = '';
-        
-        if (conferencias && conferencias.length > 0) {
-            conferencias.forEach(conf => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${conf.nombre}</td>
-                    <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
-                    <td>${formatearFechaParaTabla(conf.fecha_inicio)}</td>
-                    <td>${formatearFechaParaTabla(conf.fecha_fin)}</td>
-                    <td>${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</td>
-                    <td>${conf.conferenciante || '-'}</td>
-                    <td>
-                        <button onclick="editarConferencia(${conf.id})" class="btn-edit">✏️</button>
-                        <button onclick="confirmarEliminarConferencia(${conf.id})" class="btn-delete">🗑️</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
+       // Ejemplo de cómo debería verse en cargarConferencias:
+tbody.innerHTML = '';
+
+if (conferencias && conferencias.length > 0) {
+    conferencias.forEach(conf => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${conf.nombre}</td>
+            <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
+            <td>${fechaISOaLocal(conf.fecha_inicio)}</td>
+            <td>${fechaISOaLocal(conf.fecha_fin)}</td>
+            <td>${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</td>
+            <td>${conf.conferenciante || '-'}</td>
+            <td>
+                <button onclick="editarConferencia(${conf.id})" class="btn-edit">✏️</button>
+                <button onclick="confirmarEliminarConferencia(${conf.id})" class="btn-delete">🗑️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+} 
+        else {
             tbody.innerHTML = '<tr><td colspan="7">Sin conferencias registradas</td></tr>';
         }
     } catch (error) {
@@ -662,6 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

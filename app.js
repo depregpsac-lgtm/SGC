@@ -9,13 +9,11 @@ console.log('🔍 window.db existe:', !!window.db);
 async function login(email, password) {
     console.log('🔐 Intentando login...', email);
     try {
-        // Verificar que window.db exista
         if (!window.db) {
             console.error('❌ window.db no existe');
             throw new Error('No hay conexión con la base de datos. Recarga la página.');
         }
         
-        // Buscar usuario en la tabla usuarios_sistema
         console.log('📡 Consultando base de datos...');
         const { data, error } = await window.db
             .from('usuarios_sistema')
@@ -34,7 +32,6 @@ async function login(email, password) {
             };
         }
         
-        // Verificar password
         if (data.password_hash !== password) {
             return { 
                 success: false, 
@@ -42,7 +39,6 @@ async function login(email, password) {
             };
         }
         
-        // Guardar sesión en localStorage
         localStorage.setItem('user', JSON.stringify({
             id: data.id,
             nombre: data.nombre_completo,
@@ -432,7 +428,6 @@ function mostrarMensaje(mensaje, tipo = 'info') {
     }
     toast.textContent = mensaje;
     document.body.appendChild(toast);
-
     setTimeout(() => {
         toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);
@@ -440,13 +435,10 @@ function mostrarMensaje(mensaje, tipo = 'info') {
 }
 
 // ============================================
-// UTILIDADES - FECHAS (CORREGIDO PARA TIMEZONE)
+// UTILIDADES - FECHAS
 // ============================================
-
-// Convertir fecha ISO a formato YYYY-MM-DD sin timezone (PARA INPUTS)
 function fechaISOaLocal(fechaISO) {
     if (!fechaISO) return '';
-    // Agregar T00:00:00 para evitar problema de timezone
     const fecha = new Date(fechaISO + 'T00:00:00');
     const year = fecha.getFullYear();
     const month = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -454,7 +446,6 @@ function fechaISOaLocal(fechaISO) {
     return `${year}-${month}-${day}`;
 }
 
-// Formatear fecha para mostrar en tablas (DD/MM/YYYY)
 function formatearFechaParaTabla(fecha) {
     if (!fecha) return '';
     const fechaLocal = fechaISOaLocal(fecha);
@@ -462,7 +453,6 @@ function formatearFechaParaTabla(fecha) {
     return `${day}/${month}/${year}`;
 }
 
-// Calcular días entre dos fechas (inclusive) - SIN TIMEZONE
 function calcularDias(inicio, fin) {
     if (!inicio || !fin) return 0;
     const d1 = new Date(inicio + 'T00:00:00');
@@ -471,17 +461,15 @@ function calcularDias(inicio, fin) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
-// Formatear fecha larga para mostrar
 function formatearFecha(fecha) {
     if (!fecha) return '';
     const fechaLocal = fechaISOaLocal(fecha);
     const [year, month, day] = fechaLocal.split('-');
-    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     return `${day} de ${meses[parseInt(month) - 1]} de ${year}`;
 }
 
-// Formatear fecha corta (DD/MM/YYYY)
 function formatearFechaCorta(fecha) {
     if (!fecha) return '';
     return formatearFechaParaTabla(fecha);
@@ -493,16 +481,7 @@ function formatearFechaCorta(fecha) {
 if (!document.getElementById('toast-styles')) {
     const style = document.createElement('style');
     style.id = 'toast-styles';
-    style.textContent = `
-        @keyframes slideIn { 
-            from { transform: translateX(100%); opacity: 0; } 
-            to { transform: translateX(0); opacity: 1; } 
-        } 
-        @keyframes slideOut { 
-            from { transform: translateX(0); opacity: 1; } 
-            to { transform: translateX(100%); opacity: 0; } 
-        }
-    `;
+    style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
     document.head.appendChild(style);
 }
 
@@ -543,5 +522,4 @@ window.formatearFechaParaTabla = formatearFechaParaTabla;
 window.calcularDias = calcularDias;
 window.formatearFecha = formatearFecha;
 window.formatearFechaCorta = formatearFechaCorta;
-
 console.log('✅ app.js cargado correctamente con todas las funciones');

@@ -1,3 +1,25 @@
+// Función para convertir fecha ISO a formato local sin desfase
+function fechaISOaLocal(fechaISO) {
+    if (!fechaISO) return '';
+    const fecha = new Date(fechaISO);
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${day}/${month}/${year}`;
+}
+
+// Función para obtener fecha en formato YYYY-MM-DD sin timezone
+function obtenerFechaLocal(fecha) {
+    if (!fecha) return '';
+    const d = new Date(fecha);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+
+
 // main.js - Control de botones Editar y Eliminar
 // ============================================
 
@@ -640,6 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

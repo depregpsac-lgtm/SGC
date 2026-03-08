@@ -471,6 +471,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Agregar listener para cuando se seleccione una conferencia
+document.addEventListener('DOMContentLoaded', () => {
+    const confSelect = document.getElementById('asistConferencia');
+    if (confSelect) {
+        confSelect.addEventListener('change', async (e) => {
+            const conferenciaId = e.target.value;
+            if (conferenciaId) {
+                try {
+                    const conferencias = await obtenerConferencias();
+                    const conferencia = conferencias.find(c => c.id == conferenciaId);
+                    
+                    if (conferencia) {
+                        generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
+                    }
+                } catch (error) {
+                    console.error('Error cargando fechas:', error);
+                }
+            }
+        });
+    }
+});
+
 // Agregar listeners para los inputs de fecha
 document.addEventListener('DOMContentLoaded', () => {
     const confInicio = document.getElementById('confFechaInicio');
@@ -892,6 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

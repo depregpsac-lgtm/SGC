@@ -517,4 +517,26 @@ function calcularDias(inicio, fin) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
+// ============================================
+// UTILIDADES - FECHAS
+// ============================================
+
+// Convertir fecha ISO a formato YYYY-MM-DD para inputs
+function fechaParaInput(fechaISO) {
+    if (!fechaISO) return '';
+    const fecha = new Date(fechaISO);
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Formatear fecha para mostrar en tablas (DD/MM/YYYY)
+function formatearFechaTabla(fecha) {
+    if (!fecha) return '';
+    const fechaLocal = fechaParaInput(fecha);
+    const [year, month, day] = fechaLocal.split('-');
+    return `${day}/${month}/${year}`;
+}
+
 

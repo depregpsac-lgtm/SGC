@@ -448,6 +448,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Agregar esto después de DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    const confSelect = document.getElementById('asistConferencia');
+    if (confSelect) {
+        confSelect.addEventListener('change', async (e) => {
+            const conferenciaId = e.target.value;
+            if (conferenciaId) {
+                // Esperar a que se generen los botones de fecha
+                setTimeout(() => {
+                    actualizarContadorAsistencia();
+                    
+                    // Agregar event listeners a los botones de fecha
+                    document.querySelectorAll('.fecha-asistencia').forEach(boton => {
+                        boton.addEventListener('click', () => {
+                            toggleFechaAsistencia(boton);
+                        });
+                    });
+                }, 100);
+            }
+        });
+    }
+});
+
 // Agregar listeners para los inputs de fecha
 document.addEventListener('DOMContentLoaded', () => {
     const confInicio = document.getElementById('confFechaInicio');
@@ -725,10 +748,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+
+
 // Animaciones para toast
 const style = document.createElement('style');
 style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }`;
 document.head.appendChild(style);
+
 
 
 

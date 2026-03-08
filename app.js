@@ -472,12 +472,12 @@ function formatearFechaCorta(fecha) {
 
 function calcularDias(inicio, fin) {
     if (!inicio || !fin) return 0;
-    const d1 = new Date(inicio);
-    const d2 = new Date(fin);
+    // Crear fechas sin timezone
+    const d1 = new Date(inicio + 'T00:00:00');
+    const d2 = new Date(fin + 'T00:00:00');
     const diffTime = Math.abs(d2 - d1);
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
-
 // Agregar animaciones para toast
 if (!document.getElementById('toast-styles')) {
     const style = document.createElement('style');

@@ -1,3 +1,6 @@
+/* style.css - Estilos para MinistryLion Dashboard */
+/* ============================================ */
+
 * {
     margin: 0;
     padding: 0;
@@ -9,22 +12,89 @@ body {
     min-height: 100vh;
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-::-webkit-scrollbar-thumb { background: #bdc3c7; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #95a5a6; }
+/* ============================================
+   SCROLLBAR PERSONALIZADO
+   ============================================ */
+::-webkit-scrollbar { 
+    width: 8px; 
+    height: 8px; 
+}
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+::-webkit-scrollbar-track { 
+    background: #f1f1f1; 
+    border-radius: 4px; 
+}
 
-.shake { animation: shake 0.5s ease-in-out; }
+::-webkit-scrollbar-thumb { 
+    background: #bdc3c7; 
+    border-radius: 4px; 
+}
 
+::-webkit-scrollbar-thumb:hover { 
+    background: #95a5a6; 
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+@keyframes fadeIn { 
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    } 
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    } 
+}
+
+@keyframes slideIn { 
+    from { 
+        opacity: 0; 
+        transform: translateX(-20px); 
+    } 
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    } 
+}
+
+@keyframes slideOut { 
+    from { 
+        opacity: 1; 
+        transform: translateX(0); 
+    } 
+    to { 
+        opacity: 0; 
+        transform: translateX(100%); 
+    } 
+}
+
+@keyframes shake { 
+    0%, 100% { 
+        transform: translateX(0); 
+    } 
+    25% { 
+        transform: translateX(-10px); 
+    } 
+    75% { 
+        transform: translateX(10px); 
+    } 
+}
+
+.shake { 
+    animation: shake 0.5s ease-in-out; 
+}
+
+/* ============================================
+   PÁGINA DE LOGIN
+   ============================================ */
 .login-page {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
 }
 
 .login-container {
@@ -81,6 +151,16 @@ body {
     animation: slideIn 0.3s ease-out;
 }
 
+.login-alert.error {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.login-alert.success {
+    background: #d1fae5;
+    color: #059669;
+}
+
 .login-form {
     display: flex;
     flex-direction: column;
@@ -112,6 +192,7 @@ body {
     border-radius: 10px;
     font-size: 15px;
     outline: none;
+    transition: border-color 0.3s;
 }
 
 .form-group input:focus {
@@ -137,6 +218,11 @@ body {
     cursor: pointer;
     color: #666;
     font-size: 18px;
+    transition: color 0.3s;
+}
+
+.toggle-password:hover {
+    color: #667eea;
 }
 
 .btn-login {
@@ -152,6 +238,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    transition: all 0.3s;
 }
 
 .btn-login:hover {
@@ -175,6 +262,10 @@ body {
     margin-bottom: 8px;
 }
 
+.login-info p:last-child {
+    margin-bottom: 0;
+}
+
 .login-footer {
     text-align: center;
     margin-top: 25px;
@@ -187,9 +278,13 @@ body {
     color: #888;
 }
 
+/* ============================================
+   DASHBOARD
+   ============================================ */
 .dashboard-page {
     display: flex;
     background: #f4f6f9;
+    min-height: 100vh;
 }
 
 .sidebar {
@@ -200,6 +295,7 @@ body {
     height: 100vh;
     overflow-y: auto;
     z-index: 1000;
+    transition: transform 0.3s;
 }
 
 .sidebar-header {
@@ -236,6 +332,7 @@ body {
     justify-content: center;
     font-weight: 700;
     font-size: 18px;
+    color: white;
 }
 
 .user-details h4 {
@@ -260,6 +357,7 @@ body {
     color: #b0b0b0;
     text-decoration: none;
     border-left: 3px solid transparent;
+    transition: all 0.3s;
 }
 
 .sidebar-nav a:hover,
@@ -269,11 +367,21 @@ body {
     border-left-color: #667eea;
 }
 
+.sidebar-nav a i {
+    width: 20px;
+    text-align: center;
+}
+
 .sidebar-nav a.logout {
     color: #ff6b6b;
     margin-top: 20px;
     border-top: 1px solid rgba(255,255,255,0.1);
     padding-top: 20px;
+}
+
+.sidebar-nav a.logout:hover {
+    background: rgba(255,107,107,0.1);
+    border-left-color: #ff6b6b;
 }
 
 .main-content {
@@ -307,6 +415,9 @@ body {
     font-size: 28px;
 }
 
+/* ============================================
+   TARJETAS DE ESTADÍSTICAS
+   ============================================ */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -322,6 +433,12 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
 
 .stat-icon {
@@ -335,10 +452,25 @@ body {
     color: white;
 }
 
-.stat-icon.zones { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.stat-icon.districts { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.stat-icon.churches { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.stat-icon.conferences { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.stat-icon.zones { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+}
+
+.stat-icon.districts { 
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+}
+
+.stat-icon.churches { 
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+}
+
+.stat-icon.conferences { 
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); 
+}
+
+.stat-icon.attendees { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+}
 
 .stat-info h3 {
     font-size: 32px;
@@ -351,12 +483,30 @@ body {
     font-size: 14px;
 }
 
+/* ============================================
+   TABLAS Y CONTENEDORES
+   ============================================ */
 .table-container {
     background: white;
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     margin-bottom: 30px;
+    overflow-x: auto;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.table-header h3 {
+    color: #1a1a2e;
+    font-size: 20px;
 }
 
 .btn-new {
@@ -370,6 +520,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: all 0.3s;
 }
 
 .btn-new:hover {
@@ -380,10 +531,14 @@ body {
 .btn-new:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
 }
 
+/* ============================================
+   BOTONES DE ACCIÓN
+   ============================================ */
 .btn-edit {
-    background: #667eea;
+    background: #f59e0b;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -391,26 +546,28 @@ body {
     cursor: pointer;
     font-size: 12px;
     margin-right: 5px;
+    transition: all 0.3s;
 }
 
 .btn-edit:hover {
-    background: #5568d3;
+    background: #d97706;
     transform: translateY(-2px);
 }
 
 .btn-delete {
-    background: #ff6b6b;
+    background: #ef4444;
     color: white;
     border: none;
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 12px;
-    margin-right: 5px;
+    transition: all 0.3s;
 }
 
 .btn-delete:hover {
-    background: #ee5a5a;
+    background: #dc2626;
+    transform: translateY(-2px);
 }
 
 .btn-view {
@@ -422,12 +579,51 @@ body {
     cursor: pointer;
     font-size: 12px;
     margin-right: 5px;
+    transition: all 0.3s;
 }
 
 .btn-view:hover {
     background: #38d66c;
+    transform: translateY(-2px);
 }
 
+.btn-save {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
+}
+
+.btn-cancel {
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #d0d0d0;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   TABLAS
+   ============================================ */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -445,6 +641,7 @@ table th {
     color: #1a1a2e;
     font-weight: 600;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 table td {
@@ -456,14 +653,32 @@ table tr:hover {
     background: #f8f9fa;
 }
 
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+
 .badge {
     background: #43e97b;
     color: white;
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
+    font-weight: 600;
 }
 
+.badge-asistencia {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* ============================================
+   BARRA DE BÚSQUEDA
+   ============================================ */
 .search-bar {
     display: flex;
     gap: 10px;
@@ -478,6 +693,7 @@ table tr:hover {
     border-radius: 8px;
     font-size: 14px;
     outline: none;
+    transition: border-color 0.3s;
 }
 
 .search-bar input:focus,
@@ -492,12 +708,23 @@ table tr:hover {
     padding: 12px 20px;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
 }
 
+.search-bar button:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   TABS
+   ============================================ */
 .tabs {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .tab-btn {
@@ -508,6 +735,12 @@ table tr:hover {
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
 }
 
 .tab-btn.active {
@@ -518,12 +751,16 @@ table tr:hover {
 
 .tab-content {
     display: none;
+    animation: fadeIn 0.3s;
 }
 
 .tab-content.active {
     display: block;
 }
 
+/* ============================================
+   MODALES
+   ============================================ */
 .form-modal {
     display: none;
     position: fixed;
@@ -535,10 +772,12 @@ table tr:hover {
     z-index: 2000;
     justify-content: center;
     align-items: center;
+    backdrop-filter: blur(4px);
 }
 
 .form-modal.active {
     display: flex;
+    animation: fadeIn 0.3s;
 }
 
 .form-modal-content {
@@ -546,9 +785,10 @@ table tr:hover {
     border-radius: 15px;
     padding: 30px;
     width: 90%;
-    max-width: 500px;
+    max-width: 550px;
     max-height: 90vh;
     overflow-y: auto;
+    animation: slideIn 0.3s;
 }
 
 .form-modal-header {
@@ -556,6 +796,8 @@ table tr:hover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
 }
 
 .form-modal-header h3 {
@@ -569,6 +811,11 @@ table tr:hover {
     font-size: 24px;
     cursor: pointer;
     color: #666;
+    transition: color 0.3s;
+}
+
+.close-modal:hover {
+    color: #ef4444;
 }
 
 .form-grid {
@@ -589,19 +836,32 @@ table tr:hover {
     font-size: 14px;
 }
 
+.form-grid label i {
+    color: #667eea;
+    margin-right: 5px;
+}
+
 .form-grid input,
-.form-grid select {
+.form-grid select,
+.form-grid textarea {
     width: 100%;
     padding: 12px;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     font-size: 14px;
     outline: none;
+    transition: border-color 0.3s;
 }
 
 .form-grid input:focus,
-.form-grid select:focus {
+.form-grid select:focus,
+.form-grid textarea:focus {
     border-color: #667eea;
+}
+
+.form-grid textarea {
+    resize: vertical;
+    min-height: 80px;
 }
 
 .form-actions {
@@ -609,44 +869,25 @@ table tr:hover {
     gap: 10px;
     justify-content: flex-end;
     margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
 }
 
-.btn-save {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.btn-save:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
-}
-
-.btn-cancel {
-    background: #e0e0e0;
-    color: #333;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.btn-cancel:hover {
-    background: #d0d0d0;
-}
-
+/* ============================================
+   FECHAS DE ASISTENCIA
+   ============================================ */
 .fechas-asistencia {
     background: #f8f9fa;
     padding: 15px;
     border-radius: 10px;
     border: 2px solid #e0e0e0;
+    margin: 15px 0;
+}
+
+.fechas-asistencia h4 {
+    color: #1a1a2e;
+    margin-bottom: 15px;
+    font-size: 15px;
 }
 
 .fechas-grid {
@@ -676,6 +917,7 @@ table tr:hover {
     width: 18px;
     height: 18px;
     accent-color: #667eea;
+    cursor: pointer;
 }
 
 .fecha-label {
@@ -693,6 +935,61 @@ table tr:hover {
     color: white;
 }
 
+/* ============================================
+   BOTONES DE FECHA DE ASISTENCIA (NUEVO)
+   ============================================ */
+.fecha-asistencia {
+    padding: 10px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    margin: 5px;
+    font-weight: 500;
+}
+
+.fecha-asistencia:hover {
+    border-color: #10b981;
+    background: #f0fdf4;
+    transform: translateY(-2px);
+}
+
+.fecha-asistencia.seleccionada {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-color: #10b981;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.contador-asistencia {
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 15px;
+    text-align: center;
+    background: #fef3c7;
+    color: #d97706;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+#fechasAsistenciaContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+}
+
+/* ============================================
+   COTEJO DE ASISTENCIA
+   ============================================ */
 .cotejo-asistencia {
     padding: 10px;
 }
@@ -714,6 +1011,7 @@ table tr:hover {
     justify-content: space-between;
     padding: 12px 15px;
     border-radius: 8px;
+    transition: all 0.3s;
 }
 
 .fecha-cotejo.asistio {
@@ -748,13 +1046,9 @@ table tr:hover {
     color: #721c24;
 }
 
-.reporte-header {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
+/* ============================================
+   PERMISOS DE USUARIO
+   ============================================ */
 .permisos-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -818,7 +1112,9 @@ table tr:hover {
     display: none;
 }
 
-/* ✅ Estilos para Reporte PDF */
+/* ============================================
+   REPORTES PDF
+   ============================================ */
 #reportePDF {
     background: white;
     padding: 30px;
@@ -851,6 +1147,14 @@ table tr:hover {
     font-size: 28px;
     color: #1a1a2e;
     font-weight: 700;
+    margin: 0;
+}
+
+.pdf-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0 0 0;
+    font-weight: 500;
 }
 
 .pdf-title {
@@ -941,9 +1245,33 @@ table tr:hover {
     margin-bottom: 5px;
 }
 
+/* ============================================
+   DURACIÓN DE CONFERENCIA
+   ============================================ */
+.duracion-conferencia {
+    background: #f0f9ff;
+    border: 2px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: #0369a1;
+    font-weight: 600;
+    font-size: 14px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
     }
     
     .main-content {
@@ -969,262 +1297,80 @@ table tr:hover {
     .pdf-info-row {
         grid-template-columns: 1fr;
     }
-
-   /* Estilos adicionales para el PDF */
-.pdf-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 15px;
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .form-modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .search-bar {
+        flex-direction: column;
+    }
+    
+    .search-bar input,
+    .search-bar select,
+    .search-bar button {
+        width: 100%;
+    }
 }
 
-.pdf-logo i {
-    font-size: 40px;
-    color: #667eea;
+@media (max-width: 480px) {
+    .login-box {
+        padding: 25px;
+    }
+    
+    .logo h1 {
+        font-size: 24px;
+    }
+    
+    .stat-info h3 {
+        font-size: 24px;
+    }
+    
+    table {
+        font-size: 12px;
+    }
+    
+    table th,
+    table td {
+        padding: 10px 8px;
+    }
 }
 
-.pdf-logo h1 {
-    font-size: 28px;
-    color: #1a1a2e;
-    font-weight: 700;
-    margin: 0;
-}
-
-.pdf-subtitle {
-    font-size: 14px;
-    color: #666;
-    margin: 5px 0 0 0;
-    font-weight: 500;
-}
-
-.pdf-title {
-    font-size: 24px;
-    color: #667eea;
-    font-weight: 600;
-    margin: 0;
-}
-
-
-/* Estilos para botones de acción */
-.btn-edit {
-    background: #667eea;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    margin-right: 5px;
-    transition: all 0.3s;
-}
-
-.btn-edit:hover {
-    background: #5568d3;
-    transform: translateY(-2px);
-}
-
-.btn-delete {
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    margin-right: 5px;
-    transition: all 0.3s;
-}
-
-.btn-delete:hover {
-    background: #ee5a5a;
-}
-
-.btn-view {
-    background: #43e97b;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    margin-right: 5px;
-    transition: all 0.3s;
-}
-
-.btn-view:hover {
-    background: #38d66c;
-}
-
-/* Estilos para PDF */
-.pdf-subtitle {
-    font-size: 14px;
-    color: #666;
-    margin: 5px 0 0 0;
-    font-weight: 500;
-}
-
-   .btn-edit, .btn-delete {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin: 0 2px;
-}
-
-.btn-edit {
-    background: #f59e0b;
-    color: white;
-}
-
-.btn-delete {
-    background: #ef4444;
-    color: white;
-}
-    <style>
-.btn-edit, .btn-delete {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin: 0 2px;
-}
-
-.btn-edit {
-    background: #f59e0b;
-    color: white;
-}
-
-.btn-edit:hover {
-    background: #d97706;
-}
-
-.btn-delete {
-    background: #ef4444;
-    color: white;
-}
-
-.btn-delete:hover {
-    background: #dc2626;
-}
-    <style>
-.btn-edit, .btn-delete {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin: 0 2px;
-}
-
-.btn-edit {
-    background: #f59e0b;
-    color: white;
-}
-
-.btn-edit:hover {
-    background: #d97706;
-}
-
-.btn-delete {
-    background: #ef4444;
-    color: white;
-}
-
-.btn-delete:hover {
-    background: #dc2626;
-}
-    <style>
-/* Estilos para botones de fecha de asistencia */
-.fecha-asistencia {
-    padding: 10px 15px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
-    margin: 5px;
-}
-
-.fecha-asistencia:hover {
-    border-color: #10b981;
-    background: #f0fdf4;
-}
-
-.fecha-asistencia.seleccionada {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    border-color: #10b981;
-    font-weight: 600;
-}
-
-.contador-asistencia {
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    margin-top: 15px;
+/* ============================================
+   UTILIDADES
+   ============================================ */
+.text-center {
     text-align: center;
-    background: #d1fae5;
-    color: #059669;
 }
 
-    <style>
-/* Estilos para botones de fecha de asistencia */
-.fecha-asistencia {
-    padding: 10px 15px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
-    margin: 5px;
-    font-weight: 500;
+.text-right {
+    text-align: right;
 }
 
-.fecha-asistencia:hover {
-    border-color: #10b981;
-    background: #f0fdf4;
-    transform: translateY(-2px);
+.mt-20 {
+    margin-top: 20px;
 }
 
-.fecha-asistencia.seleccionada {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    border-color: #10b981;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+.mb-20 {
+    margin-bottom: 20px;
 }
 
-.contador-asistencia {
-    padding: 15px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    margin-top: 15px;
-    text-align: center;
-    background: #fef3c7;
-    color: #d97706;
-    font-size: 16px;
+.hidden {
+    display: none;
 }
 
-.badge-asistencia {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-#fechasAsistenciaContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 15px 0;
-    padding: 15px;
-    background: #f9fafb;
-    border-radius: 8px;
-}
-</style>
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
 }

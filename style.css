@@ -1168,7 +1168,63 @@ table tr:hover {
     color: #059669;
 }
 
+    <style>
+/* Estilos para botones de fecha de asistencia */
+.fecha-asistencia {
+    padding: 10px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    margin: 5px;
+    font-weight: 500;
+}
+
+.fecha-asistencia:hover {
+    border-color: #10b981;
+    background: #f0fdf4;
+    transform: translateY(-2px);
+}
+
+.fecha-asistencia.seleccionada {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-color: #10b981;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.contador-asistencia {
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 15px;
+    text-align: center;
+    background: #fef3c7;
+    color: #d97706;
+    font-size: 16px;
+}
+
+.badge-asistencia {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+#fechasAsistenciaContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
 </style>
-
-
 }

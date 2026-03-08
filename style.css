@@ -1133,7 +1133,41 @@ table tr:hover {
 .btn-delete:hover {
     background: #dc2626;
 }
-</style>
+    <style>
+/* Estilos para botones de fecha de asistencia */
+.fecha-asistencia {
+    padding: 10px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    margin: 5px;
+}
+
+.fecha-asistencia:hover {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.fecha-asistencia.seleccionada {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-color: #10b981;
+    font-weight: 600;
+}
+
+.contador-asistencia {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 15px;
+    text-align: center;
+    background: #d1fae5;
+    color: #059669;
+}
+
 </style>
 
 

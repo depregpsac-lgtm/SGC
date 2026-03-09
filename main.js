@@ -1084,6 +1084,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (formAsistente) {
         formAsistente.onsubmit = guardarAsistente;
     }
+
+    
     
     // Cargar todos los datos
     await cargarZonas();
@@ -1152,7 +1154,345 @@ window.actualizarSelectIglesias = actualizarSelectIglesias;
 window.actualizarSelectConferencias = actualizarSelectConferencias;
 window.aplicarPermisosMenu = aplicarPermisosMenu;
 
+
+//
+// ============================================
+// FUNCIONES DE CARGA DE TABLAS ✅ AGREGADAS
+// ============================================
+
+async function cargarZonas() {
+    try {
+        console.log('📍 Cargando zonas...');
+        const zonas = await obtenerZonas();
+        console.log('✅ Zonas cargadas:', zonas);
+        
+        const tbody = document.querySelector('#tablaZonas tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró #tablaZonas tbody');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (zonas && zonas.length > 0) {
+            zonas.forEach(zona => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${zona.nombre}</td>
+                    <td>${zona.descripcion || '-'}</td>
+                    <td>
+                        <button onclick="editarZona(${zona.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarZona(${zona.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="3">Sin zonas registradas</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando zonas:', error);
+        const tbody = document.querySelector('#tablaZonas tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="3">Error al cargar zonas</td></tr>';
+        }
+    }
+}
+
+async function cargarDistritos() {
+    try {
+        console.log('🏛️ Cargando distritos...');
+        const distritos = await obtenerDistritos();
+        console.log('✅ Distritos cargados:', distritos);
+        
+        const tbody = document.querySelector('#tablaDistritos tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró #tablaDistritos tbody');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (distritos && distritos.length > 0) {
+            distritos.forEach(dist => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dist.nombre}</td>
+                    <td>${dist.zonas?.nombre || 'Sin zona'}</td>
+                    <td>${dist.responsable || '-'}</td>
+                    <td>
+                        <button onclick="editarDistrito(${dist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarDistrito(${dist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4">Sin distritos registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando distritos:', error);
+        const tbody = document.querySelector('#tablaDistritos tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="4">Error al cargar distritos</td></tr>';
+        }
+    }
+}
+
+async function cargarIglesias() {
+    try {
+        console.log('⛪ Cargando iglesias...');
+        const iglesias = await obtenerIglesias();
+        console.log('✅ Iglesias cargadas:', iglesias);
+        
+        const tbody = document.querySelector('#tablaIglesias tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró #tablaIglesias tbody');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (iglesias && iglesias.length > 0) {
+            iglesias.forEach(iglesia => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${iglesia.nombre}</td>
+                    <td>${iglesia.zonas?.nombre || 'Sin zona'}</td>
+                    <td>${iglesia.distritos?.nombre || 'Sin distrito'}</td>
+                    <td>${iglesia.pastor || '-'}</td>
+                    <td>
+                        <button onclick="editarIglesia(${iglesia.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarIglesia(${iglesia.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5">Sin iglesias registradas</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando iglesias:', error);
+        const tbody = document.querySelector('#tablaIglesias tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="5">Error al cargar iglesias</td></tr>';
+        }
+    }
+}
+
+async function cargarConferencias() {
+    try {
+        console.log('📅 Cargando conferencias...');
+        const conferencias = await obtenerConferencias();
+        console.log('✅ Conferencias cargadas:', conferencias);
+        
+        const tbody = document.querySelector('#tablaConferencias tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró #tablaConferencias tbody');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (conferencias && conferencias.length > 0) {
+            conferencias.forEach(conf => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${conf.nombre}</td>
+                    <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${formatearFechaParaTabla(conf.fecha_inicio)}</td>
+                    <td>${formatearFechaParaTabla(conf.fecha_fin)}</td>
+                    <td>${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</td>
+                    <td>${conf.conferenciante || '-'}</td>
+                    <td>
+                        <button onclick="editarConferencia(${conf.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarConferencia(${conf.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="7">Sin conferencias registradas</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando conferencias:', error);
+        const tbody = document.querySelector('#tablaConferencias tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="7">Error al cargar conferencias</td></tr>';
+        }
+    }
+}
+
+async function cargarAsistentes() {
+    try {
+        console.log('👥 Cargando asistentes...');
+        const asistentes = await obtenerAsistentes();
+        console.log('✅ Asistentes cargados:', asistentes);
+        
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró #tablaAsistentes tbody');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                  
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>
+                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando asistentes:', error);
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="6">Error al cargar asistentes</td></tr>';
+        }
+    }
+}
+
+async function cargarUsuarios() {
+    try {
+        console.log('👤 Cargando usuarios...');
+        const usuarios = await obtenerUsuarios();
+        console.log('✅ Usuarios cargados:', usuarios);
+        
+        const tbody = document.querySelector('#tablaUsuarios tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró #tablaUsuarios tbody');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (usuarios && usuarios.length > 0) {
+            usuarios.forEach(usuario => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${usuario.nombre_completo}</td>
+                    <td>${usuario.email}</td>
+                    <td>${usuario.rol}</td>
+                    <td><span class="badge-estado ${usuario.estado}">${usuario.estado}</span></td>
+                    <td>
+                        <button onclick="editarUsuario(${usuario.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarUsuario(${usuario.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5">Sin usuarios registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando usuarios:', error);
+        const tbody = document.querySelector('#tablaUsuarios tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="5">Error al cargar usuarios</td></tr>';
+        }
+    }
+}
+
+async function cargarEstadisticas() {
+    try {
+        console.log('📊 Cargando estadísticas...');
+        const stats = await obtenerEstadisticas();
+        console.log('✅ Estadísticas cargadas:', stats);
+        
+        const elZonas = document.getElementById('statZonas');
+        const elDistritos = document.getElementById('statDistritos');
+        const elIglesias = document.getElementById('statIglesias');
+        const elConferencias = document.getElementById('statConferencias');
+        const elAsistentes = document.getElementById('statAsistentes');
+        
+        if (elZonas) elZonas.textContent = stats.total_zonas || 0;
+        if (elDistritos) elDistritos.textContent = stats.total_distritos || 0;
+        if (elIglesias) elIglesias.textContent = stats.total_iglesias || 0;
+        if (elConferencias) elConferencias.textContent = stats.total_conferencias || 0;
+        if (elAsistentes) elAsistentes.textContent = stats.total_asistentes || 0;
+    } catch (error) {
+        console.error('❌ Error cargando estadísticas:', error);
+    }
+}
+
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES ✅ COMPLETO
+// ============================================
+window.editarZona = editarZona;
+window.guardarZonaEditada = guardarZonaEditada;
+window.confirmarEliminarZona = confirmarEliminarZona;
+window.guardarZona = guardarZona;
+window.cargarZonas = cargarZonas; // ✅ AGREGADA
+
+window.editarDistrito = editarDistrito;
+window.guardarDistritoEditado = guardarDistritoEditado;
+window.confirmarEliminarDistrito = confirmarEliminarDistrito;
+window.guardarDistrito = guardarDistrito;
+window.cargarDistritos = cargarDistritos; // ✅ AGREGADA
+
+window.editarIglesia = editarIglesia;
+window.guardarIglesiaEditada = guardarIglesiaEditada;
+window.confirmarEliminarIglesia = confirmarEliminarIglesia;
+window.guardarIglesia = guardarIglesia;
+window.cargarIglesias = cargarIglesias; // ✅ AGREGADA
+
+window.editarConferencia = editarConferencia;
+window.guardarConferenciaEditada = guardarConferenciaEditada;
+window.confirmarEliminarConferencia = confirmarEliminarConferencia;
+window.cargarConferencias = cargarConferencias; // ✅ AGREGADA
+window.guardarConferencia = guardarConferencia;
+
+window.editarAsistente = editarAsistente;
+window.guardarAsistenteEditado = guardarAsistenteEditado;
+window.confirmarEliminarAsistente = confirmarEliminarAsistente;
+window.cargarAsistentes = cargarAsistentes; // ✅ AGREGADA
+window.guardarAsistente = guardarAsistente;
+
+window.editarUsuario = editarUsuario;
+window.guardarUsuarioEditado = guardarUsuarioEditado;
+window.confirmarEliminarUsuario = confirmarEliminarUsuario;
+window.cargarUsuarios = cargarUsuarios; // ✅ AGREGADA
+window.guardarUsuario = guardarUsuario;
+
+window.cargarEstadisticas = cargarEstadisticas; // ✅ AGREGADA
+
+window.fechaISOaLocal = fechaISOaLocal;
+window.formatearFechaParaTabla = formatearFechaParaTabla;
+window.calcularDias = calcularDias;
+window.generarBotonesFechas = generarBotonesFechas;
+window.toggleFechaAsistencia = toggleFechaAsistencia;
+window.actualizarContadorAsistencia = actualizarContadorAsistencia;
+window.obtenerFechasSeleccionadas = obtenerFechasSeleccionadas;
+window.marcarFechasGuardadas = marcarFechasGuardadas;
+window.actualizarDuracionConferencia = actualizarDuracionConferencia;
+window.abrirModal = abrirModal;
+window.cerrarModal = cerrarModal;
+window.actualizarSelectZonas = actualizarSelectZonas;
+window.actualizarSelectDistritos = actualizarSelectDistritos;
+window.actualizarSelectIglesias = actualizarSelectIglesias;
+window.actualizarSelectConferencias = actualizarSelectConferencias;
+window.aplicarPermisosMenu = aplicarPermisosMenu;
+
+console.log('✅ main.js cargado correctamente con TODAS las funciones');
+
 console.log('✅ main.js cargado con SELECTS CORREGIDOS');
+
 
 
 

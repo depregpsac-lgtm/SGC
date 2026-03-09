@@ -220,111 +220,145 @@
         </section>
 
 <!-- Sección de Reportes -->
-<section id="reportes" class="section active">
-    <div class="reportes-header">
-        <div class="header-content">
-            <h1>📊 Reportes</h1>
-            <p>Genera reportes detallados de asistencia</p>
-        </div>
-        <button class="btn-generar-pdf" onclick="generarPDFReporte()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-            Generar PDF
-        </button>
-    </div>
-
-    <!-- Filtros -->
-    <div class="reportes-filtros">
-        <div class="filtro-group">
-            <label for="reporteConferencia">Conferencia</label>
-            <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
-                <option value="">-- Seleccione Conferencia --</option>
-            </select>
-        </div>
-        <div class="filtro-group">
-            <label for="reporteIglesia">Iglesia</label>
-            <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
-                <option value="">-- Todas las Iglesias --</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Vista Previa del Reporte -->
-    <div class="reporte-preview" id="reportePreview">
-        <!-- Header del Reporte -->
-        <div class="reporte-header-content">
-            <div class="reporte-logo">
-                <h2>MinistryLion</h2>
-                <p>Sistema de Gestión de Conferencias</p>
+<section id="reportes" class="section">
+    <div class="reportes-wrapper">
+        <!-- Header -->
+        <div class="reportes-header">
+            <div>
+                <h1>📊 Reportes de Conferencias</h1>
+                <p>Genera reportes detallados filtrados por conferencia e iglesia</p>
             </div>
-            <h1 class="reporte-titulo-conferencia" id="reporteTituloConferencia">VIVE SIN TEMOR</h1>
+            <button class="btn-generar-pdf" onclick="generarPDFReporte()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                Generar PDF
+            </button>
         </div>
 
-        <!-- Info Card -->
-        <div class="reporte-info-card">
-            <div class="info-row">
-                <div class="info-item">
-                    <div class="info-icon">🎤</div>
-                    <div class="info-content">
-                        <span class="info-label">Conferenciante:</span>
-                        <span class="info-value" id="reporteConferenciante">NATANAE</span>
-                    </div>
+        <!-- Panel de Filtros -->
+        <div class="filtros-card">
+            <div class="filtro-row">
+                <div class="filtro-field">
+                    <label>📅 Filtrar por Conferencia</label>
+                    <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
+                        <option value="">-- Seleccione Conferencia --</option>
+                    </select>
                 </div>
-                <div class="info-item">
-                    <div class="info-icon">📅</div>
-                    <div class="info-content">
-                        <span class="info-label">Fechas:</span>
-                        <span class="info-value" id="reporteFechas">02/03/2026 al 12/03/2026</span>
-                    </div>
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="info-item">
-                    <div class="info-icon">⛪</div>
-                    <div class="info-content">
-                        <span class="info-label">Sede:</span>
-                        <span class="info-value" id="reporteSede">Reconciliacion</span>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon">🕐</div>
-                    <div class="info-content">
-                        <span class="info-label">Generado:</span>
-                        <span class="info-value" id="reporteFechaGeneracion">9/3/2026 18:10:58</span>
-                    </div>
+                <div class="filtro-field">
+                    <label>⛪ Filtrar por Iglesia</label>
+                    <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
+                        <option value="">-- Todas las Iglesias --</option>
+                    </select>
                 </div>
             </div>
         </div>
 
-        <!-- Tabla de Asistentes -->
-        <div class="reporte-tabla-container">
-            <table class="reporte-tabla">
-                <thead>
-                    <tr>
-                        <th style="width: 50px;">#</th>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Iglesia</th>
-                        <th>Días Asistidos</th>
-                        <th>Fechas Asistidas</th>
-                    </tr>
-                </thead>
-                <tbody id="reporteTablaBody">
-                    <tr class="empty-row">
-                        <td colspan="6">Sin registros</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <!-- Vista Previa del Reporte -->
+        <div class="reporte-preview" id="reportePreview">
+            <!-- Header del Reporte -->
+            <div class="reporte-header-content">
+                <div class="reporte-brand">
+                    <h2>🦁 MinistryLion</h2>
+                    <p>Sistema de Gestión de Conferencias</p>
+                </div>
+                <h1 class="reporte-titulo" id="reporteTituloConferencia">-</h1>
+            </div>
 
-        <!-- Footer del Reporte -->
-        <div class="reporte-footer">
-            <p>Documento generado por MinistryLion - Sistema de Gestión de Conferencias</p>
+            <!-- Info Card -->
+            <div class="reporte-info-card">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎤</span>
+                        <div>
+                            <span class="info-label">Conferenciante</span>
+                            <span class="info-value" id="reporteConferenciante">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📅</span>
+                        <div>
+                            <span class="info-label">Fechas</span>
+                            <span class="info-value" id="reporteFechas">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">⛪</span>
+                        <div>
+                            <span class="info-label">Iglesia Sede</span>
+                            <span class="info-value" id="reporteSede">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">👤</span>
+                        <div>
+                            <span class="info-label">Pastor</span>
+                            <span class="info-value" id="reportePastor">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats-grid">
+                <div class="stat-card stat-primary">
+                    <span class="stat-icon">👥</span>
+                    <div>
+                        <span class="stat-number" id="statTotalAsistentes">0</span>
+                        <span class="stat-label">Total Asistentes</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-success">
+                    <span class="stat-icon">📅</span>
+                    <div>
+                        <span class="stat-number" id="statDiasCampana">0</span>
+                        <span class="stat-label">Días de Campaña</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-info">
+                    <span class="stat-icon">✅</span>
+                    <div>
+                        <span class="stat-number" id="statPromedioAsistencia">0%</span>
+                        <span class="stat-label">Promedio Asistencia</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="tabla-container">
+                <table class="tabla-reportes">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px">#</th>
+                            <th>Nombre Completo</th>
+                            <th>Teléfono</th>
+                            <th>Iglesia</th>
+                            <th>Invitado Por</th>
+                            <th>Días Asistidos</th>
+                            <th>Fechas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reporteTablaBody">
+                        <tr class="empty-state">
+                            <td colspan="7">
+                                <div class="empty-content">
+                                    <span class="empty-icon">📋</span>
+                                    <p>Seleccione una conferencia para ver los datos</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer -->
+            <div class="reporte-footer">
+                <p>Documento generado por MinistryLion - Sistema de Gestión de Conferencias</p>
+                <p class="footer-date" id="reporteFechaGeneracion"></p>
+            </div>
         </div>
     </div>
 </section>

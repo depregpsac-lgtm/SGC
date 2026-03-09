@@ -287,7 +287,7 @@
         }
 
         /* ============================================
-           MODALES - PROFESIONALES Y OCULTOS
+           MODALES - OCULTOS POR DEFECTO
            ============================================ */
         .modal {
             display: none;
@@ -762,7 +762,119 @@
          MODALES - Todos ocultos por defecto
          ============================================ -->
 
-    <!-- Modal Nueva Conferencia -->
+    <!-- FORMULARIO ZONA -->
+    <div class="modal" id="modalNuevaZona">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📍 Registrar Zona</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formZona">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="zonaNombre" required placeholder="Nombre de la zona">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea id="zonaDescripcion" rows="3" placeholder="Descripción opcional"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaZona')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Zona</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO DISTRITO -->
+    <div class="modal" id="modalNuevoDistrito">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🏛️ Registrar Distrito</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formDistrito">
+                    <div class="form-group">
+                        <label>Zona *</label>
+                        <select id="distritoZona" required>
+                            <option value="">-- Seleccione Zona --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="distritoNombre" required placeholder="Nombre del distrito">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Responsable</label>
+                            <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" id="distritoTelefono" placeholder="Teléfono de contacto">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevoDistrito')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Distrito</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO IGLESIA -->
+    <div class="modal" id="modalNuevaIglesia">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⛪ Registrar Iglesia</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formIglesia">
+                    <div class="form-group">
+                        <label>Zona *</label>
+                        <select id="iglesiaZona" required>
+                            <option value="">-- Seleccione Zona --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Distrito</label>
+                        <select id="iglesiaDistrito">
+                            <option value="">-- Sin distrito --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Iglesia *</label>
+                        <input type="text" id="iglesiaNombre" required placeholder="Nombre de la iglesia">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Pastor</label>
+                            <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" id="iglesiaTelefono" placeholder="Teléfono">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaIglesia')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Iglesia</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO CONFERENCIA -->
     <div class="modal" id="modalNuevaConferencia">
         <div class="modal-content">
             <div class="modal-header">
@@ -807,7 +919,7 @@
         </div>
     </div>
 
-    <!-- Modal Nuevo Asistente -->
+    <!-- FORMULARIO ASISTENTE -->
     <div class="modal" id="modalNuevoAsistente">
         <div class="modal-content">
             <div class="modal-header">
@@ -863,119 +975,7 @@
         </div>
     </div>
 
-    <!-- Modal Nueva Zona -->
-    <div class="modal" id="modalNuevaZona">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">📍 Registrar Zona</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="formZona">
-                    <div class="form-group">
-                        <label>Nombre *</label>
-                        <input type="text" id="zonaNombre" required placeholder="Nombre de la zona">
-                    </div>
-                    <div class="form-group">
-                        <label>Descripción</label>
-                        <textarea id="zonaDescripcion" rows="3" placeholder="Descripción opcional"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaZona')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Zona</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Nuevo Distrito -->
-    <div class="modal" id="modalNuevoDistrito">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">🏛️ Registrar Distrito</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="formDistrito">
-                    <div class="form-group">
-                        <label>Zona *</label>
-                        <select id="distritoZona" required>
-                            <option value="">-- Seleccione Zona --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre *</label>
-                        <input type="text" id="distritoNombre" required placeholder="Nombre del distrito">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Responsable</label>
-                            <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
-                        </div>
-                        <div class="form-group">
-                            <label>Teléfono</label>
-                            <input type="text" id="distritoTelefono" placeholder="Teléfono de contacto">
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn" onclick="cerrarModal('modalNuevoDistrito')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Distrito</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Nueva Iglesia -->
-    <div class="modal" id="modalNuevaIglesia">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">⛪ Registrar Iglesia</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="formIglesia">
-                    <div class="form-group">
-                        <label>Zona *</label>
-                        <select id="iglesiaZona" required>
-                            <option value="">-- Seleccione Zona --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Distrito</label>
-                        <select id="iglesiaDistrito">
-                            <option value="">-- Sin distrito --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre Iglesia *</label>
-                        <input type="text" id="iglesiaNombre" required placeholder="Nombre de la iglesia">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Pastor</label>
-                            <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
-                        </div>
-                        <div class="form-group">
-                            <label>Teléfono</label>
-                            <input type="text" id="iglesiaTelefono" placeholder="Teléfono">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Dirección</label>
-                        <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaIglesia')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Iglesia</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Nuevo Usuario -->
+    <!-- FORMULARIO USUARIO -->
     <div class="modal" id="modalNuevoUsuario">
         <div class="modal-content">
             <div class="modal-header">
@@ -1053,29 +1053,24 @@
     <script>
         // Función para mostrar secciones
         function mostrarSeccion(seccionId) {
-            // Ocultar todas las secciones
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
             
-            // Remover clase active de todos los links
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
             
-            // Mostrar la sección seleccionada
             const seccion = document.getElementById(seccionId);
             if (seccion) {
                 seccion.classList.add('active');
             }
             
-            // Activar el link correspondiente
             const linkActivo = document.querySelector(`a[href="#${seccionId}"]`);
             if (linkActivo) {
                 linkActivo.classList.add('active');
             }
             
-            // Actualizar URL
             window.location.hash = seccionId;
         }
 
@@ -1083,6 +1078,7 @@
         function abrirModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
+                modal.style.display = 'flex';
                 modal.classList.add('show');
                 document.body.style.overflow = 'hidden';
             }
@@ -1091,14 +1087,11 @@
         function cerrarModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
+                modal.style.display = 'none';
                 modal.classList.remove('show');
                 document.body.style.overflow = '';
-                
-                // Resetear formulario después de un momento
-                setTimeout(() => {
-                    const form = modal.querySelector('form');
-                    if (form) form.reset();
-                }, 300);
+                const form = modal.querySelector('form');
+                if (form) form.reset();
             }
         }
 

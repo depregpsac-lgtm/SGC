@@ -1578,6 +1578,206 @@ switch(seccionId) {
 */
 
 // ============================================
+// REPORTES - FUNCIONES PRINCIPALES
+// ============================================
+
+async function cargarFiltrosReportes() {
+    console.log('📋 Cargando filtros de reportes...');
+    
+    try {
+        // Cargar conferencias
+        const conferencias = await obtenerConferencias();
+        const selectConf = document.getElementById('reporteConferencia');
+        if (selectConf) {
+            selectConf.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
+                conferencias.map(c => `<option value="${c.id}">${c.nombre} (${formatearFechaParaTabla(c.fecha_inicio)} - ${formatearFechaParaTabla(c.fecha_fin)})</option>`).join('');
+        }
+        
+        // Cargar iglesias (inicialmente todas)
+        await cargarIglesiasEnSelectReporte('reporteIglesia');
+        
+    } catch (error) {
+        console.error('❌ Error cargando filtros:', error);
+        mostrarMensaje('Error cargando filtros', 'error');
+    }
+}
+
+async function cargarIglesiasEnSelectReporte(selectId) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        const iglesias = await obtenerIglesias();
+        select.innerHTML = '<option value="">-- Todas las Iglesias --</option>' +
+            iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando iglesias:', error);
+    }
+}
+
+async function cargarVistaPreviaReporte() {
+    console.log('📊 Cargando vista previa del reporte...');
+    
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    const iglesiaId = document.getElementById('reporteIglesia').value;
+    
+    // Limpiar vista si no hay conferencia
+    if (!conferenciaId) {
+        limpiarVistaReporte();
+        return;
+    }
+    
+    try {
+        // Obtener datos
+        const conferencias = await obtenerConferencias();
+        const conferencia = conferencias.find(c => c.id == conferenciaId);
+        
+        let asistentes = await obtenerAsistentes(conferenciaId);
+        
+        // FILTRAR POR IGLESIA (si se seleccionó)
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        // Actualizar información del header
+        if (conferencia) {
+            document.getElementById('reporteTituloConferencia').textContent = conferencia.nombre;
+            document.getElementById('reporteConferenciante').textContent = conferencia.conferenciante || '-';
+            document.getElementById('reporteFechas').textContent = 
+                `${formatearFechaParaTabla(conferencia.fecha_inicio)} - ${formatearFechaParaTabla(conferencia.fecha_fin)}`;
+            document.getElementById('reporteSede').textContent = conferencia.iglesias?.nombre || '-';
+            document.getElementById('reportePastor').textContent = conferencia.iglesias?.pastor || '-';
+        }
+        
+        // Fecha de generación
+        const ahora = new Date();
+        const fechaStr = `${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
+        document.getElementById('reporteFechaGeneracion').textContent = `Generado: ${fechaStr}`;
+        
+        // Calcular estadísticas
+        const diasCampana = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
+        document.getElementById('statDiasCampana').textContent = diasCampana;
+        document.getElementById('statTotalAsistentes').textContent = asistentes.length;
+        
+        // Calcular promedio de asistencia
+        let totalAsistencias = 0;
+        asistentes.forEach(a => {
+            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+            totalAsistencias += fechas.length;
+        });
+        const promedio = diasCampana > 0 && asistentes.length > 0 
+            ? Math.round((totalAsistencias / (asistentes.length * diasCampana)) * 100) 
+            : 0;
+        document.getElementById('statPromedioAsistencia').textContent = promedio + '%';
+        
+        // Llenar tabla
+        const tbody = document.getElementById('reporteTablaBody');
+        tbody.innerHTML = '';
+        
+        if (asistentes.length > 0) {
+            asistentes.forEach((asist, index) => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const fechasFormateadas = fechasAsistencia.map(f => {
+                    const date = new Date(f + 'T00:00:00');
+                    return `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}`;
+                });
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${asist.nombre_completo}</strong></td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.invitado_por || '-'}</td>
+                    <td><span class="badge-dias">${fechasAsistencia.length}/${diasCampana}</span></td>
+                    <td>
+                        <div class="fechas-list">
+                            ${fechasFormateadas.map(f => `<span class="fecha-badge">${f}</span>`).join('')}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = `
+                <tr class="empty-state">
+                    <td colspan="7">
+                        <div class="empty-content">
+                            <span class="empty-icon">📭</span>
+                            <p>No hay registros para los filtros seleccionados</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('❌ Error cargando vista previa:', error);
+        mostrarMensaje('Error cargando datos', 'error');
+    }
+}
+
+function limpiarVistaReporte() {
+    document.getElementById('reporteTituloConferencia').textContent = '-';
+    document.getElementById('reporteConferenciante').textContent = '-';
+    document.getElementById('reporteFechas').textContent = '-';
+    document.getElementById('reporteSede').textContent = '-';
+    document.getElementById('reportePastor').textContent = '-';
+    document.getElementById('statTotalAsistentes').textContent = '0';
+    document.getElementById('statDiasCampana').textContent = '0';
+    document.getElementById('statPromedioAsistencia').textContent = '0%';
+    document.getElementById('reporteTablaBody').innerHTML = `
+        <tr class="empty-state">
+            <td colspan="7">
+                <div class="empty-content">
+                    <span class="empty-icon">📋</span>
+                    <p>Seleccione una conferencia para ver los datos</p>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+async function generarPDFReporte() {
+    console.log('📄 Generando PDF del reporte...');
+    
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    
+    if (!conferenciaId) {
+        mostrarMensaje('❌ Seleccione una conferencia primero', 'error');
+        return;
+    }
+    
+    try {
+        const elemento = document.getElementById('reportePreview');
+        
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `Reporte_${new Date().toISOString().split('T')[0]}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        
+        if (typeof html2pdf === 'undefined') {
+            mostrarMensaje('❌ Librería html2pdf no cargada', 'error');
+            return;
+        }
+        
+        // Mostrar mensaje de carga
+        mostrarMensaje('⏳ Generando PDF...', 'info');
+        
+        await html2pdf().set(opt).from(elemento).save();
+        
+        mostrarMensaje('✅ PDF generado exitosamente', 'success');
+        
+    } catch (error) {
+        console.error('❌ Error generando PDF:', error);
+        mostrarMensaje('Error generando PDF: ' + error.message, 'error');
+    }
+}
+
+// ============================================
 // REPORTES - FUNCIONES
 // ============================================
 
@@ -1914,6 +2114,7 @@ window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

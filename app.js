@@ -65,15 +65,8 @@ function logout() {
     localStorage.removeItem('user');
     window.location.href = 'index.html';
 }
-// En app.js, modificar checkAuth para NO redirigir desde index.html
+
 function checkAuth() {
-    // No redirigir si estamos en la página de login
-    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-        const user = localStorage.getItem('user');
-        return user ? JSON.parse(user) : null;
-    }
-    
-    // Para otras páginas, verificar y redirigir si no hay usuario
     const user = localStorage.getItem('user');
     if (!user) {
         window.location.href = 'index.html';

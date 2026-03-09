@@ -2112,8 +2112,13 @@ window.cargarIglesiasEnSelect = cargarIglesiasEnSelect;
 window.cargarConferenciasEnSelect = cargarConferenciasEnSelect;
 window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
+// 👇 AGREGAR ESTOS EXPORTS 👇
+window.cargarFiltrosReportes = cargarFiltrosReportes;
+window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
+window.generarPDFReporte = generarPDFReporte;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

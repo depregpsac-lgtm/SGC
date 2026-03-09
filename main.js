@@ -69,31 +69,31 @@ async function editarZona(id) {
 }
 
 async function guardarZonaEditada(e) {
-e.preventDefault();
-const nombre = document.getElementById('zonaNombre').value;
-const descripcion = document.getElementById('zonaDescripcion').value;
-if (!nombre) {
-    mostrarMensaje('El nombre es requerido', 'error');
-    return;
-}
-
-try {
-    await actualizarZona(window.editMode.id, nombre, descripcion);
-    mostrarMensaje('✅ Zona actualizada exitosamente', 'success');
-    cerrarModal('modalNuevaZona');
-    await cargarZonas();
-    await cargarEstadisticas();
-    
-    window.editMode = { tipo: null, id: null };
-    document.getElementById('formZona').onsubmit = guardarZona;
-    
-    const tituloModal = document.querySelector('#modalNuevaZona h3');
-    if (tituloModal) {
-        tituloModal.textContent = '📍 Registrar Zona';
+    e.preventDefault();
+    const nombre = document.getElementById('zonaNombre').value;
+    const descripcion = document.getElementById('zonaDescripcion').value;
+    if (!nombre) {
+        mostrarMensaje('El nombre es requerido', 'error');
+        return;
     }
-} catch (error) {
-    mostrarMensaje('❌ Error: ' + error.message, 'error');
-}
+
+    try {
+        await actualizarZona(window.editMode.id, nombre, descripcion);
+        mostrarMensaje('✅ Zona actualizada exitosamente', 'success');
+        cerrarModal('modalNuevaZona');
+        await cargarZonas();
+        await cargarEstadisticas();
+        
+        window.editMode = { tipo: null, id: null };
+        document.getElementById('formZona').onsubmit = guardarZona;
+        
+        const tituloModal = document.querySelector('#modalNuevaZona h3');
+        if (tituloModal) {
+            tituloModal.textContent = '📍 Registrar Zona';
+        }
+    } catch (error) {
+        mostrarMensaje('❌ Error: ' + error.message, 'error');
+    }
 }
 
 async function confirmarEliminarZona(id) {
@@ -113,7 +113,6 @@ async function guardarZona(e) {
     e.preventDefault();
     const nombre = document.getElementById('zonaNombre').value;
     const descripcion = document.getElementById('zonaDescripcion').value;
-    
     if (!nombre) {
         mostrarMensaje('El nombre es requerido', 'error');
         return;
@@ -201,7 +200,6 @@ async function guardarDistritoEditado(e) {
     const nombre = document.getElementById('distritoNombre').value;
     const responsable = document.getElementById('distritoResponsable').value;
     const telefono = document.getElementById('distritoTelefono').value;
-    
     if (!zona_id || !nombre) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -245,7 +243,6 @@ async function guardarDistrito(e) {
     const nombre = document.getElementById('distritoNombre').value;
     const responsable = document.getElementById('distritoResponsable').value;
     const telefono = document.getElementById('distritoTelefono').value;
-    
     if (!zona_id || !nombre) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -340,7 +337,6 @@ async function guardarIglesiaEditada(e) {
     const pastor = document.getElementById('iglesiaPastor').value;
     const direccion = document.getElementById('iglesiaDireccion').value;
     const telefono = document.getElementById('iglesiaTelefono').value;
-    
     if (!zona_id || !nombre) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -386,7 +382,6 @@ async function guardarIglesia(e) {
     const pastor = document.getElementById('iglesiaPastor').value;
     const direccion = document.getElementById('iglesiaDireccion').value;
     const telefono = document.getElementById('iglesiaTelefono').value;
-    
     if (!zona_id || !nombre) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -480,7 +475,6 @@ async function guardarConferenciaEditada(e) {
     const fecha_inicio = document.getElementById('confFechaInicio').value;
     const fecha_fin = document.getElementById('confFechaFin').value;
     const conferenciante = document.getElementById('confConferenciante').value;
-    
     if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -558,7 +552,6 @@ async function guardarConferencia(e) {
     const fecha_inicio = document.getElementById('confFechaInicio').value;
     const fecha_fin = document.getElementById('confFechaFin').value;
     const conferenciante = document.getElementById('confConferenciante').value;
-    
     if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -647,7 +640,6 @@ async function guardarAsistenteEditado(e) {
         conferencia_id: document.getElementById('asistConferencia').value,
         fechas_asistencia: JSON.stringify(fechasAsistencia)
     };
-    
     if (!datos.nombre_completo || !datos.conferencia_id) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -695,7 +687,7 @@ async function cargarAsistentes() {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
-                
+                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${asist.nombre_completo}</td>
@@ -730,7 +722,6 @@ async function guardarAsistente(e) {
         conferencia_id: document.getElementById('asistConferencia').value,
         fechas_asistencia: JSON.stringify(fechasAsistencia)
     };
-    
     if (!datos.nombre_completo || !datos.conferencia_id) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -753,7 +744,6 @@ async function guardarAsistente(e) {
 function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (!container) return;
-    
     container.innerHTML = '';
 
     const inicio = new Date(fechaInicio + 'T00:00:00');
@@ -802,7 +792,6 @@ function actualizarContadorAsistencia() {
     const totalDias = document.querySelectorAll('.fecha-asistencia').length;
     const diasAsistidos = botonesSeleccionados.length;
     const contadorElement = document.querySelector('.contador-asistencia');
-    
     if (contadorElement) {
         contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> días asistidos de <strong>${totalDias}</strong> totales`;
         
@@ -832,7 +821,6 @@ function obtenerFechasSeleccionadas() {
 function marcarFechasGuardadas(fechasGuardadas) {
     if (!fechasGuardadas || fechasGuardadas.length === 0) return;
     const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
-
     fechas.forEach(fechaISO => {
         const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
         if (boton) {
@@ -891,7 +879,6 @@ async function guardarUsuarioEditado(e) {
     const estado = document.getElementById('usuarioEstado').checked ? 'activo' : 'inactivo';
     const permisosCheckboxes = document.querySelectorAll('input[name="permisos"]:checked');
     const permisos = Array.from(permisosCheckboxes).map(cb => cb.value);
-    
     if (!nombre_completo || !email) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -944,7 +931,6 @@ async function guardarUsuario(e) {
     const estado = document.getElementById('usuarioEstado').checked ? 'activo' : 'inactivo';
     const permisosCheckboxes = document.querySelectorAll('input[name="permisos"]:checked');
     const permisos = Array.from(permisosCheckboxes).map(cb => cb.value);
-    
     if (!nombre_completo || !email || !password) {
         mostrarMensaje('Complete los campos requeridos', 'error');
         return;
@@ -999,10 +985,9 @@ function actualizarSelectZonas(zonas) {
     const select = document.getElementById('distritoZona');
     const select2 = document.getElementById('iglesiaZona');
     if (!select && !select2) return;
-    
     const opciones = '<option value="">-- Seleccione --</option>' + 
         zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
-    
+
     if (select) select.innerHTML = opciones;
     if (select2) select2.innerHTML = opciones;
 }
@@ -1010,10 +995,9 @@ function actualizarSelectZonas(zonas) {
 function actualizarSelectDistritos(distritos) {
     const select = document.getElementById('iglesiaDistrito');
     if (!select) return;
-    
     const opciones = '<option value="">-- Sin distrito --</option>' + 
         distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
-    
+
     select.innerHTML = opciones;
 }
 
@@ -1021,10 +1005,9 @@ function actualizarSelectIglesias(iglesias) {
     const select = document.getElementById('confIglesia');
     const select2 = document.getElementById('asistIglesia');
     if (!select && !select2) return;
-    
     const opciones = '<option value="">-- Seleccione Iglesia --</option>' + 
         iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
-    
+
     if (select) select.innerHTML = opciones;
     if (select2) select2.innerHTML = opciones;
 }
@@ -1032,10 +1015,9 @@ function actualizarSelectIglesias(iglesias) {
 function actualizarSelectConferencias(conferencias) {
     const select = document.getElementById('asistConferencia');
     if (!select) return;
-    
     const opciones = '<option value="">-- Seleccione Conferencia --</option>' + 
         conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-    
+
     select.innerHTML = opciones;
 }
 
@@ -1045,7 +1027,6 @@ function actualizarSelectConferencias(conferencias) {
 async function cargarEstadisticas() {
     try {
         const stats = await obtenerEstadisticas();
-        
         const elZonas = document.getElementById('statZonas');
         const elDistritos = document.getElementById('statDistritos');
         const elIglesias = document.getElementById('statIglesias');
@@ -1073,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
         confInicio.addEventListener('change', actualizarDuracionConferencia);
         confFin.addEventListener('change', actualizarDuracionConferencia);
     }
-
+    
     // Listener para seleccionar conferencia en asistente
     const confSelect = document.getElementById('asistConferencia');
     if (confSelect) {
@@ -1114,7 +1095,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (formAsistente) {
         formAsistente.onsubmit = guardarAsistente;
     }
-    
+
     // Inicializar todas las tablas
     cargarZonas();
     cargarDistritos();
@@ -1155,37 +1136,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Agrega esta función en main.js
-async function abrirModalNuevoAsistente() {
-    try {
-        // Cargar iglesias y conferencias antes de abrir el modal
-        const [iglesias, conferencias] = await Promise.all([
-            obtenerIglesias(),
-            obtenerConferencias()
-        ]);
-        
-        actualizarSelectIglesias(iglesias);
-        actualizarSelectConferencias(conferencias);
-        
-        // Abrir el modal
-        abrirModal('modalNuevoAsistente');
-        
-        // Resetear el formulario
-        const form = document.getElementById('formAsistente');
-        if (form) form.reset();
-        
-        // Limpiar contenedor de fechas
-        const container = document.getElementById('fechasAsistenciaContainer');
-        if (container) container.innerHTML = '';
-        actualizarContadorAsistencia();
-        
-    } catch (error) {
-        console.error('Error cargando datos para nuevo asistente:', error);
-        mostrarMensaje('Error al cargar el formulario', 'error');
-    }
-}
-
-
 // ============================================
 // EXPORTAR FUNCIONES GLOBALES
 // ============================================
@@ -1194,37 +1144,31 @@ window.guardarZonaEditada = guardarZonaEditada;
 window.confirmarEliminarZona = confirmarEliminarZona;
 window.guardarZona = guardarZona;
 window.cargarZonas = cargarZonas;
-
 window.editarDistrito = editarDistrito;
 window.guardarDistritoEditado = guardarDistritoEditado;
 window.confirmarEliminarDistrito = confirmarEliminarDistrito;
 window.guardarDistrito = guardarDistrito;
 window.cargarDistritos = cargarDistritos;
-
 window.editarIglesia = editarIglesia;
 window.guardarIglesiaEditada = guardarIglesiaEditada;
 window.confirmarEliminarIglesia = confirmarEliminarIglesia;
 window.guardarIglesia = guardarIglesia;
 window.cargarIglesias = cargarIglesias;
-
 window.editarConferencia = editarConferencia;
 window.guardarConferenciaEditada = guardarConferenciaEditada;
 window.confirmarEliminarConferencia = confirmarEliminarConferencia;
 window.cargarConferencias = cargarConferencias;
 window.guardarConferencia = guardarConferencia;
-
 window.editarAsistente = editarAsistente;
 window.guardarAsistenteEditado = guardarAsistenteEditado;
 window.confirmarEliminarAsistente = confirmarEliminarAsistente;
 window.cargarAsistentes = cargarAsistentes;
 window.guardarAsistente = guardarAsistente;
-
 window.editarUsuario = editarUsuario;
 window.guardarUsuarioEditado = guardarUsuarioEditado;
 window.confirmarEliminarUsuario = confirmarEliminarUsuario;
 window.cargarUsuarios = cargarUsuarios;
 window.guardarUsuario = guardarUsuario;
-
 window.fechaISOaLocal = fechaISOaLocal;
 window.formatearFechaParaTabla = formatearFechaParaTabla;
 window.calcularDias = calcularDias;
@@ -1241,7 +1185,6 @@ window.actualizarSelectZonas = actualizarSelectZonas;
 window.actualizarSelectDistritos = actualizarSelectDistritos;
 window.actualizarSelectIglesias = actualizarSelectIglesias;
 window.actualizarSelectConferencias = actualizarSelectConferencias;
-window.abrirModalNuevoAsistente = abrirModalNuevoAsistente;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
 

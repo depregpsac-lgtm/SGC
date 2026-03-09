@@ -13,6 +13,100 @@ window.editMode = {
 };
 
 // ============================================
+// CONTROL DE PERMISOS POR ROL
+// ============================================
+function verificarPermisosAdministrador() {
+    const user = checkAuth();
+    if (!user) {
+        return false;
+    }
+    
+    // Verificar si es administrador
+    const esAdmin = user.rol === 'administrador';
+    
+    // Ocultar/mostrar menú de usuarios según rol
+    const menuUsuarios = document.getElementById('nav-usuarios');
+    const seccionUsuarios = document.getElementById('usuarios');
+    
+    if (menuUsuarios) {
+        menuUsuarios.style.display = esAdmin ? 'inline-block' : 'none';
+    }
+    
+    if (seccionUsuarios) {
+        // Si no es admin y trata de acceder directamente, redirigir
+        if (!esAdmin && seccionUsuarios.classList.contains('active')) {
+            navegarSeccion('dashboard');
+        }
+    }
+    
+    console.log('🔐 Rol del usuario:', user.rol, '| Es Admin:', esAdmin);
+    return esAdmin;
+}
+
+// ============================================
+// NAVEGACIÓN ENTRE SECCIONES (ACTUALIZADA)
+// ============================================
+function navegarSeccion(seccionId) {
+    console.log('📍 Navegando a:', seccionId);
+    
+    // Verificar permisos para sección de usuarios
+    if (seccionId === 'usuarios') {
+        const user = checkAuth();
+        if (!user || user.rol !== 'administrador') {
+            mostrarMensaje('❌ No tienes permisos para acceder a esta sección', 'error');
+            navegarSeccion('dashboard');
+            return;
+        }
+    }
+    
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    const section = document.getElementById(seccionId);
+    if (section) {
+        section.classList.add('active');
+    }
+    
+    const navLink = document.getElementById('nav-' + seccionId);
+    if (navLink) {
+        navLink.classList.add('active');
+    }
+    
+    // Cargar datos según la sección
+    switch(seccionId) {
+        case 'dashboard':
+            cargarEstadisticas();
+            break;
+        case 'conferencias':
+            cargarConferencias();
+            break;
+        case 'registros':
+            cargarAsistentes();
+            break;
+        case 'configuracion':
+            cargarZonas();
+            cargarDistritos();
+            cargarIglesias();
+            break;
+        case 'usuarios':
+            // Doble verificación de seguridad
+            const user = checkAuth();
+            if (user && user.rol === 'administrador') {
+                cargarUsuarios();
+            } else {
+                mostrarMensaje('❌ Acceso denegado', 'error');
+                navegarSeccion('dashboard');
+            }
+            break;
+    }
+}
+
+// ============================================
 // NAVEGACIÓN ENTRE SECCIONES
 // ============================================
 function navegarSeccion(seccionId) {
@@ -1374,6 +1468,7 @@ window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -70,14 +70,15 @@
     <!-- Header con Navegación -->
     <header class="header">
         <div class="logo">🦁 MinistryLion</div>
-        <nav class="nav-menu">
-            <a onclick="navegarSeccion('dashboard')" id="nav-dashboard" class="active">📊 Dashboard</a>
-            <a onclick="navegarSeccion('conferencias')" id="nav-conferencias">📅 Conferencias</a>
-            <a onclick="navegarSeccion('registros')" id="nav-registros">👥 Registros</a>
-            <a onclick="navegarSeccion('configuracion')" id="nav-configuracion">⚙️ Configuración</a>
-            <a onclick="navegarSeccion('usuarios')" id="nav-usuarios">👤 Usuarios</a>
-            <a onclick="logout()">🚪 Cerrar Sesión</a>
-        </nav>
+        <!-- En el menú lateral, después de Configuración -->
+<nav class="nav-menu">
+    <a href="#" id="nav-dashboard" class="active" onclick="navegarSeccion('dashboard')">📊 Dashboard</a>
+    <a href="#" id="nav-conferencias" onclick="navegarSeccion('conferencias')">📅 Conferencias</a>
+    <a href="#" id="nav-registros" onclick="navegarSeccion('registros')">👥 Registros</a>
+    <a href="#" id="nav-reportes" onclick="navegarSeccion('reportes')">📋 Reportes</a>
+    <a href="#" id="nav-configuracion" onclick="navegarSeccion('configuracion')">⚙️ Configuración</a>
+    <a href="#" id="nav-usuarios" onclick="navegarSeccion('usuarios')">👤 Usuarios</a>
+</nav>
     </header>
 
     <!-- Main Content -->

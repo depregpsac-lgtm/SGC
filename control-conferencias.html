@@ -218,69 +218,153 @@
             </div>
         </section>
 
-        <!-- Sección de Reportes -->
+<!-- Sección de Reportes -->
 <section id="reportes" class="section">
     <div class="section-header">
-        <h2>📋 Reportes de Conferencias</h2>
-        <button class="btn-primary" onclick="prepararModalReporte()">+ Nuevo Reporte</button>
+        <div>
+            <h2>📊 Reportes de Conferencias</h2>
+            <p class="section-subtitle">Genera reportes detallados de asistencia y estadísticas</p>
+        </div>
     </div>
-    
-    <div class="report-filters">
-        <div class="filter-group">
-            <label>📅 Filtrar por Conferencia:</label>
-            <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
-                <option value="">-- Todas las Conferencias --</option>
-            </select>
+
+    <!-- Panel de Filtros -->
+    <div class="report-panel">
+        <div class="panel-header">
+            <h3>🔍 Filtros del Reporte</h3>
         </div>
-        <div class="filter-group">
-            <label>⛪ Filtrar por Iglesia:</label>
-            <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
-                <option value="">-- Todas las Iglesias --</option>
-            </select>
+        <div class="panel-content">
+            <div class="filters-grid">
+                <div class="filter-item">
+                    <label for="reporteConferencia">
+                        <span class="filter-icon">📅</span>
+                        Conferencia
+                    </label>
+                    <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
+                        <option value="">-- Todas las Conferencias --</option>
+                    </select>
+                </div>
+                
+                <div class="filter-item">
+                    <label for="reporteIglesia">
+                        <span class="filter-icon">⛪</span>
+                        Iglesia
+                    </label>
+                    <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
+                        <option value="">-- Todas las Iglesias --</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary btn-lg" onclick="generarPDFReporte()">
+                    <span class="btn-icon">📄</span>
+                    Generar Reporte PDF
+                </button>
+                <button class="btn btn-secondary btn-lg" onclick="limpiarFiltrosReporte()">
+                    <span class="btn-icon">🔄</span>
+                    Limpiar Filtros
+                </button>
+            </div>
         </div>
-        <div class="filter-group">
-            <label>📅 Fecha Inicio:</label>
-            <input type="date" id="reporteFechaInicio" onchange="cargarVistaPreviaReporte()">
-        </div>
-        <div class="filter-group">
-            <label>📅 Fecha Fin:</label>
-            <input type="date" id="reporteFechaFin" onchange="cargarVistaPreviaReporte()">
-        </div>
-        <button class="btn-success" onclick="generarPDFReporte()">📄 Generar PDF</button>
     </div>
-    
-    <div class="report-preview">
-        <h3>📊 Vista Previa del Reporte</h3>
-        <div id="reporteResumen" class="report-summary">
-            <div class="summary-card">
-                <span class="summary-label">Total Asistentes:</span>
-                <span class="summary-value" id="totalAsistentesReporte">0</span>
-            </div>
-            <div class="summary-card">
-                <span class="summary-label">Días de Campaña:</span>
-                <span class="summary-value" id="diasCampanaReporte">0</span>
-            </div>
-            <div class="summary-card">
-                <span class="summary-label">Iglesias Participantes:</span>
-                <span class="summary-value" id="iglesiasParticipantesReporte">0</span>
-            </div>
+
+    <!-- Vista Previa -->
+    <div class="report-panel">
+        <div class="panel-header">
+            <h3>👁️ Vista Previa del Reporte</h3>
+            <span class="badge" id="reporteBadge">0 registros</span>
         </div>
-        
-        <div class="table-container">
-            <table id="tablaReporteAsistentes">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Iglesia</th>
-                        <th>Invitado Por</th>
-                        <th>Días Asistidos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="5">Seleccione filtros para ver datos</td></tr>
-                </tbody>
-            </table>
+        <div class="panel-content">
+            <!-- Resumen Estadístico -->
+            <div class="stats-grid">
+                <div class="stat-card stat-primary">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="totalAsistentesReporte">0</span>
+                        <span class="stat-label">Total Asistentes</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card stat-success">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="diasCampanaReporte">0</span>
+                        <span class="stat-label">Días de Campaña</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card stat-info">
+                    <div class="stat-icon">⛪</div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="iglesiasParticipantesReporte">0</span>
+                        <span class="stat-label">Iglesias Participantes</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card stat-warning">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="promedioAsistenciaReporte">0%</span>
+                        <span class="stat-label">Promedio Asistencia</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Datos -->
+            <div class="table-responsive">
+                <table class="data-table" id="tablaReporteAsistentes">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="th-content">
+                                    <span class="th-icon">👤</span>
+                                    Nombre
+                                </div>
+                            </th>
+                            <th>
+                                <div class="th-content">
+                                    <span class="th-icon">📱</span>
+                                    Teléfono
+                                </div>
+                            </th>
+                            <th>
+                                <div class="th-content">
+                                    <span class="th-icon">⛪</span>
+                                    Iglesia
+                                </div>
+                            </th>
+                            <th>
+                                <div class="th-content">
+                                    <span class="th-icon">👤</span>
+                                    Invitado Por
+                                </div>
+                            </th>
+                            <th>
+                                <div class="th-content">
+                                    <span class="th-icon">✅</span>
+                                    Días Asistidos
+                                </div>
+                            </th>
+                            <th>
+                                <div class="th-content">
+                                    <span class="th-icon">📊</span>
+                                    % Asistencia
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyReporteAsistentes">
+                        <tr class="empty-state">
+                            <td colspan="6">
+                                <div class="empty-content">
+                                    <span class="empty-icon">📋</span>
+                                    <p>Seleccione los filtros para ver los datos del reporte</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </section>

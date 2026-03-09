@@ -1241,8 +1241,10 @@ window.actualizarSelectZonas = actualizarSelectZonas;
 window.actualizarSelectDistritos = actualizarSelectDistritos;
 window.actualizarSelectIglesias = actualizarSelectIglesias;
 window.actualizarSelectConferencias = actualizarSelectConferencias;
+window.abrirModalNuevoAsistente = abrirModalNuevoAsistente;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

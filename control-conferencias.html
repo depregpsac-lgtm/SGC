@@ -762,117 +762,117 @@
          MODALES - Todos ocultos por defecto
          ============================================ -->
 
-    <!-- FORMULARIO ZONA -->
-    <div class="modal" id="modalNuevaZona">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">📍 Registrar Zona</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="formZona">
-                    <div class="form-group">
-                        <label>Nombre *</label>
-                        <input type="text" id="zonaNombre" required placeholder="Nombre de la zona">
-                    </div>
-                    <div class="form-group">
-                        <label>Descripción</label>
-                        <textarea id="zonaDescripcion" rows="3" placeholder="Descripción opcional"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaZona')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Zona</button>
-                    </div>
-                </form>
-            </div>
+   <!-- Modal Zona -->
+<div class="modal" id="modalNuevaZona">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">📍 Registrar Zona</h3>
+            <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="formZona">
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="zonaNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="zonaDescripcion" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Zona</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- FORMULARIO DISTRITO -->
-    <div class="modal" id="modalNuevoDistrito">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">🏛️ Registrar Distrito</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="formDistrito">
+<!-- Modal Distrito -->
+<div class="modal" id="modalNuevoDistrito">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">🏛️ Registrar Distrito</h3>
+            <button class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="formDistrito">
+                <div class="form-group">
+                    <label>Zona *</label>
+                    <select id="distritoZona" required>
+                        <option value="">-- Seleccione Zona --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="distritoNombre" required>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Zona *</label>
-                        <select id="distritoZona" required>
-                            <option value="">-- Seleccione Zona --</option>
-                        </select>
+                        <label>Responsable</label>
+                        <input type="text" id="distritoResponsable">
                     </div>
                     <div class="form-group">
-                        <label>Nombre *</label>
-                        <input type="text" id="distritoNombre" required placeholder="Nombre del distrito">
+                        <label>Teléfono</label>
+                        <input type="text" id="distritoTelefono">
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Responsable</label>
-                            <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
-                        </div>
-                        <div class="form-group">
-                            <label>Teléfono</label>
-                            <input type="text" id="distritoTelefono" placeholder="Teléfono de contacto">
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn" onclick="cerrarModal('modalNuevoDistrito')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Distrito</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="cerrarModal('modalNuevoDistrito')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Distrito</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- FORMULARIO IGLESIA -->
-    <div class="modal" id="modalNuevaIglesia">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">⛪ Registrar Iglesia</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="formIglesia">
+<!-- Modal Iglesia -->
+<div class="modal" id="modalNuevaIglesia">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">⛪ Registrar Iglesia</h3>
+            <button class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="formIglesia">
+                <div class="form-group">
+                    <label>Zona *</label>
+                    <select id="iglesiaZona" required>
+                        <option value="">-- Seleccione Zona --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Distrito</label>
+                    <select id="iglesiaDistrito">
+                        <option value="">-- Sin distrito --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Iglesia *</label>
+                    <input type="text" id="iglesiaNombre" required>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Zona *</label>
-                        <select id="iglesiaZona" required>
-                            <option value="">-- Seleccione Zona --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Distrito</label>
-                        <select id="iglesiaDistrito">
-                            <option value="">-- Sin distrito --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre Iglesia *</label>
-                        <input type="text" id="iglesiaNombre" required placeholder="Nombre de la iglesia">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Pastor</label>
-                            <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
-                        </div>
-                        <div class="form-group">
-                            <label>Teléfono</label>
-                            <input type="text" id="iglesiaTelefono" placeholder="Teléfono">
-                        </div>
+                        <label>Pastor</label>
+                        <input type="text" id="iglesiaPastor">
                     </div>
                     <div class="form-group">
-                        <label>Dirección</label>
-                        <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
+                        <label>Teléfono</label>
+                        <input type="text" id="iglesiaTelefono">
                     </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaIglesia')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Iglesia</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="iglesiaDireccion">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="cerrarModal('modalNuevaIglesia')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Iglesia</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
     <!-- FORMULARIO CONFERENCIA -->
     <div class="modal" id="modalNuevaConferencia">

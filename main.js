@@ -1137,6 +1137,177 @@ document.addEventListener('click', (e) => {
 });
 
 // ============================================
+// NAVEGACIÓN ENTRE SECCIONES
+// ============================================
+function navegarSeccion(seccionId) {
+    // Ocultar todas las secciones
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Remover clase active de todos los nav links
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Mostrar sección seleccionada
+    const section = document.getElementById(seccionId);
+    if (section) {
+        section.classList.add('active');
+    }
+    
+    // Activar link correspondiente
+    const navLink = document.getElementById('nav-' + seccionId);
+    if (navLink) {
+        navLink.classList.add('active');
+    }
+    
+    // Cargar datos según la sección
+    switch(seccionId) {
+        case 'dashboard':
+            cargarEstadisticas();
+            break;
+        case 'conferencias':
+            cargarConferencias();
+            actualizarSelectIglesiasGlobal();
+            break;
+        case 'registros':
+            cargarAsistentes();
+            actualizarSelectIglesiasGlobal();
+            actualizarSelectConferenciasGlobal();
+            break;
+        case 'configuracion':
+            cargarZonas();
+            cargarDistritos();
+            cargarIglesias();
+            actualizarSelectZonasGlobal();
+            break;
+        case 'usuarios':
+            cargarUsuarios();
+            break;
+    }
+}
+
+// ============================================
+// ACTUALIZAR SELECTS GLOBALES
+// ============================================
+async function actualizarSelectZonasGlobal() {
+    try {
+        const zonas = await obtenerZonas();
+        const selects = ['distritoZona', 'iglesiaZona'];
+        selects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                const firstOption = selectId === 'distritoZona' ? '-- Seleccione Zona --' : '-- Seleccione Zona --';
+                select.innerHTML = `<option value="">${firstOption}</option>` +
+                    zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
+            }
+        });
+    } catch (error) {
+        console.error('Error cargando zonas:', error);
+    }
+}
+
+async function actualizarSelectDistritosGlobal() {
+    try {
+        const distritos = await obtenerDistritos();
+        const select = document.getElementById('iglesiaDistrito');
+        if (select) {
+            select.innerHTML = `<option value="">-- Sin distrito --</option>` +
+                distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error cargando distritos:', error);
+    }
+}
+
+async function actualizarSelectIglesiasGlobal() {
+    try {
+        const iglesias = await obtenerIglesias();
+        const selects = ['confIglesia', 'asistIglesia'];
+        selects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                select.innerHTML = `<option value="">-- Seleccione Iglesia --</option>` +
+                    iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+            }
+        });
+    } catch (error) {
+        console.error('Error cargando iglesias:', error);
+    }
+}
+
+async function actualizarSelectConferenciasGlobal() {
+    try {
+        const conferencias = await obtenerConferencias();
+        const select = document.getElementById('asistConferencia');
+        if (select) {
+            select.innerHTML = `<option value="">-- Seleccione Conferencia --</option>` +
+                conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error cargando conferencias:', error);
+    }
+}
+
+// ============================================
+// CARGAR DISTRITOS POR ZONA (Cascada)
+// ============================================
+async function cargarDistritosPorZona(zonaId) {
+    try {
+        const select = document.getElementById('iglesiaDistrito');
+        if (!select) return;
+        
+        if (!zonaId) {
+            select.innerHTML = '<option value="">-- Sin distrito --</option>';
+            return;
+        }
+        
+        const { data, error } = await window.db
+            .from('distritos')
+            .select('*')
+            .eq('zona_id', zonaId);
+        
+        if (error) throw error;
+        
+        select.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
+            data.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('Error cargando distritos por zona:', error);
+    }
+}
+
+// ============================================
+// CARGAR FECHAS DE CONFERENCIA PARA ASISTENTE
+// ============================================
+async function cargarFechasConferencia(conferenciaId) {
+    const container = document.getElementById('fechasAsistenciaContainer');
+    if (container) container.innerHTML = '';
+    actualizarContadorAsistencia();
+    
+    if (!conferenciaId) return;
+    
+    try {
+        const conferencias = await obtenerConferencias();
+        const conferencia = conferencias.find(c => c.id == conferenciaId);
+        
+        if (conferencia) {
+            generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
+            
+            // Si estamos editando, marcar fechas guardadas
+            if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
+                setTimeout(() => {
+                    marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
+                }, 150);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error cargando fechas:', error);
+        mostrarMensaje('Error al cargar fechas de la conferencia', 'error');
+    }
+}
+
+// ============================================
 // EXPORTAR FUNCIONES GLOBALES
 // ============================================
 window.editarZona = editarZona;
@@ -1187,6 +1358,7 @@ window.actualizarSelectIglesias = actualizarSelectIglesias;
 window.actualizarSelectConferencias = actualizarSelectConferencias;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -309,6 +309,48 @@
     </main>
 
     <!-- MODALES -->
+    <!-- Modal Nuevo Reporte -->
+<div id="modalNuevoReporte" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="tituloModalReporte">📋 Configurar Reporte</h3>
+            <button class="modal-close" onclick="cerrarModal('modalNuevoReporte')">×</button>
+        </div>
+        <form id="formReporte" onsubmit="guardarConfiguracionReporte(event)">
+            <div class="form-group">
+                <label>📅 Conferencia *</label>
+                <select id="reporteConfSeleccionada" required onchange="cargarDatosConferenciaSeleccionada()">
+                    <option value="">-- Seleccione Conferencia --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>⛪ Iglesia (Opcional)</label>
+                <select id="reporteIglesiaFiltro">
+                    <option value="">-- Todas las Iglesias --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>📊 Tipo de Reporte</label>
+                <select id="reporteTipo">
+                    <option value="completo">Reporte Completo</option>
+                    <option value="resumen">Solo Resumen</option>
+                    <option value="asistencia">Detalle de Asistencia</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>🎨 Incluir Logo</label>
+                <input type="checkbox" id="reporteIncluirLogo" checked>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-success">💾 Guardar Configuración</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModal('modalNuevoReporte')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+    
     <!-- Modal Zona -->
     <div id="modalNuevaZona" class="modal">
         <div class="modal-content">

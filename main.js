@@ -1155,6 +1155,37 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Agrega esta función en main.js
+async function abrirModalNuevoAsistente() {
+    try {
+        // Cargar iglesias y conferencias antes de abrir el modal
+        const [iglesias, conferencias] = await Promise.all([
+            obtenerIglesias(),
+            obtenerConferencias()
+        ]);
+        
+        actualizarSelectIglesias(iglesias);
+        actualizarSelectConferencias(conferencias);
+        
+        // Abrir el modal
+        abrirModal('modalNuevoAsistente');
+        
+        // Resetear el formulario
+        const form = document.getElementById('formAsistente');
+        if (form) form.reset();
+        
+        // Limpiar contenedor de fechas
+        const container = document.getElementById('fechasAsistenciaContainer');
+        if (container) container.innerHTML = '';
+        actualizarContadorAsistencia();
+        
+    } catch (error) {
+        console.error('Error cargando datos para nuevo asistente:', error);
+        mostrarMensaje('Error al cargar el formulario', 'error');
+    }
+}
+
+
 // ============================================
 // EXPORTAR FUNCIONES GLOBALES
 // ============================================
@@ -1212,6 +1243,7 @@ window.actualizarSelectIglesias = actualizarSelectIglesias;
 window.actualizarSelectConferencias = actualizarSelectConferencias;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

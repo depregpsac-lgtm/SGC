@@ -1616,6 +1616,137 @@ async function cargarFiltrosReportes() {
     }
 }
 
+// Función para limpiar filtros
+function limpiarFiltrosReporte() {
+    document.getElementById('reporteConferencia').value = '';
+    document.getElementById('reporteIglesia').value = '';
+    cargarVistaPreviaReporte();
+    mostrarMensaje('Filtros limpiados', 'info');
+}
+
+// Actualizar la función cargarVistaPreviaReporte para incluir el promedio
+async function cargarVistaPreviaReporte() {
+    console.log('📊 Cargando vista previa del reporte...');
+    
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    const iglesiaId = document.getElementById('reporteIglesia').value;
+    
+    try {
+        let asistentes = await obtenerAsistentes(conferenciaId);
+        
+        // Filtrar por iglesia
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        // Actualizar badge
+        const badge = document.getElementById('reporteBadge');
+        if (badge) {
+            badge.textContent = `${asistentes.length} registro${asistentes.length !== 1 ? 's' : ''}`;
+        }
+        
+        // Calcular estadísticas
+        let diasCampana = 0;
+        if (conferenciaId) {
+            const conferencias = await obtenerConferencias();
+            const conferencia = conferencias.find(c => c.id == conferenciaId);
+            if (conferencia) {
+                diasCampana = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
+            }
+        }
+        
+        // Calcular iglesias participantes
+        const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
+        
+        // Calcular promedio de asistencia
+        let totalAsistencias = 0;
+        asistentes.forEach(a => {
+            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+            totalAsistencias += fechas.length;
+        });
+        const promedioAsistencia = diasCampana > 0 && asistentes.length > 0 
+            ? Math.round((totalAsistencias / (asistentes.length * diasCampana)) * 100) 
+            : 0;
+        
+        // Actualizar cards
+        document.getElementById('totalAsistentesReporte').textContent = asistentes.length;
+        document.getElementById('diasCampanaReporte').textContent = diasCampana;
+        document.getElementById('iglesiasParticipantesReporte').textContent = iglesiasUnicas.size;
+        document.getElementById('promedioAsistenciaReporte').textContent = promedioAsistencia + '%';
+        
+        // Llenar tabla
+        const tbody = document.getElementById('tbodyReporteAsistentes');
+        if (tbody) {
+            tbody.innerHTML = '';
+            
+            if (asistentes.length > 0) {
+                asistentes.forEach(asist => {
+                    const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                    const porcentajeAsistencia = diasCampana > 0 
+                        ? Math.round((fechasAsistencia.length / diasCampana) * 100) 
+                        : 0;
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${asist.nombre_completo}</strong></td>
+                        <td>${asist.telefono || '-'}</td>
+                        <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                        <td>${asist.invitado_por || '-'}</td>
+                        <td>
+                            <span class="badge-dias">${fechasAsistencia.length} de ${diasCampana}</span>
+                        </td>
+                        <td>
+                            <span class="badge-porcentaje" style="
+                                background: ${porcentajeAsistencia >= 80 ? '#d1fae5' : porcentajeAsistencia >= 50 ? '#fef3c7' : '#fee2e2'};
+                                color: ${porcentajeAsistencia >= 80 ? '#059669' : porcentajeAsistencia >= 50 ? '#d97706' : '#dc2626'};
+                                padding: 4px 12px;
+                                border-radius: 12px;
+                                font-weight: 600;
+                                font-size: 13px;
+                            ">
+                                ${porcentajeAsistencia}%
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = `
+                    <tr class="empty-state">
+                        <td colspan="6">
+                            <div class="empty-content">
+                                <span class="empty-icon">📋</span>
+                                <p>No hay registros que coincidan con los filtros seleccionados</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Error cargando vista previa:', error);
+        mostrarMensaje('Error cargando datos del reporte', 'error');
+    }
+}
+
+// Agregar estilos para badges en la tabla
+const style = document.createElement('style');
+style.textContent = `
+    .badge-dias {
+        background: #e0e7ff;
+        color: #4f46e5;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 13px;
+        display: inline-block;
+    }
+`;
+document.head.appendChild(style);
+
+
+
 // ============================================
 // EXPORTAR FUNCIONES GLOBALES (agregar al final de main.js)
 // ============================================
@@ -1764,6 +1895,7 @@ window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

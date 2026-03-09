@@ -1954,4 +1954,360 @@ table tbody tr:last-child td {
     .reporte-tabla td {
         padding: 10px;
     }
+
+
+    /* ============================================
+   REPORTES - ESTILOS PROFESIONALES
+   ============================================ */
+
+#reportes {
+    padding: 30px;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+.reportes-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header */
+.reportes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 25px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.reportes-header h1 {
+    margin: 0 0 5px 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.reportes-header p {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 14px;
+}
+
+/* Botón PDF */
+.btn-generar-pdf {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: white;
+    color: #667eea;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-generar-pdf:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.btn-generar-pdf svg {
+    stroke: #667eea;
+}
+
+/* Panel de Filtros */
+.filtros-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.filtro-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.filtro-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filtro-field label {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.filtro-field select {
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    color: #2d3748;
+}
+
+.filtro-field select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Vista Previa */
+.reporte-preview {
+    background: white;
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* Header del Reporte */
+.reporte-header-content {
+    text-align: center;
+    margin-bottom: 35px;
+    padding-bottom: 25px;
+    border-bottom: 3px solid #667eea;
+}
+
+.reporte-brand h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.reporte-brand p {
+    margin: 5px 0 0 0;
+    color: #718096;
+    font-size: 14px;
+}
+
+.reporte-titulo {
+    margin: 20px 0 0 0;
+    font-size: 28px;
+    color: #667eea;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Info Card */
+.reporte-info-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-left: 4px solid #667eea;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.info-icon {
+    font-size: 24px;
+}
+
+.info-item div {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 11px;
+    color: #718096;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.info-value {
+    font-size: 15px;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+/* Estadísticas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 2px solid #e2e8f0;
+}
+
+.stat-primary { border-color: #667eea; background: #f5f7ff; }
+.stat-success { border-color: #10b981; background: #f0fdf4; }
+.stat-info { border-color: #3b82f6; background: #eff6ff; }
+
+.stat-icon {
+    font-size: 32px;
+}
+
+.stat-card div {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.stat-primary .stat-number { color: #667eea; }
+.stat-success .stat-number { color: #10b981; }
+.stat-info .stat-number { color: #3b82f6; }
+
+.stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Tabla */
+.tabla-container {
+    overflow-x: auto;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.tabla-reportes {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.tabla-reportes thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.tabla-reportes th {
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.tabla-reportes td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 13px;
+    color: #2d3748;
+}
+
+.tabla-reportes tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Badge días */
+.badge-dias {
+    display: inline-flex;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+/* Fechas */
+.fechas-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.fecha-badge {
+    padding: 3px 8px;
+    background: #e6fffa;
+    color: #234e52;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid #b2f5ea;
+}
+
+/* Estado vacío */
+.empty-state td {
+    padding: 50px 20px !important;
+    text-align: center;
+}
+
+.empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #a0aec0;
+}
+
+.empty-icon { font-size: 48px; opacity: 0.4; }
+.empty-content p { margin: 0; font-size: 15px; }
+
+/* Footer */
+.reporte-footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 2px solid #e2e8f0;
+    color: #718096;
+    font-size: 12px;
+}
+
+.reporte-footer p { margin: 4px 0; }
+.footer-date { color: #a0aec0; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .reportes-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    .reporte-preview { padding: 20px; }
+    .reporte-brand h2 { font-size: 28px; }
+    .reporte-titulo { font-size: 22px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .tabla-reportes { font-size: 12px; }
+    .tabla-reportes th,
+    .tabla-reportes td { padding: 10px 8px; }
+}
 }

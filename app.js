@@ -97,13 +97,13 @@ async function crearZona(nombre, descripcion) {
 }
 
 async function actualizarZona(id, nombre, descripcion) {
-    const { data, error } = await window.db
-        .from('zonas')
-        .update({ nombre, descripcion, updated_at: new Date() })
-        .eq('id', id)
-        .select();
-    if (error) throw error;
-    return data;
+const { data, error } = await window.db
+.from('zonas')
+.update({ nombre, descripcion })
+.eq('id', id)
+.select();
+if (error) throw error;
+return data;
 }
 
 async function eliminarZona(id) {

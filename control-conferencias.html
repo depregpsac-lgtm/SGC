@@ -1,76 +1,1138 @@
-<!-- FORMULARIO ZONA -->
-<form id="formZona">
-    <input type="text" id="zonaNombre" required>
-    <textarea id="zonaDescripcion"></textarea>
-</form>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MinistryLion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<!-- FORMULARIO DISTRITO -->
-<form id="formDistrito">
-    <select id="distritoZona" required></select>
-    <input type="text" id="distritoNombre" required>
-    <input type="text" id="distritoResponsable">
-    <input type="text" id="distritoTelefono">
-</form>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
 
-<!-- FORMULARIO IGLESIA -->
-<form id="formIglesia">
-    <select id="iglesiaZona" required></select>
-    <select id="iglesiaDistrito"></select>
-    <input type="text" id="iglesiaNombre" required>
-    <input type="text" id="iglesiaPastor">
-    <input type="text" id="iglesiaDireccion">
-    <input type="text" id="iglesiaTelefono">
-</form>
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-<!-- FORMULARIO CONFERENCIA -->
-<form id="formConferencia">
-    <input type="text" id="confNombre" required>
-    <select id="confIglesia" required></select>
-    <input type="date" id="confFechaInicio" required>
-    <input type="date" id="confFechaFin" required>
-    <input type="text" id="confConferenciante">
-</form>
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-<!-- FORMULARIO ASISTENTE -->
-<form id="formAsistente">
-    <input type="text" id="asistNombre" required>
-    <input type="text" id="asistTelefono">
-    <input type="text" id="asistDireccion">
-    <input type="text" id="asistInvitadoPor">
-    <select id="asistIglesia"></select>
-    <select id="asistConferencia" required></select>
-    <div id="fechasAsistenciaContainer"></div>
-    <input type="hidden" id="diasAsistidosInput">
-</form>
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+        }
 
-<!-- FORMULARIO USUARIO -->
-<form id="formUsuario">
-    <input type="text" id="usuarioNombreCompleto" required>
-    <input type="email" id="usuarioEmail" required>
-    <input type="password" id="usuarioPassword">
-    <select id="usuarioRol"></select>
-    <input type="checkbox" id="usuarioEstado">
-</form>
+        .nav a {
+            text-decoration: none;
+            color: #4a5568;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-<!-- TABLAS -->
-<table id="tablaZonas"></table>
-<table id="tablaDistritos"></table>
-<table id="tablaIglesias"></table>
-<table id="tablaConferencias"></table>
-<table id="tablaAsistentes"></table>
-<table id="tablaUsuarios"></table>
+        .nav a:hover, .nav a.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
 
-<!-- ESTADÍSTICAS -->
-<div id="statZonas"></div>
-<div id="statDistritos"></div>
-<div id="statIglesias"></div>
-<div id="statConferencias"></div>
-<div id="statAsistentes"></div>
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
 
-<!-- MODALES -->
-<div id="modalNuevaZona"></div>
-<div id="modalNuevoDistrito"></div>
-<div id="modalNuevaIglesia"></div>
-<div id="modalNuevaConferencia"></div>
-<div id="modalNuevoAsistente"></div>
-<div id="modalNuevoUsuario"></div>
+        /* Sections */
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .welcome-banner h1 {
+            font-size: 2rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-banner p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        th {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        tbody tr {
+            transition: all 0.3s;
+        }
+
+        tbody tr:hover {
+            background: #f7fafc;
+            transform: scale(1.01);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-asistencia {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-estado.activo {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-estado.inactivo {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* ============================================
+           MODALES - PROFESIONALES Y OCULTOS
+           ============================================ */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+            animation: fadeInModal 0.3s ease;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 100px rgba(0, 0, 0, 0.3);
+            animation: slideUpModal 0.4s ease;
+        }
+
+        @keyframes slideUpModal {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        /* Fechas Asistencia */
+        .fechas-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin: 1rem 0;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+
+        .fecha-btn {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .fecha-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .fecha-btn.seleccionada {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .contador-asistencia {
+            padding: 1rem;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #d97706;
+            margin: 1rem 0;
+        }
+
+        /* Subsections */
+        .subsection {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .subsection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .subsection-title {
+            font-size: 1.2rem;
+            color: #2d3748;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">🦁 MinistryLion</div>
+        <nav class="nav">
+            <a href="#dashboard" class="nav-link active" onclick="mostrarSeccion('dashboard')">📊 Dashboard</a>
+            <a href="#conferencias" class="nav-link" onclick="mostrarSeccion('conferencias')">📅 Conferencias</a>
+            <a href="#registros" class="nav-link" onclick="mostrarSeccion('registros')">👥 Registros</a>
+            <a href="#configuracion" class="nav-link" onclick="mostrarSeccion('configuracion')">⚙️ Configuración</a>
+            <a href="#usuarios" class="nav-link" onclick="mostrarSeccion('usuarios')">👤 Usuarios</a>
+            <a href="#" onclick="logout()">🚪 Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="welcome-banner">
+                <h1>👋 Bienvenido al Dashboard</h1>
+                <p>Resumen general del sistema de gestión de conferencias</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📍</div>
+                    <div class="stat-number" id="statZonas">0</div>
+                    <div class="stat-label">Total Zonas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏛️</div>
+                    <div class="stat-number" id="statDistritos">0</div>
+                    <div class="stat-label">Total Distritos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⛪</div>
+                    <div class="stat-number" id="statIglesias">0</div>
+                    <div class="stat-label">Total Iglesias</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-number" id="statConferencias">0</div>
+                    <div class="stat-label">Conferencias</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number" id="statAsistentes">0</div>
+                    <div class="stat-label">Total Asistentes</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conferencias Section -->
+        <section id="conferencias" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Gestión de Conferencias</h2>
+                    <button class="btn btn-primary" onclick="abrirModal('modalNuevaConferencia')">
+                        <span>+</span> Nueva Conferencia
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="tablaConferencias">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Iglesia</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Días</th>
+                                <th>Conferenciante</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="7" style="text-align: center; padding: 3rem;">Cargando datos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Registros Section -->
+        <section id="registros" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">👥 Registros de Asistentes</h2>
+                    <button class="btn btn-primary" onclick="abrirModal('modalNuevoAsistente')">
+                        <span>+</span> Nuevo Registro
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="tablaAsistentes">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Iglesia</th>
+                                <th>Conferencia</th>
+                                <th>Días Asistidos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6" style="text-align: center; padding: 3rem;">Cargando registros...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuración Section -->
+        <section id="configuracion" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">⚙️ Configuración del Sistema</h2>
+                </div>
+
+                <!-- Zonas -->
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <h3 class="subsection-title">📍 Zonas</h3>
+                        <button class="btn btn-primary" onclick="abrirModal('modalNuevaZona')">+ Nueva Zona</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tablaZonas">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="3" style="text-align: center; padding: 2rem;">Sin zonas registradas</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Distritos -->
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <h3 class="subsection-title">🏛️ Distritos</h3>
+                        <button class="btn btn-primary" onclick="abrirModal('modalNuevoDistrito')">+ Nuevo Distrito</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tablaDistritos">
+                            <thead>
+                                <tr>
+                                    <th>Distrito</th>
+                                    <th>Zona</th>
+                                    <th>Responsable</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="4" style="text-align: center; padding: 2rem;">Sin distritos registrados</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Iglesias -->
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <h3 class="subsection-title">⛪ Iglesias</h3>
+                        <button class="btn btn-primary" onclick="abrirModal('modalNuevaIglesia')">+ Nueva Iglesia</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tablaIglesias">
+                            <thead>
+                                <tr>
+                                    <th>Iglesia</th>
+                                    <th>Zona</th>
+                                    <th>Distrito</th>
+                                    <th>Pastor</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" style="text-align: center; padding: 2rem;">Sin iglesias registradas</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Usuarios Section -->
+        <section id="usuarios" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">👤 Gestión de Usuarios</h2>
+                    <button class="btn btn-primary" onclick="abrirModal('modalNuevoUsuario')">+ Nuevo Usuario</button>
+                </div>
+                <div class="table-container">
+                    <table id="tablaUsuarios">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5" style="text-align: center; padding: 3rem;">Cargando usuarios...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============================================
+         MODALES - Todos ocultos por defecto
+         ============================================ -->
+
+    <!-- Modal Nueva Conferencia -->
+    <div class="modal" id="modalNuevaConferencia">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📅 Nueva Conferencia</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaConferencia')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formConferencia">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="confNombre" required placeholder="Ej: Conferencia Anual">
+                    </div>
+                    <div class="form-group">
+                        <label>Iglesia Sede *</label>
+                        <select id="confIglesia" required>
+                            <option value="">-- Seleccione Iglesia --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Fecha Inicio *</label>
+                            <input type="date" id="confFechaInicio" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha Fin *</label>
+                            <input type="date" id="confFechaFin" required>
+                        </div>
+                    </div>
+                    <div class="duracion-conferencia" style="padding: 1rem; background: #f0f9ff; border-radius: 10px; margin-bottom: 1.5rem; text-align: center; font-weight: 600; color: #0369a1;">
+                        📅 Duración: 0 días
+                    </div>
+                    <div class="form-group">
+                        <label>Conferenciante</label>
+                        <input type="text" id="confConferenciante" placeholder="Nombre del conferenciante">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaConferencia')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Conferencia</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Asistente -->
+    <div class="modal" id="modalNuevoAsistente">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">👥 Nuevo Registro de Asistente</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formAsistente">
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="asistNombre" required placeholder="Nombre completo del asistente">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" id="asistTelefono" placeholder="Teléfono de contacto">
+                        </div>
+                        <div class="form-group">
+                            <label>Invitado Por</label>
+                            <input type="text" id="asistInvitadoPor" placeholder="Persona que lo invitó">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" id="asistDireccion" placeholder="Dirección completa">
+                    </div>
+                    <div class="form-group">
+                        <label>Iglesia</label>
+                        <select id="asistIglesia">
+                            <option value="">-- Sin iglesia --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Conferencia *</label>
+                        <select id="asistConferencia" required>
+                            <option value="">-- Seleccione Conferencia --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>✅ Marque los días que asistió:</label>
+                        <div id="fechasAsistenciaContainer" class="fechas-container"></div>
+                        <div class="contador-asistencia">
+                            ✅ <strong>0</strong> días asistidos de <strong>0</strong> totales
+                        </div>
+                        <input type="hidden" id="diasAsistidosInput">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevoAsistente')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Registro</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Zona -->
+    <div class="modal" id="modalNuevaZona">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📍 Registrar Zona</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formZona">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="zonaNombre" required placeholder="Nombre de la zona">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea id="zonaDescripcion" rows="3" placeholder="Descripción opcional"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaZona')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Zona</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Distrito -->
+    <div class="modal" id="modalNuevoDistrito">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🏛️ Registrar Distrito</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formDistrito">
+                    <div class="form-group">
+                        <label>Zona *</label>
+                        <select id="distritoZona" required>
+                            <option value="">-- Seleccione Zona --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="distritoNombre" required placeholder="Nombre del distrito">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Responsable</label>
+                            <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" id="distritoTelefono" placeholder="Teléfono de contacto">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevoDistrito')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Distrito</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Iglesia -->
+    <div class="modal" id="modalNuevaIglesia">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⛪ Registrar Iglesia</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formIglesia">
+                    <div class="form-group">
+                        <label>Zona *</label>
+                        <select id="iglesiaZona" required>
+                            <option value="">-- Seleccione Zona --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Distrito</label>
+                        <select id="iglesiaDistrito">
+                            <option value="">-- Sin distrito --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Iglesia *</label>
+                        <input type="text" id="iglesiaNombre" required placeholder="Nombre de la iglesia">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Pastor</label>
+                            <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" id="iglesiaTelefono" placeholder="Teléfono">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevaIglesia')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Iglesia</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Usuario -->
+    <div class="modal" id="modalNuevoUsuario">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">👤 Nuevo Usuario</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoUsuario')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formUsuario">
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="usuarioNombreCompleto" required placeholder="Nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label>📧 Correo Electrónico *</label>
+                        <input type="email" id="usuarioEmail" required placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>🔑 Contraseña</label>
+                        <input type="password" id="usuarioPassword" placeholder="Dejar en blanco para mantener la actual">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rol</label>
+                            <select id="usuarioRol">
+                                <option value="usuario">👤 Usuario</option>
+                                <option value="administrador">👑 Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select id="usuarioEstado">
+                                <option value="activo">✅ Activo</option>
+                                <option value="inactivo">⏸️ Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>🔐 Permisos de Acceso</label>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="permisos" value="dashboard"> Dashboard
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="permisos" value="conferencias"> Conferencias
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="permisos" value="registros"> Registros
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="permisos" value="reportes"> Reportes
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="permisos" value="configuracion"> Configuración
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" name="permisos" value="usuarios"> Usuarios
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="cerrarModal('modalNuevoUsuario')" style="background: #e2e8f0; color: #4a5568;">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script src="main.js"></script>
+    
+    <script>
+        // Función para mostrar secciones
+        function mostrarSeccion(seccionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover clase active de todos los links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            const seccion = document.getElementById(seccionId);
+            if (seccion) {
+                seccion.classList.add('active');
+            }
+            
+            // Activar el link correspondiente
+            const linkActivo = document.querySelector(`a[href="#${seccionId}"]`);
+            if (linkActivo) {
+                linkActivo.classList.add('active');
+            }
+            
+            // Actualizar URL
+            window.location.hash = seccionId;
+        }
+
+        // Funciones de modal
+        function abrirModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function cerrarModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+                
+                // Resetear formulario después de un momento
+                setTimeout(() => {
+                    const form = modal.querySelector('form');
+                    if (form) form.reset();
+                }, 300);
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                cerrarModal(e.target.id);
+            }
+        });
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.show').forEach(modal => {
+                    cerrarModal(modal.id);
+                });
+            }
+        });
+
+        // Cargar sección basada en el hash de la URL
+        document.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && document.getElementById(hash)) {
+                mostrarSeccion(hash);
+            } else {
+                mostrarSeccion('dashboard');
+            }
+        });
+
+        // Función logout
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

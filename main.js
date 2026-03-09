@@ -13,51 +13,10 @@ window.editMode = {
 };
 
 // ============================================
-// CONTROL DE PERMISOS POR ROL
-// ============================================
-function verificarPermisosAdministrador() {
-    const user = checkAuth();
-    if (!user) {
-        return false;
-    }
-    
-    // Verificar si es administrador
-    const esAdmin = user.rol === 'administrador';
-    
-    // Ocultar/mostrar menú de usuarios según rol
-    const menuUsuarios = document.getElementById('nav-usuarios');
-    const seccionUsuarios = document.getElementById('usuarios');
-    
-    if (menuUsuarios) {
-        menuUsuarios.style.display = esAdmin ? 'inline-block' : 'none';
-    }
-    
-    if (seccionUsuarios) {
-        // Si no es admin y trata de acceder directamente, redirigir
-        if (!esAdmin && seccionUsuarios.classList.contains('active')) {
-            navegarSeccion('dashboard');
-        }
-    }
-    
-    console.log('🔐 Rol del usuario:', user.rol, '| Es Admin:', esAdmin);
-    return esAdmin;
-}
-
-// ============================================
-// NAVEGACIÓN ENTRE SECCIONES (ACTUALIZADA)
+// NAVEGACIÓN ENTRE SECCIONES
 // ============================================
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
-    
-    // Verificar permisos para sección de usuarios
-    if (seccionId === 'usuarios') {
-        const user = checkAuth();
-        if (!user || user.rol !== 'administrador') {
-            mostrarMensaje('❌ No tienes permisos para acceder a esta sección', 'error');
-            navegarSeccion('dashboard');
-            return;
-        }
-    }
     
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
@@ -94,43 +53,175 @@ function navegarSeccion(seccionId) {
             cargarIglesias();
             break;
         case 'usuarios':
-            // Doble verificación de seguridad
-            const user = checkAuth();
-            if (user && user.rol === 'administrador') {
-                cargarUsuarios();
-            } else {
-                mostrarMensaje('❌ Acceso denegado', 'error');
-                navegarSeccion('dashboard');
-            }
+            cargarUsuarios();
             break;
     }
 }
 
 // ============================================
-// FUNCIONES DE FECHAS
+// FUNCIONES PARA PREPARAR MODALES (CREACIÓN)
 // ============================================
-function fechaISOaLocal(fechaISO) {
-    if (!fechaISO) return '';
-    const fecha = new Date(fechaISO + 'T00:00:00');
-    const year = fecha.getFullYear();
-    const month = String(fecha.getMonth() + 1).padStart(2, '0');
-    const day = String(fecha.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+async function prepararModalZona() {
+    console.log('📍 Preparando modal Zona');
+    window.editMode = { tipo: null, id: null, data: null };
+    
+    document.getElementById('formZona').reset();
+    document.getElementById('formZona').onsubmit = guardarZona;
+    
+    const titulo = document.getElementById('tituloModalZona');
+    if (titulo) titulo.textContent = '📍 Registrar Zona';
+    
+    abrirModal('modalNuevaZona');
 }
 
-function formatearFechaParaTabla(fecha) {
-    if (!fecha) return '';
-    const fechaLocal = fechaISOaLocal(fecha);
-    const [year, month, day] = fechaLocal.split('-');
-    return `${day}/${month}/${year}`;
+async function prepararModalDistrito() {
+    console.log('🏛️ Preparando modal Distrito');
+    window.editMode = { tipo: null, id: null, data: null };
+    
+    document.getElementById('formDistrito').reset();
+    document.getElementById('formDistrito').onsubmit = guardarDistrito;
+    
+    const titulo = document.getElementById('tituloModalDistrito');
+    if (titulo) titulo.textContent = '🏛️ Registrar Distrito';
+    
+    // Cargar zonas en el select
+    await cargarZonasEnSelect('distritoZona');
+    
+    abrirModal('modalNuevoDistrito');
 }
 
-function calcularDias(inicio, fin) {
-    if (!inicio || !fin) return 0;
-    const d1 = new Date(inicio + 'T00:00:00');
-    const d2 = new Date(fin + 'T00:00:00');
-    const diffTime = Math.abs(d2 - d1);
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+async function prepararModalIglesia() {
+    console.log('⛪ Preparando modal Iglesia');
+    window.editMode = { tipo: null, id: null, data: null };
+    
+    document.getElementById('formIglesia').reset();
+    document.getElementById('formIglesia').onsubmit = guardarIglesia;
+    
+    const titulo = document.getElementById('tituloModalIglesia');
+    if (titulo) titulo.textContent = '⛪ Registrar Iglesia';
+    
+    // Cargar zonas en el select
+    await cargarZonasEnSelect('iglesiaZona');
+    document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
+    
+    abrirModal('modalNuevaIglesia');
+}
+
+async function prepararModalConferencia() {
+    console.log('📅 Preparando modal Conferencia');
+    window.editMode = { tipo: null, id: null, data: null };
+    
+    document.getElementById('formConferencia').reset();
+    document.getElementById('formConferencia').onsubmit = guardarConferencia;
+    
+    const titulo = document.getElementById('tituloModalConferencia');
+    if (titulo) titulo.textContent = '📅 Nueva Conferencia';
+    
+    // Cargar iglesias en el select
+    await cargarIglesiasEnSelect('confIglesia');
+    
+    abrirModal('modalNuevaConferencia');
+}
+
+async function prepararModalAsistente() {
+    console.log('👥 Preparando modal Asistente');
+    window.editMode = { tipo: null, id: null, data: null };
+    
+    document.getElementById('formAsistente').reset();
+    document.getElementById('formAsistente').onsubmit = guardarAsistente;
+    
+    const titulo = document.getElementById('tituloModalAsistente');
+    if (titulo) titulo.textContent = '👥 Nuevo Registro de Asistente';
+    
+    // Limpiar fechas
+    const container = document.getElementById('fechasAsistenciaContainer');
+    if (container) container.innerHTML = '';
+    actualizarContadorAsistencia();
+    
+    // Cargar selects
+    await cargarIglesiasEnSelect('asistIglesia');
+    await cargarConferenciasEnSelect('asistConferencia');
+    
+    abrirModal('modalNuevoAsistente');
+}
+
+async function prepararModalUsuario() {
+    console.log('👤 Preparando modal Usuario');
+    window.editMode = { tipo: null, id: null, data: null };
+    window.tempPassword = '';
+    
+    document.getElementById('formUsuario').reset();
+    document.getElementById('formUsuario').onsubmit = guardarUsuario;
+    
+    const titulo = document.getElementById('tituloModalUsuario');
+    if (titulo) titulo.textContent = '👤 Nuevo Usuario';
+    
+    abrirModal('modalNuevoUsuario');
+}
+
+// ============================================
+// CARGAR SELECTS
+// ============================================
+async function cargarZonasEnSelect(selectId) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        const zonas = await obtenerZonas();
+        select.innerHTML = '<option value="">-- Seleccione Zona --</option>' +
+            zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando zonas:', error);
+        mostrarMensaje('Error cargando zonas', 'error');
+    }
+}
+
+async function cargarDistritosEnSelect(selectId, zonaId = null) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        let distritos = await obtenerDistritos();
+        
+        if (zonaId) {
+            distritos = distritos.filter(d => d.zona_id == zonaId);
+        }
+        
+        select.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
+            distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando distritos:', error);
+    }
+}
+
+async function cargarIglesiasEnSelect(selectId) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        const iglesias = await obtenerIglesias();
+        select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>' +
+            iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando iglesias:', error);
+    }
+}
+
+async function cargarConferenciasEnSelect(selectId) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        const conferencias = await obtenerConferencias();
+        select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
+            conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando conferencias:', error);
+    }
+}
+
+async function cargarDistritosPorZona(zonaId) {
+    await cargarDistritosEnSelect('iglesiaDistrito', zonaId);
 }
 
 // ============================================
@@ -1124,71 +1215,6 @@ async function cargarUsuarios() {
 }
 
 // ============================================
-// FUNCIONES AUXILIARES PARA SELECTS
-// ============================================
-async function cargarZonasEnSelect(selectId) {
-    try {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-        
-        const zonas = await obtenerZonas();
-        select.innerHTML = '<option value="">-- Seleccione Zona --</option>' +
-            zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
-    } catch (error) {
-        console.error('❌ Error cargando zonas:', error);
-        mostrarMensaje('Error cargando zonas', 'error');
-    }
-}
-
-async function cargarDistritosEnSelect(selectId, zonaId = null) {
-    try {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-        
-        let distritos = await obtenerDistritos();
-        
-        if (zonaId) {
-            distritos = distritos.filter(d => d.zona_id == zonaId);
-        }
-        
-        select.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
-            distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
-    } catch (error) {
-        console.error('❌ Error cargando distritos:', error);
-    }
-}
-
-async function cargarIglesiasEnSelect(selectId) {
-    try {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-        
-        const iglesias = await obtenerIglesias();
-        select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>' +
-            iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
-    } catch (error) {
-        console.error('❌ Error cargando iglesias:', error);
-    }
-}
-
-async function cargarConferenciasEnSelect(selectId) {
-    try {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-        
-        const conferencias = await obtenerConferencias();
-        select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
-            conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-    } catch (error) {
-        console.error('❌ Error cargando conferencias:', error);
-    }
-}
-
-async function cargarDistritosPorZona(zonaId) {
-    await cargarDistritosEnSelect('iglesiaDistrito', zonaId);
-}
-
-// ============================================
 // CARGAR ESTADÍSTICAS
 // ============================================
 async function cargarEstadisticas() {
@@ -1241,7 +1267,7 @@ document.addEventListener('click', (e) => {
 });
 
 // ============================================
-// EVENT LISTENERS - INICIALIZACIÓN ✅ ACTUALIZADO
+// EVENT LISTENERS - INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOMContentLoaded - Iniciando aplicación...');
@@ -1263,14 +1289,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const user = checkAuth();
     if (!user) {
         console.log('🔐 No hay usuario autenticado, redirigiendo...');
-        window.location.href = 'index.html';
         return;
     }
     
-    console.log('👤 Usuario autenticado:', user.nombre, '| Rol:', user.rol);
-    
-    // 🔐 VERIFICAR PERMISOS DE ADMINISTRADOR
-    verificarPermisosAdministrador();
+    console.log('👤 Usuario autenticado:', user.nombre);
     
     // Listeners para inputs de fecha de conferencia
     const confInicio = document.getElementById('confFechaInicio');
@@ -1286,12 +1308,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarIglesias();
     await cargarConferencias();
     await cargarAsistentes();
-    
-    // Solo cargar usuarios si es administrador
-    if (user.rol === 'administrador') {
-        await cargarUsuarios();
-    }
-    
+    await cargarUsuarios();
     await cargarEstadisticas();
     
     console.log('✅ Aplicación inicializada correctamente');
@@ -1301,7 +1318,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 // EXPORTAR FUNCIONES GLOBALES
 // ============================================
 window.navegarSeccion = navegarSeccion;
-window.verificarPermisosAdministrador = verificarPermisosAdministrador;
+window.prepararModalZona = prepararModalZona;
+window.prepararModalDistrito = prepararModalDistrito;
+window.prepararModalIglesia = prepararModalIglesia;
+window.prepararModalConferencia = prepararModalConferencia;
+window.prepararModalAsistente = prepararModalAsistente;
+window.prepararModalUsuario = prepararModalUsuario;
 window.editarZona = editarZona;
 window.guardarZonaEditada = guardarZonaEditada;
 window.confirmarEliminarZona = confirmarEliminarZona;
@@ -1352,7 +1374,6 @@ window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
-
 
 
 

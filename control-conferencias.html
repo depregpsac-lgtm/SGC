@@ -5,71 +5,283 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+
         /* Header */
-        .header { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: bold; }
-        .nav { display: flex; gap: 1rem; }
-        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; }
-        .nav a:hover { background: rgba(255,255,255,0.2); }
-        
+        .header {
+            background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav a:hover, .nav a.active {
+            background: rgba(255,255,255,0.25);
+            font-weight: 500;
+        }
+
         /* Main Content */
-        .main { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
-        .stat-number { font-size: 2rem; font-weight: bold; color: #1e3a5f; }
-        .stat-label { color: #666; margin-top: 0.5rem; }
-        
+        .main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
         /* Sections */
-        .section { background: white; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .section-title { font-size: 1.3rem; color: #1e3a5f; }
-        
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1e3a5f;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            color: #1e3a5f;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         /* Buttons */
-        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
-        .btn-primary { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; }
-        .btn-primary:hover { background: linear-gradient(135deg, #2d5a87, #3d6a97); }
-        .btn-edit { background: #fbbf24; color: white; padding: 0.4rem 0.8rem; }
-        .btn-delete { background: #ef4444; color: white; padding: 0.4rem 0.8rem; }
-        
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2d5a87, #3d6a97);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+        }
+
+        .btn-edit {
+            background: #fbbf24;
+            color: white;
+            padding: 0.5rem 0.8rem;
+        }
+
+        .btn-edit:hover {
+            background: #f59e0b;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 0.5rem 0.8rem;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
         /* Tables */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; color: #1e3a5f; font-weight: 600; }
-        tr:hover { background: #f8f9fa; }
-        
-        /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal.show { display: flex; }
-        .modal-content { background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .modal-title { font-size: 1.3rem; color: #1e3a5f; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
-        
-        /* Forms */
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e3a5f; }
-        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; }
-        
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #1e3a5f;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Subsections */
+        .subsection {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .subsection-title {
+            font-size: 1.2rem;
+            color: #1e3a5f;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         /* Badges */
-        .badge-asistencia { background: #dbeafe; color: #1e40af; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; }
-        .badge-estado.activo { background: #d1fae5; color: #059669; padding: 0.3rem 0.8rem; border-radius: 20px; }
-        .badge-estado.inactivo { background: #fee2e2; color: #dc2626; padding: 0.3rem 0.8rem; border-radius: 20px; }
-        
-        /* Fechas Asistencia */
-        .fechas-asistencia-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
-        .fecha-asistencia { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 5px; background: white; cursor: pointer; transition: all 0.3s; }
-        .fecha-asistencia.seleccionada { background: #10b981; color: white; border-color: #10b981; }
-        .contador-asistencia { padding: 0.8rem; border-radius: 5px; margin: 1rem 0; text-align: center; }
-        
-        /* Toast */
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        .badge-asistencia {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .badge-estado.activo {
+            background: #d1fae5;
+            color: #059669;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+        }
+
+        .badge-estado.inactivo {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+        }
+
+        /* Welcome Message */
+        .welcome-banner {
+            background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-banner h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-banner p {
+            opacity: 0.9;
+        }
+
+        /* Grid for config */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .config-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -77,192 +289,210 @@
     <header class="header">
         <div class="logo">🦁 MinistryLion</div>
         <nav class="nav">
-            <a href="#dashboard">📊 Dashboard</a>
-            <a href="#conferencias">📅 Conferencias</a>
-            <a href="#registros">👥 Registros</a>
-            <a href="#configuracion">⚙️ Configuración</a>
-            <a href="#usuarios">👤 Usuarios</a>
+            <a href="#dashboard" class="nav-link active" onclick="mostrarSeccion('dashboard')">📊 Dashboard</a>
+            <a href="#conferencias" class="nav-link" onclick="mostrarSeccion('conferencias')">📅 Conferencias</a>
+            <a href="#registros" class="nav-link" onclick="mostrarSeccion('registros')">👥 Registros</a>
+            <a href="#configuracion" class="nav-link" onclick="mostrarSeccion('configuracion')">⚙️ Configuración</a>
+            <a href="#usuarios" class="nav-link" onclick="mostrarSeccion('usuarios')">👤 Usuarios</a>
             <a href="#" onclick="logout()">🚪 Cerrar Sesión</a>
         </nav>
     </header>
 
     <!-- Main Content -->
     <main class="main">
-        <!-- Estadísticas -->
-        <section class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="statZonas">0</div>
-                <div class="stat-label">Total Zonas</div>
+        <!-- SECCIÓN DASHBOARD -->
+        <section id="dashboard" class="section active">
+            <div class="welcome-banner">
+                <h1>Bienvenido al Dashboard</h1>
+                <p>Resumen general del sistema de conferencias</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statDistritos">0</div>
-                <div class="stat-label">Total Distritos</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statIglesias">0</div>
-                <div class="stat-label">Total Iglesias</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statConferencias">0</div>
-                <div class="stat-label">Conferencias</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statAsistentes">0</div>
-                <div class="stat-label">Total Asistentes</div>
-            </div>
-        </section>
-
-        <!-- Conferencias -->
-        <section class="section" id="conferencias">
-            <div class="section-header">
-                <h2 class="section-title">📅 Gestión de Conferencias</h2>
-                <button class="btn btn-primary" onclick="abrirModal('modalNuevaConferencia')">+ Nueva Conferencia</button>
-            </div>
-            <div class="table-container">
-                <table id="tablaConferencias">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Iglesia</th>
-                            <th>Inicio</th>
-                            <th>Fin</th>
-                            <th>Días</th>
-                            <th>Conferenciante</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td colspan="7">Cargando datos...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Asistentes -->
-        <section class="section" id="registros">
-            <div class="section-header">
-                <h2 class="section-title">👥 Registros de Asistentes</h2>
-                <button class="btn btn-primary" onclick="abrirModal('modalNuevoAsistente')">+ Nuevo Registro</button>
-            </div>
-            <div class="table-container">
-                <table id="tablaAsistentes">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Teléfono</th>
-                            <th>Iglesia</th>
-                            <th>Conferencia</th>
-                            <th>Días Asistidos</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td colspan="6">Cargando registros...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Configuración -->
-        <section class="section" id="configuracion">
-            <h2 class="section-title">⚙️ Configuración</h2>
             
-            <!-- Zonas -->
-            <div style="margin-top: 1.5rem;">
-                <div class="section-header">
-                    <h3>📍 Zonas</h3>
-                    <button class="btn btn-primary" onclick="abrirModal('modalNuevaZona')">+ Nueva Zona</button>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="statZonas">0</div>
+                    <div class="stat-label">Total Zonas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statDistritos">0</div>
+                    <div class="stat-label">Total Distritos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statIglesias">0</div>
+                    <div class="stat-label">Total Iglesias</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statConferencias">0</div>
+                    <div class="stat-label">Conferencias</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statAsistentes">0</div>
+                    <div class="stat-label">Total Asistentes</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN CONFERENCIAS -->
+        <section id="conferencias" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Gestión de Conferencias</h2>
+                    <button class="btn btn-primary" onclick="abrirModal('modalNuevaConferencia')">+ Nueva Conferencia</button>
                 </div>
                 <div class="table-container">
-                    <table id="tablaZonas">
+                    <table id="tablaConferencias">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="3">Sin zonas</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Distritos -->
-            <div style="margin-top: 1.5rem;">
-                <div class="section-header">
-                    <h3>🏛️ Distritos</h3>
-                    <button class="btn btn-primary" onclick="abrirModal('modalNuevoDistrito')">+ Nuevo Distrito</button>
-                </div>
-                <div class="table-container">
-                    <table id="tablaDistritos">
-                        <thead>
-                            <tr>
-                                <th>Distrito</th>
-                                <th>Zona</th>
-                                <th>Responsable</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="4">Sin distritos</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Iglesias -->
-            <div style="margin-top: 1.5rem;">
-                <div class="section-header">
-                    <h3>⛪ Iglesias</h3>
-                    <button class="btn btn-primary" onclick="abrirModal('modalNuevaIglesia')">+ Nueva Iglesia</button>
-                </div>
-                <div class="table-container">
-                    <table id="tablaIglesias">
-                        <thead>
-                            <tr>
                                 <th>Iglesia</th>
-                                <th>Zona</th>
-                                <th>Distrito</th>
-                                <th>Pastor</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Días</th>
+                                <th>Conferenciante</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="5">Sin iglesias</td></tr>
+                            <tr><td colspan="7">Cargando datos...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- Usuarios -->
-        <section class="section" id="usuarios">
-            <div class="section-header">
-                <h2 class="section-title">👤 Gestión de Usuarios</h2>
-                <button class="btn btn-primary" onclick="abrirModal('modalNuevoUsuario')">+ Nuevo Usuario</button>
+        <!-- SECCIÓN REGISTROS -->
+        <section id="registros" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">👥 Registros de Asistentes</h2>
+                    <button class="btn btn-primary" onclick="abrirModal('modalNuevoAsistente')">+ Nuevo Registro</button>
+                </div>
+                <div class="table-container">
+                    <table id="tablaAsistentes">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Iglesia</th>
+                                <th>Conferencia</th>
+                                <th>Días Asistidos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6">Cargando registros...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="table-container">
-                <table id="tablaUsuarios">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td colspan="5">Cargando usuarios...</td></tr>
-                    </tbody>
-                </table>
+        </section>
+
+        <!-- SECCIÓN CONFIGURACIÓN -->
+        <section id="configuracion" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">⚙️ Configuración del Sistema</h2>
+                </div>
+                
+                <!-- Zonas -->
+                <div class="subsection">
+                    <div class="card-header">
+                        <h3 class="subsection-title">📍 Zonas</h3>
+                        <button class="btn btn-primary" onclick="abrirModal('modalNuevaZona')">+ Nueva Zona</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tablaZonas">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="3">Sin zonas</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Distritos -->
+                <div class="subsection">
+                    <div class="card-header">
+                        <h3 class="subsection-title">🏛️ Distritos</h3>
+                        <button class="btn btn-primary" onclick="abrirModal('modalNuevoDistrito')">+ Nuevo Distrito</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tablaDistritos">
+                            <thead>
+                                <tr>
+                                    <th>Distrito</th>
+                                    <th>Zona</th>
+                                    <th>Responsable</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="4">Sin distritos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Iglesias -->
+                <div class="subsection">
+                    <div class="card-header">
+                        <h3 class="subsection-title">⛪ Iglesias</h3>
+                        <button class="btn btn-primary" onclick="abrirModal('modalNuevaIglesia')">+ Nueva Iglesia</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tablaIglesias">
+                            <thead>
+                                <tr>
+                                    <th>Iglesia</th>
+                                    <th>Zona</th>
+                                    <th>Distrito</th>
+                                    <th>Pastor</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5">Sin iglesias</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN USUARIOS -->
+        <section id="usuarios" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">👤 Gestión de Usuarios</h2>
+                    <button class="btn btn-primary" onclick="abrirModal('modalNuevoUsuario')">+ Nuevo Usuario</button>
+                </div>
+                <div class="table-container">
+                    <table id="tablaUsuarios">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5">Cargando usuarios...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- MODAL NUEVA CONFERENCIA -->
+    <!-- MODALES (igual que antes) -->
+    <!-- Modal Nueva Conferencia -->
     <div class="modal" id="modalNuevaConferencia">
         <div class="modal-content">
             <div class="modal-header">
@@ -303,7 +533,7 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVO ASISTENTE -->
+    <!-- Modal Nuevo Asistente -->
     <div class="modal" id="modalNuevoAsistente">
         <div class="modal-content">
             <div class="modal-header">
@@ -355,7 +585,7 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVA ZONA -->
+    <!-- Modal Nueva Zona -->
     <div class="modal" id="modalNuevaZona">
         <div class="modal-content">
             <div class="modal-header">
@@ -379,7 +609,7 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVO DISTRITO -->
+    <!-- Modal Nuevo Distrito -->
     <div class="modal" id="modalNuevoDistrito">
         <div class="modal-content">
             <div class="modal-header">
@@ -413,7 +643,7 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVA IGLESIA -->
+    <!-- Modal Nueva Iglesia -->
     <div class="modal" id="modalNuevaIglesia">
         <div class="modal-content">
             <div class="modal-header">
@@ -457,7 +687,7 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVO USUARIO -->
+    <!-- Modal Nuevo Usuario -->
     <div class="modal" id="modalNuevoUsuario">
         <div class="modal-content">
             <div class="modal-header">
@@ -515,5 +745,51 @@
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="main.js"></script>
+    
+    <script>
+        // Función para mostrar secciones
+        function mostrarSeccion(seccionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover clase active de todos los links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            const seccion = document.getElementById(seccionId);
+            if (seccion) {
+                seccion.classList.add('active');
+            }
+            
+            // Activar el link correspondiente
+            const linkActivo = document.querySelector(`a[href="#${seccionId}"]`);
+            if (linkActivo) {
+                linkActivo.classList.add('active');
+            }
+            
+            // Actualizar URL sin recargar
+            window.location.hash = seccionId;
+        }
+
+        // Cargar sección basada en el hash de la URL al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && document.getElementById(hash)) {
+                mostrarSeccion(hash);
+            } else {
+                mostrarSeccion('dashboard');
+            }
+        });
+
+        // Función logout
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
 </body>
 </html>

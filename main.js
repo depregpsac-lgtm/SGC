@@ -69,32 +69,31 @@ async function editarZona(id) {
 }
 
 async function guardarZonaEditada(e) {
-    e.preventDefault();
-    const nombre = document.getElementById('zonaNombre').value;
-    const descripcion = document.getElementById('zonaDescripcion').value;
-    
-    if (!nombre) {
-        mostrarMensaje('El nombre es requerido', 'error');
-        return;
-    }
+e.preventDefault();
+const nombre = document.getElementById('zonaNombre').value;
+const descripcion = document.getElementById('zonaDescripcion').value;
+if (!nombre) {
+    mostrarMensaje('El nombre es requerido', 'error');
+    return;
+}
 
-    try {
-        await actualizarZona(window.editMode.id, nombre, descripcion);
-        mostrarMensaje('✅ Zona actualizada exitosamente', 'success');
-        cerrarModal('modalNuevaZona');
-        await cargarZonas();
-        await cargarEstadisticas();
-        
-        window.editMode = { tipo: null, id: null };
-        document.getElementById('formZona').onsubmit = guardarZona;
-        
-        const tituloModal = document.querySelector('#modalNuevaZona h3');
-        if (tituloModal) {
-            tituloModal.textContent = '📍 Registrar Zona';
-        }
-    } catch (error) {
-        mostrarMensaje('❌ Error: ' + error.message, 'error');
+try {
+    await actualizarZona(window.editMode.id, nombre, descripcion);
+    mostrarMensaje('✅ Zona actualizada exitosamente', 'success');
+    cerrarModal('modalNuevaZona');
+    await cargarZonas();
+    await cargarEstadisticas();
+    
+    window.editMode = { tipo: null, id: null };
+    document.getElementById('formZona').onsubmit = guardarZona;
+    
+    const tituloModal = document.querySelector('#modalNuevaZona h3');
+    if (tituloModal) {
+        tituloModal.textContent = '📍 Registrar Zona';
     }
+} catch (error) {
+    mostrarMensaje('❌ Error: ' + error.message, 'error');
+}
 }
 
 async function confirmarEliminarZona(id) {
@@ -1213,6 +1212,7 @@ window.actualizarSelectIglesias = actualizarSelectIglesias;
 window.actualizarSelectConferencias = actualizarSelectConferencias;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

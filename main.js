@@ -1577,19 +1577,23 @@ switch(seccionId) {
 }
 */
 
+// ============================================
+// REPORTES - FUNCIONES
+// ============================================
+
 async function cargarFiltrosReportes() {
-    console.log('📋 Cargando filtros para reportes...');
+    console.log('📋 Cargando filtros de reportes...');
     
     try {
-        // Cargar conferencias en el select
+        // Cargar conferencias
         const conferencias = await obtenerConferencias();
         const selectConf = document.getElementById('reporteConferencia');
         if (selectConf) {
-            selectConf.innerHTML = '<option value="">-- Todas las Conferencias --</option>' +
-                conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+            selectConf.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
+                conferencias.map(c => `<option value="${c.id}">${c.nombre} (${formatearFechaParaTabla(c.fecha_inicio)} - ${formatearFechaParaTabla(c.fecha_fin)})</option>`).join('');
         }
         
-        // Cargar iglesias en el select
+        // Cargar iglesias
         const iglesias = await obtenerIglesias();
         const selectIglesia = document.getElementById('reporteIglesia');
         if (selectIglesia) {
@@ -1597,131 +1601,92 @@ async function cargarFiltrosReportes() {
                 iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
         }
         
-        // Cargar configuración guardada si existe
-        const configGuardada = localStorage.getItem('configReporte');
-        if (configGuardada) {
-            const config = JSON.parse(configGuardada);
-            if (selectConf && config.conferencia_id) {
-                selectConf.value = config.conferencia_id;
-            }
-            if (selectIglesia && config.iglesia_id) {
-                selectIglesia.value = config.iglesia_id;
-            }
-        }
-        
-        await cargarVistaPreviaReporte();
-        
     } catch (error) {
-        console.error('❌ Error cargando filtros de reportes:', error);
+        console.error('❌ Error cargando filtros:', error);
     }
 }
 
-// Función para limpiar filtros
-function limpiarFiltrosReporte() {
-    document.getElementById('reporteConferencia').value = '';
-    document.getElementById('reporteIglesia').value = '';
-    cargarVistaPreviaReporte();
-    mostrarMensaje('Filtros limpiados', 'info');
-}
-
-// Actualizar la función cargarVistaPreviaReporte para incluir el promedio
 async function cargarVistaPreviaReporte() {
-    console.log('📊 Cargando vista previa del reporte...');
+    console.log('📊 Cargando vista previa...');
     
     const conferenciaId = document.getElementById('reporteConferencia').value;
     const iglesiaId = document.getElementById('reporteIglesia').value;
     
+    if (!conferenciaId) {
+        // Limpiar vista si no hay conferencia seleccionada
+        document.getElementById('reporteTituloConferencia').textContent = '-';
+        document.getElementById('reporteConferenciante').textContent = '-';
+        document.getElementById('reporteFechas').textContent = '-';
+        document.getElementById('reporteSede').textContent = '-';
+        document.getElementById('reporteTablaBody').innerHTML = `
+            <tr class="empty-row">
+                <td colspan="6">Seleccione una conferencia para ver el reporte</td>
+            </tr>
+        `;
+        return;
+    }
+    
     try {
+        // Obtener datos
+        const conferencias = await obtenerConferencias();
+        const conferencia = conferencias.find(c => c.id == conferenciaId);
+        
         let asistentes = await obtenerAsistentes(conferenciaId);
         
-        // Filtrar por iglesia
+        // Filtrar por iglesia si se seleccionó
         if (iglesiaId) {
             asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
         }
         
-        // Actualizar badge
-        const badge = document.getElementById('reporteBadge');
-        if (badge) {
-            badge.textContent = `${asistentes.length} registro${asistentes.length !== 1 ? 's' : ''}`;
+        // Actualizar información del header
+        if (conferencia) {
+            document.getElementById('reporteTituloConferencia').textContent = conferencia.nombre;
+            document.getElementById('reporteConferenciante').textContent = conferencia.conferenciante || '-';
+            document.getElementById('reporteFechas').textContent = 
+                `${formatearFechaParaTabla(conferencia.fecha_inicio)} al ${formatearFechaParaTabla(conferencia.fecha_fin)}`;
+            document.getElementById('reporteSede').textContent = conferencia.iglesias?.nombre || '-';
         }
         
-        // Calcular estadísticas
-        let diasCampana = 0;
-        if (conferenciaId) {
-            const conferencias = await obtenerConferencias();
-            const conferencia = conferencias.find(c => c.id == conferenciaId);
-            if (conferencia) {
-                diasCampana = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
-            }
-        }
-        
-        // Calcular iglesias participantes
-        const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
-        
-        // Calcular promedio de asistencia
-        let totalAsistencias = 0;
-        asistentes.forEach(a => {
-            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
-            totalAsistencias += fechas.length;
-        });
-        const promedioAsistencia = diasCampana > 0 && asistentes.length > 0 
-            ? Math.round((totalAsistencias / (asistentes.length * diasCampana)) * 100) 
-            : 0;
-        
-        // Actualizar cards
-        document.getElementById('totalAsistentesReporte').textContent = asistentes.length;
-        document.getElementById('diasCampanaReporte').textContent = diasCampana;
-        document.getElementById('iglesiasParticipantesReporte').textContent = iglesiasUnicas.size;
-        document.getElementById('promedioAsistenciaReporte').textContent = promedioAsistencia + '%';
+        // Fecha de generación
+        const ahora = new Date();
+        document.getElementById('reporteFechaGeneracion').textContent = 
+            `${ahora.getDate()}/${ahora.getMonth()+1}/${ahora.getFullYear()} ${ahora.getHours()}:${ahora.getMinutes().toString().padStart(2,'0')}:${ahora.getSeconds().toString().padStart(2,'0')}`;
         
         // Llenar tabla
-        const tbody = document.getElementById('tbodyReporteAsistentes');
-        if (tbody) {
-            tbody.innerHTML = '';
-            
-            if (asistentes.length > 0) {
-                asistentes.forEach(asist => {
-                    const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
-                    const porcentajeAsistencia = diasCampana > 0 
-                        ? Math.round((fechasAsistencia.length / diasCampana) * 100) 
-                        : 0;
-                    
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${asist.nombre_completo}</strong></td>
-                        <td>${asist.telefono || '-'}</td>
-                        <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
-                        <td>${asist.invitado_por || '-'}</td>
-                        <td>
-                            <span class="badge-dias">${fechasAsistencia.length} de ${diasCampana}</span>
-                        </td>
-                        <td>
-                            <span class="badge-porcentaje" style="
-                                background: ${porcentajeAsistencia >= 80 ? '#d1fae5' : porcentajeAsistencia >= 50 ? '#fef3c7' : '#fee2e2'};
-                                color: ${porcentajeAsistencia >= 80 ? '#059669' : porcentajeAsistencia >= 50 ? '#d97706' : '#dc2626'};
-                                padding: 4px 12px;
-                                border-radius: 12px;
-                                font-weight: 600;
-                                font-size: 13px;
-                            ">
-                                ${porcentajeAsistencia}%
-                            </span>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+        const tbody = document.getElementById('reporteTablaBody');
+        tbody.innerHTML = '';
+        
+        if (asistentes.length > 0) {
+            asistentes.forEach((asist, index) => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const tr = document.createElement('tr');
+                
+                // Formatear fechas para mostrar
+                const fechasFormateadas = fechasAsistencia.map(f => {
+                    const date = new Date(f + 'T00:00:00');
+                    return `${date.getDate()}/${date.getMonth()+1}`;
                 });
-            } else {
-                tbody.innerHTML = `
-                    <tr class="empty-state">
-                        <td colspan="6">
-                            <div class="empty-content">
-                                <span class="empty-icon">📋</span>
-                                <p>No hay registros que coincidan con los filtros seleccionados</p>
-                            </div>
-                        </td>
-                    </tr>
+                
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${asist.nombre_completo}</strong></td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td><span class="badge-dias">${fechasAsistencia.length} días</span></td>
+                    <td>
+                        <div class="fechas-list">
+                            ${fechasFormateadas.map(f => `<span class="fecha-badge">${f}</span>`).join('')}
+                        </div>
+                    </td>
                 `;
-            }
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = `
+                <tr class="empty-row">
+                    <td colspan="6">Sin registros</td>
+                </tr>
+            `;
         }
         
     } catch (error) {
@@ -1729,6 +1694,60 @@ async function cargarVistaPreviaReporte() {
         mostrarMensaje('Error cargando datos del reporte', 'error');
     }
 }
+
+async function generarPDFReporte() {
+    console.log('📄 Generando PDF...');
+    
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    
+    if (!conferenciaId) {
+        mostrarMensaje('❌ Seleccione una conferencia primero', 'error');
+        return;
+    }
+    
+    try {
+        // Obtener elemento del reporte
+        const elemento = document.getElementById('reportePreview');
+        
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `Reporte_Conferencia_${new Date().toISOString().split('T')[0]}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        
+        if (typeof html2pdf === 'undefined') {
+            mostrarMensaje('❌ Librería html2pdf no cargada', 'error');
+            return;
+        }
+        
+        await html2pdf().set(opt).from(elemento).save();
+        mostrarMensaje('✅ PDF generado exitosamente', 'success');
+        
+    } catch (error) {
+        console.error('❌ Error generando PDF:', error);
+        mostrarMensaje('Error generando PDF', 'error');
+    }
+}
+
+// Actualizar navigateSeccion para incluir reportes
+function navegarSeccion(seccionId) {
+    // ... (código existente) ...
+    
+    switch(seccionId) {
+        // ... (otros casos) ...
+        case 'reportes':
+            cargarFiltrosReportes();
+            cargarVistaPreviaReporte();
+            break;
+    }
+}
+
+// Exportar funciones
+window.cargarFiltrosReportes = cargarFiltrosReportes;
+window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
+window.generarPDFReporte = generarPDFReporte;
 
 // Agregar estilos para badges en la tabla
 const style = document.createElement('style');
@@ -1895,6 +1914,7 @@ window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

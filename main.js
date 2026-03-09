@@ -1237,6 +1237,396 @@ async function cargarEstadisticas() {
 }
 
 // ============================================
+// REPORTES - FUNCIONES PRINCIPALES
+// ============================================
+
+async function prepararModalReporte() {
+    console.log('📋 Preparando modal de Reporte');
+    window.editMode = { tipo: null, id: null, data: null };
+    document.getElementById('formReporte').reset();
+    document.getElementById('formReporte').onsubmit = guardarConfiguracionReporte;
+    
+    const titulo = document.getElementById('tituloModalReporte');
+    if (titulo) titulo.textContent = '📋 Configurar Reporte';
+    
+    // Cargar conferencias en el select
+    await cargarConferenciasEnSelect('reporteConfSeleccionada');
+    await cargarIglesiasEnSelect('reporteIglesiaFiltro');
+    
+    abrirModal('modalNuevoReporte');
+}
+
+async function guardarConfiguracionReporte(e) {
+    e.preventDefault();
+    console.log('💾 Guardando configuración de reporte...');
+    
+    const conferenciaId = document.getElementById('reporteConfSeleccionada').value;
+    const iglesiaId = document.getElementById('reporteIglesiaFiltro').value;
+    const tipoReporte = document.getElementById('reporteTipo').value;
+    const incluirLogo = document.getElementById('reporteIncluirLogo').checked;
+    
+    // Guardar configuración en localStorage
+    localStorage.setItem('configReporte', JSON.stringify({
+        conferencia_id: conferenciaId,
+        iglesia_id: iglesiaId,
+        tipo: tipoReporte,
+        incluir_logo: incluirLogo
+    }));
+    
+    // Aplicar filtros
+    document.getElementById('reporteConferencia').value = conferenciaId;
+    document.getElementById('reporteIglesia').value = iglesiaId;
+    
+    mostrarMensaje('✅ Configuración guardada', 'success');
+    cerrarModal('modalNuevoReporte');
+    await cargarVistaPreviaReporte();
+}
+
+async function cargarVistaPreviaReporte() {
+    console.log('📊 Cargando vista previa del reporte...');
+    
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    const iglesiaId = document.getElementById('reporteIglesia').value;
+    const fechaInicio = document.getElementById('reporteFechaInicio').value;
+    const fechaFin = document.getElementById('reporteFechaFin').value;
+    
+    try {
+        let asistentes = await obtenerAsistentes(conferenciaId);
+        
+        // Filtrar por iglesia
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        // Filtrar por fechas
+        if (fechaInicio || fechaFin) {
+            const conferencias = await obtenerConferencias();
+            asistentes = asistentes.filter(a => {
+                const conf = conferencias.find(c => c.id == a.conferencia_id);
+                if (!conf) return false;
+                
+                if (fechaInicio && conf.fecha_inicio < fechaInicio) return false;
+                if (fechaFin && conf.fecha_fin > fechaFin) return false;
+                return true;
+            });
+        }
+        
+        // Actualizar resumen
+        document.getElementById('totalAsistentesReporte').textContent = asistentes.length;
+        
+        // Calcular días de campaña
+        let diasCampana = 0;
+        if (conferenciaId) {
+            const conferencias = await obtenerConferencias();
+            const conferencia = conferencias.find(c => c.id == conferenciaId);
+            if (conferencia) {
+                diasCampana = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
+            }
+        }
+        document.getElementById('diasCampanaReporte').textContent = diasCampana;
+        
+        // Calcular iglesias participantes
+        const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
+        document.getElementById('iglesiasParticipantesReporte').textContent = iglesiasUnicas.size;
+        
+        // Llenar tabla
+        const tbody = document.querySelector('#tablaReporteAsistentes tbody');
+        if (tbody) {
+            tbody.innerHTML = '';
+            
+            if (asistentes.length > 0) {
+                asistentes.forEach(asist => {
+                    const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${asist.nombre_completo}</td>
+                        <td>${asist.telefono || '-'}</td>
+                        <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                        <td>${asist.invitado_por || '-'}</td>
+                        <td><span class="badge-asistencia">${fechasAsistencia.length} días</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5">No hay datos para mostrar</td></tr>';
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Error cargando vista previa:', error);
+        mostrarMensaje('Error cargando datos del reporte', 'error');
+    }
+}
+
+async function generarPDFReporte() {
+    console.log('📄 Generando PDF del reporte...');
+    
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    const iglesiaId = document.getElementById('reporteIglesia').value;
+    
+    try {
+        // Obtener datos
+        let asistentes = await obtenerAsistentes(conferenciaId);
+        let conferencia = null;
+        let iglesia = null;
+        
+        if (conferenciaId) {
+            const conferencias = await obtenerConferencias();
+            conferencia = conferencias.find(c => c.id == conferenciaId);
+        }
+        
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+            const iglesias = await obtenerIglesias();
+            iglesia = iglesias.find(i => i.id == iglesiaId);
+        }
+        
+        // Crear contenido HTML para el PDF
+        const contenidoPDF = generarHTMLParaPDF(conferencia, iglesia, asistentes);
+        
+        // Generar PDF usando html2pdf
+        const element = document.createElement('div');
+        element.innerHTML = contenidoPDF;
+        element.style.width = '800px';
+        element.style.padding = '40px';
+        element.style.background = 'white';
+        element.style.fontFamily = 'Arial, sans-serif';
+        
+        // Agregar temporalmente al DOM
+        document.body.appendChild(element);
+        
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `Reporte_${conferencia?.nombre || 'Conferencia'}_${new Date().toISOString().split('T')[0]}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        // Verificar si html2pdf está disponible
+        if (typeof html2pdf === 'undefined') {
+            mostrarMensaje('❌ Librería html2pdf no cargada. Agregue el script CDN.', 'error');
+            document.body.removeChild(element);
+            return;
+        }
+        
+        await html2pdf().set(opt).from(element).save();
+        
+        // Limpiar
+        document.body.removeChild(element);
+        
+        mostrarMensaje('✅ PDF generado exitosamente', 'success');
+        
+    } catch (error) {
+        console.error('❌ Error generando PDF:', error);
+        mostrarMensaje('❌ Error: ' + error.message, 'error');
+    }
+}
+
+function generarHTMLParaPDF(conferencia, iglesia, asistentes) {
+    const fechaActual = new Date().toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    // Calcular estadísticas
+    const totalAsistentes = asistentes.length;
+    const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
+    const diasCampana = conferencia ? calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin) : 0;
+    
+    // Calcular total de asistencias
+    let totalAsistencias = 0;
+    asistentes.forEach(a => {
+        const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+        totalAsistencias += fechas.length;
+    });
+    
+    let html = `
+        <div class="pdf-header">
+            <h1>🦁 MinistryLion - Reporte de Conferencia</h1>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">📅 Conferencia</span>
+                    <span class="info-value">${conferencia?.nombre || 'N/A'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">🎤 Conferenciante</span>
+                    <span class="info-value">${conferencia?.conferenciante || 'N/A'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">⛪ Iglesia Sede</span>
+                    <span class="info-value">${iglesia?.nombre || conferencia?.iglesias?.nombre || 'N/A'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">👤 Pastor</span>
+                    <span class="info-value">${iglesia?.pastor || 'N/A'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">📅 Fecha Inicio</span>
+                    <span class="info-value">${conferencia?.fecha_inicio ? formatearFechaParaTabla(conferencia.fecha_inicio) : 'N/A'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">📅 Fecha Fin</span>
+                    <span class="info-value">${conferencia?.fecha_fin ? formatearFechaParaTabla(conferencia.fecha_fin) : 'N/A'}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pdf-summary">
+            <div class="pdf-summary-card">
+                <span class="label">👥 Total Asistentes</span>
+                <span class="value">${totalAsistentes}</span>
+            </div>
+            <div class="pdf-summary-card">
+                <span class="label">📅 Días de Campaña</span>
+                <span class="value">${diasCampana}</span>
+            </div>
+            <div class="pdf-summary-card">
+                <span class="label">⛪ Iglesias Participantes</span>
+                <span class="value">${iglesiasUnicas.size}</span>
+            </div>
+        </div>
+        
+        <h2 style="color: #667eea; margin: 30px 0 20px 0; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+            📋 Detalle de Asistentes
+        </h2>
+        
+        <table class="pdf-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Nombre Completo</th>
+                    <th style="width: 15%;">Teléfono</th>
+                    <th style="width: 20%;">Iglesia</th>
+                    <th style="width: 20%;">Invitado Por</th>
+                    <th style="width: 10%;">Días</th>
+                    <th style="width: 10%;">Asistencia</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (asistentes.length > 0) {
+        asistentes.forEach((asist, index) => {
+            const fechas = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+            const porcentajeAsistencia = diasCampana > 0 ? Math.round((fechas.length / diasCampana) * 100) : 0;
+            
+            html += `
+                <tr>
+                    <td>${index + 1}. ${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.invitado_por || '-'}</td>
+                    <td style="text-align: center;">${fechas.length}/${diasCampana}</td>
+                    <td style="text-align: center;">
+                        <span style="background: ${porcentajeAsistencia >= 80 ? '#d1fae5' : porcentajeAsistencia >= 50 ? '#fef3c7' : '#fee2e2'}; 
+                                       color: ${porcentajeAsistencia >= 80 ? '#059669' : porcentajeAsistencia >= 50 ? '#d97706' : '#dc2626'};
+                                       padding: 3px 8px; border-radius: 4px; font-weight: 600;">
+                            ${porcentajeAsistencia}%
+                        </span>
+                    </td>
+                </tr>
+            `;
+        });
+    } else {
+        html += `<tr><td colspan="6" style="text-align: center; padding: 20px;">No hay registros de asistentes</td></tr>`;
+    }
+    
+    html += `
+            </tbody>
+        </table>
+        
+        <div class="pdf-footer">
+            <p><strong>MinistryLion - Sistema de Gestión de Conferencias</strong></p>
+            <p>Reporte generado el: ${fechaActual}</p>
+            <p>Documento oficial - Uso interno</p>
+        </div>
+    `;
+    
+    return html;
+}
+
+// ============================================
+// ACTUALIZAR NAVEGACIÓN PARA INCLUIR REPORTES
+// ============================================
+
+// En la función navegarSeccion, agregar el caso para reportes:
+/*
+switch(seccionId) {
+    case 'dashboard':
+        cargarEstadisticas();
+        break;
+    case 'conferencias':
+        cargarConferencias();
+        break;
+    case 'registros':
+        cargarAsistentes();
+        break;
+    case 'reportes':  // <-- NUEVO
+        cargarFiltrosReportes();
+        cargarVistaPreviaReporte();
+        break;
+    case 'configuracion':
+        cargarZonas();
+        cargarDistritos();
+        cargarIglesias();
+        break;
+    case 'usuarios':
+        cargarUsuarios();
+        break;
+}
+*/
+
+async function cargarFiltrosReportes() {
+    console.log('📋 Cargando filtros para reportes...');
+    
+    try {
+        // Cargar conferencias en el select
+        const conferencias = await obtenerConferencias();
+        const selectConf = document.getElementById('reporteConferencia');
+        if (selectConf) {
+            selectConf.innerHTML = '<option value="">-- Todas las Conferencias --</option>' +
+                conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+        }
+        
+        // Cargar iglesias en el select
+        const iglesias = await obtenerIglesias();
+        const selectIglesia = document.getElementById('reporteIglesia');
+        if (selectIglesia) {
+            selectIglesia.innerHTML = '<option value="">-- Todas las Iglesias --</option>' +
+                iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+        }
+        
+        // Cargar configuración guardada si existe
+        const configGuardada = localStorage.getItem('configReporte');
+        if (configGuardada) {
+            const config = JSON.parse(configGuardada);
+            if (selectConf && config.conferencia_id) {
+                selectConf.value = config.conferencia_id;
+            }
+            if (selectIglesia && config.iglesia_id) {
+                selectIglesia.value = config.iglesia_id;
+            }
+        }
+        
+        await cargarVistaPreviaReporte();
+        
+    } catch (error) {
+        console.error('❌ Error cargando filtros de reportes:', error);
+    }
+}
+
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES (agregar al final de main.js)
+// ============================================
+window.prepararModalReporte = prepararModalReporte;
+window.guardarConfiguracionReporte = guardarConfiguracionReporte;
+window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
+window.generarPDFReporte = generarPDFReporte;
+window.cargarFiltrosReportes = cargarFiltrosReportes;
+window.generarHTMLParaPDF = generarHTMLParaPDF;
+
+// ============================================
 // FUNCIONES DE UTILIDAD PARA MODALES
 // ============================================
 function abrirModal(modalId) {
@@ -1374,6 +1764,7 @@ window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

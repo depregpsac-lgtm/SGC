@@ -1278,6 +1278,11 @@ async function generarVistaPrevia() {
         console.error('❌ Error generando vista previa:', error);
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error al cargar datos: ' + error.message + '</td></tr>';
     }
+    // Agrega esto al final de generarVistaPrevia(), después de llenar la tabla:
+document.getElementById('infoFiltros').textContent = 
+    `Conferencia: ${confNombre} | Iglesia: ${iglNombre}`;
+document.getElementById('fechaGeneracion').textContent = new Date().toLocaleString();
+document.getElementById('totalRegistros').textContent = asistentes.length;
 }
 
 async function cargarUsuarios() {
@@ -1476,6 +1481,7 @@ window.generarVistaPrevia = generarVistaPrevia;
 window.exportarPDF = exportarPDF;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -106,6 +106,14 @@ function obtenerUsuarioActual() {
     return checkAuth();
 }
 
+// VERIFICAR SI ES ADMINISTRADOR
+// ============================================
+function esAdmin() {
+    const user = checkAuth();
+    if (!user) return false;
+    return user.rol === 'admin';
+}
+
 // ============================================
 // EXPORTAR FUNCIONES GLOBALES
 // ============================================
@@ -114,4 +122,11 @@ window.iniciarSesion = iniciarSesion;
 window.cerrarSesion = cerrarSesion;
 window.tienePermiso = tienePermiso;
 window.obtenerUsuarioActual = obtenerUsuarioActual;
+window.esAdmin = esAdmin;  // ✅ Nueva función
 console.log('✅ auth.js inicializado correctamente');
+
+
+
+
+
+

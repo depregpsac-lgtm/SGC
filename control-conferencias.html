@@ -70,15 +70,18 @@
     <!-- Header con Navegación -->
     <header class="header">
         <div class="logo">🦁 MinistryLion</div>
-        <nav class="nav-menu">
-            <a onclick="navegarSeccion('dashboard')" id="nav-dashboard" class="active">📊 Dashboard</a>
-            <a onclick="navegarSeccion('conferencias')" id="nav-conferencias">📅 Conferencias</a>
-            <a onclick="navegarSeccion('registros')" id="nav-registros">👥 Registros</a>
-            <a onclick="navegarSeccion('configuracion')" id="nav-configuracion">⚙️ Configuración</a>
-             <a href="#reportes">📈 Reportes</a> <!-- NUEVO -->
-            <a onclick="navegarSeccion('usuarios')" id="nav-usuarios">👤 Usuarios</a>
-            <a onclick="logout()">🚪 Cerrar Sesión</a>
-        </nav>
+      <!-- En tu barra lateral / navegación -->
+<nav class="nav-menu">
+    <a href="#" onclick="navegarSeccion('dashboard')" id="nav-dashboard">📊 Dashboard</a>
+    <a href="#" onclick="navegarSeccion('conferencias')" id="nav-conferencias">📅 Conferencias</a>
+    <a href="#" onclick="navegarSeccion('registros')" id="nav-registros">👥 Registros</a>
+    <!-- AGREGA EL ID "nav-reportes" AQUÍ -->
+    
+    <a href="#" onclick="navegarSeccion('configuracion')" id="nav-configuracion">⚙️ Configuración</a>
+    <a href="#" onclick="navegarSeccion('reportes')" id="nav-reportes">📈 Reportes</a>
+    <a href="#" onclick="navegarSeccion('usuarios')" id="nav-usuarios">👤 Usuarios</a>
+    <a href="#" onclick="cerrarSesion()">🚪 Cerrar Sesión</a>
+</nav>
     </header>
 
     <!-- Main Content -->

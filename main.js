@@ -1343,6 +1343,32 @@ async function generarPDFReporte() {
 }
 
 // ============================================
+// INFORMACIÓN DEL USUARIO EN EL HEADER
+// ============================================
+function cargarInfoUsuario() {
+    try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+            
+            if (userName) {
+                userName.textContent = user.nombre || user.email;
+            }
+            
+            if (userAvatar) {
+                const inicial = (user.nombre || user.email || 'U').charAt(0).toUpperCase();
+                userAvatar.textContent = inicial;
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error cargando info del usuario:', error);
+    }
+}
+
+// Llamar esta función en DOMContentLoaded
+
+// ============================================
 // EVENT LISTENERS - INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
@@ -1449,6 +1475,7 @@ window.generarPDFReporte = generarPDFReporte;
 window.limpiarVistaReporte = limpiarVistaReporte;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -1471,8 +1471,12 @@ window.cargarIglesiasEnSelect = cargarIglesiasEnSelect;
 window.cargarConferenciasEnSelect = cargarConferenciasEnSelect;
 window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
+window.cargarFiltrosReportes = cargarFiltrosReportes;
+window.generarVistaPrevia = generarVistaPrevia;
+window.exportarPDF = exportarPDF;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

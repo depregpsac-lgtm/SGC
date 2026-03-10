@@ -60,37 +60,6 @@ function navegarSeccion(seccionId) {
     }
 }
 
-// Generar PDF
-        function generarPDF() {
-            const confIndex = document.getElementById('reporteConferencia').value;
-            const iglIndex = document.getElementById('reporteIglesia').value;
-            
-            if (!confIndex || !iglIndex) {
-                alert('⚠️ Seleccione conferencia e iglesia para generar el reporte');
-                return;
-            }
-            
-            const elemento = document.getElementById('reportePDF');
-            const conferencia = conferencias[confIndex];
-            
-            const opciones = {
-                margin: 10,
-                filename: `Reporte_${conferencia.nombre.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
-            };
-            
-            const btnPDF = document.querySelector('#reportes .btn-new');
-            const textoOriginal = btnPDF.innerHTML;
-            btnPDF.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
-            btnPDF.disabled = true;
-            
-            html2pdf().set(opciones).from(elemento).save().then(() => {
-                btnPDF.innerHTML = textoOriginal;
-                btnPDF.disabled = false;
-            });
-        }
 
 
 
@@ -1231,7 +1200,7 @@ document.addEventListener('click', (e) => {
 // ============================================
 // FUNCIONES DE REPORTES
 // ============================================
-// ============================================
+
 
 // ============================================
 // INFORMACIÓN DEL USUARIO EN EL HEADER
@@ -1369,6 +1338,7 @@ window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
 window.generarPDFReporte = generarPDFReporte;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

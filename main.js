@@ -1197,9 +1197,11 @@ document.addEventListener('click', (e) => {
 // ============================================
 // FUNCIONES DE REPORTES
 // ============================================
+
 async function cargarFiltrosReportes() {
     console.log('📋 Cargando filtros de reportes...');
     try {
+        // Cargar conferencias
         const conferencias = await obtenerConferencias();
         const selectConf = document.getElementById('reporteConferencia');
         if (selectConf) {
@@ -1207,6 +1209,7 @@ async function cargarFiltrosReportes() {
                 conferencias.map(c => `<option value="${c.id}">${c.nombre} (${formatearFechaParaTabla(c.fecha_inicio)} - ${formatearFechaParaTabla(c.fecha_fin)})</option>`).join('');
         }
         
+        // Cargar iglesias
         const iglesias = await obtenerIglesias();
         const selectIglesia = document.getElementById('reporteIglesia');
         if (selectIglesia) {
@@ -1233,10 +1236,12 @@ async function cargarVistaPreviaReporte() {
         const conferencia = conferencias.find(c => c.id == conferenciaId);
         let asistentes = await obtenerAsistentes(conferenciaId);
         
+        // Filtrar por iglesia si se seleccionó
         if (iglesiaId) {
             asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
         }
         
+        // Actualizar info
         if (conferencia) {
             document.getElementById('reporteTituloConferencia').textContent = conferencia.nombre;
             document.getElementById('reporteConferenciante').textContent = conferencia.conferenciante || '-';
@@ -1246,10 +1251,12 @@ async function cargarVistaPreviaReporte() {
             document.getElementById('reportePastor').textContent = conferencia.iglesias?.pastor || '-';
         }
         
+        // Fecha actual
         const ahora = new Date();
         const fechaStr = `${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
         document.getElementById('reporteFechaGeneracion').textContent = `Generado: ${fechaStr}`;
         
+        // Estadísticas
         const diasCampana = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
         document.getElementById('statDiasCampana').textContent = diasCampana;
         document.getElementById('statTotalAsistentes').textContent = asistentes.length;
@@ -1264,6 +1271,7 @@ async function cargarVistaPreviaReporte() {
             : 0;
         document.getElementById('statPromedioAsistencia').textContent = promedio + '%';
         
+        // Llenar tabla
         const tbody = document.getElementById('reporteTablaBody');
         tbody.innerHTML = '';
         
@@ -1318,7 +1326,12 @@ async function generarPDFReporte() {
     }
     
     try {
-        const elemento = document.getElementById('reportePreview');
+        // Mostrar el reporte temporalmente
+        const preview = document.getElementById('reportePreview');
+        preview.style.display = 'block';
+        
+        // Esperar un momento para que se renderice
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         const opt = {
             margin: [10, 10, 10, 10],
@@ -1330,15 +1343,20 @@ async function generarPDFReporte() {
         
         if (typeof html2pdf === 'undefined') {
             mostrarMensaje('❌ Librería html2pdf no cargada', 'error');
+            preview.style.display = 'none';
             return;
         }
         
         mostrarMensaje('⏳ Generando PDF...', 'info');
-        await html2pdf().set(opt).from(elemento).save();
+        await html2pdf().set(opt).from(preview).save();
         mostrarMensaje('✅ PDF generado', 'success');
+        
+        // Ocultar de nuevo
+        preview.style.display = 'none';
     } catch (error) {
         console.error('❌ Error generando PDF:', error);
         mostrarMensaje('Error generando PDF', 'error');
+        document.getElementById('reportePreview').style.display = 'none';
     }
 }
 
@@ -1475,6 +1493,7 @@ window.generarPDFReporte = generarPDFReporte;
 window.limpiarVistaReporte = limpiarVistaReporte;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

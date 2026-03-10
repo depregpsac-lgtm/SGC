@@ -1519,11 +1519,15 @@ window.cargarFiltrosReportes = cargarFiltrosReportes;
 window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
 window.generarPDFReporte = generarPDFReporte;
 window.limpiarVistaReporte = limpiarVistaReporte;
-window.cargarFiltrosReportes = cargarFiltrosReportes;
-window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
-window.generarPDFReporte = generarPDFReporte;
+
+
+
+
+
+
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

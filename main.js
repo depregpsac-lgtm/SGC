@@ -1220,15 +1220,29 @@ async function generarVistaPrevia() {
         alert("⚠️ Por favor seleccione al menos una conferencia o iglesia para filtrar");
         return;
     }
-    
+
+    let confNombre = 'Todas';
+    let iglNombre = 'Todas';
+
     try {
+        // Obtener nombres de los filtros seleccionados
+        const confSelect = document.getElementById('filtroConferencia');
+        const iglSelect = document.getElementById('filtroIglesia');
+        
+        if (confId) {
+            confNombre = confSelect.options[confSelect.selectedIndex]?.text || 'Conferencia';
+        }
+        if (iglId) {
+            iglNombre = iglSelect.options[iglSelect.selectedIndex]?.text || 'Iglesia';
+        }
+
         // Obtener todos los asistentes con sus relaciones
         let { data: asistentes, error } = await window.db
             .from('asistentes')
             .select(`
                 *,
                 iglesias (nombre),
-                conferencias (nombre, conferenciante)
+                conferencias (nombre, conferenciante, fecha_inicio, fecha_fin)
             `);
         
         if (error) throw error;
@@ -1260,29 +1274,33 @@ async function generarVistaPrevia() {
                 tbody.appendChild(tr);
             });
             
-            // Actualizar título del reporte con información de la conferencia
-            const confSelect = document.getElementById('filtroConferencia');
-            const iglSelect = document.getElementById('filtroIglesia');
-            const confNombre = confSelect.options[confSelect.selectedIndex]?.text || '';
-            const iglNombre = iglSelect.options[iglSelect.selectedIndex]?.text || '';
+            // Actualizar información del reporte
+            const infoFiltros = document.getElementById('infoFiltros');
+            const fechaGeneracion = document.getElementById('fechaGeneracion');
+            const totalRegistros = document.getElementById('totalRegistros');
             
-            const tituloReporte = document.querySelector('#areaImpresion h3');
-            if (tituloReporte) {
-                tituloReporte.innerHTML = `📊 Reporte de Asistencia<br><small>Conferencia: ${confNombre} | Iglesia: ${iglNombre}</small>`;
+            if (infoFiltros) {
+                infoFiltros.textContent = `Conferencia: ${confNombre} | Iglesia: ${iglNombre}`;
+            }
+            if (fechaGeneracion) {
+                fechaGeneracion.textContent = new Date().toLocaleString();
+            }
+            if (totalRegistros) {
+                totalRegistros.textContent = asistentes.length;
             }
             
         } else {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay registros con estos filtros</td></tr>';
+            
+            const totalRegistros = document.getElementById('totalRegistros');
+            if (totalRegistros) {
+                totalRegistros.textContent = '0';
+            }
         }
     } catch (error) {
         console.error('❌ Error generando vista previa:', error);
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error al cargar datos: ' + error.message + '</td></tr>';
     }
-    // Agrega esto al final de generarVistaPrevia(), después de llenar la tabla:
-document.getElementById('infoFiltros').textContent = 
-    `Conferencia: ${confNombre} | Iglesia: ${iglNombre}`;
-document.getElementById('fechaGeneracion').textContent = new Date().toLocaleString();
-document.getElementById('totalRegistros').textContent = asistentes.length;
 }
 
 async function cargarUsuarios() {
@@ -1481,6 +1499,7 @@ window.generarVistaPrevia = generarVistaPrevia;
 window.exportarPDF = exportarPDF;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

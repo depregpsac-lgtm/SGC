@@ -228,112 +228,101 @@
             </div>
         </section>
 
-<!-- Sección de Reportes -->
-<section id="reportes" class="section">
-    <div class="reportes-wrapper">
-        <!-- Header -->
-        <div class="reportes-header">
-            <h1>📈 Reportes</h1>
-            <button class="btn-generar-pdf" onclick="generarPDFReporte()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                </svg>
-                Generar PDF
-            </button>
-        </div>
-
-        <!-- Filtros -->
-        <div class="filtros-container">
-            <div class="filtro-group">
-                <label>Conferencia</label>
-                <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
-                    <option value="">-- Seleccione Conferencia --</option>
-                </select>
-            </div>
-            <div class="filtro-group">
-                <label>Iglesia</label>
-                <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
-                    <option value="">-- Todas las Iglesias --</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Vista Previa del Reporte -->
-        <div class="reporte-preview" id="reportePreview">
-            <!-- Header del Reporte -->
-            <div class="reporte-brand">
-              
-                <h3 class="reporte-conferencia-titulo" id="reporteTituloConferencia">VIVE SIN TEMOR</h3>
+<!-- Reportes Section -->
+        <section id="reportes" class="content-section">
+            <div class="page-header">
+                <h2>📈 Reportes</h2>
+                <button class="btn-new" onclick="generarPDF()">
+                    <i class="fas fa-file-pdf"></i> Generar PDF
+                </button>
             </div>
 
-            <!-- Info del Reporte - 2 Columnas -->
-            <div class="reporte-info-box">
-                <div class="info-column">
-                    <div class="info-row">
-                        <span class="info-icon">✏️</span>
-                        <div>
-                            <strong>Conferenciante:</strong>
-                            <span id="reporteConferenciante">Bladimir Polanco</span>
-                        </div>
+            <div class="table-container">
+                <div class="form-grid" style="margin-bottom: 20px;">
+                    <div>
+                        <label>Conferencia</label>
+                        <select id="reporteConferencia" onchange="cargarIglesiasReporte()">
+                            <option value="">-- Seleccione Conferencia --</option>
+                        </select>
                     </div>
-                    <div class="info-row">
-                        <div>
-                            <strong>Sede:</strong>
-                            <span id="reporteSede">Reconciliacion</span>
-                        </div>
+                    <div>
+                        <label>Iglesia</label>
+                        <select id="reporteIglesia" disabled>
+                            <option value="">-- Primero seleccione conferencia --</option>
+                        </select>
                     </div>
                 </div>
-                <div class="info-column">
-                            <strong>Generado:</strong>
-                            <span id="reporteFechaGeneracion">10/3/2026 00:14:21</span>
+
+                <!-- Plantilla de Reporte PDF -->
+                <div id="reportePDF" style="display: none;">
+                    <div class="pdf-header">
+                        <div class="pdf-logo">
+                            <i class="fas fa-lion"></i>
+                            <div>
+                                <h1>MinistryLion</h1>
+                                <p class="pdf-subtitle">Sistema de Gestión de Conferencias</p>
+                            </div>
+                        </div>
+                        <h2 class="pdf-title" id="pdfConferenciaNombre">-</h2>
+                    </div>
+                    
+                    <div class="pdf-info">
+                        <div class="pdf-info-row">
+                            <div class="pdf-info-item">
+                                <strong>🎤 Conferenciante:</strong>
+                                <span id="pdfConferenciante">-</span>
+                            </div>
+                            <div class="pdf-info-item">
+                                <strong>📅 Fechas:</strong>
+                                <span id="pdfFechas">-</span>
+                            </div>
+                        </div>
+                        <div class="pdf-info-row">
+                            <div class="pdf-info-item">
+                                <strong>⛪ Sede:</strong>
+                                <span id="pdfSede">-</span>
+                            </div>
+                            <div class="pdf-info-item">
+                                <strong>🕐 Generado:</strong>
+                                <span id="pdfGenerado">-</span>
+                            </div>
                         </div>
                     </div>
+
+                    <table class="pdf-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Iglesia</th>
+                                <th>Días Asistidos</th>
+                                <th>Fechas Asistidas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pdfTablaBody">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4"><strong>Total:</strong></td>
+                                <td><strong id="pdfTotalDias">0 días</strong></td>
+                                <td><strong id="pdfTotalPersonas">0 personas</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="pdf-footer">
+                        <p>Reporte generado automáticamente por MinistryLion - Sistema de Control de Conferencias</p>
+                        <p>© 2026 Todos los derechos reservados</p>
+                    </div>
+                </div>
+
+                <div id="reporteMensaje" style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-chart-bar" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <p>Seleccione conferencia e iglesia para generar el reporte</p>
                 </div>
             </div>
-
-            <!-- Tabla -->
-            <div class="tabla-reportes-container">
-                <table class="tabla-reportes">
-                    <thead>
-                        <tr>
-                            <th style="width: 30px">#</th>
-                            <th>Nombre</th>
-                            <th>Teléfono</th>
-                            <th>Iglesia</th>
-                            <th style="width: 80px; text-align: center;">Días Asistidos</th>
-                            <th>Fechas Asistidas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reporteTablaBody">
-                        <tr class="sin-registros">
-                            <td colspan="6">Sin registros</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Footer de Totales -->
-            <div class="reporte-totales">
-                <div class="total-label">Total:</div>
-                <div class="total-item">
-                    <strong id="totalDias">0 días</strong>
-                </div>
-                <div class="total-item">
-                    <strong id="totalPersonas">0 personas</strong>
-                </div>
-            </div>
-
-            <!-- Footer del Documento -->
-            <div class="reporte-footer-doc">
-                <p>Reporte generado automáticamente por MinistryLion - Sistema de Control de Conferencias</p>
-                <p>© 2026 Todos los derechos reservados</p>
-            </div>
-        </div>
-    </div>
-</section>
+        </section>
 
         <!-- Usuarios Section -->
         <section id="usuarios" class="section">

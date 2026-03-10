@@ -4,132 +4,130 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+        
+        .header { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; }
+        .nav-menu { display: flex; gap: 1rem; }
+        .nav-menu a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; cursor: pointer; }
+        .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.2); }
+       
+        .main-content { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card h3 { font-size: 2rem; color: #1e3a5f; }
+        .stat-card p { color: #666; }
+        
+        .table-container { background: white; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #1e3a5f; }
+        
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; margin-right: 0.5rem; }
+        .btn-primary { background: #1e3a5f; color: white; }
+        .btn-primary:hover { background: #2d5a87; }
+        .btn-edit { background: #f39c12; color: white; }
+        .btn-delete { background: #e74c3c; color: white; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal.show { display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .modal-header h3 { color: #1e3a5f; }
+        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+        .close-modal:hover { color: #e74c3c; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1e3a5f; }
+        
+        .fechas-asistencia { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+        .fecha-asistencia { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 5px; background: white; cursor: pointer; }
+        .fecha-asistencia.seleccionada { background: #1e3a5f; color: white; border-color: #1e3a5f; }
+        .contador-asistencia { padding: 0.75rem; border-radius: 5px; margin: 1rem 0; background: #fef3c7; color: #d97706; }
+        
+        .badge-estado { padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.85rem; }
+        .badge-estado.activo { background: #d1fae5; color: #059669; }
+        .badge-estado.inactivo { background: #fee2e2; color: #dc2626; }
+        .badge-asistencia { background: #fef3c7; color: #d97706; padding: 0.25rem 0.75rem; border-radius: 15px; }
+        
+        .duracion-conferencia { margin: 1rem 0; padding: 0.75rem; background: #f0f0f0; border-radius: 5px; color: #1e3a5f; font-weight: 500; }
+        
+        h2 { color: #1e3a5f; margin-bottom: 1.5rem; }
+        h3 { color: #1e3a5f; margin-bottom: 1rem; }
+    </style>
 </head>
-<body class="dashboard-page">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-lion"></i>
-                <h1>MinistryLion</h1>
-            </div>
-        </div>
-        
+<body>
+    <!-- Header con Navegación -->
+    <header class="header">
+        <div class="logo">🦁 MinistryLion</div>
+        <!-- En el menú lateral, después de Configuración -->
+<!-- En el nav-menu, después de Configuración -->
+<nav class="nav-menu">
+        <a href="#" id="nav-dashboard" class="active" onclick="navegarSeccion('dashboard')">📊 Dashboard</a>
+        <a href="#" id="nav-conferencias" onclick="navegarSeccion('conferencias')">📅 Conferencias</a>
+        <a href="#" id="nav-registros" onclick="navegarSeccion('registros')">👥 Registros</a>
+        <a href="#" id="nav-reportes" onclick="navegarSeccion('reportes')">📋 Reportes</a>
+        <a href="#" id="nav-configuracion" onclick="navegarSeccion('configuracion')">⚙️ Configuración</a>
+        <a href="#" id="nav-usuarios" onclick="navegarSeccion('usuarios')">👤 Usuarios</a>
+    </nav>
+    
+    <div class="header-right">
         <div class="user-info">
-            <div class="user-avatar" id="userAvatar">A</div>
-            <div class="user-details">
-                <h4 id="userName">Administrador</h4>
-                <p id="userRole">Administrador</p>
-            </div>
+            <span class="user-avatar" id="userAvatar"></span>
         </div>
-        
-        <nav class="sidebar-nav">
-            <a href="#" class="active" onclick="navegarSeccion('dashboard')">
-                <i class="fas fa-chart-line"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="#" onclick="navegarSeccion('conferencias')">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Conferencias</span>
-            </a>
-            <a href="#" onclick="navegarSeccion('registros')">
-                <i class="fas fa-users"></i>
-                <span>Registros</span>
-            </a>
-            <a href="#" onclick="navegarSeccion('reportes')">
-                <i class="fas fa-file-alt"></i>
-                <span>Reportes</span>
-            </a>
-            <a href="#" onclick="navegarSeccion('configuracion')">
-                <i class="fas fa-cog"></i>
-                <span>Configuración</span>
-            </a>
-            <a href="#" onclick="navegarSeccion('usuarios')">
-                <i class="fas fa-user-shield"></i>
-                <span>Usuarios</span>
-            </a>
-            <a href="#" onclick="logout()" class="logout">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Cerrar Sesión</span>
-            </a>
-        </nav>
-    </aside>
+        <button class="btn-logout" onclick="logout()" title="Cerrar Sesión">
+            🚪 Salir
+        </button>
+    </div>
+    </header>
 
     <!-- Main Content -->
     <main class="main-content">
         <!-- Dashboard Section -->
-        <section id="dashboard" class="content-section active">
-            <div class="page-header">
-                <h2>👋 Bienvenido al Dashboard</h2>
-                <p>Resumen general del sistema de gestión de conferencias</p>
-            </div>
+        <section id="dashboard" class="section active">
+            <h2>👋 Bienvenido al Dashboard</h2>
+            <p style="margin-bottom: 1rem;">Resumen general del sistema de gestión de conferencias</p>
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon zones">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statZonas">0</h3>
-                        <p>📍 Total Zonas</p>
-                    </div>
+                    <h3 id="statZonas">0</h3>
+                    <p>📍 Total Zonas</p>
                 </div>
-                
                 <div class="stat-card">
-                    <div class="stat-icon districts">
-                        <i class="fas fa-building"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statDistritos">0</h3>
-                        <p>🏛️ Total Distritos</p>
-                    </div>
+                    <h3 id="statDistritos">0</h3>
+                    <p>🏛️ Total Distritos</p>
                 </div>
-                
                 <div class="stat-card">
-                    <div class="stat-icon churches">
-                        <i class="fas fa-church"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statIglesias">0</h3>
-                        <p>⛪ Total Iglesias</p>
-                    </div>
+                    <h3 id="statIglesias">0</h3>
+                    <p>⛪ Total Iglesias</p>
                 </div>
-                
                 <div class="stat-card">
-                    <div class="stat-icon conferences">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statConferencias">0</h3>
-                        <p>📅 Conferencias</p>
-                    </div>
+                    <h3 id="statConferencias">0</h3>
+                    <p>📅 Conferencias</p>
                 </div>
-                
                 <div class="stat-card">
-                    <div class="stat-icon attendees">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statAsistentes">0</h3>
-                        <p>👥 Total Asistentes</p>
-                    </div>
+                    <h3 id="statAsistentes">0</h3>
+                    <p>👥 Total Asistentes</p>
                 </div>
             </div>
         </section>
 
         <!-- Conferencias Section -->
-        <section id="conferencias" class="content-section">
-            <div class="page-header">
-                <h2>📅 Gestión de Conferencias</h2>
-                <button class="btn-new" onclick="prepararModalConferencia()">
-                    <i class="fas fa-plus"></i> Nueva Conferencia
-                </button>
-            </div>
-            
+        <section id="conferencias" class="section">
+            <h2>📅 Gestión de Conferencias</h2>
             <div class="table-container">
-                <table>
+                <button class="btn btn-primary" onclick="prepararModalConferencia()">+ Nueva Conferencia</button>
+                <table id="tablaConferencias">
                     <thead>
                         <tr>
                             <th>Nombre</th>
@@ -141,24 +139,142 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaConferencias">
+                    <tbody>
                         <tr><td colspan="7">Cargando datos...</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Registros Section -->
-        <section id="registros" class="content-section">
-            <div class="page-header">
-                <h2>👥 Registros de Asistentes</h2>
-                <button class="btn-new" onclick="prepararModalAsistente()">
-                    <i class="fas fa-plus"></i> Nuevo Registro
-                </button>
+       <!-- Sección de Reportes -->
+<section id="reportes" class="section">
+    <div class="reportes-header">
+        <h1>📈 Reportes</h1>
+        <button class="btn-generar-pdf" onclick="generarPDFReporte()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            Generar PDF
+        </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-container">
+        <div class="filtro-group">
+            <label>Conferencia</label>
+            <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
+                <option value="">-- Seleccione Conferencia --</option>
+            </select>
+        </div>
+        <div class="filtro-group">
+            <label>Iglesia</label>
+            <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
+                <option value="">-- Todas las Iglesias --</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Vista Previa del Reporte -->
+    <div class="reporte-preview" id="reportePreview">
+        <!-- Header -->
+        <div class="reporte-brand">
+            <h2>MinistryLion</h2>
+            <p>Sistema de Gestión de Conferencias</p>
+            <h3 class="reporte-conferencia-titulo" id="reporteTituloConferencia">-</h3>
+        </div>
+
+        <!-- Info - 2 Columnas -->
+        <div class="reporte-info-box">
+            <div class="info-column">
+                <div class="info-row">
+                    <span class="info-icon">✏️</span>
+                    <div>
+                        <strong>Conferenciante:</strong>
+                        <span id="reporteConferenciante">-</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <span class="info-icon">🏠</span>
+                    <div>
+                        <strong>Sede:</strong>
+                        <span id="reporteSede">-</span>
+                    </div>
+                </div>
             </div>
-            
+            <div class="info-column">
+                <div class="info-row">
+                    <span class="info-icon">📅</span>
+                    <div>
+                        <strong>Fechas:</strong>
+                        <span id="reporteFechas">-</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <span class="info-icon">🕐</span>
+                    <div>
+                        <strong>Generado:</strong>
+                        <span id="reporteFechaGeneracion">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card" id="statTotalAsistentes">0 Total Asistentes</div>
+            <div class="stat-card" id="statDiasCampana">0 Días de Campaña</div>
+            <div class="stat-card" id="statPromedioAsistencia">0% Promedio Asistencia</div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="tabla-reportes-container">
+            <table class="tabla-reportes">
+                <thead>
+                    <tr>
+                        <th style="width: 25px">#</th>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th style="width: 40px; text-align: center;">Días</th>
+                        <th>Fechas</th>
+                    </tr>
+                </thead>
+                <tbody id="reporteTablaBody">
+                    <tr class="sin-registros">
+                        <td colspan="6">Seleccione una conferencia para ver el reporte</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totales -->
+        <div class="reporte-totales">
+            <div class="total-label">Total:</div>
+            <div class="total-item">
+                <strong id="totalDias">0 días</strong>
+            </div>
+            <div class="total-item">
+                <strong id="totalPersonas">0 personas</strong>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="reporte-footer-doc">
+            <p>Reporte generado automáticamente por MinistryLion - Sistema de Control de Conferencias</p>
+            <p>© 2026 Todos los derechos reservados</p>
+        </div>
+    </div>
+</section>
+
+        <!-- Registros Section -->
+        <section id="registros" class="section">
+            <h2>👥 Registros de Asistentes</h2>
             <div class="table-container">
-                <table>
+                <button class="btn btn-primary" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
+                <table id="tablaAsistentes">
                     <thead>
                         <tr>
                             <th>Nombre</th>
@@ -169,247 +285,79 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaAsistentes">
+                    <tbody>
                         <tr><td colspan="6">Cargando registros...</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Reportes Section -->
-        <section id="reportes" class="content-section">
-            <div class="page-header">
-                <h2>📊 Reportes de Conferencias</h2>
-                <button class="btn-new" onclick="generarPDFReporte()">
-                    <i class="fas fa-file-pdf"></i> Generar PDF
-                </button>
-            </div>
-            
-            <!-- Filtros -->
-            <div class="filtros-container">
-                <div class="filtro-group">
-                    <label>📅 Filtrar por Conferencia</label>
-                    <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
-                        <option value="">-- Seleccione Conferencia --</option>
-                    </select>
-                </div>
-                <div class="filtro-group">
-                    <label>⛪ Filtrar por Iglesia</label>
-                    <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
-                        <option value="">-- Todas las Iglesias --</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Vista Previa del Reporte -->
-            <div class="reporte-preview" id="reportePreview">
-                <!-- Header del Reporte -->
-                <div class="reporte-brand">
-                    <h2>MinistryLion</h2>
-                    <p>Sistema de Gestión de Conferencias</p>
-                    <h3 class="reporte-conferencia-titulo" id="reporteTituloConferencia">-</h3>
-                </div>
-
-                <!-- Info del Reporte - 2 Columnas -->
-                <div class="reporte-info-box">
-                    <div class="info-column">
-                        <div class="info-row">
-                            <span class="info-icon">✏️</span>
-                            <div>
-                                <strong>Conferenciante:</strong>
-                                <span id="reporteConferenciante">-</span>
-                            </div>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-icon">🏠</span>
-                            <div>
-                                <strong>Sede:</strong>
-                                <span id="reporteSede">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="info-column">
-                        <div class="info-row">
-                            <span class="info-icon">📅</span>
-                            <div>
-                                <strong>Fechas:</strong>
-                                <span id="reporteFechas">-</span>
-                            </div>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-icon">🕐</span>
-                            <div>
-                                <strong>Generado:</strong>
-                                <span id="reporteFechaGeneracion">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Estadísticas -->
-                <div class="stats-grid">
-                    <div class="stat-card stat-primary">
-                        <span class="stat-icon">👥</span>
-                        <div>
-                            <span class="stat-number" id="statTotalAsistentes">0</span>
-                            <span class="stat-label">Total Asistentes</span>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-success">
-                        <span class="stat-icon">📅</span>
-                        <div>
-                            <span class="stat-number" id="statDiasCampana">0</span>
-                            <span class="stat-label">Días de Campaña</span>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-info">
-                        <span class="stat-icon">✅</span>
-                        <div>
-                            <span class="stat-number" id="statPromedioAsistencia">0%</span>
-                            <span class="stat-label">Promedio Asistencia</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tabla -->
-                <div class="tabla-reportes-container">
-                    <table class="tabla-reportes">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px">#</th>
-                                <th>Nombre</th>
-                                <th>Teléfono</th>
-                                <th>Iglesia</th>
-                                <th style="width: 80px; text-align: center;">Días</th>
-                                <th>Fechas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reporteTablaBody">
-                            <tr class="sin-registros">
-                                <td colspan="6">Seleccione una conferencia para ver el reporte</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Totales -->
-                <div class="reporte-totales">
-                    <div class="total-label">Total:</div>
-                    <div class="total-item">
-                        <strong id="totalDias">0 días</strong>
-                    </div>
-                    <div class="total-item">
-                        <strong id="totalPersonas">0 personas</strong>
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="reporte-footer-doc">
-                    <p>Reporte generado automáticamente por MinistryLion - Sistema de Control de Conferencias</p>
-                    <p>© 2026 Todos los derechos reservados</p>
-                </div>
-            </div>
-        </section>
-
         <!-- Configuración Section -->
-        <section id="configuracion" class="content-section">
-            <div class="page-header">
-                <h2>⚙️ Configuración del Sistema</h2>
-            </div>
-            
-            <div class="tabs">
-                <button class="tab-btn active" onclick="cambiarTab('tabZonas')">📍 Zonas</button>
-                <button class="tab-btn" onclick="cambiarTab('tabDistritos')">🏛️ Distritos</button>
-                <button class="tab-btn" onclick="cambiarTab('tabIglesias')">⛪ Iglesias</button>
-            </div>
-            
-            <!-- Tab Zonas -->
-            <div id="tabZonas" class="tab-content active">
-                <div class="table-header">
-                    <h3>📍 Zonas</h3>
-                    <button class="btn-new" onclick="prepararModalZona()">
-                        <i class="fas fa-plus"></i> Nueva Zona
-                    </button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaZonas">
-                            <tr><td colspan="3">Sin zonas registradas</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Tab Distritos -->
-            <div id="tabDistritos" class="tab-content">
-                <div class="table-header">
-                    <h3>🏛️ Distritos</h3>
-                    <button class="btn-new" onclick="prepararModalDistrito()">
-                        <i class="fas fa-plus"></i> Nuevo Distrito
-                    </button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Distrito</th>
-                                <th>Zona</th>
-                                <th>Responsable</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaDistritos">
-                            <tr><td colspan="4">Sin distritos registrados</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Tab Iglesias -->
-            <div id="tabIglesias" class="tab-content">
-                <div class="table-header">
-                    <h3>⛪ Iglesias</h3>
-                    <button class="btn-new" onclick="prepararModalIglesia()">
-                        <i class="fas fa-plus"></i> Nueva Iglesia
-                    </button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Iglesia</th>
-                                <th>Zona</th>
-                                <th>Distrito</th>
-                                <th>Pastor</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaIglesias">
-                            <tr><td colspan="5">Sin iglesias registradas</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Usuarios Section -->
-        <section id="usuarios" class="content-section">
-            <div class="page-header">
-                <h2>👤 Gestión de Usuarios</h2>
-                <button class="btn-new" onclick="prepararModalUsuario()">
-                    <i class="fas fa-plus"></i> Nuevo Usuario
-                </button>
-            </div>
+        <section id="configuracion" class="section">
+            <h2>⚙️ Configuración del Sistema</h2>
             
             <div class="table-container">
-                <table>
+                <h3>📍 Zonas</h3>
+                <button class="btn btn-primary" onclick="prepararModalZona()">+ Nueva Zona</button>
+                <table id="tablaZonas">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3">Sin zonas registradas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3>🏛️ Distritos</h3>
+                <button class="btn btn-primary" onclick="prepararModalDistrito()">+ Nuevo Distrito</button>
+                <table id="tablaDistritos">
+                    <thead>
+                        <tr>
+                            <th>Distrito</th>
+                            <th>Zona</th>
+                            <th>Responsable</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="4">Sin distritos registrados</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3>⛪ Iglesias</h3>
+                <button class="btn btn-primary" onclick="prepararModalIglesia()">+ Nueva Iglesia</button>
+                <table id="tablaIglesias">
+                    <thead>
+                        <tr>
+                            <th>Iglesia</th>
+                            <th>Zona</th>
+                            <th>Distrito</th>
+                            <th>Pastor</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="5">Sin iglesias registradas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- Usuarios Section -->
+        <section id="usuarios" class="section">
+            <h2>👤 Gestión de Usuarios</h2>
+            <div class="table-container">
+                <button class="btn btn-primary" onclick="prepararModalUsuario()">+ Nuevo Usuario</button>
+                <table id="tablaUsuarios">
                     <thead>
                         <tr>
                             <th>Nombre</th>
@@ -419,7 +367,7 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaUsuarios">
+                    <tbody>
                         <tr><td colspan="5">Cargando usuarios...</td></tr>
                     </tbody>
                 </table>
@@ -427,13 +375,55 @@
         </section>
     </main>
 
-    <!-- Modales -->
-    <!-- Modal Nueva Zona -->
+    <!-- MODALES -->
+    <!-- Modal Nuevo Reporte -->
+<div id="modalNuevoReporte" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="tituloModalReporte">📋 Configurar Reporte</h3>
+            <button class="modal-close" onclick="cerrarModal('modalNuevoReporte')">×</button>
+        </div>
+        <form id="formReporte" onsubmit="guardarConfiguracionReporte(event)">
+            <div class="form-group">
+                <label>📅 Conferencia *</label>
+                <select id="reporteConfSeleccionada" required onchange="cargarDatosConferenciaSeleccionada()">
+                    <option value="">-- Seleccione Conferencia --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>⛪ Iglesia (Opcional)</label>
+                <select id="reporteIglesiaFiltro">
+                    <option value="">-- Todas las Iglesias --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>📊 Tipo de Reporte</label>
+                <select id="reporteTipo">
+                    <option value="completo">Reporte Completo</option>
+                    <option value="resumen">Solo Resumen</option>
+                    <option value="asistencia">Detalle de Asistencia</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>🎨 Incluir Logo</label>
+                <input type="checkbox" id="reporteIncluirLogo" checked>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-success">💾 Guardar Configuración</button>
+                <button type="button" class="btn-secondary" onclick="cerrarModal('modalNuevoReporte')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+    
+    <!-- Modal Zona -->
     <div id="modalNuevaZona" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="tituloModalZona">📍 Registrar Zona</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">×</button>
+                <h3 id="tituloModalZona">📍 Registrar Zona</h3>
+                <button class="close-modal" onclick="cerrarModal('modalNuevaZona')">×</button>
             </div>
             <form id="formZona">
                 <div class="form-group">
@@ -444,20 +434,18 @@
                     <label>Descripción</label>
                     <textarea id="zonaDescripcion" rows="3"></textarea>
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Zona</button>
-                </div>
+                <button type="submit" class="btn btn-primary">Guardar Zona</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Nuevo Distrito -->
+    <!-- Modal Distrito -->
     <div id="modalNuevoDistrito" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="tituloModalDistrito">🏛️ Registrar Distrito</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">×</button>
+                <h3 id="tituloModalDistrito">🏛️ Registrar Distrito</h3>
+                <button class="close-modal" onclick="cerrarModal('modalNuevoDistrito')">×</button>
             </div>
             <form id="formDistrito">
                 <div class="form-group">
@@ -476,22 +464,20 @@
                 </div>
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="text" id="distritoTelefono">
+                    <input type="tel" id="distritoTelefono">
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoDistrito')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Distrito</button>
-                </div>
+                <button type="submit" class="btn btn-primary">Guardar Distrito</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevoDistrito')">Cancelar</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Nueva Iglesia -->
+    <!-- Modal Iglesia -->
     <div id="modalNuevaIglesia" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="tituloModalIglesia">⛪ Registrar Iglesia</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">×</button>
+                <h3 id="tituloModalIglesia">⛪ Registrar Iglesia</h3>
+                <button class="close-modal" onclick="cerrarModal('modalNuevaIglesia')">×</button>
             </div>
             <form id="formIglesia">
                 <div class="form-group">
@@ -515,32 +501,30 @@
                     <input type="text" id="iglesiaPastor">
                 </div>
                 <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" id="iglesiaTelefono">
+                </div>
+                <div class="form-group">
                     <label>Dirección</label>
                     <textarea id="iglesiaDireccion" rows="2"></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="text" id="iglesiaTelefono">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaIglesia')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Iglesia</button>
-                </div>
+                <button type="submit" class="btn btn-primary">Guardar Iglesia</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevaIglesia')">Cancelar</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Nueva Conferencia -->
+    <!-- Modal Conferencia -->
     <div id="modalNuevaConferencia" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="tituloModalConferencia">📅 Nueva Conferencia</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevaConferencia')">×</button>
+                <h3 id="tituloModalConferencia">📅 Nueva Conferencia</h3>
+                <button class="close-modal" onclick="cerrarModal('modalNuevaConferencia')">×</button>
             </div>
             <form id="formConferencia">
                 <div class="form-group">
-                    <label>Nombre</label>
-                    <input type="text" id="confNombre">
+                    <label>Nombre *</label>
+                    <input type="text" id="confNombre" required>
                 </div>
                 <div class="form-group">
                     <label>Iglesia Sede *</label>
@@ -548,37 +532,31 @@
                         <option value="">-- Seleccione Iglesia --</option>
                     </select>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Fecha Inicio *</label>
-                        <input type="date" id="confFechaInicio" required onchange="actualizarDuracionConferencia()">
-                    </div>
-                    <div class="form-group">
-                        <label>Fecha Fin *</label>
-                        <input type="date" id="confFechaFin" required onchange="actualizarDuracionConferencia()">
-                    </div>
+                <div class="form-group">
+                    <label>Fecha Inicio *</label>
+                    <input type="date" id="confFechaInicio" required>
                 </div>
-                <div class="duracion-conferencia" id="duracionConferencia">
-                    📅 Duración: 0 días
+                <div class="form-group">
+                    <label>Fecha Fin *</label>
+                    <input type="date" id="confFechaFin" required>
                 </div>
+                <div class="duracion-conferencia">📅 Duración: 0 días</div>
                 <div class="form-group">
                     <label>Conferenciante</label>
                     <input type="text" id="confConferenciante">
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaConferencia')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Conferencia</button>
-                </div>
+                <button type="submit" class="btn btn-primary">Guardar Conferencia</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevaConferencia')">Cancelar</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Nuevo Asistente -->
+    <!-- Modal Asistente -->
     <div id="modalNuevoAsistente" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="tituloModalAsistente">👥 Nuevo Registro de Asistente</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">×</button>
+                <h3 id="tituloModalAsistente">👥 Nuevo Registro de Asistente</h3>
+                <button class="close-modal" onclick="cerrarModal('modalNuevoAsistente')">×</button>
             </div>
             <form id="formAsistente">
                 <div class="form-group">
@@ -586,16 +564,16 @@
                     <input type="text" id="asistNombre" required>
                 </div>
                 <div class="form-group">
-                    <label>Dirección</label>
-                    <textarea id="asistDireccion" rows="2"></textarea>
-                </div>
-                <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="text" id="asistTelefono">
+                    <input type="tel" id="asistTelefono">
                 </div>
                 <div class="form-group">
                     <label>Invitado Por</label>
                     <input type="text" id="asistInvitadoPor">
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <textarea id="asistDireccion" rows="2"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Iglesia</label>
@@ -610,28 +588,22 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>📅 Cotejo de Asistencia por Fecha</label>
-                    <div id="fechasAsistenciaContainer" class="fechas-asistencia-container">
-                        <p style="color: #999; font-size: 13px;">Primero seleccione una conferencia</p>
-                    </div>
-                    <div class="contador-asistencia" id="contadorAsistencia">
-                        ✅ <strong>0</strong> días asistidos de <strong>0</strong> totales
-                    </div>
+                    <label>✅ Marque los días que asistió:</label>
+                    <div id="fechasAsistenciaContainer" class="fechas-asistencia"></div>
+                    <div class="contador-asistencia">✅ <strong>0</strong> días asistidos de <strong>0</strong> totales</div>
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Registro</button>
-                </div>
+                <button type="submit" class="btn btn-primary">Guardar Registro</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Nuevo Usuario -->
+    <!-- Modal Usuario -->
     <div id="modalNuevoUsuario" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="tituloModalUsuario">👤 Nuevo Usuario</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevoUsuario')">×</button>
+                <h3 id="tituloModalUsuario">👤 Nuevo Usuario</h3>
+                <button class="close-modal" onclick="cerrarModal('modalNuevoUsuario')">×</button>
             </div>
             <form id="formUsuario">
                 <div class="form-group">
@@ -643,9 +615,8 @@
                     <input type="email" id="usuarioEmail" required>
                 </div>
                 <div class="form-group">
-                    <label>🔑 Contraseña *</label>
-                    <input type="password" id="usuarioPassword" required>
-                    <small id="passwordHelp" style="font-size: 11px; color: #666; display: none;">Deje vacío para mantener la contraseña actual</small>
+                    <label>🔑 Contraseña</label>
+                    <input type="password" id="usuarioPassword">
                 </div>
                 <div class="form-group">
                     <label>Rol</label>
@@ -656,26 +627,32 @@
                 </div>
                 <div class="form-group">
                     <label>Estado</label>
-                    <div class="checkbox-group">
-                        <label>
-                            <input type="checkbox" id="usuarioEstado" checked>
-                            <span>✅ Activo</span>
-                        </label>
-                    </div>
+                    <label><input type="checkbox" id="usuarioEstado" checked> ✅ Activo</label>
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoUsuario')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Usuario</button>
+                <div class="form-group">
+                    <label>🔐 Permisos de Acceso</label>
+                    <label><input type="checkbox" name="permisos" value="dashboard"> Dashboard</label><br>
+                    <label><input type="checkbox" name="permisos" value="conferencias"> Conferencias</label><br>
+                    <label><input type="checkbox" name="permisos" value="registros"> Registros</label><br>
+                    <label><input type="checkbox" name="permisos" value="configuracion"> Configuración</label><br>
+                    <label><input type="checkbox" name="permisos" value="usuarios"> Usuarios</label>
                 </div>
+                <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevoUsuario')">Cancelar</button>
             </form>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Scripts - ORDEN CORRECTO -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="main.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    
 </body>
 </html>
+
+

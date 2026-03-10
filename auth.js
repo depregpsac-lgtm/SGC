@@ -12,7 +12,6 @@ function checkAuth() {
             console.log('🔐 No hay usuario en localStorage');
             return null;
         }
-        
         const userData = JSON.parse(user);
         console.log('✅ Usuario autenticado:', userData.nombre);
         return userData;
@@ -115,5 +114,4 @@ window.iniciarSesion = iniciarSesion;
 window.cerrarSesion = cerrarSesion;
 window.tienePermiso = tienePermiso;
 window.obtenerUsuarioActual = obtenerUsuarioActual;
-
 console.log('✅ auth.js inicializado correctamente');

@@ -7,11 +7,13 @@ const SUPABASE_CONFIG = {
 
 // Función para inicializar Supabase
 function initSupabase() {
+    // Verificar que la librería de Supabase esté cargada
     if (typeof supabase === 'undefined') {
         console.error('❌ La librería de Supabase no se ha cargado. Verifica el script CDN en el HTML.');
         return false;
     }
     try {
+        // Crear cliente de Supabase
         window.db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
         console.log('✅ Supabase inicializado correctamente');
         console.log('📡 URL:', SUPABASE_CONFIG.url);
@@ -28,7 +30,12 @@ if (!window.db) {
     initSupabase();
 }
 
+// Exportar función para usar en otros archivos
 window.initSupabase = initSupabase;
 window.SUPABASE_CONFIG = SUPABASE_CONFIG;
+
+
+
+
 
 

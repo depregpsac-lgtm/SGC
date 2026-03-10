@@ -4,172 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
-        
-        .header { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: bold; }
-        .nav-menu { display: flex; gap: 1rem; }
-        .nav-menu a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; cursor: pointer; }
-        .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.2); }
-        
-        .main-content { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-        .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.3s ease; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
-        .stat-card h3 { font-size: 2rem; color: #1e3a5f; }
-        .stat-card p { color: #666; }
-        
-        .table-container { background: white; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; color: #1e3a5f; }
-        
-        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; margin-right: 0.5rem; }
-        .btn-primary { background: #1e3a5f; color: white; }
-        .btn-primary:hover { background: #2d5a87; }
-        .btn-edit { background: #f39c12; color: white; }
-        .btn-delete { background: #e74c3c; color: white; }
-        .btn-secondary { background: #95a5a6; color: white; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .modal.show { display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .modal-header h3 { color: #1e3a5f; }
-        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
-        .close-modal:hover { color: #e74c3c; }
-        
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1e3a5f; }
-        
-        .fechas-asistencia { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
-        .fecha-asistencia { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 5px; background: white; cursor: pointer; }
-        .fecha-asistencia.seleccionada { background: #1e3a5f; color: white; border-color: #1e3a5f; }
-        .contador-asistencia { padding: 0.75rem; border-radius: 5px; margin: 1rem 0; background: #fef3c7; color: #d97706; }
-        
-        .badge-estado { padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.85rem; }
-        .badge-estado.activo { background: #d1fae5; color: #059669; }
-        .badge-estado.inactivo { background: #fee2e2; color: #dc2626; }
-        .badge-asistencia { background: #fef3c7; color: #d97706; padding: 0.25rem 0.75rem; border-radius: 15px; }
-        
-        .duracion-conferencia { margin: 1rem 0; padding: 0.75rem; background: #f0f0f0; border-radius: 5px; color: #1e3a5f; font-weight: 500; }
-        
-        h2 { color: #1e3a5f; margin-bottom: 1.5rem; }
-        h3 { color: #1e3a5f; margin-bottom: 1rem; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Header con Navegación -->
     <header class="header">
         <div class="logo">🦁 MinistryLion</div>
-      <!-- En tu barra lateral / navegación -->
-<nav class="nav-menu">
-    <a href="#" onclick="navegarSeccion('dashboard')" id="nav-dashboard">📊 Dashboard</a>
-    <a href="#" onclick="navegarSeccion('conferencias')" id="nav-conferencias">📅 Conferencias</a>
-    <a href="#" onclick="navegarSeccion('registros')" id="nav-registros">👥 Registros</a>
-    <!-- AGREGA EL ID "nav-reportes" AQUÍ -->
-    
-    <a href="#" onclick="navegarSeccion('configuracion')" id="nav-configuracion">⚙️ Configuración</a>
-    <a href="#" onclick="navegarSeccion('reportes')" id="nav-reportes">📈 Reportes</a>
-    <a href="#" onclick="navegarSeccion('usuarios')" id="nav-usuarios">👤 Usuarios</a>
-    <a href="#" onclick="cerrarSesion()">🚪 Cerrar Sesión</a>
-</nav>
+        <nav class="nav-menu">
+            <a href="#" onclick="navegarSeccion('dashboard')" id="nav-dashboard">📊 Dashboard</a>
+            <a href="#" onclick="navegarSeccion('conferencias')" id="nav-conferencias">📅 Conferencias</a>
+            <a href="#" onclick="navegarSeccion('registros')" id="nav-registros">👥 Registros</a>
+            <a href="#" onclick="navegarSeccion('configuracion')" id="nav-configuracion">⚙️ Configuración</a>
+            <a href="#" onclick="navegarSeccion('reportes')" id="nav-reportes">📈 Reportes</a>
+            <a href="#" onclick="navegarSeccion('usuarios')" id="nav-usuarios">👤 Usuarios</a>
+            <a href="#" onclick="cerrarSesion()">🚪 Cerrar Sesión</a>
+        </nav>
     </header>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Dashboard Section -->
+        <!-- Dashboard -->
         <section id="dashboard" class="section active">
             <h2>👋 Bienvenido al Dashboard</h2>
-            <p style="margin-bottom: 1rem;">Resumen general del sistema de gestión de conferencias</p>
+            <p>Resumen general del sistema de gestión de conferencias</p>
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3 id="statZonas">0</h3>
-                    <p>📍 Total Zonas</p>
+                    <div class="stat-number" id="statZonas">0</div>
+                    <div class="stat-label">📍 Total Zonas</div>
                 </div>
                 <div class="stat-card">
-                    <h3 id="statDistritos">0</h3>
-                    <p>🏛️ Total Distritos</p>
+                    <div class="stat-number" id="statDistritos">0</div>
+                    <div class="stat-label">🏛️ Total Distritos</div>
                 </div>
                 <div class="stat-card">
-                    <h3 id="statIglesias">0</h3>
-                    <p>⛪ Total Iglesias</p>
+                    <div class="stat-number" id="statIglesias">0</div>
+                    <div class="stat-label">⛪ Total Iglesias</div>
                 </div>
                 <div class="stat-card">
-                    <h3 id="statConferencias">0</h3>
-                    <p>📅 Conferencias</p>
+                    <div class="stat-number" id="statConferencias">0</div>
+                    <div class="stat-label">📅 Conferencias</div>
                 </div>
                 <div class="stat-card">
-                    <h3 id="statAsistentes">0</h3>
-                    <p>👥 Total Asistentes</p>
+                    <div class="stat-number" id="statAsistentes">0</div>
+                    <div class="stat-label">👥 Total Asistentes</div>
                 </div>
             </div>
         </section>
 
-        <!-- Conferencias Section -->
+        <!-- Conferencias -->
         <section id="conferencias" class="section">
             <h2>📅 Gestión de Conferencias</h2>
-            <div class="table-container">
-                <button class="btn btn-primary" onclick="prepararModalConferencia()">+ Nueva Conferencia</button>
-                <table id="tablaConferencias">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Iglesia</th>
-                            <th>Inicio</th>
-                            <th>Fin</th>
-                            <th>Días</th>
-                            <th>Conferenciante</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td colspan="7">Cargando datos...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <button onclick="prepararModalConferencia()" class="btn-primary">+ Nueva Conferencia</button>
+            
+            <table class="tabla" id="tablaConferencias">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Iglesia</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Días</th>
+                        <th>Conferenciante</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7">Cargando datos...</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
 
-        <!-- Registros Section -->
+        <!-- Registros -->
         <section id="registros" class="section">
             <h2>👥 Registros de Asistentes</h2>
-            <div class="table-container">
-                <button class="btn btn-primary" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
-                <table id="tablaAsistentes">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Teléfono</th>
-                            <th>Iglesia</th>
-                            <th>Conferencia</th>
-                            <th>Días Asistidos</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td colspan="6">Cargando registros...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <button onclick="prepararModalAsistente()" class="btn-primary">+ Nuevo Registro</button>
+            
+            <table class="tabla" id="tablaAsistentes">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th>Conferencia</th>
+                        <th>Días Asistidos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6">Cargando registros...</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
 
-        <!-- Configuración Section -->
+        <!-- Configuración -->
         <section id="configuracion" class="section">
             <h2>⚙️ Configuración del Sistema</h2>
             
-            <div class="table-container">
+            <div class="config-section">
                 <h3>📍 Zonas</h3>
-                <button class="btn btn-primary" onclick="prepararModalZona()">+ Nueva Zona</button>
-                <table id="tablaZonas">
+                <button onclick="prepararModalZona()" class="btn-primary">+ Nueva Zona</button>
+                <table class="tabla" id="tablaZonas">
                     <thead>
                         <tr>
                             <th>Nombre</th>
@@ -178,15 +115,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="3">Sin zonas registradas</td></tr>
+                        <tr>
+                            <td colspan="3">Sin zonas registradas</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="table-container">
+            <div class="config-section">
                 <h3>🏛️ Distritos</h3>
-                <button class="btn btn-primary" onclick="prepararModalDistrito()">+ Nuevo Distrito</button>
-                <table id="tablaDistritos">
+                <button onclick="prepararModalDistrito()" class="btn-primary">+ Nuevo Distrito</button>
+                <table class="tabla" id="tablaDistritos">
                     <thead>
                         <tr>
                             <th>Distrito</th>
@@ -196,15 +135,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="4">Sin distritos registrados</td></tr>
+                        <tr>
+                            <td colspan="4">Sin distritos registrados</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="table-container">
+            <div class="config-section">
                 <h3>⛪ Iglesias</h3>
-                <button class="btn btn-primary" onclick="prepararModalIglesia()">+ Nueva Iglesia</button>
-                <table id="tablaIglesias">
+                <button onclick="prepararModalIglesia()" class="btn-primary">+ Nueva Iglesia</button>
+                <table class="tabla" id="tablaIglesias">
                     <thead>
                         <tr>
                             <th>Iglesia</th>
@@ -215,105 +156,104 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="5">Sin iglesias registradas</td></tr>
+                        <tr>
+                            <td colspan="5">Sin iglesias registradas</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </section>
-<section id="reportes" class="section">
-    <h2>📈 Gestión de Reportes</h2>
-    
-    <div class="filtros-reportes">
-        <label>📅 Filtrar por Conferencia:</label>
-        <select id="filtroConferencia">
-            <option value="">Todas las conferencias</option>
-        </select>
 
-        <label>⛪ Filtrar por Iglesia:</label>
-        <select id="filtroIglesia">
-            <option value="">Todas las iglesias</option>
-        </select>
+        <!-- Reportes -->
+        <section id="reportes" class="section">
+            <h2>📈 Gestión de Reportes</h2>
+            
+            <div class="filtros-reportes">
+                <label>📅 Filtrar por Conferencia:</label>
+                <select id="filtroConferencia">
+                    <option value="">Todas las conferencias</option>
+                </select>
 
-        <button onclick="generarVistaPrevia()">🔍 Generar Vista Previa</button>
-    </div>
+                <label>⛪ Filtrar por Iglesia:</label>
+                <select id="filtroIglesia">
+                    <option value="">Todas las iglesias</option>
+                </select>
 
-    <div id="areaImpresion" style="padding: 20px; background: white; margin-top: 20px;">
-        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e40af; padding-bottom: 10px;">
-            <h2 style="color: #1e40af; margin: 0;">🦁 MinistryLion</h2>
-            <h3 style="color: #374151; margin: 10px 0;">📊 Reporte de Asistencia a Conferencias</h3>
-            <p id="infoFiltros" style="color: #6b7280; margin: 5px 0;"></p>
-            <p style="color: #9ca3af; font-size: 12px;">Generado: <span id="fechaGeneracion"></span></p>
-        </div>
-        
-        <table id="tablaReporte" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-            <thead>
-                <tr style="background: #1e40af; color: white;">
-                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Asistente</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Teléfono</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Iglesia</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Conferencia</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Días Asistidos</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="5" style="text-align:center; padding: 20px;">Seleccione filtros y genere la vista previa</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #6b7280;">
-            <p><strong>Total de registros:</strong> <span id="totalRegistros">0</span></p>
-        </div>
-    </div>
-    
-    <div style="margin-top: 20px;">
-        <button onclick="exportarPDF()" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px;">📄 Exportar a PDF</button>
-    </div>
-</section>
+                <button onclick="generarVistaPrevia()" class="btn-primary">🔍 Generar Vista Previa</button>
+            </div>
 
-        <!-- Usuarios Section -->
-        <section id="usuarios" class="section">
-            <h2>👤 Gestión de Usuarios</h2>
-            <div class="table-container">
-                <button class="btn btn-primary" onclick="prepararModalUsuario()">+ Nuevo Usuario</button>
-                <table id="tablaUsuarios">
+            <div id="areaImpresion" style="padding: 20px; background: white; margin-top: 20px; border: 1px solid #ddd;">
+                <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e40af; padding-bottom: 10px;">
+                    <h2 style="color: #1e40af; margin: 0;">🦁 MinistryLion</h2>
+                    <h3 style="color: #374151; margin: 10px 0;">📊 Reporte de Asistencia a Conferencias</h3>
+                    <p id="infoFiltros" style="color: #6b7280; margin: 5px 0;"></p>
+                    <p style="color: #9ca3af; font-size: 12px;">Generado: <span id="fechaGeneracion"></span></p>
+                </div>
+                
+                <table id="tablaReporte" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                     <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
+                        <tr style="background: #1e40af; color: white;">
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Asistente</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Teléfono</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Iglesia</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Conferencia</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Días Asistidos</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="5">Cargando usuarios...</td></tr>
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding: 20px;">Seleccione filtros y genere la vista previa</td>
+                        </tr>
                     </tbody>
                 </table>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #6b7280;">
+                    <p><strong>Total de registros:</strong> <span id="totalRegistros">0</span></p>
+                </div>
             </div>
+            
+            <div style="margin-top: 20px;">
+                <button onclick="exportarPDF()" class="btn-danger">📄 Exportar a PDF</button>
+            </div>
+        </section>
+
+        <!-- Usuarios -->
+        <section id="usuarios" class="section">
+            <h2>👤 Gestión de Usuarios</h2>
+            <button onclick="prepararModalUsuario()" class="btn-primary">+ Nuevo Usuario</button>
+            
+            <table class="tabla" id="tablaUsuarios">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5">Cargando usuarios...</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
     </main>
 
-    <!-- MODALES -->
+    <!-- Modales -->
     <!-- Modal Zona -->
     <div id="modalNuevaZona" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalZona">📍 Registrar Zona</h3>
-                <button class="close-modal" onclick="cerrarModal('modalNuevaZona')">×</button>
-            </div>
+            <span class="close" onclick="cerrarModal('modalNuevaZona')">&times;</span>
+            <h3 id="tituloModalZona">📍 Registrar Zona</h3>
             <form id="formZona">
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="zonaNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <textarea id="zonaDescripcion" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar Zona</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
+                <label>Nombre *</label>
+                <input type="text" id="zonaNombre" required>
+                <label>Descripción</label>
+                <textarea id="zonaDescripcion"></textarea>
+                <button type="submit" class="btn-primary">Guardar Zona</button>
+                <button type="button" onclick="cerrarModal('modalNuevaZona')" class="btn-secondary">Cancelar</button>
             </form>
         </div>
     </div>
@@ -321,31 +261,21 @@
     <!-- Modal Distrito -->
     <div id="modalNuevoDistrito" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalDistrito">🏛️ Registrar Distrito</h3>
-                <button class="close-modal" onclick="cerrarModal('modalNuevoDistrito')">×</button>
-            </div>
+            <span class="close" onclick="cerrarModal('modalNuevoDistrito')">&times;</span>
+            <h3 id="tituloModalDistrito">🏛️ Registrar Distrito</h3>
             <form id="formDistrito">
-                <div class="form-group">
-                    <label>Zona *</label>
-                    <select id="distritoZona" required>
-                        <option value="">-- Seleccione Zona --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="distritoNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Responsable</label>
-                    <input type="text" id="distritoResponsable">
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="tel" id="distritoTelefono">
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar Distrito</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevoDistrito')">Cancelar</button>
+                <label>Zona *</label>
+                <select id="distritoZona" required>
+                    <option value="">-- Seleccione Zona --</option>
+                </select>
+                <label>Nombre *</label>
+                <input type="text" id="distritoNombre" required>
+                <label>Responsable</label>
+                <input type="text" id="distritoResponsable">
+                <label>Teléfono</label>
+                <input type="text" id="distritoTelefono">
+                <button type="submit" class="btn-primary">Guardar Distrito</button>
+                <button type="button" onclick="cerrarModal('modalNuevoDistrito')" class="btn-secondary">Cancelar</button>
             </form>
         </div>
     </div>
@@ -353,41 +283,27 @@
     <!-- Modal Iglesia -->
     <div id="modalNuevaIglesia" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalIglesia">⛪ Registrar Iglesia</h3>
-                <button class="close-modal" onclick="cerrarModal('modalNuevaIglesia')">×</button>
-            </div>
+            <span class="close" onclick="cerrarModal('modalNuevaIglesia')">&times;</span>
+            <h3 id="tituloModalIglesia">⛪ Registrar Iglesia</h3>
             <form id="formIglesia">
-                <div class="form-group">
-                    <label>Zona *</label>
-                    <select id="iglesiaZona" required onchange="cargarDistritosPorZona(this.value)">
-                        <option value="">-- Seleccione Zona --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Distrito</label>
-                    <select id="iglesiaDistrito">
-                        <option value="">-- Sin distrito --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Nombre Iglesia *</label>
-                    <input type="text" id="iglesiaNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Pastor</label>
-                    <input type="text" id="iglesiaPastor">
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="tel" id="iglesiaTelefono">
-                </div>
-                <div class="form-group">
-                    <label>Dirección</label>
-                    <textarea id="iglesiaDireccion" rows="2"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar Iglesia</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevaIglesia')">Cancelar</button>
+                <label>Zona *</label>
+                <select id="iglesiaZona" onchange="cargarDistritosPorZona(this.value)" required>
+                    <option value="">-- Seleccione Zona --</option>
+                </select>
+                <label>Distrito</label>
+                <select id="iglesiaDistrito">
+                    <option value="">-- Sin distrito --</option>
+                </select>
+                <label>Nombre Iglesia *</label>
+                <input type="text" id="iglesiaNombre" required>
+                <label>Pastor</label>
+                <input type="text" id="iglesiaPastor">
+                <label>Teléfono</label>
+                <input type="text" id="iglesiaTelefono">
+                <label>Dirección</label>
+                <textarea id="iglesiaDireccion"></textarea>
+                <button type="submit" class="btn-primary">Guardar Iglesia</button>
+                <button type="button" onclick="cerrarModal('modalNuevaIglesia')" class="btn-secondary">Cancelar</button>
             </form>
         </div>
     </div>
@@ -395,134 +311,54 @@
     <!-- Modal Conferencia -->
     <div id="modalNuevaConferencia" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalConferencia">📅 Nueva Conferencia</h3>
-                <button class="close-modal" onclick="cerrarModal('modalNuevaConferencia')">×</button>
-            </div>
+            <span class="close" onclick="cerrarModal('modalNuevaConferencia')">&times;</span>
+            <h3 id="tituloModalConferencia">📅 Nueva Conferencia</h3>
             <form id="formConferencia">
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="confNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Iglesia Sede *</label>
-                    <select id="confIglesia" required>
-                        <option value="">-- Seleccione Iglesia --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Fecha Inicio *</label>
-                    <input type="date" id="confFechaInicio" required>
-                </div>
-                <div class="form-group">
-                    <label>Fecha Fin *</label>
-                    <input type="date" id="confFechaFin" required>
-                </div>
+                <label>Nombre *</label>
+                <input type="text" id="confNombre" required>
+                <label>Iglesia Sede *</label>
+                <select id="confIglesia" required>
+                    <option value="">-- Seleccione Iglesia --</option>
+                </select>
+                <label>Fecha Inicio *</label>
+                <input type="date" id="confFechaInicio" required onchange="actualizarDuracionConferencia()">
+                <label>Fecha Fin *</label>
+                <input type="date" id="confFechaFin" required onchange="actualizarDuracionConferencia()">
                 <div class="duracion-conferencia">📅 Duración: 0 días</div>
-                <div class="form-group">
-                    <label>Conferenciante</label>
-                    <input type="text" id="confConferenciante">
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar Conferencia</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevaConferencia')">Cancelar</button>
+                <label>Conferenciante</label>
+                <input type="text" id="confConferenciante">
+                <button type="submit" class="btn-primary">Guardar Conferencia</button>
+                <button type="button" onclick="cerrarModal('modalNuevaConferencia')" class="btn-secondary">Cancelar</button>
             </form>
         </div>
     </div>
 
-
-    <!-- Sección de Reportes -->
-<section id="reportes" style="display:none;"> <!-- Oculto por defecto, se muestra con JS -->
-    <h2>📈 Gestión de Reportes</h2>
-    
-    <!-- Filtros -->
-    <div class="filtros-reportes">
-        <label>📅 Filtrar por Conferencia:</label>
-        <select id="filtroConferencia">
-            <option value="">Todas las conferencias</option>
-            <!-- Se llena dinámicamente con JS -->
-            <option value="1">Conferencia de Jóvenes 2024</option>
-        </select>
-
-        <label>⛪ Filtrar por Iglesia:</label>
-        <select id="filtroIglesia">
-            <option value="">Todas las iglesias</option>
-            <!-- Se llena dinámicamente con JS -->
-            <option value="1">Iglesia Central</option>
-        </select>
-
-        <button onclick="generarVistaPrevia()">🔍 Generar Vista Previa</button>
-    </div>
-
-    <!-- Vista Previa del Reporte -->
-    <div id="areaImpresion">
-        <h3>Vista Previa del Reporte</h3>
-        <table id="tablaReporte">
-            <thead>
-                <tr>
-                    <th>Asistente</th>
-                    <th>Teléfono</th>
-                    <th>Iglesia</th>
-                    <th>Conferencia</th>
-                    <th>Días Asistidos</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="5" style="text-align:center;">Seleccione filtros y genere la vista previa</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Botón Exportar -->
-    <div class="acciones-reportes">
-        <button onclick="exportarPDF()" style="background-color: #e74c3c; color: white;">📄 Exportar a PDF</button>
-    </div>
-</section>
-
     <!-- Modal Asistente -->
     <div id="modalNuevoAsistente" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalAsistente">👥 Nuevo Registro de Asistente</h3>
-                <button class="close-modal" onclick="cerrarModal('modalNuevoAsistente')">×</button>
-            </div>
+            <span class="close" onclick="cerrarModal('modalNuevoAsistente')">&times;</span>
+            <h3 id="tituloModalAsistente">👥 Nuevo Registro de Asistente</h3>
             <form id="formAsistente">
-                <div class="form-group">
-                    <label>Nombre Completo *</label>
-                    <input type="text" id="asistNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="tel" id="asistTelefono">
-                </div>
-                <div class="form-group">
-                    <label>Invitado Por</label>
-                    <input type="text" id="asistInvitadoPor">
-                </div>
-                <div class="form-group">
-                    <label>Dirección</label>
-                    <textarea id="asistDireccion" rows="2"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Iglesia</label>
-                    <select id="asistIglesia">
-                        <option value="">-- Sin iglesia --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Conferencia *</label>
-                    <select id="asistConferencia" required onchange="cargarFechasConferencia(this.value)">
-                        <option value="">-- Seleccione Conferencia --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>✅ Marque los días que asistió:</label>
-                    <div id="fechasAsistenciaContainer" class="fechas-asistencia"></div>
-                    <div class="contador-asistencia">✅ <strong>0</strong> días asistidos de <strong>0</strong> totales</div>
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar Registro</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
+                <label>Nombre Completo *</label>
+                <input type="text" id="asistNombre" required>
+                <label>Teléfono</label>
+                <input type="text" id="asistTelefono">
+                <label>Invitado Por</label>
+                <input type="text" id="asistInvitadoPor">
+                <label>Dirección</label>
+                <textarea id="asistDireccion"></textarea>
+                <label>Iglesia</label>
+                <select id="asistIglesia">
+                    <option value="">-- Sin iglesia --</option>
+                </select>
+                <label>Conferencia *</label>
+                <select id="asistConferencia" onchange="cargarFechasConferencia(this.value)" required>
+                    <option value="">-- Seleccione Conferencia --</option>
+                </select>
+                <div id="fechasAsistenciaContainer" style="margin: 10px 0;"></div>
+                <div class="contador-asistencia">✅ <strong>0</strong> días asistidos de <strong>0</strong> totales</div>
+                <button type="submit" class="btn-primary">Guardar Registro</button>
+                <button type="button" onclick="cerrarModal('modalNuevoAsistente')" class="btn-secondary">Cancelar</button>
             </form>
         </div>
     </div>
@@ -530,135 +366,41 @@
     <!-- Modal Usuario -->
     <div id="modalNuevoUsuario" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalUsuario">👤 Nuevo Usuario</h3>
-                <button class="close-modal" onclick="cerrarModal('modalNuevoUsuario')">×</button>
-            </div>
+            <span class="close" onclick="cerrarModal('modalNuevoUsuario')">&times;</span>
+            <h3 id="tituloModalUsuario">👤 Nuevo Usuario</h3>
             <form id="formUsuario">
-                <div class="form-group">
-                    <label>Nombre Completo *</label>
-                    <input type="text" id="usuarioNombreCompleto" required>
+                <label>Nombre Completo *</label>
+                <input type="text" id="usuarioNombreCompleto" required>
+                <label>📧 Correo Electrónico *</label>
+                <input type="email" id="usuarioEmail" required>
+                <label>🔑 Contraseña</label>
+                <input type="password" id="usuarioPassword">
+                <label>Rol</label>
+                <select id="usuarioRol">
+                    <option value="usuario">👤 Usuario</option>
+                    <option value="admin">👑 Administrador</option>
+                </select>
+                <label>Estado</label>
+                <input type="checkbox" id="usuarioEstado" checked> ✅ Activo
+                <label>🔐 Permisos de Acceso</label>
+                <div class="permisos">
+                    <input type="checkbox" name="permisos" value="dashboard" checked> Dashboard<br>
+                    <input type="checkbox" name="permisos" value="conferencias" checked> Conferencias<br>
+                    <input type="checkbox" name="permisos" value="registros" checked> Registros<br>
+                    <input type="checkbox" name="permisos" value="configuracion"> Configuración<br>
+                    <input type="checkbox" name="permisos" value="usuarios"> Usuarios
                 </div>
-                <div class="form-group">
-                    <label>📧 Correo Electrónico *</label>
-                    <input type="email" id="usuarioEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>🔑 Contraseña</label>
-                    <input type="password" id="usuarioPassword">
-                </div>
-                <div class="form-group">
-                    <label>Rol</label>
-                    <select id="usuarioRol">
-                        <option value="usuario">👤 Usuario</option>
-                        <option value="administrador">👑 Administrador</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Estado</label>
-                    <label><input type="checkbox" id="usuarioEstado" checked> ✅ Activo</label>
-                </div>
-                <div class="form-group">
-                    <label>🔐 Permisos de Acceso</label>
-                    <label><input type="checkbox" name="permisos" value="dashboard"> Dashboard</label><br>
-                    <label><input type="checkbox" name="permisos" value="conferencias"> Conferencias</label><br>
-                    <label><input type="checkbox" name="permisos" value="registros"> Registros</label><br>
-                    <label><input type="checkbox" name="permisos" value="configuracion"> Configuración</label><br>
-                    <label><input type="checkbox" name="permisos" value="usuarios"> Usuarios</label>
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar Usuario</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalNuevoUsuario')">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar Usuario</button>
+                <button type="button" onclick="cerrarModal('modalNuevoUsuario')" class="btn-secondary">Cancelar</button>
             </form>
         </div>
     </div>
 
-    <!-- Scripts - ORDEN CORRECTO -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="config.js"></script>
-    <script src="app.js"></script>
+    <script src="auth.js"></script>
+    <script src="database.js"></script>
     <script src="main.js"></script>
-
-    <!-- Librería para generar PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <script>
-    // Función para navegar entre secciones (Ejemplo básico)
-    function mostrarSeccion(id) {
-        // Ocultar todas las secciones
-        document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
-        // Mostrar la seleccionada
-        document.getElementById(id).style.display = 'block';
-    }
-
-    // Asignar evento al menú de reportes
-    // document.querySelector('a[href="#reportes"]').addEventListener('click', (e) => {
-    //     e.preventDefault();
-    //     mostrarSeccion('reportes');
-    // });
-
-    // Función para generar la vista previa (Simulada)
-    function generarVistaPrevia() {
-        const conf = document.getElementById('filtroConferencia').value;
-        const igl = document.getElementById('filtroIglesia').value;
-        const tbody = document.querySelector('#tablaReporte tbody');
-        
-        // Aquí iría tu lógica real para fetchear datos según los filtros
-        // Ejemplo estático para demostración:
-        tbody.innerHTML = `
-            <tr>
-                <td>Juan Pérez</td>
-                <td>555-0101</td>
-                <td>Iglesia Central</td>
-                <td>Conferencia General</td>
-                <td>3</td>
-            </tr>
-            <tr>
-                <td>María Gomez</td>
-                <td>555-0202</td>
-                <td>Iglesia Norte</td>
-                <td>Conferencia General</td>
-                <td>2</td>
-            </tr>
-        `;
-    }
-
-    function exportarPDF() {
-    const elemento = document.getElementById('areaImpresion');
-    
-    // Verificar si hay datos
-    const totalRegistros = document.getElementById('totalRegistros');
-    if (!totalRegistros || totalRegistros.textContent === '0' || 
-        elemento.innerText.includes("Seleccione filtros") ||
-        elemento.innerText.includes("No hay registros")) {
-        alert("Por favor genere la vista previa con datos antes de exportar.");
-        return;
-    }
-
-    // Obtener información de los filtros para el nombre del archivo
-    const confSelect = document.getElementById('filtroConferencia');
-    const iglSelect = document.getElementById('filtroIglesia');
-    const confNombre = confSelect.options[confSelect.selectedIndex]?.text || 'Todas';
-    const iglNombre = iglSelect.options[iglSelect.selectedIndex]?.text || 'Todas';
-    const fecha = new Date().toISOString().slice(0,10);
-
-    var opt = {
-        margin:       [0.5, 0.5, 0.5, 0.5],
-        filename:     `Reporte_${confNombre.replace(/\s+/g, '_')}_${fecha}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
-    };
-
-    // Generar PDF
-    if (typeof html2pdf !== 'undefined') {
-        html2pdf().set(opt).from(elemento).save();
-    } else {
-        alert("⚠️ La librería html2pdf no está cargada. Verifica la conexión a internet.");
-    }
-}
-</script>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 </html>
-

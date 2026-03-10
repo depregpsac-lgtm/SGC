@@ -265,6 +265,37 @@
     <div class="acciones-reportes">
         <button onclick="exportarPDF()" style="background-color: #e74c3c; color: white; padding: 10px 20px; border: none; cursor: pointer;">📄 Exportar a PDF</button>
     </div>
+
+<div id="areaImpresion" style="padding: 20px; background: white;">
+    <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e40af; padding-bottom: 10px;">
+        <h2 style="color: #1e40af; margin: 0;">🦁 MinistryLion</h2>
+        <h3 style="color: #374151; margin: 10px 0;">📊 Reporte de Asistencia a Conferencias</h3>
+        <p id="infoFiltros" style="color: #6b7280; margin: 5px 0;"></p>
+        <p style="color: #9ca3af; font-size: 12px;">Generado: <span id="fechaGeneracion"></span></p>
+    </div>
+    
+    <table id="tablaReporte" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+            <tr style="background: #1e40af; color: white;">
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Asistente</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Teléfono</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Iglesia</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Conferencia</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Días Asistidos</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="5" style="text-align:center; padding: 20px;">Seleccione filtros y genere la vista previa</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #6b7280;">
+        <p><strong>Total de registros:</strong> <span id="totalRegistros">0</span></p>
+    </div>
+</div>
+    
 </section>
 
         <!-- Usuarios Section -->

@@ -648,14 +648,14 @@
         `;
     }
 
-    // Función para Exportar a PDF
     function exportarPDF() {
     const elemento = document.getElementById('areaImpresion');
     
     // Verificar si hay datos
-    if (elemento.innerText.includes("Seleccione filtros") || 
-        elemento.innerText.includes("No hay registros") ||
-        elemento.innerText.includes("Error al cargar")) {
+    const totalRegistros = document.getElementById('totalRegistros');
+    if (!totalRegistros || totalRegistros.textContent === '0' || 
+        elemento.innerText.includes("Seleccione filtros") ||
+        elemento.innerText.includes("No hay registros")) {
         alert("Por favor genere la vista previa con datos antes de exportar.");
         return;
     }

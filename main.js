@@ -915,8 +915,23 @@ function mostrarDashboard(user) {
     if (userName) userName.textContent = user.nombre;
     if (userRole) userRole.textContent = user.rol === 'admin' ? 'Administrador' : 'Usuario';
     if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
+    
+    // ✅ OCULTAR MENÚ USUARIOS SI NO ES ADMIN
+    const menuUsuarios = document.getElementById('nav-usuarios');
+    if (menuUsuarios) {
+        if (user.rol !== 'admin') {
+            menuUsuarios.parentElement.style.display = 'none';  // Ocultar el <li> completo
+        } else {
+            menuUsuarios.parentElement.style.display = 'block';
+        }
+    }
+    
+    // ✅ OCULTAR BOTÓN NUEVO USUARIO SI NO ES ADMIN
+    const btnNuevoUsuario = document.querySelector('#usuarios .btn-new');
+    if (btnNuevoUsuario && user.rol !== 'admin') {
+        btnNuevoUsuario.style.display = 'none';
+    }
 }
-
 function configurarFormularioLogin() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -1078,6 +1093,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -221,6 +221,52 @@
             </div>
         </section>
 
+        <!-- Sección de Reportes (Debe tener class="section" e id="reportes") -->
+<section id="reportes" class="section">
+    <h2>📈 Gestión de Reportes</h2>
+    
+    <!-- Filtros -->
+    <div class="filtros-reportes">
+        <label>📅 Filtrar por Conferencia:</label>
+        <select id="filtroConferencia">
+            <option value="">Todas las conferencias</option>
+        </select>
+
+        <label>⛪ Filtrar por Iglesia:</label>
+        <select id="filtroIglesia">
+            <option value="">Todas las iglesias</option>
+        </select>
+
+        <button onclick="generarVistaPrevia()">🔍 Generar Vista Previa</button>
+    </div>
+
+    <!-- Vista Previa -->
+    <div id="areaImpresion">
+        <h3>Vista Previa del Reporte</h3>
+        <table id="tablaReporte">
+            <thead>
+                <tr>
+                    <th>Asistente</th>
+                    <th>Teléfono</th>
+                    <th>Iglesia</th>
+                    <th>Conferencia</th>
+                    <th>Días Asistidos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="5" style="text-align:center;">Seleccione filtros y genere la vista previa</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botón Exportar -->
+    <div class="acciones-reportes">
+        <button onclick="exportarPDF()" style="background-color: #e74c3c; color: white; padding: 10px 20px; border: none; cursor: pointer;">📄 Exportar a PDF</button>
+    </div>
+</section>
+
         <!-- Usuarios Section -->
         <section id="usuarios" class="section">
             <h2>👤 Gestión de Usuarios</h2>

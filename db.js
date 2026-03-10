@@ -123,13 +123,24 @@ async function eliminarAsistente(id) {
 }
 
 // USUARIOS
+// USUARIOS
 async function obtenerUsuarios() {
     const { data, error } = await window.db.from('usuarios_sistema').select('*').order('nombre_completo');
     return error ? [] : (data || []);
 }
 
 async function crearUsuario(nombre_completo, email, password, rol, permisos, estado) {
-    const { data, error } = await window.db.from('usuarios_sistema').insert([{ nombre_completo, email, password, rol, permisos, estado }]).select();
+    const { data, error } = await window.db
+        .from('usuarios_sistema')
+        .insert([{ 
+            nombre_completo, 
+            email, 
+            password_hash: password,  // ✅ Cambiado de 'password' a 'password_hash'
+            rol, 
+            permisos, 
+            estado 
+        }])
+        .select();
     if (error) throw error;
     return data[0];
 }
@@ -137,9 +148,13 @@ async function crearUsuario(nombre_completo, email, password, rol, permisos, est
 async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado) {
     const updateData = { nombre_completo, email, rol, permisos, estado };
     if (password && password.trim() !== '') {
-        updateData.password = password;
+        updateData.password_hash = password;  // ✅ Cambiado de 'password' a 'password_hash'
     }
-    const { data, error } = await window.db.from('usuarios_sistema').update(updateData).eq('id', id).select();
+    const { data, error } = await window.db
+        .from('usuarios_sistema')
+        .update(updateData)
+        .eq('id', id)
+        .select();
     if (error) throw error;
     return data[0];
 }
@@ -149,7 +164,6 @@ async function eliminarUsuario(id) {
     if (error) throw error;
     return true;
 }
-
 // ESTADÍSTICAS
 async function obtenerEstadisticas() {
     const [zonas, distritos, iglesias, conferencias, asistentes] = await Promise.all([

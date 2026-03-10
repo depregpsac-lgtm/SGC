@@ -159,7 +159,7 @@ async function obtenerEstadisticas() {
         window.db.from('conferencias').select('id', { count: 'exact', head: true }),
         window.db.from('asistentes').select('id', { count: 'exact', head: true })
     ]);
-
+    
     return {
         total_zonas: zonas.count || 0,
         total_distritos: distritos.count || 0,
@@ -195,5 +195,4 @@ window.crearUsuario = crearUsuario;
 window.actualizarUsuario = actualizarUsuario;
 window.eliminarUsuario = eliminarUsuario;
 window.obtenerEstadisticas = obtenerEstadisticas;
-
 console.log('✅ db.js inicializado con todas las funciones CRUD');

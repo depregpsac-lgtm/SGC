@@ -2952,7 +2952,7 @@ table tbody tr:last-child td {
 .tabla-reportes tbody tr {
     animation: fadeIn 0.4s ease;
 /* ============================================
-   REPORTES - ESTILOS OPTIMIZADOS PARA PDF
+   REPORTES - ESTILOS PROFESIONALES
    ============================================ */
 
 #reportes {
@@ -2961,12 +2961,6 @@ table tbody tr:last-child td {
     min-height: 100vh;
 }
 
-.reportes-wrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-/* Header */
 .reportes-header {
     display: flex;
     justify-content: space-between;
@@ -2985,7 +2979,6 @@ table tbody tr:last-child td {
     font-weight: 700;
 }
 
-/* Botón Generar PDF */
 .btn-generar-pdf {
     display: flex;
     align-items: center;
@@ -3007,7 +3000,6 @@ table tbody tr:last-child td {
     box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
-/* Filtros */
 .filtros-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -3049,7 +3041,6 @@ table tbody tr:last-child td {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Vista Previa del Reporte - OPTIMIZADA */
 .reporte-preview {
     background: white;
     border-radius: 10px;
@@ -3058,7 +3049,6 @@ table tbody tr:last-child td {
     font-size: 12px;
 }
 
-/* Brand - Centrado y Compacto */
 .reporte-brand {
     text-align: center;
     margin-bottom: 15px;
@@ -3087,7 +3077,6 @@ table tbody tr:last-child td {
     text-transform: uppercase;
 }
 
-/* Info Box - Grid de 2 columnas COMPACTO */
 .reporte-info-box {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -3113,7 +3102,6 @@ table tbody tr:last-child td {
 
 .info-icon {
     font-size: 14px;
-    line-height: 1;
     width: 16px;
 }
 
@@ -3136,7 +3124,6 @@ table tbody tr:last-child td {
     font-weight: 600;
 }
 
-/* Tabla Compacta */
 .tabla-reportes-container {
     overflow-x: auto;
     margin-bottom: 15px;
@@ -3162,7 +3149,6 @@ table tbody tr:last-child td {
     font-weight: 600;
     font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
 }
 
 .tabla-reportes td {
@@ -3176,13 +3162,6 @@ table tbody tr:last-child td {
     background: #f8fafc;
 }
 
-.sin-registros td {
-    text-align: center;
-    padding: 30px !important;
-    color: #9ca3af;
-}
-
-/* Fechas Badge Compacto */
 .fechas-badge {
     display: flex;
     flex-wrap: wrap;
@@ -3198,7 +3177,6 @@ table tbody tr:last-child td {
     font-weight: 600;
 }
 
-/* Totales Compacto */
 .reporte-totales {
     display: flex;
     justify-content: space-between;
@@ -3219,7 +3197,6 @@ table tbody tr:last-child td {
     font-weight: 600;
 }
 
-/* Footer del Documento */
 .reporte-footer-doc {
     text-align: center;
     padding-top: 10px;
@@ -3232,46 +3209,29 @@ table tbody tr:last-child td {
     margin: 2px 0;
 }
 
-/* Responsive */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+}
+
 @media (max-width: 768px) {
-    #reportes {
-        padding: 10px;
-    }
-    
-    .reportes-header {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-    
     .reporte-info-box {
         grid-template-columns: 1fr;
     }
     
-    .tabla-reportes {
-        font-size: 10px;
+    .stats-grid {
+        grid-template-columns: 1fr;
     }
-    
-    .tabla-reportes th,
-    .tabla-reportes td {
-        padding: 5px 4px;
-    }
-}
-
-/* Animaciones */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.filtro-group,
-.reporte-info-box,
-.tabla-reportes tbody tr {
-    animation: fadeIn 0.4s ease;
 }

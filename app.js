@@ -286,11 +286,9 @@ async function obtenerAsistentes(conferencia_id = null) {
     let query = window.db
         .from('asistentes')
         .select(`*, iglesias (nombre), conferencias (nombre)`);
-    
     if (conferencia_id) {
         query = query.eq('conferencia_id', conferencia_id);
     }
-    
     const { data, error } = await query.order('nombre_completo');
     if (error) throw error;
     return data;
@@ -427,7 +425,6 @@ async function obtenerEstadisticas() {
 function mostrarMensaje(mensaje, tipo = 'info') {
     const toast = document.createElement('div');
     toast.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15);`;
-    
     if (tipo === 'success') {
         toast.style.background = 'linear-gradient(135deg, #10b981, #059669)';
     } else if (tipo === 'error') {
@@ -435,10 +432,8 @@ function mostrarMensaje(mensaje, tipo = 'info') {
     } else {
         toast.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
     }
-    
     toast.textContent = mensaje;
     document.body.appendChild(toast);
-    
     setTimeout(() => {
         toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);

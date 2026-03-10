@@ -526,6 +526,70 @@
 
     <!-- Librería para generar PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+    // Función para navegar entre secciones (Ejemplo básico)
+    function mostrarSeccion(id) {
+        // Ocultar todas las secciones
+        document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
+        // Mostrar la seleccionada
+        document.getElementById(id).style.display = 'block';
+    }
+
+    // Asignar evento al menú de reportes
+    // document.querySelector('a[href="#reportes"]').addEventListener('click', (e) => {
+    //     e.preventDefault();
+    //     mostrarSeccion('reportes');
+    // });
+
+    // Función para generar la vista previa (Simulada)
+    function generarVistaPrevia() {
+        const conf = document.getElementById('filtroConferencia').value;
+        const igl = document.getElementById('filtroIglesia').value;
+        const tbody = document.querySelector('#tablaReporte tbody');
+        
+        // Aquí iría tu lógica real para fetchear datos según los filtros
+        // Ejemplo estático para demostración:
+        tbody.innerHTML = `
+            <tr>
+                <td>Juan Pérez</td>
+                <td>555-0101</td>
+                <td>Iglesia Central</td>
+                <td>Conferencia General</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>María Gomez</td>
+                <td>555-0202</td>
+                <td>Iglesia Norte</td>
+                <td>Conferencia General</td>
+                <td>2</td>
+            </tr>
+        `;
+    }
+
+    // Función para Exportar a PDF
+    function exportarPDF() {
+        const elemento = document.getElementById('areaImpresion');
+        
+        // Verificar si hay datos
+        if(elemento.innerText.includes("Seleccione filtros")) {
+            alert("Por favor genere la vista previa antes de exportar.");
+            return;
+        }
+
+        var opt = {
+            margin:       1,
+            filename:     'reporte_ministrylion.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+        };
+
+        // Generar PDF
+        html2pdf().set(opt).from(elemento).save();
+    }
+</script>
 </body>
 </html>
 

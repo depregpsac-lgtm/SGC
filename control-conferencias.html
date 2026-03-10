@@ -73,14 +73,23 @@
         <!-- En el menú lateral, después de Configuración -->
 <!-- En el nav-menu, después de Configuración -->
 <nav class="nav-menu">
-    <a href="#" id="nav-dashboard" class="active" onclick="navegarSeccion('dashboard')">📊 Dashboard</a>
-    <a href="#" id="nav-conferencias" onclick="navegarSeccion('conferencias')">📅 Conferencias</a>
-    <a href="#" id="nav-registros" onclick="navegarSeccion('registros')">👥 Registros</a>
-    <a href="#" id="nav-reportes" onclick="navegarSeccion('reportes')">📋 Reportes</a>
-    <a href="#" id="nav-configuracion" onclick="navegarSeccion('configuracion')">⚙️ Configuración</a>
-    <a href="#" id="nav-usuarios" onclick="navegarSeccion('usuarios')">👤 Usuarios</a>
-   
-</nav>
+        <a href="#" id="nav-dashboard" class="active" onclick="navegarSeccion('dashboard')">📊 Dashboard</a>
+        <a href="#" id="nav-conferencias" onclick="navegarSeccion('conferencias')">📅 Conferencias</a>
+        <a href="#" id="nav-registros" onclick="navegarSeccion('registros')">👥 Registros</a>
+        <a href="#" id="nav-reportes" onclick="navegarSeccion('reportes')">📋 Reportes</a>
+        <a href="#" id="nav-configuracion" onclick="navegarSeccion('configuracion')">⚙️ Configuración</a>
+        <a href="#" id="nav-usuarios" onclick="navegarSeccion('usuarios')">👤 Usuarios</a>
+    </nav>
+    
+    <div class="header-right">
+        <div class="user-info">
+            <span class="user-avatar" id="userAvatar">A</span>
+            <span class="user-name" id="userName">Administrador</span>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Cerrar Sesión">
+            🚪 Salir
+        </button>
+    </div>
     </header>
 
     <!-- Main Content -->

@@ -55,8 +55,8 @@ function navegarSeccion(seccionId) {
             cargarUsuarios();
             break;
         case 'reportes':
-            cargarFiltrosReportes();
-            break;
+    cargarFiltrosReportes();
+    break;
     }
 }
 
@@ -1496,6 +1496,7 @@ window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
 window.generarPDFReporte = generarPDFReporte;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

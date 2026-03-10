@@ -1230,7 +1230,7 @@ async function cargarVistaPreviaReporte() {
     const iglesiaId = document.getElementById('reporteIglesia').value;
     
     if (!conferenciaId) {
-        limpiarVistaReporte();
+        limpiarReporte();
         return;
     }
     
@@ -1244,43 +1244,31 @@ async function cargarVistaPreviaReporte() {
             asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
         }
         
-        // Actualizar info
+        // Actualizar información
         if (conferencia) {
             document.getElementById('reporteTituloConferencia').textContent = conferencia.nombre;
             document.getElementById('reporteConferenciante').textContent = conferencia.conferenciante || '-';
             document.getElementById('reporteFechas').textContent = 
-                `${formatearFechaParaTabla(conferencia.fecha_inicio)} - ${formatearFechaParaTabla(conferencia.fecha_fin)}`;
+                `${formatearFechaParaTabla(conferencia.fecha_inicio)} al ${formatearFechaParaTabla(conferencia.fecha_fin)}`;
             document.getElementById('reporteSede').textContent = conferencia.iglesias?.nombre || '-';
-            document.getElementById('reportePastor').textContent = conferencia.iglesias?.pastor || '-';
         }
         
-        // Fecha actual
+        // Fecha de generación
         const ahora = new Date();
-        const fechaStr = `${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
-        document.getElementById('reporteFechaGeneracion').textContent = `Generado: ${fechaStr}`;
-        
-        // Estadísticas
-        const diasCampana = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
-        document.getElementById('statDiasCampana').textContent = diasCampana;
-        document.getElementById('statTotalAsistentes').textContent = asistentes.length;
-        
-        let totalAsistencias = 0;
-        asistentes.forEach(a => {
-            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
-            totalAsistencias += fechas.length;
-        });
-        const promedio = diasCampana > 0 && asistentes.length > 0 
-            ? Math.round((totalAsistencias / (asistentes.length * diasCampana)) * 100) 
-            : 0;
-        document.getElementById('statPromedioAsistencia').textContent = promedio + '%';
+        const fechaStr = `${ahora.getDate()}/${ahora.getMonth()+1}/${ahora.getFullYear()} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}:${String(ahora.getSeconds()).padStart(2,'0')}`;
+        document.getElementById('reporteFechaGeneracion').textContent = fechaStr;
         
         // Llenar tabla
         const tbody = document.getElementById('reporteTablaBody');
         tbody.innerHTML = '';
         
+        let totalDiasAsistidos = 0;
+        
         if (asistentes.length > 0) {
             asistentes.forEach((asist, index) => {
                 const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                totalDiasAsistidos += fechasAsistencia.length;
+                
                 const fechasFormateadas = fechasAsistencia.map(f => {
                     const date = new Date(f + 'T00:00:00');
                     return `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}`;
@@ -1292,31 +1280,46 @@ async function cargarVistaPreviaReporte() {
                     <td><strong>${asist.nombre_completo}</strong></td>
                     <td>${asist.telefono || '-'}</td>
                     <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
-                    <td>${asist.invitado_por || '-'}</td>
-                    <td><span class="badge-dias">${fechasAsistencia.length}/${diasCampana}</span></td>
-                    <td><div class="fechas-list">${fechasFormateadas.map(f => `<span class="fecha-badge">${f}</span>`).join('')}</div></td>
+                    <td>${fechasAsistencia.length} días</td>
+                    <td>
+                        <div class="fechas-badge">
+                            ${fechasFormateadas.map(f => `<span class="fecha-item">${f}</span>`).join('')}
+                        </div>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
         } else {
-            tbody.innerHTML = `<tr class="empty-state"><td colspan="7"><div class="empty-content"><span class="empty-icon">📭</span><p>No hay registros</p></div></td></tr>`;
+            tbody.innerHTML = `
+                <tr class="sin-registros">
+                    <td colspan="6">Sin registros</td>
+                </tr>
+            `;
         }
+        
+        // Actualizar totales
+        document.getElementById('totalDias').textContent = `${totalDiasAsistidos} días`;
+        document.getElementById('totalPersonas').textContent = `${asistentes.length} personas`;
+        
     } catch (error) {
         console.error('❌ Error cargando vista previa:', error);
         mostrarMensaje('Error cargando datos', 'error');
     }
 }
 
-function limpiarVistaReporte() {
+function limpiarReporte() {
     document.getElementById('reporteTituloConferencia').textContent = '-';
     document.getElementById('reporteConferenciante').textContent = '-';
     document.getElementById('reporteFechas').textContent = '-';
     document.getElementById('reporteSede').textContent = '-';
-    document.getElementById('reportePastor').textContent = '-';
-    document.getElementById('statTotalAsistentes').textContent = '0';
-    document.getElementById('statDiasCampana').textContent = '0';
-    document.getElementById('statPromedioAsistencia').textContent = '0%';
-    document.getElementById('reporteTablaBody').innerHTML = `<tr class="empty-state"><td colspan="7"><div class="empty-content"><span class="empty-icon">📋</span><p>Seleccione una conferencia</p></div></td></tr>`;
+    document.getElementById('reporteFechaGeneracion').textContent = '-';
+    document.getElementById('totalDias').textContent = '0 días';
+    document.getElementById('totalPersonas').textContent = '0 personas';
+    document.getElementById('reporteTablaBody').innerHTML = `
+        <tr class="sin-registros">
+            <td colspan="6">Sin registros</td>
+        </tr>
+    `;
 }
 
 async function generarPDFReporte() {
@@ -1329,12 +1332,7 @@ async function generarPDFReporte() {
     }
     
     try {
-        // Mostrar el reporte temporalmente
-        const preview = document.getElementById('reportePreview');
-        preview.style.display = 'block';
-        
-        // Esperar un momento para que se renderice
-        await new Promise(resolve => setTimeout(resolve, 300));
+        const elemento = document.getElementById('reportePreview');
         
         const opt = {
             margin: [10, 10, 10, 10],
@@ -1346,79 +1344,18 @@ async function generarPDFReporte() {
         
         if (typeof html2pdf === 'undefined') {
             mostrarMensaje('❌ Librería html2pdf no cargada', 'error');
-            preview.style.display = 'none';
             return;
         }
         
         mostrarMensaje('⏳ Generando PDF...', 'info');
-        await html2pdf().set(opt).from(preview).save();
+        await html2pdf().set(opt).from(elemento).save();
         mostrarMensaje('✅ PDF generado', 'success');
         
-        // Ocultar de nuevo
-        preview.style.display = 'none';
     } catch (error) {
         console.error('❌ Error generando PDF:', error);
         mostrarMensaje('Error generando PDF', 'error');
-        document.getElementById('reportePreview').style.display = 'none';
     }
 }
-
-function limpiarVistaReporte() {
-    document.getElementById('reporteTituloConferencia').textContent = '-';
-    document.getElementById('reporteConferenciante').textContent = '-';
-    document.getElementById('reporteFechas').textContent = '-';
-    document.getElementById('reporteSede').textContent = '-';
-    document.getElementById('reportePastor').textContent = '-';
-    document.getElementById('statTotalAsistentes').textContent = '0';
-    document.getElementById('statDiasCampana').textContent = '0';
-    document.getElementById('statPromedioAsistencia').textContent = '0%';
-    document.getElementById('reporteTablaBody').innerHTML = `<tr class="empty-state"><td colspan="7"><div class="empty-content"><span class="empty-icon">📋</span><p>Seleccione una conferencia</p></div></td></tr>`;
-}
-
-async function generarPDFReporte() {
-    console.log('📄 Generando PDF...');
-    const conferenciaId = document.getElementById('reporteConferencia').value;
-    
-    if (!conferenciaId) {
-        mostrarMensaje('❌ Seleccione una conferencia', 'error');
-        return;
-    }
-    
-    try {
-        // Mostrar el reporte temporalmente
-        const preview = document.getElementById('reportePreview');
-        preview.style.display = 'block';
-        
-        // Esperar un momento para que se renderice
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        const opt = {
-            margin: [10, 10, 10, 10],
-            filename: `Reporte_${new Date().toISOString().split('T')[0]}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        
-        if (typeof html2pdf === 'undefined') {
-            mostrarMensaje('❌ Librería html2pdf no cargada', 'error');
-            preview.style.display = 'none';
-            return;
-        }
-        
-        mostrarMensaje('⏳ Generando PDF...', 'info');
-        await html2pdf().set(opt).from(preview).save();
-        mostrarMensaje('✅ PDF generado', 'success');
-        
-        // Ocultar de nuevo
-        preview.style.display = 'none';
-    } catch (error) {
-        console.error('❌ Error generando PDF:', error);
-        mostrarMensaje('Error generando PDF', 'error');
-        document.getElementById('reportePreview').style.display = 'none';
-    }
-}
-
 // ============================================
 // INFORMACIÓN DEL USUARIO EN EL HEADER
 // ============================================
@@ -1555,6 +1492,7 @@ window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
 window.generarPDFReporte = generarPDFReporte;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

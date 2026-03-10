@@ -816,7 +816,7 @@ async function generarReportePDF() {
         
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(24);
-        doc.text('🦁 MinistryLion', 105, 20, { align: 'center' });
+        doc.text('Sistema de Gestión de Conferencias MinistryLion', 105, 20, { align: 'center' });
         
         doc.setFontSize(14);
         doc.text('Reporte de Asistencia a Conferencias', 105, 30, { align: 'center' });
@@ -1120,6 +1120,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

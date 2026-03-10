@@ -1197,6 +1197,9 @@ document.addEventListener('click', (e) => {
 // ============================================
 // FUNCIONES DE REPORTES
 // ============================================
+// ============================================
+// FUNCIONES DE REPORTES
+// ============================================
 
 async function cargarFiltrosReportes() {
     console.log('📋 Cargando filtros de reportes...');
@@ -1301,6 +1304,62 @@ async function cargarVistaPreviaReporte() {
     } catch (error) {
         console.error('❌ Error cargando vista previa:', error);
         mostrarMensaje('Error cargando datos', 'error');
+    }
+}
+
+function limpiarVistaReporte() {
+    document.getElementById('reporteTituloConferencia').textContent = '-';
+    document.getElementById('reporteConferenciante').textContent = '-';
+    document.getElementById('reporteFechas').textContent = '-';
+    document.getElementById('reporteSede').textContent = '-';
+    document.getElementById('reportePastor').textContent = '-';
+    document.getElementById('statTotalAsistentes').textContent = '0';
+    document.getElementById('statDiasCampana').textContent = '0';
+    document.getElementById('statPromedioAsistencia').textContent = '0%';
+    document.getElementById('reporteTablaBody').innerHTML = `<tr class="empty-state"><td colspan="7"><div class="empty-content"><span class="empty-icon">📋</span><p>Seleccione una conferencia</p></div></td></tr>`;
+}
+
+async function generarPDFReporte() {
+    console.log('📄 Generando PDF...');
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    
+    if (!conferenciaId) {
+        mostrarMensaje('❌ Seleccione una conferencia', 'error');
+        return;
+    }
+    
+    try {
+        // Mostrar el reporte temporalmente
+        const preview = document.getElementById('reportePreview');
+        preview.style.display = 'block';
+        
+        // Esperar un momento para que se renderice
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `Reporte_${new Date().toISOString().split('T')[0]}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        
+        if (typeof html2pdf === 'undefined') {
+            mostrarMensaje('❌ Librería html2pdf no cargada', 'error');
+            preview.style.display = 'none';
+            return;
+        }
+        
+        mostrarMensaje('⏳ Generando PDF...', 'info');
+        await html2pdf().set(opt).from(preview).save();
+        mostrarMensaje('✅ PDF generado', 'success');
+        
+        // Ocultar de nuevo
+        preview.style.display = 'none';
+    } catch (error) {
+        console.error('❌ Error generando PDF:', error);
+        mostrarMensaje('Error generando PDF', 'error');
+        document.getElementById('reportePreview').style.display = 'none';
     }
 }
 
@@ -1496,6 +1555,7 @@ window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
 window.generarPDFReporte = generarPDFReporte;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

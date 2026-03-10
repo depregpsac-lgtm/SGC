@@ -1216,15 +1216,28 @@ async function generarVistaPrevia() {
     const iglId = document.getElementById('filtroIglesia').value;
     const tbody = document.querySelector('#tablaReporte tbody');
     
+    if (!confId && !iglId) {
+        alert("⚠️ Por favor seleccione al menos una conferencia o iglesia para filtrar");
+        return;
+    }
+    
     try {
-        let asistentes = await obtenerAsistentes();
+        // Obtener todos los asistentes con sus relaciones
+        let { data: asistentes, error } = await window.db
+            .from('asistentes')
+            .select(`
+                *,
+                iglesias (nombre),
+                conferencias (nombre, conferenciante)
+            `);
         
-        // Filtrar por conferencia
+        if (error) throw error;
+        
+        // Aplicar filtros
         if (confId) {
             asistentes = asistentes.filter(a => a.conferencia_id == confId);
         }
         
-        // Filtrar por iglesia
         if (iglId) {
             asistentes = asistentes.filter(a => a.iglesia_id == iglId);
         }
@@ -1246,37 +1259,24 @@ async function generarVistaPrevia() {
                 `;
                 tbody.appendChild(tr);
             });
+            
+            // Actualizar título del reporte con información de la conferencia
+            const confSelect = document.getElementById('filtroConferencia');
+            const iglSelect = document.getElementById('filtroIglesia');
+            const confNombre = confSelect.options[confSelect.selectedIndex]?.text || '';
+            const iglNombre = iglSelect.options[iglSelect.selectedIndex]?.text || '';
+            
+            const tituloReporte = document.querySelector('#areaImpresion h3');
+            if (tituloReporte) {
+                tituloReporte.innerHTML = `📊 Reporte de Asistencia<br><small>Conferencia: ${confNombre} | Iglesia: ${iglNombre}</small>`;
+            }
+            
         } else {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay registros con estos filtros</td></tr>';
         }
     } catch (error) {
         console.error('❌ Error generando vista previa:', error);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error al cargar datos</td></tr>';
-    }
-}
-
-function exportarPDF() {
-    const elemento = document.getElementById('areaImpresion');
-    
-    // Verificar si hay datos
-    if (elemento.innerText.includes("Seleccione filtros") || elemento.innerText.includes("No hay registros")) {
-        alert("Por favor genere la vista previa con datos antes de exportar.");
-        return;
-    }
-
-    var opt = {
-        margin:       1,
-        filename:     'reporte_ministrylion_' + new Date().toISOString().slice(0,10) + '.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
-    };
-
-    // Generar PDF usando la librería html2pdf
-    if (typeof html2pdf !== 'undefined') {
-        html2pdf().set(opt).from(elemento).save();
-    } else {
-        alert("⚠️ La librería html2pdf no está cargada. Verifica la conexión a internet.");
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error al cargar datos: ' + error.message + '</td></tr>';
     }
 }
 
@@ -1476,6 +1476,7 @@ window.generarVistaPrevia = generarVistaPrevia;
 window.exportarPDF = exportarPDF;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -525,8 +525,15 @@ async function guardarUsuario(e) {
     }
 }
 
-async function guardarUsuarioEditado(e) {
+async function guardarUsuario(e) {
     e.preventDefault();
+    
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
+        return;
+    }
+    
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -539,22 +546,28 @@ async function guardarUsuarioEditado(e) {
             permisos.push(cb.value);
         });
         
-        if (!nombre_completo || !email) {
-            mostrarMensaje('Nombre y correo son requeridos', 'error');
+        if (!nombre_completo || !email || !password) {
+            mostrarMensaje('Nombre, correo y contraseña son requeridos', 'error');
             return;
         }
         
-        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
-        mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
+        await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
+        mostrarMensaje('✅ Usuario creado exitosamente', 'success');
         cerrarModal('modalNuevoUsuario');
         await cargarUsuarios();
     } catch (error) {
-        console.error('❌ Error actualizando usuario:', error);
-        mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
+        console.error('❌ Error guardando usuario:', error);
+        mostrarMensaje('Error al guardar usuario: ' + error.message, 'error');
     }
 }
 
 async function confirmarEliminarUsuario(id) {
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
+        return;
+    }
+    
     if (confirm('⚠️ ¿Está seguro de eliminar este usuario?')) {
         try {
             await eliminarUsuario(id);
@@ -1107,6 +1120,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

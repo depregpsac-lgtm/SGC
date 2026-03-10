@@ -75,6 +75,7 @@
             <a onclick="navegarSeccion('conferencias')" id="nav-conferencias">📅 Conferencias</a>
             <a onclick="navegarSeccion('registros')" id="nav-registros">👥 Registros</a>
             <a onclick="navegarSeccion('configuracion')" id="nav-configuracion">⚙️ Configuración</a>
+             <a href="#reportes">📈 Reportes</a> <!-- NUEVO -->
             <a onclick="navegarSeccion('usuarios')" id="nav-usuarios">👤 Usuarios</a>
             <a onclick="logout()">🚪 Cerrar Sesión</a>
         </nav>
@@ -373,6 +374,57 @@
             </form>
         </div>
     </div>
+
+
+    <!-- Sección de Reportes -->
+<section id="reportes" style="display:none;"> <!-- Oculto por defecto, se muestra con JS -->
+    <h2>📈 Gestión de Reportes</h2>
+    
+    <!-- Filtros -->
+    <div class="filtros-reportes">
+        <label>📅 Filtrar por Conferencia:</label>
+        <select id="filtroConferencia">
+            <option value="">Todas las conferencias</option>
+            <!-- Se llena dinámicamente con JS -->
+            <option value="1">Conferencia de Jóvenes 2024</option>
+        </select>
+
+        <label>⛪ Filtrar por Iglesia:</label>
+        <select id="filtroIglesia">
+            <option value="">Todas las iglesias</option>
+            <!-- Se llena dinámicamente con JS -->
+            <option value="1">Iglesia Central</option>
+        </select>
+
+        <button onclick="generarVistaPrevia()">🔍 Generar Vista Previa</button>
+    </div>
+
+    <!-- Vista Previa del Reporte -->
+    <div id="areaImpresion">
+        <h3>Vista Previa del Reporte</h3>
+        <table id="tablaReporte">
+            <thead>
+                <tr>
+                    <th>Asistente</th>
+                    <th>Teléfono</th>
+                    <th>Iglesia</th>
+                    <th>Conferencia</th>
+                    <th>Días Asistidos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="5" style="text-align:center;">Seleccione filtros y genere la vista previa</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botón Exportar -->
+    <div class="acciones-reportes">
+        <button onclick="exportarPDF()" style="background-color: #e74c3c; color: white;">📄 Exportar a PDF</button>
+    </div>
+</section>
 
     <!-- Modal Asistente -->
     <div id="modalNuevoAsistente" class="modal">

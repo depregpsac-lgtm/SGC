@@ -44,6 +44,16 @@ function calcularDias(fechaInicio, fechaFin) {
 // ============================================
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
+    
+    // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
+    if (seccionId === 'usuarios') {
+        const user = checkAuth();
+        if (!user || user.rol !== 'admin') {
+            mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden ver esta sección', 'error');
+            seccionId = 'dashboard';  // Redirigir al dashboard
+        }
+    }
+    
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
@@ -68,7 +78,11 @@ function navegarSeccion(seccionId) {
             cargarDistritos(); 
             cargarIglesias(); 
             break;
-        case 'usuarios': cargarUsuarios(); break;
+        case 'usuarios': 
+            if (esAdmin()) {  // ✅ Solo cargar si es admin
+                cargarUsuarios(); 
+            }
+            break;
     }
 }
 
@@ -1093,6 +1107,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

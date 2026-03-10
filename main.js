@@ -17,25 +17,32 @@ window.editMode = {
 // ============================================
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
-    
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     document.querySelectorAll('.nav-menu a').forEach(link => {
         link.classList.remove('active');
     });
-    
+
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.classList.remove('active');
+    });
+
     const section = document.getElementById(seccionId);
     if (section) {
         section.classList.add('active');
     }
-    
+
     const navLink = document.getElementById('nav-' + seccionId);
     if (navLink) {
         navLink.classList.add('active');
     }
-    
+
     // Cargar datos según la sección
     switch(seccionId) {
         case 'dashboard':
@@ -46,6 +53,9 @@ function navegarSeccion(seccionId) {
             break;
         case 'registros':
             cargarAsistentes();
+            break;
+        case 'reportes':
+            cargarReportes();
             break;
         case 'configuracion':
             cargarZonas();
@@ -64,84 +74,70 @@ function navegarSeccion(seccionId) {
 async function prepararModalZona() {
     console.log('📍 Preparando modal Zona');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formZona').reset();
     document.getElementById('formZona').onsubmit = guardarZona;
-    
+
     const titulo = document.getElementById('tituloModalZona');
     if (titulo) titulo.textContent = '📍 Registrar Zona';
-    
+
     abrirModal('modalNuevaZona');
 }
 
 async function prepararModalDistrito() {
     console.log('🏛️ Preparando modal Distrito');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formDistrito').reset();
     document.getElementById('formDistrito').onsubmit = guardarDistrito;
-    
+
     const titulo = document.getElementById('tituloModalDistrito');
     if (titulo) titulo.textContent = '🏛️ Registrar Distrito';
-    
-    // Cargar zonas en el select
+
     await cargarZonasEnSelect('distritoZona');
-    
     abrirModal('modalNuevoDistrito');
 }
 
 async function prepararModalIglesia() {
     console.log('⛪ Preparando modal Iglesia');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formIglesia').reset();
     document.getElementById('formIglesia').onsubmit = guardarIglesia;
-    
+
     const titulo = document.getElementById('tituloModalIglesia');
     if (titulo) titulo.textContent = '⛪ Registrar Iglesia';
-    
-    // Cargar zonas en el select
+
     await cargarZonasEnSelect('iglesiaZona');
     document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
-    
     abrirModal('modalNuevaIglesia');
 }
 
 async function prepararModalConferencia() {
     console.log('📅 Preparando modal Conferencia');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formConferencia').reset();
     document.getElementById('formConferencia').onsubmit = guardarConferencia;
-    
+
     const titulo = document.getElementById('tituloModalConferencia');
     if (titulo) titulo.textContent = '📅 Nueva Conferencia';
-    
-    // Cargar iglesias en el select
+
     await cargarIglesiasEnSelect('confIglesia');
-    
     abrirModal('modalNuevaConferencia');
 }
 
 async function prepararModalAsistente() {
     console.log('👥 Preparando modal Asistente');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formAsistente').reset();
     document.getElementById('formAsistente').onsubmit = guardarAsistente;
-    
+
     const titulo = document.getElementById('tituloModalAsistente');
     if (titulo) titulo.textContent = '👥 Nuevo Registro de Asistente';
-    
-    // Limpiar fechas
+
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
-    
-    // Cargar selects
+
     await cargarIglesiasEnSelect('asistIglesia');
     await cargarConferenciasEnSelect('asistConferencia');
-    
     abrirModal('modalNuevoAsistente');
 }
 
@@ -149,13 +145,11 @@ async function prepararModalUsuario() {
     console.log('👤 Preparando modal Usuario');
     window.editMode = { tipo: null, id: null, data: null };
     window.tempPassword = '';
-    
     document.getElementById('formUsuario').reset();
     document.getElementById('formUsuario').onsubmit = guardarUsuario;
-    
+
     const titulo = document.getElementById('tituloModalUsuario');
     if (titulo) titulo.textContent = '👤 Nuevo Usuario';
-    
     abrirModal('modalNuevoUsuario');
 }
 
@@ -166,7 +160,6 @@ async function cargarZonasEnSelect(selectId) {
     try {
         const select = document.getElementById(selectId);
         if (!select) return;
-        
         const zonas = await obtenerZonas();
         select.innerHTML = '<option value="">-- Seleccione Zona --</option>' +
             zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
@@ -180,7 +173,6 @@ async function cargarDistritosEnSelect(selectId, zonaId = null) {
     try {
         const select = document.getElementById(selectId);
         if (!select) return;
-        
         let distritos = await obtenerDistritos();
         
         if (zonaId) {
@@ -198,7 +190,6 @@ async function cargarIglesiasEnSelect(selectId) {
     try {
         const select = document.getElementById(selectId);
         if (!select) return;
-        
         const iglesias = await obtenerIglesias();
         select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>' +
             iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
@@ -211,7 +202,6 @@ async function cargarConferenciasEnSelect(selectId) {
     try {
         const select = document.getElementById(selectId);
         if (!select) return;
-        
         const conferencias = await obtenerConferencias();
         select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
             conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
@@ -225,20 +215,201 @@ async function cargarDistritosPorZona(zonaId) {
 }
 
 // ============================================
+// FUNCIONES DE REPORTES (NUEVO)
+// ============================================
+async function cargarReportes() {
+    console.log('📊 Cargando sección de Reportes');
+    await cargarConferenciasEnSelect('reporteConferencia');
+    await cargarIglesiasEnSelect('reporteIglesia');
+    await filtrarReporte();
+}
+
+async function filtrarReporte() {
+    try {
+        const conferenciaId = document.getElementById('reporteConferencia').value;
+        const iglesiaId = document.getElementById('reporteIglesia').value;
+        
+        let asistentes = await obtenerAsistentes();
+        
+        // Filtrar por conferencia
+        if (conferenciaId) {
+            asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
+        }
+        
+        // Filtrar por iglesia
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        // Actualizar tabla de reporte
+        const tbody = document.querySelector('#tablaReporte tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>${asist.invitado_por || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Actualizar estadísticas del reporte
+            const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
+            const totalDias = asistentes.reduce((sum, a) => {
+                const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+                return sum + fechas.length;
+            }, 0);
+            
+            document.getElementById('reporteTotalAsistentes').textContent = asistentes.length;
+            document.getElementById('reporteTotalDias').textContent = totalDias;
+            document.getElementById('reporteTotalIglesias').textContent = iglesiasUnicas.size;
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">No hay registros con los filtros seleccionados</td></tr>';
+            document.getElementById('reporteTotalAsistentes').textContent = '0';
+            document.getElementById('reporteTotalDias').textContent = '0';
+            document.getElementById('reporteTotalIglesias').textContent = '0';
+        }
+    } catch (error) {
+        console.error('❌ Error filtrando reporte:', error);
+        mostrarMensaje('Error al filtrar reporte', 'error');
+    }
+}
+
+function limpiarFiltrosReporte() {
+    document.getElementById('reporteConferencia').value = '';
+    document.getElementById('reporteIglesia').value = '';
+    filtrarReporte();
+}
+
+async function generarReportePDF() {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Obtener datos filtrados
+        const conferenciaId = document.getElementById('reporteConferencia').value;
+        const iglesiaId = document.getElementById('reporteIglesia').value;
+        
+        let asistentes = await obtenerAsistentes();
+        
+        if (conferenciaId) {
+            asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
+        }
+        
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        // Obtener nombres de filtros
+        const conferencias = await obtenerConferencias();
+        const iglesias = await obtenerIglesias();
+        const conferenciaFiltro = conferenciaId ? conferencias.find(c => c.id == conferenciaId)?.nombre : 'Todas';
+        const iglesiaFiltro = iglesiaId ? iglesias.find(i => i.id == iglesiaId)?.nombre : 'Todas';
+        
+        // Encabezado
+        doc.setFillColor(26, 26, 46);
+        doc.rect(0, 0, 210, 40, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text('🦁 MinistryLion', 105, 20, { align: 'center' });
+        
+        doc.setFontSize(14);
+        doc.text('Reporte de Asistencia a Conferencias', 105, 30, { align: 'center' });
+        
+        // Información del filtro
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(11);
+        doc.text(`Fecha de Generación: ${new Date().toLocaleDateString('es-ES')}`, 14, 50);
+        doc.text(`Conferencia: ${conferenciaFiltro}`, 14, 58);
+        doc.text(`Iglesia: ${iglesiaFiltro}`, 14, 66);
+        
+        // Estadísticas
+        const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
+        const totalDias = asistentes.reduce((sum, a) => {
+            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+            return sum + fechas.length;
+        }, 0);
+        
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, 75, 182, 20, 'F');
+        doc.setFontSize(10);
+        doc.text(`Total Asistentes: ${asistentes.length}`, 20, 85);
+        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85);
+        doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 85);
+        
+        // Tabla de datos
+        const tableData = asistentes.map(asist => {
+            const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+            return [
+                asist.nombre_completo,
+                asist.telefono || '-',
+                asist.iglesias?.nombre || 'Sin iglesia',
+                asist.conferencias?.nombre || 'Sin conferencia',
+                fechasAsistencia.length.toString(),
+                asist.invitado_por || '-'
+            ];
+        });
+        
+        doc.autoTable({
+            startY: 105,
+            head: [['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [102, 126, 234] },
+            styles: { fontSize: 9 },
+            columnStyles: {
+                0: { cellWidth: 50 },
+                1: { cellWidth: 30 },
+                2: { cellWidth: 40 },
+                3: { cellWidth: 40 },
+                4: { cellWidth: 20 },
+                5: { cellWidth: 30 }
+            }
+        });
+        
+        // Pie de página
+        const finalY = doc.lastAutoTable.finalY || 105;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text('© 2024 MinistryLion - Sistema de Gestión de Conferencias', 105, finalY + 15, { align: 'center' });
+        doc.text(`Generado por: ${localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).nombre : 'Usuario'}`, 105, finalY + 20, { align: 'center' });
+        
+        // Guardar PDF
+        const nombreArchivo = `reporte_asistencia_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(nombreArchivo);
+        
+        mostrarMensaje('✅ Reporte PDF generado exitosamente', 'success');
+    } catch (error) {
+        console.error('❌ Error generando PDF:', error);
+        mostrarMensaje('❌ Error al generar PDF: ' + error.message, 'error');
+    }
+}
+
+// ============================================
 // ZONAS - CRUD
 // ============================================
 async function guardarZona(e) {
     e.preventDefault();
     console.log('💾 Guardando Zona...');
-    
     const nombre = document.getElementById('zonaNombre').value.trim();
     const descripcion = document.getElementById('zonaDescripcion').value.trim();
-    
+
     if (!nombre) {
         mostrarMensaje('❌ El nombre es requerido', 'error');
         return;
     }
-    
+
     try {
         await crearZona(nombre, descripcion);
         mostrarMensaje('✅ Zona creada exitosamente', 'success');
@@ -282,15 +453,14 @@ async function editarZona(id) {
 async function guardarZonaEditada(e) {
     e.preventDefault();
     console.log('💾 Actualizando Zona:', window.editMode.id);
-    
     const nombre = document.getElementById('zonaNombre').value.trim();
     const descripcion = document.getElementById('zonaDescripcion').value.trim();
-    
+
     if (!nombre) {
         mostrarMensaje('❌ El nombre es requerido', 'error');
         return;
     }
-    
+
     try {
         await actualizarZona(window.editMode.id, nombre, descripcion);
         mostrarMensaje('✅ Zona actualizada exitosamente', 'success');
@@ -324,7 +494,6 @@ async function cargarZonas() {
         const zonas = await obtenerZonas();
         const tbody = document.querySelector('#tablaZonas tbody');
         if (!tbody) return;
-        
         tbody.innerHTML = '';
         
         if (zonas && zonas.length > 0) {
@@ -356,17 +525,16 @@ async function cargarZonas() {
 async function guardarDistrito(e) {
     e.preventDefault();
     console.log('💾 Guardando Distrito...');
-    
     const zona_id = document.getElementById('distritoZona').value;
     const nombre = document.getElementById('distritoNombre').value.trim();
     const responsable = document.getElementById('distritoResponsable').value.trim();
     const telefono = document.getElementById('distritoTelefono').value.trim();
-    
+
     if (!zona_id || !nombre) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await crearDistrito(zona_id, nombre, responsable, telefono);
         mostrarMensaje('✅ Distrito creado exitosamente', 'success');
@@ -414,17 +582,16 @@ async function editarDistrito(id) {
 async function guardarDistritoEditado(e) {
     e.preventDefault();
     console.log('💾 Actualizando Distrito:', window.editMode.id);
-    
     const zona_id = document.getElementById('distritoZona').value;
     const nombre = document.getElementById('distritoNombre').value.trim();
     const responsable = document.getElementById('distritoResponsable').value.trim();
     const telefono = document.getElementById('distritoTelefono').value.trim();
-    
+
     if (!zona_id || !nombre) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarDistrito(window.editMode.id, zona_id, nombre, responsable, telefono);
         mostrarMensaje('✅ Distrito actualizado exitosamente', 'success');
@@ -458,7 +625,6 @@ async function cargarDistritos() {
         const distritos = await obtenerDistritos();
         const tbody = document.querySelector('#tablaDistritos tbody');
         if (!tbody) return;
-        
         tbody.innerHTML = '';
         
         if (distritos && distritos.length > 0) {
@@ -491,19 +657,18 @@ async function cargarDistritos() {
 async function guardarIglesia(e) {
     e.preventDefault();
     console.log('💾 Guardando Iglesia...');
-    
     const zona_id = document.getElementById('iglesiaZona').value;
     const distrito_id = document.getElementById('iglesiaDistrito').value || null;
     const nombre = document.getElementById('iglesiaNombre').value.trim();
     const pastor = document.getElementById('iglesiaPastor').value.trim();
     const direccion = document.getElementById('iglesiaDireccion').value.trim();
     const telefono = document.getElementById('iglesiaTelefono').value.trim();
-    
+
     if (!zona_id || !nombre) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await crearIglesia(zona_id, distrito_id, nombre, pastor, direccion, telefono);
         mostrarMensaje('✅ Iglesia creada exitosamente', 'success');
@@ -554,19 +719,18 @@ async function editarIglesia(id) {
 async function guardarIglesiaEditada(e) {
     e.preventDefault();
     console.log('💾 Actualizando Iglesia:', window.editMode.id);
-    
     const zona_id = document.getElementById('iglesiaZona').value;
     const distrito_id = document.getElementById('iglesiaDistrito').value || null;
     const nombre = document.getElementById('iglesiaNombre').value.trim();
     const pastor = document.getElementById('iglesiaPastor').value.trim();
     const direccion = document.getElementById('iglesiaDireccion').value.trim();
     const telefono = document.getElementById('iglesiaTelefono').value.trim();
-    
+
     if (!zona_id || !nombre) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarIglesia(window.editMode.id, zona_id, distrito_id, nombre, pastor, direccion, telefono);
         mostrarMensaje('✅ Iglesia actualizada exitosamente', 'success');
@@ -600,7 +764,6 @@ async function cargarIglesias() {
         const iglesias = await obtenerIglesias();
         const tbody = document.querySelector('#tablaIglesias tbody');
         if (!tbody) return;
-        
         tbody.innerHTML = '';
         
         if (iglesias && iglesias.length > 0) {
@@ -634,18 +797,17 @@ async function cargarIglesias() {
 async function guardarConferencia(e) {
     e.preventDefault();
     console.log('💾 Guardando Conferencia...');
-    
     const iglesia_id = document.getElementById('confIglesia').value;
     const nombre = document.getElementById('confNombre').value.trim();
     const fecha_inicio = document.getElementById('confFechaInicio').value;
     const fecha_fin = document.getElementById('confFechaFin').value;
     const conferenciante = document.getElementById('confConferenciante').value.trim();
-    
+
     if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
         mostrarMensaje('✅ Conferencia creada exitosamente', 'success');
@@ -696,18 +858,17 @@ async function editarConferencia(id) {
 async function guardarConferenciaEditada(e) {
     e.preventDefault();
     console.log('💾 Actualizando Conferencia:', window.editMode.id);
-    
     const iglesia_id = document.getElementById('confIglesia').value;
     const nombre = document.getElementById('confNombre').value.trim();
     const fecha_inicio = document.getElementById('confFechaInicio').value;
     const fecha_fin = document.getElementById('confFechaFin').value;
     const conferenciante = document.getElementById('confConferenciante').value.trim();
-    
+
     if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarConferencia(window.editMode.id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
         mostrarMensaje('✅ Conferencia actualizada exitosamente', 'success');
@@ -741,7 +902,6 @@ async function cargarConferencias() {
         const conferencias = await obtenerConferencias();
         const tbody = document.querySelector('#tablaConferencias tbody');
         if (!tbody) return;
-        
         tbody.innerHTML = '';
         
         if (conferencias && conferencias.length > 0) {
@@ -774,7 +934,7 @@ async function cargarConferencias() {
 function actualizarDuracionConferencia() {
     const inicio = document.getElementById('confFechaInicio').value;
     const fin = document.getElementById('confFechaFin').value;
-    const duracionElement = document.querySelector('#modalNuevaConferencia .duracion-conferencia');
+    const duracionElement = document.getElementById('duracionConferencia');
     if (inicio && fin && duracionElement) {
         const dias = calcularDias(inicio, fin);
         duracionElement.textContent = `📅 Duración: ${dias} días`;
@@ -787,7 +947,6 @@ function actualizarDuracionConferencia() {
 async function guardarAsistente(e) {
     e.preventDefault();
     console.log('💾 Guardando Asistente...');
-    
     const fechasAsistencia = obtenerFechasSeleccionadas();
     const datos = {
         nombre_completo: document.getElementById('asistNombre').value.trim(),
@@ -798,12 +957,12 @@ async function guardarAsistente(e) {
         conferencia_id: document.getElementById('asistConferencia').value,
         fechas_asistencia: JSON.stringify(fechasAsistencia)
     };
-    
+
     if (!datos.nombre_completo || !datos.conferencia_id) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         console.log('📤 Datos a guardar:', datos);
         await crearAsistente(datos);
@@ -812,7 +971,6 @@ async function guardarAsistente(e) {
         await cargarAsistentes();
         document.getElementById('formAsistente').reset();
         
-        // Limpiar fechas
         const container = document.getElementById('fechasAsistenciaContainer');
         if (container) container.innerHTML = '';
         actualizarContadorAsistencia();
@@ -870,7 +1028,6 @@ async function editarAsistente(id) {
 async function guardarAsistenteEditado(e) {
     e.preventDefault();
     console.log('💾 Actualizando Asistente:', window.editMode.id);
-    
     const fechasAsistencia = obtenerFechasSeleccionadas();
     const datos = {
         nombre_completo: document.getElementById('asistNombre').value.trim(),
@@ -881,12 +1038,12 @@ async function guardarAsistenteEditado(e) {
         conferencia_id: document.getElementById('asistConferencia').value,
         fechas_asistencia: JSON.stringify(fechasAsistencia)
     };
-    
+
     if (!datos.nombre_completo || !datos.conferencia_id) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarAsistente(window.editMode.id, datos);
         mostrarMensaje('✅ Asistente actualizado exitosamente', 'success');
@@ -918,14 +1075,13 @@ async function cargarAsistentes() {
         const asistentes = await obtenerAsistentes();
         const tbody = document.querySelector('#tablaAsistentes tbody');
         if (!tbody) return;
-        
         tbody.innerHTML = '';
         
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
-                
+                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${asist.nombre_completo}</td>
@@ -952,13 +1108,12 @@ async function cargarAsistentes() {
 
 async function cargarFechasConferencia(conferenciaId) {
     console.log('📅 Cargando fechas para conferencia:', conferenciaId);
-    
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
-    
+
     if (!conferenciaId) return;
-    
+
     try {
         const conferencias = await obtenerConferencias();
         const conferencia = conferencias.find(c => c.id == conferenciaId);
@@ -985,7 +1140,6 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (!container) return;
     container.innerHTML = '';
-    
     const inicio = new Date(fechaInicio + 'T00:00:00');
     const fin = new Date(fechaFin + 'T00:00:00');
     const fechas = [];
@@ -1070,7 +1224,6 @@ function marcarFechasGuardadas(fechasGuardadas) {
 async function guardarUsuario(e) {
     e.preventDefault();
     console.log('💾 Guardando Usuario...');
-    
     const nombre_completo = document.getElementById('usuarioNombreCompleto').value.trim();
     const email = document.getElementById('usuarioEmail').value.trim();
     const password = document.getElementById('usuarioPassword').value;
@@ -1078,12 +1231,12 @@ async function guardarUsuario(e) {
     const estado = document.getElementById('usuarioEstado').checked ? 'activo' : 'inactivo';
     const permisosCheckboxes = document.querySelectorAll('input[name="permisos"]:checked');
     const permisos = Array.from(permisosCheckboxes).map(cb => cb.value);
-    
+
     if (!nombre_completo || !email || !password) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario creado exitosamente', 'success');
@@ -1135,7 +1288,6 @@ async function editarUsuario(id) {
 async function guardarUsuarioEditado(e) {
     e.preventDefault();
     console.log('💾 Actualizando Usuario:', window.editMode.id);
-    
     const nombre_completo = document.getElementById('usuarioNombreCompleto').value.trim();
     const email = document.getElementById('usuarioEmail').value.trim();
     const password = document.getElementById('usuarioPassword').value;
@@ -1143,12 +1295,12 @@ async function guardarUsuarioEditado(e) {
     const estado = document.getElementById('usuarioEstado').checked ? 'activo' : 'inactivo';
     const permisosCheckboxes = document.querySelectorAll('input[name="permisos"]:checked');
     const permisos = Array.from(permisosCheckboxes).map(cb => cb.value);
-    
+
     if (!nombre_completo || !email) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
@@ -1186,7 +1338,6 @@ async function cargarUsuarios() {
         const usuarios = await obtenerUsuarios();
         const tbody = document.querySelector('#tablaUsuarios tbody');
         if (!tbody) return;
-        
         tbody.innerHTML = '';
         
         if (usuarios && usuarios.length > 0) {
@@ -1272,7 +1423,6 @@ document.addEventListener('click', (e) => {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOMContentLoaded - Iniciando aplicación...');
     
-    // Verificar que Supabase esté inicializado
     if (!window.db) {
         console.error('❌ window.db no existe. Esperando inicialización...');
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -1282,27 +1432,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
     }
-    
+
     console.log('✅ window.db disponible:', !!window.db);
-    
-    // Verificar autenticación
+
     const user = checkAuth();
     if (!user) {
         console.log('🔐 No hay usuario autenticado, redirigiendo...');
         return;
     }
-    
+
     console.log('👤 Usuario autenticado:', user.nombre);
-    
-    // Listeners para inputs de fecha de conferencia
+
     const confInicio = document.getElementById('confFechaInicio');
     const confFin = document.getElementById('confFechaFin');
     if (confInicio && confFin) {
         confInicio.addEventListener('change', actualizarDuracionConferencia);
         confFin.addEventListener('change', actualizarDuracionConferencia);
     }
-    
-    // Cargar datos iniciales
+
     await cargarZonas();
     await cargarDistritos();
     await cargarIglesias();
@@ -1310,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarAsistentes();
     await cargarUsuarios();
     await cargarEstadisticas();
-    
+
     console.log('✅ Aplicación inicializada correctamente');
 });
 
@@ -1372,6 +1519,10 @@ window.cargarIglesiasEnSelect = cargarIglesiasEnSelect;
 window.cargarConferenciasEnSelect = cargarConferenciasEnSelect;
 window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
+window.cargarReportes = cargarReportes;
+window.filtrarReporte = filtrarReporte;
+window.limpiarFiltrosReporte = limpiarFiltrosReporte;
+window.generarReportePDF = generarReportePDF;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
 

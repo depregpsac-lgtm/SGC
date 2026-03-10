@@ -54,11 +54,9 @@ function navegarSeccion(seccionId) {
         case 'usuarios':
             cargarUsuarios();
             break;
-        // --- AGREGA ESTE CASO ---
         case 'reportes':
             cargarFiltrosReportes();
             break;
-        // ------------------------
     }
 }
 
@@ -68,84 +66,79 @@ function navegarSeccion(seccionId) {
 async function prepararModalZona() {
     console.log('📍 Preparando modal Zona');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formZona').reset();
     document.getElementById('formZona').onsubmit = guardarZona;
-    
+
     const titulo = document.getElementById('tituloModalZona');
     if (titulo) titulo.textContent = '📍 Registrar Zona';
-    
+
     abrirModal('modalNuevaZona');
 }
 
 async function prepararModalDistrito() {
     console.log('🏛️ Preparando modal Distrito');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formDistrito').reset();
     document.getElementById('formDistrito').onsubmit = guardarDistrito;
-    
+
     const titulo = document.getElementById('tituloModalDistrito');
     if (titulo) titulo.textContent = '🏛️ Registrar Distrito';
-    
+
     // Cargar zonas en el select
     await cargarZonasEnSelect('distritoZona');
-    
+
     abrirModal('modalNuevoDistrito');
 }
 
 async function prepararModalIglesia() {
     console.log('⛪ Preparando modal Iglesia');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formIglesia').reset();
     document.getElementById('formIglesia').onsubmit = guardarIglesia;
-    
+
     const titulo = document.getElementById('tituloModalIglesia');
     if (titulo) titulo.textContent = '⛪ Registrar Iglesia';
-    
+
     // Cargar zonas en el select
     await cargarZonasEnSelect('iglesiaZona');
     document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
-    
+
     abrirModal('modalNuevaIglesia');
 }
 
 async function prepararModalConferencia() {
     console.log('📅 Preparando modal Conferencia');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formConferencia').reset();
     document.getElementById('formConferencia').onsubmit = guardarConferencia;
-    
+
     const titulo = document.getElementById('tituloModalConferencia');
     if (titulo) titulo.textContent = '📅 Nueva Conferencia';
-    
+
     // Cargar iglesias en el select
     await cargarIglesiasEnSelect('confIglesia');
-    
+
     abrirModal('modalNuevaConferencia');
 }
 
 async function prepararModalAsistente() {
     console.log('👥 Preparando modal Asistente');
     window.editMode = { tipo: null, id: null, data: null };
-    
     document.getElementById('formAsistente').reset();
     document.getElementById('formAsistente').onsubmit = guardarAsistente;
-    
+
     const titulo = document.getElementById('tituloModalAsistente');
     if (titulo) titulo.textContent = '👥 Nuevo Registro de Asistente';
-    
+
     // Limpiar fechas
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
-    
+
     // Cargar selects
     await cargarIglesiasEnSelect('asistIglesia');
     await cargarConferenciasEnSelect('asistConferencia');
-    
+
     abrirModal('modalNuevoAsistente');
 }
 
@@ -153,13 +146,12 @@ async function prepararModalUsuario() {
     console.log('👤 Preparando modal Usuario');
     window.editMode = { tipo: null, id: null, data: null };
     window.tempPassword = '';
-    
     document.getElementById('formUsuario').reset();
     document.getElementById('formUsuario').onsubmit = guardarUsuario;
-    
+
     const titulo = document.getElementById('tituloModalUsuario');
     if (titulo) titulo.textContent = '👤 Nuevo Usuario';
-    
+
     abrirModal('modalNuevoUsuario');
 }
 
@@ -234,15 +226,14 @@ async function cargarDistritosPorZona(zonaId) {
 async function guardarZona(e) {
     e.preventDefault();
     console.log('💾 Guardando Zona...');
-    
     const nombre = document.getElementById('zonaNombre').value.trim();
     const descripcion = document.getElementById('zonaDescripcion').value.trim();
-    
+
     if (!nombre) {
         mostrarMensaje('❌ El nombre es requerido', 'error');
         return;
     }
-    
+
     try {
         await crearZona(nombre, descripcion);
         mostrarMensaje('✅ Zona creada exitosamente', 'success');
@@ -286,15 +277,14 @@ async function editarZona(id) {
 async function guardarZonaEditada(e) {
     e.preventDefault();
     console.log('💾 Actualizando Zona:', window.editMode.id);
-    
     const nombre = document.getElementById('zonaNombre').value.trim();
     const descripcion = document.getElementById('zonaDescripcion').value.trim();
-    
+
     if (!nombre) {
         mostrarMensaje('❌ El nombre es requerido', 'error');
         return;
     }
-    
+
     try {
         await actualizarZona(window.editMode.id, nombre, descripcion);
         mostrarMensaje('✅ Zona actualizada exitosamente', 'success');
@@ -360,17 +350,16 @@ async function cargarZonas() {
 async function guardarDistrito(e) {
     e.preventDefault();
     console.log('💾 Guardando Distrito...');
-    
     const zona_id = document.getElementById('distritoZona').value;
     const nombre = document.getElementById('distritoNombre').value.trim();
     const responsable = document.getElementById('distritoResponsable').value.trim();
     const telefono = document.getElementById('distritoTelefono').value.trim();
-    
+
     if (!zona_id || !nombre) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await crearDistrito(zona_id, nombre, responsable, telefono);
         mostrarMensaje('✅ Distrito creado exitosamente', 'success');
@@ -418,17 +407,16 @@ async function editarDistrito(id) {
 async function guardarDistritoEditado(e) {
     e.preventDefault();
     console.log('💾 Actualizando Distrito:', window.editMode.id);
-    
     const zona_id = document.getElementById('distritoZona').value;
     const nombre = document.getElementById('distritoNombre').value.trim();
     const responsable = document.getElementById('distritoResponsable').value.trim();
     const telefono = document.getElementById('distritoTelefono').value.trim();
-    
+
     if (!zona_id || !nombre) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarDistrito(window.editMode.id, zona_id, nombre, responsable, telefono);
         mostrarMensaje('✅ Distrito actualizado exitosamente', 'success');
@@ -495,19 +483,18 @@ async function cargarDistritos() {
 async function guardarIglesia(e) {
     e.preventDefault();
     console.log('💾 Guardando Iglesia...');
-    
     const zona_id = document.getElementById('iglesiaZona').value;
     const distrito_id = document.getElementById('iglesiaDistrito').value || null;
     const nombre = document.getElementById('iglesiaNombre').value.trim();
     const pastor = document.getElementById('iglesiaPastor').value.trim();
     const direccion = document.getElementById('iglesiaDireccion').value.trim();
     const telefono = document.getElementById('iglesiaTelefono').value.trim();
-    
+
     if (!zona_id || !nombre) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await crearIglesia(zona_id, distrito_id, nombre, pastor, direccion, telefono);
         mostrarMensaje('✅ Iglesia creada exitosamente', 'success');
@@ -558,19 +545,18 @@ async function editarIglesia(id) {
 async function guardarIglesiaEditada(e) {
     e.preventDefault();
     console.log('💾 Actualizando Iglesia:', window.editMode.id);
-    
     const zona_id = document.getElementById('iglesiaZona').value;
     const distrito_id = document.getElementById('iglesiaDistrito').value || null;
     const nombre = document.getElementById('iglesiaNombre').value.trim();
     const pastor = document.getElementById('iglesiaPastor').value.trim();
     const direccion = document.getElementById('iglesiaDireccion').value.trim();
     const telefono = document.getElementById('iglesiaTelefono').value.trim();
-    
+
     if (!zona_id || !nombre) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarIglesia(window.editMode.id, zona_id, distrito_id, nombre, pastor, direccion, telefono);
         mostrarMensaje('✅ Iglesia actualizada exitosamente', 'success');
@@ -638,18 +624,17 @@ async function cargarIglesias() {
 async function guardarConferencia(e) {
     e.preventDefault();
     console.log('💾 Guardando Conferencia...');
-    
     const iglesia_id = document.getElementById('confIglesia').value;
     const nombre = document.getElementById('confNombre').value.trim();
     const fecha_inicio = document.getElementById('confFechaInicio').value;
     const fecha_fin = document.getElementById('confFechaFin').value;
     const conferenciante = document.getElementById('confConferenciante').value.trim();
-    
+
     if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
         mostrarMensaje('✅ Conferencia creada exitosamente', 'success');
@@ -700,18 +685,17 @@ async function editarConferencia(id) {
 async function guardarConferenciaEditada(e) {
     e.preventDefault();
     console.log('💾 Actualizando Conferencia:', window.editMode.id);
-    
     const iglesia_id = document.getElementById('confIglesia').value;
     const nombre = document.getElementById('confNombre').value.trim();
     const fecha_inicio = document.getElementById('confFechaInicio').value;
     const fecha_fin = document.getElementById('confFechaFin').value;
     const conferenciante = document.getElementById('confConferenciante').value.trim();
-    
+
     if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarConferencia(window.editMode.id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
         mostrarMensaje('✅ Conferencia actualizada exitosamente', 'success');
@@ -791,7 +775,6 @@ function actualizarDuracionConferencia() {
 async function guardarAsistente(e) {
     e.preventDefault();
     console.log('💾 Guardando Asistente...');
-    
     const fechasAsistencia = obtenerFechasSeleccionadas();
     const datos = {
         nombre_completo: document.getElementById('asistNombre').value.trim(),
@@ -802,12 +785,12 @@ async function guardarAsistente(e) {
         conferencia_id: document.getElementById('asistConferencia').value,
         fechas_asistencia: JSON.stringify(fechasAsistencia)
     };
-    
+
     if (!datos.nombre_completo || !datos.conferencia_id) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         console.log('📤 Datos a guardar:', datos);
         await crearAsistente(datos);
@@ -874,7 +857,6 @@ async function editarAsistente(id) {
 async function guardarAsistenteEditado(e) {
     e.preventDefault();
     console.log('💾 Actualizando Asistente:', window.editMode.id);
-    
     const fechasAsistencia = obtenerFechasSeleccionadas();
     const datos = {
         nombre_completo: document.getElementById('asistNombre').value.trim(),
@@ -885,12 +867,12 @@ async function guardarAsistenteEditado(e) {
         conferencia_id: document.getElementById('asistConferencia').value,
         fechas_asistencia: JSON.stringify(fechasAsistencia)
     };
-    
+
     if (!datos.nombre_completo || !datos.conferencia_id) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarAsistente(window.editMode.id, datos);
         mostrarMensaje('✅ Asistente actualizado exitosamente', 'success');
@@ -929,7 +911,7 @@ async function cargarAsistentes() {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
-                
+                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${asist.nombre_completo}</td>
@@ -956,13 +938,12 @@ async function cargarAsistentes() {
 
 async function cargarFechasConferencia(conferenciaId) {
     console.log('📅 Cargando fechas para conferencia:', conferenciaId);
-    
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
-    
+
     if (!conferenciaId) return;
-    
+
     try {
         const conferencias = await obtenerConferencias();
         const conferencia = conferencias.find(c => c.id == conferenciaId);
@@ -989,7 +970,6 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (!container) return;
     container.innerHTML = '';
-    
     const inicio = new Date(fechaInicio + 'T00:00:00');
     const fin = new Date(fechaFin + 'T00:00:00');
     const fechas = [];
@@ -1074,7 +1054,6 @@ function marcarFechasGuardadas(fechasGuardadas) {
 async function guardarUsuario(e) {
     e.preventDefault();
     console.log('💾 Guardando Usuario...');
-    
     const nombre_completo = document.getElementById('usuarioNombreCompleto').value.trim();
     const email = document.getElementById('usuarioEmail').value.trim();
     const password = document.getElementById('usuarioPassword').value;
@@ -1082,12 +1061,12 @@ async function guardarUsuario(e) {
     const estado = document.getElementById('usuarioEstado').checked ? 'activo' : 'inactivo';
     const permisosCheckboxes = document.querySelectorAll('input[name="permisos"]:checked');
     const permisos = Array.from(permisosCheckboxes).map(cb => cb.value);
-    
+
     if (!nombre_completo || !email || !password) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario creado exitosamente', 'success');
@@ -1139,7 +1118,6 @@ async function editarUsuario(id) {
 async function guardarUsuarioEditado(e) {
     e.preventDefault();
     console.log('💾 Actualizando Usuario:', window.editMode.id);
-    
     const nombre_completo = document.getElementById('usuarioNombreCompleto').value.trim();
     const email = document.getElementById('usuarioEmail').value.trim();
     const password = document.getElementById('usuarioPassword').value;
@@ -1147,12 +1125,12 @@ async function guardarUsuarioEditado(e) {
     const estado = document.getElementById('usuarioEstado').checked ? 'activo' : 'inactivo';
     const permisosCheckboxes = document.querySelectorAll('input[name="permisos"]:checked');
     const permisos = Array.from(permisosCheckboxes).map(cb => cb.value);
-    
+
     if (!nombre_completo || !email) {
         mostrarMensaje('❌ Complete los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
@@ -1188,7 +1166,6 @@ async function confirmarEliminarUsuario(id) {
 // ============================================
 // FUNCIONES DE REPORTES
 // ============================================
-
 async function cargarFiltrosReportes() {
     try {
         // Cargar conferencias en el select
@@ -1262,7 +1239,7 @@ async function generarVistaPrevia() {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
-                
+                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${asist.nombre_completo}</td>
@@ -1300,6 +1277,42 @@ async function generarVistaPrevia() {
     } catch (error) {
         console.error('❌ Error generando vista previa:', error);
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error al cargar datos: ' + error.message + '</td></tr>';
+    }
+}
+
+function exportarPDF() {
+    const elemento = document.getElementById('areaImpresion');
+    
+    // Verificar si hay datos
+    const totalRegistros = document.getElementById('totalRegistros');
+    if (!totalRegistros || totalRegistros.textContent === '0' || 
+        elemento.innerText.includes("Seleccione filtros") ||
+        elemento.innerText.includes("No hay registros")) {
+        alert("Por favor genere la vista previa con datos antes de exportar.");
+        return;
+    }
+
+    // Obtener información de los filtros para el nombre del archivo
+    const confSelect = document.getElementById('filtroConferencia');
+    const iglSelect = document.getElementById('filtroIglesia');
+    const confNombre = confSelect.options[confSelect.selectedIndex]?.text || 'Todas';
+    const iglNombre = iglSelect.options[iglSelect.selectedIndex]?.text || 'Todas';
+    const fecha = new Date().toISOString().slice(0,10);
+
+    var opt = {
+        margin:       [0.5, 0.5, 0.5, 0.5],
+        filename:     `Reporte_${confNombre.replace(/\s+/g, '_')}_${fecha}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    // Generar PDF
+    if (typeof html2pdf !== 'undefined') {
+        html2pdf().set(opt).from(elemento).save();
+    } else {
+        alert("⚠️ La librería html2pdf no está cargada. Verifica la conexión a internet.");
     }
 }
 
@@ -1404,18 +1417,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
     }
-    
+
     console.log('✅ window.db disponible:', !!window.db);
-    
+
     // Verificar autenticación
     const user = checkAuth();
     if (!user) {
         console.log('🔐 No hay usuario autenticado, redirigiendo...');
         return;
     }
-    
+
     console.log('👤 Usuario autenticado:', user.nombre);
-    
+
     // Listeners para inputs de fecha de conferencia
     const confInicio = document.getElementById('confFechaInicio');
     const confFin = document.getElementById('confFechaFin');
@@ -1423,7 +1436,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         confInicio.addEventListener('change', actualizarDuracionConferencia);
         confFin.addEventListener('change', actualizarDuracionConferencia);
     }
-    
+
     // Cargar datos iniciales
     await cargarZonas();
     await cargarDistritos();
@@ -1432,7 +1445,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarAsistentes();
     await cargarUsuarios();
     await cargarEstadisticas();
-    
+
     console.log('✅ Aplicación inicializada correctamente');
 });
 
@@ -1499,8 +1512,6 @@ window.generarVistaPrevia = generarVistaPrevia;
 window.exportarPDF = exportarPDF;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
-
-
 
 
 

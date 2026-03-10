@@ -1185,6 +1185,101 @@ async function confirmarEliminarUsuario(id) {
     }
 }
 
+// ============================================
+// FUNCIONES DE REPORTES
+// ============================================
+
+async function cargarFiltrosReportes() {
+    try {
+        // Cargar conferencias en el select
+        const conferencias = await obtenerConferencias();
+        const selectConf = document.getElementById('filtroConferencia');
+        if (selectConf) {
+            selectConf.innerHTML = '<option value="">Todas las conferencias</option>' +
+                conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+        }
+
+        // Cargar iglesias en el select
+        const iglesias = await obtenerIglesias();
+        const selectIgl = document.getElementById('filtroIglesia');
+        if (selectIgl) {
+            selectIgl.innerHTML = '<option value="">Todas las iglesias</option>' +
+                iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('❌ Error cargando filtros de reportes:', error);
+    }
+}
+
+async function generarVistaPrevia() {
+    const confId = document.getElementById('filtroConferencia').value;
+    const iglId = document.getElementById('filtroIglesia').value;
+    const tbody = document.querySelector('#tablaReporte tbody');
+    
+    try {
+        let asistentes = await obtenerAsistentes();
+        
+        // Filtrar por conferencia
+        if (confId) {
+            asistentes = asistentes.filter(a => a.conferencia_id == confId);
+        }
+        
+        // Filtrar por iglesia
+        if (iglId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglId);
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td>${diasAsistidos} días</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay registros con estos filtros</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error generando vista previa:', error);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error al cargar datos</td></tr>';
+    }
+}
+
+function exportarPDF() {
+    const elemento = document.getElementById('areaImpresion');
+    
+    // Verificar si hay datos
+    if (elemento.innerText.includes("Seleccione filtros") || elemento.innerText.includes("No hay registros")) {
+        alert("Por favor genere la vista previa con datos antes de exportar.");
+        return;
+    }
+
+    var opt = {
+        margin:       1,
+        filename:     'reporte_ministrylion_' + new Date().toISOString().slice(0,10) + '.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+
+    // Generar PDF usando la librería html2pdf
+    if (typeof html2pdf !== 'undefined') {
+        html2pdf().set(opt).from(elemento).save();
+    } else {
+        alert("⚠️ La librería html2pdf no está cargada. Verifica la conexión a internet.");
+    }
+}
+
 async function cargarUsuarios() {
     try {
         const usuarios = await obtenerUsuarios();
@@ -1378,6 +1473,7 @@ window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

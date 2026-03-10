@@ -146,6 +146,131 @@
             </div>
         </section>
 
+        <!-- Sección de Reportes -->
+<section id="reportes" class="section">
+    <div class="reportes-header">
+        <h1>📈 Reportes</h1>
+        <button class="btn-generar-pdf" onclick="generarPDFReporte()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            Generar PDF
+        </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-container">
+        <div class="filtro-group">
+            <label>Conferencia</label>
+            <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
+                <option value="">-- Seleccione Conferencia --</option>
+            </select>
+        </div>
+        <div class="filtro-group">
+            <label>Iglesia</label>
+            <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
+                <option value="">-- Todas las Iglesias --</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Vista Previa del Reporte -->
+    <div class="reporte-preview" id="reportePreview">
+        <!-- Header -->
+        <div class="reporte-brand">
+            <h2>MinistryLion</h2>
+            <p>Sistema de Gestión de Conferencias</p>
+            <h3 class="reporte-conferencia-titulo" id="reporteTituloConferencia">-</h3>
+        </div>
+
+        <!-- Info -->
+        <div class="reporte-info-box">
+            <div class="info-column">
+                <div class="info-row">
+                    <span class="info-icon">✏️</span>
+                    <div>
+                        <strong>Conferenciante:</strong>
+                        <span id="reporteConferenciante">-</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <span class="info-icon">🏠</span>
+                    <div>
+                        <strong>Sede:</strong>
+                        <span id="reporteSede">-</span>
+                    </div>
+                </div>
+            </div>
+            <div class="info-column">
+                <div class="info-row">
+                    <span class="info-icon">📅</span>
+                    <div>
+                        <strong>Fechas:</strong>
+                        <span id="reporteFechas">-</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <span class="info-icon">🕐</span>
+                    <div>
+                        <strong>Generado:</strong>
+                        <span id="reporteFechaGeneracion">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card" id="statTotalAsistentes">0 Total Asistentes</div>
+            <div class="stat-card" id="statDiasCampana">0 Días de Campaña</div>
+            <div class="stat-card" id="statPromedioAsistencia">0% Promedio Asistencia</div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="tabla-reportes-container">
+            <table class="tabla-reportes">
+                <thead>
+                    <tr>
+                        <th style="width: 30px">#</th>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th style="width: 80px; text-align: center;">Días</th>
+                        <th>Fechas</th>
+                    </tr>
+                </thead>
+                <tbody id="reporteTablaBody">
+                    <tr class="sin-registros">
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+                            Seleccione una conferencia para ver el reporte
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totales -->
+        <div class="reporte-totales">
+            <div class="total-label">Total:</div>
+            <div class="total-item">
+                <strong id="totalDias">0 días</strong>
+            </div>
+            <div class="total-item">
+                <strong id="totalPersonas">0 personas</strong>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="reporte-footer-doc">
+            <p>Reporte generado automáticamente por MinistryLion - Sistema de Control de Conferencias</p>
+            <p>© 2026 Todos los derechos reservados</p>
+        </div>
+    </div>
+</section>
+
         <!-- Registros Section -->
         <section id="registros" class="section">
             <h2>👥 Registros de Asistentes</h2>

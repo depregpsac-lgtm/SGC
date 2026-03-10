@@ -772,129 +772,128 @@
         </div>
     </div>
 </section>
+<section id="conferencias" class="content-section">
+    <div class="content-header">
+        <h1>📅 Gestión de Conferencias</h1>
+        <p>Administra las conferencias de las iglesias</p>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Listado de Conferencias</h3>
+            <button class="btn-new" onclick="prepararModalConferencia()">+ Nueva Conferencia</button>
+        </div>
+        <div class="table-wrapper">
+            <table id="tablaConferencias">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Iglesia</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Días</th>
+                        <th>Conferenciante</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="7">Cargando datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
-                <!-- Conferencias Section -->
-                <section id="conferencias" class="content-section">
-                    <div class="content-header">
-                        <h1>📅 Gestión de Conferencias</h1>
-                        <p>Administra las conferencias de las iglesias</p>
-                    </div>
-                    
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Listado de Conferencias</h3>
-                            <button class="btn-new" onclick="prepararModalConferencia()">+ Nueva Conferencia</button>
-                        </div>
-                        <table id="tablaConferencias">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Iglesia</th>
-                                    <th>Inicio</th>
-                                    <th>Fin</th>
-                                    <th>Días</th>
-                                    <th>Conferenciante</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="7">Cargando datos...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- Registros Section -->
                 <section id="registros" class="content-section">
-                    <div class="content-header">
-                        <h1>👥 Registros de Asistentes</h1>
-                        <p>Administra los asistentes a las conferencias</p>
-                    </div>
-                    
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Listado de Asistentes</h3>
-                            <button class="btn-new" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
-                        </div>
-                        <table id="tablaAsistentes">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Iglesia</th>
-                                    <th>Conferencia</th>
-                                    <th>Días Asistidos</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="6">Cargando registros...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+    <div class="content-header">
+        <h1>👥 Registros de Asistentes</h1>
+        <p>Administra los asistentes a las conferencias</p>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Listado de Asistentes</h3>
+            <button class="btn-new" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
+        </div>
+        <div class="table-wrapper">
+            <table id="tablaAsistentes">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th>Conferencia</th>
+                        <th>Días Asistidos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6">Cargando registros...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
-                <!-- Reportes Section -->
-                <section id="reportes" class="content-section">
-                    <div class="content-header">
-                        <h1>📊 Reportes y Estadísticas</h1>
-                        <p>Genera reportes de asistencia</p>
-                    </div>
-                    
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Reporte de Asistencia</h3>
-                            <button class="btn-pdf" onclick="generarReportePDF()">📄 Descargar PDF</button>
-                        </div>
-                        
-                        <div class="table-header" style="border-top: 1px solid #e0e0e0;">
-                            <h4>🔍 Filtros de Reporte</h4>
-                        </div>
-                        <div style="padding: 20px;">
-                            <div class="report-filters">
-                                <select id="reporteConferencia" onchange="filtrarReporte()">
-                                    <option value="">-- Todas las Conferencias --</option>
-                                </select>
-                                <select id="reporteIglesia" onchange="filtrarReporte()">
-                                    <option value="">-- Todas las Iglesias --</option>
-                                </select>
-                                <button class="btn-apply" onclick="filtrarReporte()">Aplicar Filtros</button>
-                                <button class="btn-clear" onclick="limpiarFiltrosReporte()">Limpiar</button>
-                            </div>
-                            
-                            <div class="report-summary">
-                                <div class="report-summary-card">
-                                    <h4 id="reporteTotalAsistentes">0</h4>
-                                    <p>Total Asistentes</p>
-                                </div>
-                                <div class="report-summary-card">
-                                    <h4 id="reporteTotalDias">0</h4>
-                                    <p>Días Totales</p>
-                                </div>
-                                <div class="report-summary-card">
-                                    <h4 id="reporteTotalIglesias">0</h4>
-                                    <p>Iglesias Participantes</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <table id="tablaReporte">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Iglesia</th>
-                                    <th>Conferencia</th>
-                                    <th>Días Asistidos</th>
-                                    <th>Invitado Por</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="6">Seleccione filtros para ver el reporte</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+              <section id="reportes" class="content-section">
+    <div class="content-header">
+        <h1>📊 Reportes y Estadísticas</h1>
+        <p>Genera reportes de asistencia</p>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Reporte de Asistencia</h3>
+            <button class="btn-pdf" onclick="generarReportePDF()">📄 Descargar PDF</button>
+        </div>
+        
+        <div style="padding: 20px;">
+            <div class="report-filters">
+                <select id="reporteConferencia" onchange="filtrarReporte()">
+                    <option value="">-- Todas las Conferencias --</option>
+                </select>
+                <select id="reporteIglesia" onchange="filtrarReporte()">
+                    <option value="">-- Todas las Iglesias --</option>
+                </select>
+                <button class="btn-apply" onclick="filtrarReporte()">Aplicar Filtros</button>
+                <button class="btn-clear" onclick="limpiarFiltrosReporte()">Limpiar</button>
+            </div>
+            
+            <div class="report-summary">
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalAsistentes">0</h4>
+                    <p>Total Asistentes</p>
+                </div>
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalDias">0</h4>
+                    <p>Días Totales</p>
+                </div>
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalIglesias">0</h4>
+                    <p>Iglesias Participantes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="tablaReporte">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th>Conferencia</th>
+                        <th>Días Asistidos</th>
+                        <th>Invitado Por</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6">Seleccione filtros para ver el reporte</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
                 <!-- Configuración Section -->
                 <section id="configuracion" class="content-section">

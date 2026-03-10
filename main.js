@@ -17,25 +17,24 @@ window.editMode = {
 // ============================================
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
-    
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     document.querySelectorAll('.nav-menu a').forEach(link => {
         link.classList.remove('active');
     });
-    
+
     const section = document.getElementById(seccionId);
     if (section) {
         section.classList.add('active');
     }
-    
+
     const navLink = document.getElementById('nav-' + seccionId);
     if (navLink) {
         navLink.classList.add('active');
     }
-    
+
     // Cargar datos según la sección
     switch(seccionId) {
         case 'dashboard':
@@ -55,6 +54,11 @@ function navegarSeccion(seccionId) {
         case 'usuarios':
             cargarUsuarios();
             break;
+        // --- AGREGA ESTE CASO ---
+        case 'reportes':
+            cargarFiltrosReportes();
+            break;
+        // ------------------------
     }
 }
 
@@ -1374,6 +1378,7 @@ window.cargarDistritosPorZona = cargarDistritosPorZona;
 window.cargarFechasConferencia = cargarFechasConferencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

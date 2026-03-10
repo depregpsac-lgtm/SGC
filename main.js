@@ -17,11 +17,11 @@ window.editMode = {
 // ============================================
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
-    document.querySelectorAll('.section').forEach(section => {
+    document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
 
-    document.querySelectorAll('.nav-menu a').forEach(link => {
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
         link.classList.remove('active');
     });
 
@@ -30,7 +30,7 @@ function navegarSeccion(seccionId) {
         section.classList.add('active');
     }
 
-    const navLink = document.getElementById('nav-' + seccionId);
+    const navLink = document.querySelector(`.sidebar-nav a[onclick="navegarSeccion('${seccionId}')"]`);
     if (navLink) {
         navLink.classList.add('active');
     }
@@ -55,13 +55,10 @@ function navegarSeccion(seccionId) {
             cargarUsuarios();
             break;
         case 'reportes':
-    cargarFiltrosReportes();
-    break;
+            cargarFiltrosReportes();
+            break;
     }
 }
-
-
-
 
 // ============================================
 // FUNCIONES PARA PREPARAR MODALES (CREACIÓN)
@@ -102,6 +99,7 @@ async function prepararModalIglesia() {
 
     await cargarZonasEnSelect('iglesiaZona');
     document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
+
     abrirModal('modalNuevaIglesia');
 }
 
@@ -133,6 +131,7 @@ async function prepararModalAsistente() {
 
     await cargarIglesiasEnSelect('asistIglesia');
     await cargarConferenciasEnSelect('asistConferencia');
+
     abrirModal('modalNuevoAsistente');
 }
 
@@ -148,54 +147,6 @@ async function prepararModalUsuario() {
 
     abrirModal('modalNuevoUsuario');
 }
-
-async function generarPDFReporte() {
-    console.log('📄 Generando PDF...');
-    const conferenciaId = document.getElementById('reporteConferencia').value;
-    
-    if (!conferenciaId) {
-        mostrarMensaje('❌ Seleccione una conferencia', 'error');
-        return;
-    }
-    
-    try {
-        const preview = document.getElementById('reportePreview');
-        preview.style.display = 'block';
-        
-        // Esperar a que se renderice
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        const opt = {
-            margin: [5, 5, 5, 5],  // Márgenes más pequeños
-            filename: `Reporte_${new Date().toISOString().split('T')[0]}.pdf`,
-            image: { type: 'jpeg', quality: 0.95 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
-            jsPDF: { 
-                unit: 'mm', 
-                format: 'a4', 
-                orientation: 'landscape',
-                compress: true
-            }
-        };
-        
-        if (typeof html2pdf === 'undefined') {
-            mostrarMensaje('❌ Librería html2pdf no cargada', 'error');
-            preview.style.display = 'none';
-            return;
-        }
-        
-        mostrarMensaje('⏳ Generando PDF...', 'info');
-        await html2pdf().set(opt).from(preview).save();
-        mostrarMensaje('✅ PDF generado exitosamente', 'success');
-        
-        preview.style.display = 'none';
-    } catch (error) {
-        console.error('❌ Error generando PDF:', error);
-        mostrarMensaje('Error generando PDF', 'error');
-        document.getElementById('reportePreview').style.display = 'none';
-    }
-}
-
 
 // ============================================
 // CARGAR SELECTS
@@ -218,9 +169,11 @@ async function cargarDistritosEnSelect(selectId, zonaId = null) {
         const select = document.getElementById(selectId);
         if (!select) return;
         let distritos = await obtenerDistritos();
+        
         if (zonaId) {
             distritos = distritos.filter(d => d.zona_id == zonaId);
         }
+        
         select.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
             distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
     } catch (error) {
@@ -774,7 +727,7 @@ async function cargarConferencias() {
 function actualizarDuracionConferencia() {
     const inicio = document.getElementById('confFechaInicio').value;
     const fin = document.getElementById('confFechaFin').value;
-    const duracionElement = document.querySelector('#modalNuevaConferencia .duracion-conferencia');
+    const duracionElement = document.getElementById('duracionConferencia');
     if (inicio && fin && duracionElement) {
         const dias = calcularDias(inicio, fin);
         duracionElement.textContent = `📅 Duración: ${dias} días`;
@@ -1020,7 +973,7 @@ function actualizarContadorAsistencia() {
     const botonesSeleccionados = document.querySelectorAll('.fecha-asistencia.seleccionada');
     const totalDias = document.querySelectorAll('.fecha-asistencia').length;
     const diasAsistidos = botonesSeleccionados.length;
-    const contadorElement = document.querySelector('.contador-asistencia');
+    const contadorElement = document.getElementById('contadorAsistencia');
     if (contadorElement) {
         contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> días asistidos de <strong>${totalDias}</strong> totales`;
         if (diasAsistidos === 0) {
@@ -1246,41 +1199,198 @@ document.addEventListener('click', (e) => {
 });
 
 // ============================================
-// FUNCIONES DE REPORTES
+// FUNCIONES DE REPORTES - LIMPIAS Y PROFESIONALES
 // ============================================
 
-
-// ============================================
-// INFORMACIÓN DEL USUARIO EN EL HEADER
-// ============================================
-function cargarInfoUsuario() {
+async function cargarFiltrosReportes() {
+    console.log('📋 Cargando filtros de reportes...');
     try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user) {
-            const userName = document.getElementById('userName');
-            const userAvatar = document.getElementById('userAvatar');
-            
-            if (userName) {
-                userName.textContent = user.nombre || user.email;
-            }
-            
-            if (userAvatar) {
-                const inicial = (user.nombre || user.email || 'U').charAt(0).toUpperCase();
-                userAvatar.textContent = inicial;
-            }
+        // Cargar conferencias
+        const conferencias = await obtenerConferencias();
+        const selectConf = document.getElementById('reporteConferencia');
+        if (selectConf) {
+            selectConf.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
+                conferencias.map(c => `<option value="${c.id}">${c.nombre} (${formatearFechaParaTabla(c.fecha_inicio)} - ${formatearFechaParaTabla(c.fecha_fin)})</option>`).join('');
+        }
+        
+        // Cargar iglesias
+        const iglesias = await obtenerIglesias();
+        const selectIglesia = document.getElementById('reporteIglesia');
+        if (selectIglesia) {
+            selectIglesia.innerHTML = '<option value="">-- Todas las Iglesias --</option>' +
+                iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
         }
     } catch (error) {
-        console.error('❌ Error cargando info del usuario:', error);
+        console.error('❌ Error cargando filtros:', error);
     }
 }
 
-// Llamar esta función en DOMContentLoaded
+async function cargarVistaPreviaReporte() {
+    console.log('📊 Cargando vista previa...');
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    const iglesiaId = document.getElementById('reporteIglesia').value;
+    
+    if (!conferenciaId) {
+        limpiarVistaReporte();
+        return;
+    }
+    
+    try {
+        const conferencias = await obtenerConferencias();
+        const conferencia = conferencias.find(c => c.id == conferenciaId);
+        let asistentes = await obtenerAsistentes(conferenciaId);
+        
+        // Filtrar por iglesia si se seleccionó
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        // Actualizar información del reporte
+        if (conferencia) {
+            document.getElementById('reporteTituloConferencia').textContent = conferencia.nombre;
+            document.getElementById('reporteConferenciante').textContent = conferencia.conferenciante || '-';
+            document.getElementById('reporteFechas').textContent = 
+                `${formatearFechaParaTabla(conferencia.fecha_inicio)} al ${formatearFechaParaTabla(conferencia.fecha_fin)}`;
+            document.getElementById('reporteSede').textContent = conferencia.iglesias?.nombre || '-';
+        }
+        
+        // Fecha de generación
+        const ahora = new Date();
+        const fechaStr = `${ahora.getDate()}/${ahora.getMonth()+1}/${ahora.getFullYear()} ${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}:${String(ahora.getSeconds()).padStart(2,'0')}`;
+        document.getElementById('reporteFechaGeneracion').textContent = fechaStr;
+        
+        // Calcular estadísticas
+        const diasCampana = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
+        document.getElementById('statDiasCampana').textContent = diasCampana;
+        document.getElementById('statTotalAsistentes').textContent = asistentes.length;
+        
+        let totalAsistencias = 0;
+        asistentes.forEach(a => {
+            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+            totalAsistencias += fechas.length;
+        });
+        const promedio = diasCampana > 0 && asistentes.length > 0 
+            ? Math.round((totalAsistencias / (asistentes.length * diasCampana)) * 100) 
+            : 0;
+        document.getElementById('statPromedioAsistencia').textContent = promedio + '%';
+        
+        // Llenar tabla
+        const tbody = document.getElementById('reporteTablaBody');
+        tbody.innerHTML = '';
+        
+        let totalDias = 0;
+        
+        if (asistentes.length > 0) {
+            asistentes.forEach((asist, index) => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                totalDias += fechasAsistencia.length;
+                
+                const fechasFormateadas = fechasAsistencia.map(f => {
+                    const date = new Date(f + 'T00:00:00');
+                    return `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1)}`;
+                });
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align: center; font-weight: 600;">${index + 1}</td>
+                    <td style="font-weight: 600; color: #1e3a8a;">${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || '-'}</td>
+                    <td style="text-align: center;"><strong>${fechasAsistencia.length}</strong></td>
+                    <td><div class="fechas-badge">${fechasFormateadas.map(f => `<span class="fecha-item">${f}</span>`).join('')}</div></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = `
+                <tr class="sin-registros">
+                    <td colspan="6">No hay registros de asistentes</td>
+                </tr>
+            `;
+        }
+        
+        // Actualizar totales
+        document.getElementById('totalDias').textContent = `${totalDias} días`;
+        document.getElementById('totalPersonas').textContent = `${asistentes.length} personas`;
+        
+    } catch (error) {
+        console.error('❌ Error cargando vista previa:', error);
+        mostrarMensaje('Error cargando datos', 'error');
+    }
+}
+
+function limpiarVistaReporte() {
+    document.getElementById('reporteTituloConferencia').textContent = '-';
+    document.getElementById('reporteConferenciante').textContent = '-';
+    document.getElementById('reporteFechas').textContent = '-';
+    document.getElementById('reporteSede').textContent = '-';
+    document.getElementById('reporteFechaGeneracion').textContent = '-';
+    document.getElementById('statTotalAsistentes').textContent = '0';
+    document.getElementById('statDiasCampana').textContent = '0';
+    document.getElementById('statPromedioAsistencia').textContent = '0%';
+    document.getElementById('totalDias').textContent = '0 días';
+    document.getElementById('totalPersonas').textContent = '0 personas';
+    document.getElementById('reporteTablaBody').innerHTML = `
+        <tr class="sin-registros">
+            <td colspan="6">Seleccione una conferencia para ver el reporte</td>
+        </tr>
+    `;
+}
+
+async function generarPDFReporte() {
+    console.log('📄 Generando PDF...');
+    const conferenciaId = document.getElementById('reporteConferencia').value;
+    
+    if (!conferenciaId) {
+        mostrarMensaje('❌ Seleccione una conferencia', 'error');
+        return;
+    }
+    
+    try {
+        const preview = document.getElementById('reportePreview');
+        preview.style.display = 'block';
+        
+        // Esperar a que se renderice
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        const opt = {
+            margin: [8, 8, 8, 8],
+            filename: `Reporte_${new Date().toISOString().split('T')[0]}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'landscape',
+                compress: true
+            }
+        };
+        
+        if (typeof html2pdf === 'undefined') {
+            mostrarMensaje('❌ Librería html2pdf no cargada', 'error');
+            preview.style.display = 'none';
+            return;
+        }
+        
+        mostrarMensaje('⏳ Generando PDF...', 'info');
+        await html2pdf().set(opt).from(preview).save();
+        mostrarMensaje('✅ PDF generado exitosamente', 'success');
+        
+        preview.style.display = 'none';
+    } catch (error) {
+        console.error('❌ Error generando PDF:', error);
+        mostrarMensaje('Error generando PDF', 'error');
+        document.getElementById('reportePreview').style.display = 'none';
+    }
+}
 
 // ============================================
 // EVENT LISTENERS - INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOMContentLoaded - Iniciando aplicación...');
+    
+    // Verificar que Supabase esté inicializado
     if (!window.db) {
         console.error('❌ window.db no existe. Esperando inicialización...');
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -1293,6 +1403,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     console.log('✅ window.db disponible:', !!window.db);
 
+    // Verificar autenticación
     const user = checkAuth();
     if (!user) {
         console.log('🔐 No hay usuario autenticado, redirigiendo...');
@@ -1300,7 +1411,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     console.log('👤 Usuario autenticado:', user.nombre);
+    
+    // Cargar información del usuario en el header
+    const userName = document.getElementById('userName');
+    const userAvatar = document.getElementById('userAvatar');
+    const userRole = document.getElementById('userRole');
+    
+    if (userName) userName.textContent = user.nombre || user.email;
+    if (userAvatar) {
+        const inicial = (user.nombre || user.email || 'U').charAt(0).toUpperCase();
+        userAvatar.textContent = inicial;
+    }
+    if (userRole) userRole.textContent = user.rol || 'Usuario';
 
+    // Listeners para inputs de fecha de conferencia
     const confInicio = document.getElementById('confFechaInicio');
     const confFin = document.getElementById('confFechaFin');
     if (confInicio && confFin) {
@@ -1308,6 +1432,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         confFin.addEventListener('change', actualizarDuracionConferencia);
     }
 
+    // Cargar datos iniciales
     await cargarZonas();
     await cargarDistritos();
     await cargarIglesias();
@@ -1382,14 +1507,7 @@ window.cargarVistaPreviaReporte = cargarVistaPreviaReporte;
 window.generarPDFReporte = generarPDFReporte;
 window.limpiarVistaReporte = limpiarVistaReporte;
 
-
-
-
-
-
-
 console.log('✅ main.js cargado correctamente con todas las funciones');
-
 
 
 

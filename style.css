@@ -2952,17 +2952,17 @@ table tbody tr:last-child td {
 .tabla-reportes tbody tr {
     animation: fadeIn 0.4s ease;
 /* ============================================
-   REPORTES - ESTILOS PROFESIONALES MEJORADOS
+   REPORTES - ESTILOS OPTIMIZADOS PARA PDF
    ============================================ */
 
 #reportes {
-    padding: 30px;
+    padding: 20px;
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
     min-height: 100vh;
 }
 
 .reportes-wrapper {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -2971,16 +2971,16 @@ table tbody tr:last-child td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
-    padding: 20px 25px;
+    margin-bottom: 20px;
+    padding: 15px 20px;
     background: white;
-    border-radius: 12px;
+    border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .reportes-header h1 {
     margin: 0;
-    font-size: 28px;
+    font-size: 24px;
     color: #1e293b;
     font-weight: 700;
 }
@@ -2990,12 +2990,12 @@ table tbody tr:last-child td {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
+    padding: 10px 20px;
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -3007,46 +3007,40 @@ table tbody tr:last-child td {
     box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
-.btn-generar-pdf svg {
-    stroke: white;
-}
-
 /* Filtros */
 .filtros-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 25px;
-    padding: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 20px;
     background: white;
-    border-radius: 12px;
+    border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .filtro-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .filtro-group label {
     font-weight: 600;
     color: #475569;
-    font-size: 14px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .filtro-group select {
-    padding: 12px 16px;
+    padding: 10px 12px;
     border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 15px;
+    border-radius: 6px;
+    font-size: 14px;
     background: white;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #1e293b;
-    font-weight: 500;
 }
 
 .filtro-group select:focus {
@@ -3055,88 +3049,89 @@ table tbody tr:last-child td {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Vista Previa del Reporte - OPTIMIZADA PARA PDF */
+/* Vista Previa del Reporte - OPTIMIZADA */
 .reporte-preview {
     background: white;
-    border-radius: 12px;
-    padding: 30px;
+    border-radius: 10px;
+    padding: 25px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 12px;
 }
 
-/* Brand - Centrado */
+/* Brand - Centrado y Compacto */
 .reporte-brand {
     text-align: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid #3b82f6;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3b82f6;
 }
 
 .reporte-brand h2 {
     margin: 0;
-    font-size: 32px;
+    font-size: 24px;
     color: #1e3a8a;
     font-weight: 800;
-    letter-spacing: -0.5px;
 }
 
 .reporte-brand p {
-    margin: 5px 0 0 0;
+    margin: 3px 0 0 0;
     color: #64748b;
-    font-size: 14px;
+    font-size: 11px;
 }
 
 .reporte-conferencia-titulo {
-    margin: 15px 0 0 0;
-    font-size: 24px;
+    margin: 8px 0 0 0;
+    font-size: 18px;
     color: #3b82f6;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-/* Info Box - Grid de 2 columnas */
+/* Info Box - Grid de 2 columnas COMPACTO */
 .reporte-info-box {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 25px;
-    padding: 0;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 6px;
 }
 
 .info-column {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 }
 
 .info-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 0;
+    gap: 6px;
+    font-size: 11px;
 }
 
 .info-icon {
-    font-size: 18px;
+    font-size: 14px;
     line-height: 1;
+    width: 16px;
 }
 
 .info-row div {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 }
 
 .info-row strong {
-    font-size: 12px;
+    font-size: 10px;
     color: #64748b;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
 }
 
 .info-row span {
-    font-size: 14px;
+    font-size: 11px;
     color: #1e293b;
     font-weight: 600;
 }
@@ -3144,8 +3139,8 @@ table tbody tr:last-child td {
 /* Tabla Compacta */
 .tabla-reportes-container {
     overflow-x: auto;
-    margin-bottom: 20px;
-    border-radius: 8px;
+    margin-bottom: 15px;
+    border-radius: 6px;
     border: 1px solid #e2e8f0;
 }
 
@@ -3153,7 +3148,7 @@ table tbody tr:last-child td {
     width: 100%;
     border-collapse: collapse;
     background: white;
-    font-size: 13px;
+    font-size: 11px;
 }
 
 .tabla-reportes thead {
@@ -3162,18 +3157,18 @@ table tbody tr:last-child td {
 }
 
 .tabla-reportes th {
-    padding: 12px 10px;
+    padding: 8px 6px;
     text-align: left;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
 .tabla-reportes td {
-    padding: 10px;
+    padding: 6px;
     border-bottom: 1px solid #e2e8f0;
-    font-size: 13px;
+    font-size: 11px;
     color: #1e293b;
 }
 
@@ -3183,72 +3178,69 @@ table tbody tr:last-child td {
 
 .sin-registros td {
     text-align: center;
-    padding: 40px !important;
+    padding: 30px !important;
     color: #9ca3af;
-    font-style: italic;
 }
 
 /* Fechas Badge Compacto */
 .fechas-badge {
     display: flex;
     flex-wrap: wrap;
-    gap: 3px;
+    gap: 2px;
 }
 
 .fecha-item {
-    padding: 3px 6px;
+    padding: 2px 5px;
     background: #dbeafe;
     color: #1e40af;
-    border-radius: 4px;
-    font-size: 11px;
+    border-radius: 3px;
+    font-size: 9px;
     font-weight: 600;
-    border: 1px solid #bfdbfe;
 }
 
-/* Totales */
+/* Totales Compacto */
 .reporte-totales {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
+    padding: 8px 15px;
     background: #1e293b;
     color: white;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 11px;
 }
 
 .total-label {
     font-weight: 700;
-    font-size: 15px;
 }
 
 .total-item {
-    font-size: 14px;
     font-weight: 600;
 }
 
 /* Footer del Documento */
 .reporte-footer-doc {
     text-align: center;
-    padding-top: 15px;
-    border-top: 2px solid #e2e8f0;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
     color: #94a3b8;
-    font-size: 11px;
+    font-size: 9px;
 }
 
 .reporte-footer-doc p {
-    margin: 3px 0;
+    margin: 2px 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     #reportes {
-        padding: 15px;
+        padding: 10px;
     }
     
     .reportes-header {
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
         text-align: center;
     }
     
@@ -3256,27 +3248,13 @@ table tbody tr:last-child td {
         grid-template-columns: 1fr;
     }
     
-    .reporte-brand h2 {
-        font-size: 24px;
-    }
-    
-    .reporte-conferencia-titulo {
-        font-size: 18px;
-    }
-    
     .tabla-reportes {
-        font-size: 11px;
+        font-size: 10px;
     }
     
     .tabla-reportes th,
     .tabla-reportes td {
-        padding: 8px 6px;
-    }
-    
-    .reporte-totales {
-        flex-direction: column;
-        gap: 8px;
-        text-align: center;
+        padding: 5px 4px;
     }
 }
 
@@ -3297,4 +3275,3 @@ table tbody tr:last-child td {
 .tabla-reportes tbody tr {
     animation: fadeIn 0.4s ease;
 }
-

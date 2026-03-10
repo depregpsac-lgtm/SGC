@@ -619,25 +619,39 @@
 
     // Función para Exportar a PDF
     function exportarPDF() {
-        const elemento = document.getElementById('areaImpresion');
-        
-        // Verificar si hay datos
-        if(elemento.innerText.includes("Seleccione filtros")) {
-            alert("Por favor genere la vista previa antes de exportar.");
-            return;
-        }
-
-        var opt = {
-            margin:       1,
-            filename:     'reporte_ministrylion.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
-        };
-
-        // Generar PDF
-        html2pdf().set(opt).from(elemento).save();
+    const elemento = document.getElementById('areaImpresion');
+    
+    // Verificar si hay datos
+    if (elemento.innerText.includes("Seleccione filtros") || 
+        elemento.innerText.includes("No hay registros") ||
+        elemento.innerText.includes("Error al cargar")) {
+        alert("Por favor genere la vista previa con datos antes de exportar.");
+        return;
     }
+
+    // Obtener información de los filtros para el nombre del archivo
+    const confSelect = document.getElementById('filtroConferencia');
+    const iglSelect = document.getElementById('filtroIglesia');
+    const confNombre = confSelect.options[confSelect.selectedIndex]?.text || 'Todas';
+    const iglNombre = iglSelect.options[iglSelect.selectedIndex]?.text || 'Todas';
+    const fecha = new Date().toISOString().slice(0,10);
+
+    var opt = {
+        margin:       [0.5, 0.5, 0.5, 0.5],
+        filename:     `Reporte_${confNombre.replace(/\s+/g, '_')}_${fecha}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    // Generar PDF
+    if (typeof html2pdf !== 'undefined') {
+        html2pdf().set(opt).from(elemento).save();
+    } else {
+        alert("⚠️ La librería html2pdf no está cargada. Verifica la conexión a internet.");
+    }
+}
 </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>

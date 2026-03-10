@@ -13,7 +13,7 @@
         .nav-menu { display: flex; gap: 1rem; }
         .nav-menu a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; cursor: pointer; }
         .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.2); }
-        
+       
         .main-content { padding: 2rem; max-width: 1400px; margin: 0 auto; }
         .section { display: none; }
         .section.active { display: block; animation: fadeIn 0.3s ease; }
@@ -230,12 +230,12 @@
 
 <!-- Sección de Reportes -->
 <section id="reportes" class="section">
-    <div class="reportes-wrapper">
+    <div class="reportes-container">
         <!-- Header -->
         <div class="reportes-header">
             <div>
                 <h1>📊 Reportes de Conferencias</h1>
-                <p>Genera reportes detallados filtrados por conferencia e iglesia</p>
+                <p>Genera reportes profesionales filtrados por conferencia e iglesia</p>
             </div>
             <button class="btn-generar-pdf" onclick="generarPDFReporte()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -249,16 +249,22 @@
         </div>
 
         <!-- Panel de Filtros -->
-        <div class="filtros-card">
+        <div class="filtros-panel">
             <div class="filtro-row">
                 <div class="filtro-field">
-                    <label>📅 Filtrar por Conferencia</label>
+                    <label for="reporteConferencia">
+                        <span class="filtro-icon">📅</span>
+                        Conferencia
+                    </label>
                     <select id="reporteConferencia" onchange="cargarVistaPreviaReporte()">
                         <option value="">-- Seleccione Conferencia --</option>
                     </select>
                 </div>
                 <div class="filtro-field">
-                    <label>⛪ Filtrar por Iglesia</label>
+                    <label for="reporteIglesia">
+                        <span class="filtro-icon">⛪</span>
+                        Iglesia
+                    </label>
                     <select id="reporteIglesia" onchange="cargarVistaPreviaReporte()">
                         <option value="">-- Todas las Iglesias --</option>
                     </select>
@@ -266,8 +272,8 @@
             </div>
         </div>
 
-        <!-- Vista Previa del Reporte -->
-        <div class="reporte-preview" id="reportePreview">
+        <!-- Vista Previa del Reporte (oculto, solo para PDF) -->
+        <div class="reporte-preview" id="reportePreview" style="display: none;">
             <!-- Header del Reporte -->
             <div class="reporte-header-content">
                 <div class="reporte-brand">

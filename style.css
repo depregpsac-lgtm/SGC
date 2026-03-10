@@ -2951,22 +2951,18 @@ table tbody tr:last-child td {
 .filtro-field,
 .tabla-reportes tbody tr {
     animation: fadeIn 0.4s ease;
-}/* ============================================
-   REPORTES - ESTILOS PROFESIONALES
-   ============================================ */
-
-    /* ============================================
-   REPORTES - ESTILOS PROFESIONALES
+/* ============================================
+   REPORTES - ESTILOS PROFESIONALES MEJORADOS
    ============================================ */
 
 #reportes {
     padding: 30px;
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
     min-height: 100vh;
 }
 
 .reportes-wrapper {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -2975,7 +2971,7 @@ table tbody tr:last-child td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     padding: 20px 25px;
     background: white;
     border-radius: 12px;
@@ -2985,7 +2981,7 @@ table tbody tr:last-child td {
 .reportes-header h1 {
     margin: 0;
     font-size: 28px;
-    color: #1a202c;
+    color: #1e293b;
     font-weight: 700;
 }
 
@@ -2995,7 +2991,7 @@ table tbody tr:last-child td {
     align-items: center;
     gap: 8px;
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 8px;
@@ -3003,12 +2999,12 @@ table tbody tr:last-child td {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .btn-generar-pdf:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
 .btn-generar-pdf svg {
@@ -3035,7 +3031,7 @@ table tbody tr:last-child td {
 
 .filtro-group label {
     font-weight: 600;
-    color: #4a5568;
+    color: #475569;
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -3049,106 +3045,106 @@ table tbody tr:last-child td {
     background: white;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: #2d3748;
+    color: #1e293b;
     font-weight: 500;
 }
 
 .filtro-group select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Vista Previa del Reporte */
+/* Vista Previa del Reporte - OPTIMIZADA PARA PDF */
 .reporte-preview {
     background: white;
     border-radius: 12px;
-    padding: 40px;
+    padding: 30px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-/* Brand */
+/* Brand - Centrado */
 .reporte-brand {
     text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 3px solid #667eea;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #3b82f6;
 }
 
 .reporte-brand h2 {
     margin: 0;
     font-size: 32px;
-    color: #1a202c;
+    color: #1e3a8a;
     font-weight: 800;
     letter-spacing: -0.5px;
 }
 
 .reporte-brand p {
     margin: 5px 0 0 0;
-    color: #718096;
-    font-size: 15px;
+    color: #64748b;
+    font-size: 14px;
 }
 
 .reporte-conferencia-titulo {
-    margin: 20px 0 0 0;
-    font-size: 28px;
-    color: #667eea;
+    margin: 15px 0 0 0;
+    font-size: 24px;
+    color: #3b82f6;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-/* Info Box */
+/* Info Box - Grid de 2 columnas */
 .reporte-info-box {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 25px;
-    padding: 25px;
-    background: #f7fafc;
-    border-left: 4px solid #667eea;
-    border-radius: 8px;
-    margin-bottom: 30px;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding: 0;
 }
 
 .info-column {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .info-row {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
 }
 
 .info-icon {
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1;
 }
 
 .info-row div {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .info-row strong {
-    font-size: 13px;
-    color: #4a5568;
+    font-size: 12px;
+    color: #64748b;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .info-row span {
-    font-size: 15px;
-    color: #2d3748;
-    font-weight: 500;
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 600;
 }
 
-/* Tabla */
+/* Tabla Compacta */
 .tabla-reportes-container {
     overflow-x: auto;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
 }
@@ -3157,55 +3153,56 @@ table tbody tr:last-child td {
     width: 100%;
     border-collapse: collapse;
     background: white;
+    font-size: 13px;
 }
 
 .tabla-reportes thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
 }
 
 .tabla-reportes th {
-    padding: 14px 12px;
+    padding: 12px 10px;
     text-align: left;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .tabla-reportes td {
-    padding: 12px;
+    padding: 10px;
     border-bottom: 1px solid #e2e8f0;
-    font-size: 14px;
-    color: #2d3748;
+    font-size: 13px;
+    color: #1e293b;
 }
 
 .tabla-reportes tbody tr:hover {
-    background: #f7fafc;
+    background: #f8fafc;
 }
 
 .sin-registros td {
     text-align: center;
     padding: 40px !important;
-    color: #a0aec0;
+    color: #9ca3af;
     font-style: italic;
 }
 
-/* Fechas Badge */
+/* Fechas Badge Compacto */
 .fechas-badge {
-    display: inline-flex;
+    display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 3px;
 }
 
 .fecha-item {
-    padding: 4px 8px;
-    background: #e6fffa;
-    color: #234e52;
+    padding: 3px 6px;
+    background: #dbeafe;
+    color: #1e40af;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    border: 1px solid #b2f5ea;
+    border: 1px solid #bfdbfe;
 }
 
 /* Totales */
@@ -3213,33 +3210,34 @@ table tbody tr:last-child td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    background: #1a202c;
+    padding: 12px 20px;
+    background: #1e293b;
     color: white;
     border-radius: 8px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .total-label {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .total-item {
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 /* Footer del Documento */
 .reporte-footer-doc {
     text-align: center;
-    padding-top: 25px;
+    padding-top: 15px;
     border-top: 2px solid #e2e8f0;
-    color: #a0aec0;
-    font-size: 12px;
+    color: #94a3b8;
+    font-size: 11px;
 }
 
 .reporte-footer-doc p {
-    margin: 5px 0;
+    margin: 3px 0;
 }
 
 /* Responsive */
@@ -3263,21 +3261,21 @@ table tbody tr:last-child td {
     }
     
     .reporte-conferencia-titulo {
-        font-size: 20px;
+        font-size: 18px;
     }
     
     .tabla-reportes {
-        font-size: 12px;
+        font-size: 11px;
     }
     
     .tabla-reportes th,
     .tabla-reportes td {
-        padding: 8px;
+        padding: 8px 6px;
     }
     
     .reporte-totales {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         text-align: center;
     }
 }
@@ -3299,4 +3297,4 @@ table tbody tr:last-child td {
 .tabla-reportes tbody tr {
     animation: fadeIn 0.4s ease;
 }
-}
+

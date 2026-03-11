@@ -5,6 +5,13 @@ console.log('🔐 auth.js cargado');
 // ============================================
 // VERIFICAR AUTENTICACIÓN
 // ============================================
+// auth.js - Sistema de Autenticación MinistryLion
+// ============================================
+console.log('🔐 auth.js cargado');
+
+// ============================================
+// VERIFICAR AUTENTICACIÓN
+// ============================================
 function checkAuth() {
     try {
         const user = localStorage.getItem('user');
@@ -30,7 +37,7 @@ async function iniciarSesion(email, password) {
         console.log('🔐 Intentando iniciar sesión...', email);
         
         // Usuario demo hardcodeado para pruebas
-        if (email === 'ministrylion@gmail.com' && password === 'admin') {
+        if (email === 'admin@ministrylion.com' && password === 'admin123') {
             const userDemo = {
                 id: '1',
                 nombre: 'Administrador',
@@ -53,7 +60,7 @@ async function iniciarSesion(email, password) {
             .from('usuarios_sistema')
             .select('*')
             .eq('email', email)
-            .eq('password_hash', password)  // ✅ Cambiado de 'password' a 'password_hash'
+            .eq('password_hash', password)
             .eq('estado', 'activo')
             .single();
         
@@ -100,12 +107,31 @@ function tienePermiso(permiso) {
 }
 
 // ============================================
+// VERIFICAR SI ES ADMINISTRADOR ✅
+// ============================================
+function esAdmin() {
+    const user = checkAuth();
+    if (!user) return false;
+    return user.rol === 'admin';
+}
+
+// ============================================
 // OBTENER USUARIO ACTUAL
 // ============================================
 function obtenerUsuarioActual() {
     return checkAuth();
 }
 
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES
+// ============================================
+window.checkAuth = checkAuth;
+window.iniciarSesion = iniciarSesion;
+window.cerrarSesion = cerrarSesion;
+window.tienePermiso = tienePermiso;
+window.obtenerUsuarioActual = obtenerUsuarioActual;
+window.esAdmin = esAdmin; // ✅ Nueva función exportada
+console.log('✅ auth.js inicializado correctamente');
 // VERIFICAR SI ES ADMINISTRADOR
 // ============================================
 function esAdmin() {

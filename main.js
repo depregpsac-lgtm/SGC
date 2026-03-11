@@ -85,7 +85,6 @@ function navegarSeccion(seccionId) {
             break;
     }
 }
-
 // ============================================
 // MODALES
 // ============================================
@@ -1584,6 +1583,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

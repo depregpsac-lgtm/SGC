@@ -70,14 +70,24 @@ async function iniciarSesion(email, password) {
             return { success: false, message: 'Correo o contraseña incorrectos' };
         }
         
-        // ✅ Parsear permisos de forma segura
+        // ✅ Parsear permisos de forma segura (maneja string o JSON)
         let permisosArray = [];
         if (data.permisos) {
             try {
-                // Intentar parsear como JSON primero
-                permisosArray = JSON.parse(data.permisos);
+                // Si es string con comillas escapadas, removerlas primero
+                if (typeof data.permisos === 'string' && data.permisos.startsWith('"[')) {
+                    // Remover las comillas externas y escapar
+                    const cleanPermisos = data.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
+                    permisosArray = JSON.parse(cleanPermisos);
+                } else {
+                    // Intentar parsear como JSON normal
+                    permisosArray = typeof data.permisos === 'string' 
+                        ? JSON.parse(data.permisos) 
+                        : data.permisos;
+                }
             } catch (e) {
-                // Si no es JSON válido, convertir string separado por comas a array
+                console.error('❌ Error parseando permisos:', e);
+                // Si falla, usar array vacío o convertir string separado por comas
                 if (typeof data.permisos === 'string') {
                     permisosArray = data.permisos.split(',').map(p => p.trim()).filter(p => p);
                 }
@@ -127,7 +137,7 @@ function tienePermiso(permiso) {
 function esAdmin() {
     const user = checkAuth();
     if (!user) return false;
-    return user.rol === 'admin';
+    return user.rol === 'admin' || user.rol === 'administrador';
 }
 
 // ============================================

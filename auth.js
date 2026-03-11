@@ -1,4 +1,4 @@
-/// auth.js - Sistema de Autenticación MinistryLion
+// auth.js - Sistema de Autenticación MinistryLion
 // ============================================
 console.log('🔐 auth.js cargado');
 
@@ -12,6 +12,14 @@ function checkAuth() {
             console.log('🔐 No hay usuario en localStorage');
             return null;
         }
+        
+        // ✅ Validar que sea JSON válido antes de parsear
+        if (!user.startsWith('{')) {
+            console.log('❌ Datos corruptos en localStorage, limpiando...');
+            localStorage.removeItem('user');
+            return null;
+        }
+        
         const userData = JSON.parse(user);
         console.log('✅ Usuario autenticado:', userData.nombre);
         return userData;
@@ -62,12 +70,26 @@ async function iniciarSesion(email, password) {
             return { success: false, message: 'Correo o contraseña incorrectos' };
         }
         
+        // ✅ Parsear permisos de forma segura
+        let permisosArray = [];
+        if (data.permisos) {
+            try {
+                // Intentar parsear como JSON primero
+                permisosArray = JSON.parse(data.permisos);
+            } catch (e) {
+                // Si no es JSON válido, convertir string separado por comas a array
+                if (typeof data.permisos === 'string') {
+                    permisosArray = data.permisos.split(',').map(p => p.trim()).filter(p => p);
+                }
+            }
+        }
+        
         const user = {
             id: data.id,
             nombre: data.nombre_completo,
             email: data.email,
             rol: data.rol,
-            permisos: JSON.parse(data.permisos || '[]')
+            permisos: permisosArray
         };
         
         localStorage.setItem('user', JSON.stringify(user));
@@ -100,7 +122,7 @@ function tienePermiso(permiso) {
 }
 
 // ============================================
-// VERIFICAR SI ES ADMINISTRADOR ✅
+// VERIFICAR SI ES ADMINISTRADOR
 // ============================================
 function esAdmin() {
     const user = checkAuth();
@@ -116,15 +138,6 @@ function obtenerUsuarioActual() {
 }
 
 // ============================================
-// VERIFICAR SI ES ADMINISTRADOR
-// ============================================
-function esAdmin() {
-    const user = checkAuth();
-    if (!user) return false;
-    return user.rol === 'admin';
-}
-
-// ============================================
 // EXPORTAR FUNCIONES GLOBALES
 // ============================================
 window.checkAuth = checkAuth;
@@ -132,9 +145,8 @@ window.iniciarSesion = iniciarSesion;
 window.cerrarSesion = cerrarSesion;
 window.tienePermiso = tienePermiso;
 window.obtenerUsuarioActual = obtenerUsuarioActual;
-window.esAdmin = esAdmin;  // ✅ Nueva función
+window.esAdmin = esAdmin;
 console.log('✅ auth.js inicializado correctamente');
-
 
 
 

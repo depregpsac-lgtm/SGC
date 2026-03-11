@@ -44,6 +44,16 @@ function calcularDias(fechaInicio, fechaFin) {
 // ============================================
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
+    
+    // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
+    if (seccionId === 'usuarios') {
+        const user = checkAuth();
+        if (!user || user.rol !== 'admin') {
+            mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden ver esta sección', 'error');
+            seccionId = 'dashboard';
+        }
+    }
+    
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
@@ -68,7 +78,11 @@ function navegarSeccion(seccionId) {
             cargarDistritos(); 
             cargarIglesias(); 
             break;
-        case 'usuarios': cargarUsuarios(); break;
+        case 'usuarios': 
+            if (esAdmin()) {
+                cargarUsuarios(); 
+            }
+            break;
     }
 }
 
@@ -954,6 +968,13 @@ async function editarUsuario(id) {
 
 async function guardarUsuario(e) {
     e.preventDefault();
+    
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
+        return;
+    }
+    
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1011,6 +1032,12 @@ async function guardarUsuarioEditado(e) {
 }
 
 async function confirmarEliminarUsuario(id) {
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
+        return;
+    }
+    
     if (confirm('⚠️ ¿Está seguro de eliminar este usuario?')) {
         try {
             await eliminarUsuario(id);
@@ -1022,7 +1049,6 @@ async function confirmarEliminarUsuario(id) {
         }
     }
 }
-
 // ============================================
 // FUNCIONES DE ASISTENCIA
 // ============================================
@@ -1385,6 +1411,16 @@ function mostrarDashboard(user) {
     if (userName) userName.textContent = user.nombre;
     if (userRole) userRole.textContent = user.rol === 'admin' ? 'Administrador' : 'Usuario';
     if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
+    
+    // ✅ OCULTAR MENÚ USUARIOS SI NO ES ADMIN
+    const menuUsuarios = document.getElementById('nav-usuarios');
+    if (menuUsuarios) {
+        if (user.rol !== 'admin') {
+            menuUsuarios.parentElement.style.display = 'none';
+        } else {
+            menuUsuarios.parentElement.style.display = 'block';
+        }
+    }
 }
 
 function configurarFormularioLogin() {
@@ -1548,6 +1584,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

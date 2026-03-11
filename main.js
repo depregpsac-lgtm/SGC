@@ -1307,7 +1307,7 @@ async function generarReportePDF() {
         const finalY = doc.lastAutoTable.finalY || 105;
         doc.setFontSize(9);
         doc.setTextColor(100, 100, 100);
-        doc.text('© 2024 MinistryLion - Sistema de Gestión de Conferencias', 105, finalY + 15, { align: 'center' });
+        doc.text('© 2026 MinistryLion - Sistema de Gestión de Conferencias', 105, finalY + 15, { align: 'center' });
         
         const nombreArchivo = `reporte_asistencia_${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(nombreArchivo);
@@ -1548,6 +1548,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

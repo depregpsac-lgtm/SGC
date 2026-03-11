@@ -948,11 +948,35 @@ async function editarUsuario(id) {
         document.getElementById('usuarioEmail').value = usuario.email;
         document.getElementById('usuarioPassword').value = '';
         document.getElementById('usuarioRol').value = usuario.rol;
-        document.getElementById('usuarioEstado').value = usuario.estado;
+        document.getElementById('usuarioEstado').value = usuario.estado || 'activo';
         
-        const permisos = JSON.parse(usuario.permisos || '[]');
+        // ✅ Parsear permisos de forma segura
+        let permisosUsuario = [];
+        try {
+            if (usuario.permisos) {
+                if (typeof usuario.permisos === 'string') {
+                    // Si es string con comillas escapadas
+                    if (usuario.permisos.startsWith('"[')) {
+                        const cleanPermisos = usuario.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
+                        permisosUsuario = JSON.parse(cleanPermisos);
+                    } else {
+                        permisosUsuario = JSON.parse(usuario.permisos);
+                    }
+                } else {
+                    permisosUsuario = usuario.permisos;
+                }
+            }
+        } catch (e) {
+            console.error('❌ Error parseando permisos del usuario:', e);
+            // Si falla, intentar con split por comas
+            if (typeof usuario.permisos === 'string') {
+                permisosUsuario = usuario.permisos.split(',').map(p => p.trim()).filter(p => p);
+            }
+        }
+        
+        // Marcar permisos
         document.querySelectorAll('.permiso-checkbox').forEach(cb => {
-            cb.checked = permisos.includes(cb.value) || usuario.rol === 'admin';
+            cb.checked = permisosUsuario.includes(cb.value) || usuario.rol === 'admin' || usuario.rol === 'administrador';
         });
         
         document.getElementById('tituloModalUsuario').textContent = '👤 Editar Usuario';
@@ -961,7 +985,7 @@ async function editarUsuario(id) {
         abrirModal('modalNuevoUsuario');
     } catch (error) {
         console.error('❌ Error editando usuario:', error);
-        mostrarMensaje('Error al cargar datos del usuario', 'error');
+        mostrarMensaje('Error al cargar datos del usuario: ' + error.message, 'error');
     }
 }
 
@@ -998,6 +1022,42 @@ async function guardarUsuario(e) {
     } catch (error) {
         console.error('❌ Error guardando usuario:', error);
         mostrarMensaje('Error al guardar usuario: ' + error.message, 'error');
+    }
+}
+
+async function guardarUsuarioEditado(e) {
+    e.preventDefault();
+    
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden editar usuarios', 'error');
+        return;
+    }
+    
+    try {
+        const nombre_completo = document.getElementById('usuarioNombre').value.trim();
+        const email = document.getElementById('usuarioEmail').value.trim();
+        const password = document.getElementById('usuarioPassword').value;
+        const rol = document.getElementById('usuarioRol').value;
+        const estado = document.getElementById('usuarioEstado').value;
+        
+        const permisos = [];
+        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+            permisos.push(cb.value);
+        });
+        
+        if (!nombre_completo || !email) {
+            mostrarMensaje('Nombre y correo son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
+        mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
+        cerrarModal('modalNuevoUsuario');
+        await cargarUsuarios();
+    } catch (error) {
+        console.error('❌ Error actualizando usuario:', error);
+        mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
     }
 }
 
@@ -1582,6 +1642,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -1,11 +1,4 @@
-// auth.js - Sistema de Autenticación MinistryLion
-// ============================================
-console.log('🔐 auth.js cargado');
-
-// ============================================
-// VERIFICAR AUTENTICACIÓN
-// ============================================
-// auth.js - Sistema de Autenticación MinistryLion
+/// auth.js - Sistema de Autenticación MinistryLion
 // ============================================
 console.log('🔐 auth.js cargado');
 
@@ -130,8 +123,11 @@ window.iniciarSesion = iniciarSesion;
 window.cerrarSesion = cerrarSesion;
 window.tienePermiso = tienePermiso;
 window.obtenerUsuarioActual = obtenerUsuarioActual;
-window.esAdmin = esAdmin; // ✅ Nueva función exportada
+window.esAdmin = esAdmin; // ✅ NUEVA FUNCIÓN EXPORTADA
 console.log('✅ auth.js inicializado correctamente');
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES
+// ============================================
 // VERIFICAR SI ES ADMINISTRADOR
 // ============================================
 function esAdmin() {

@@ -124,6 +124,7 @@ async function eliminarAsistente(id) {
 
 // USUARIOS
 // USUARIOS
+// USUARIOS
 async function obtenerUsuarios() {
     const { data, error } = await window.db.from('usuarios_sistema').select('*').order('nombre_completo');
     return error ? [] : (data || []);
@@ -135,7 +136,7 @@ async function crearUsuario(nombre_completo, email, password, rol, permisos, est
         .insert([{ 
             nombre_completo, 
             email, 
-            password_hash: password,  // ✅ Cambiado de 'password' a 'password_hash'
+            password_hash: password,  // ✅ Cambiado a password_hash
             rol, 
             permisos, 
             estado 
@@ -148,7 +149,7 @@ async function crearUsuario(nombre_completo, email, password, rol, permisos, est
 async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado) {
     const updateData = { nombre_completo, email, rol, permisos, estado };
     if (password && password.trim() !== '') {
-        updateData.password_hash = password;  // ✅ Cambiado de 'password' a 'password_hash'
+        updateData.password_hash = password;  // ✅ Cambiado a password_hash
     }
     const { data, error } = await window.db
         .from('usuarios_sistema')

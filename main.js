@@ -1421,7 +1421,6 @@ function mostrarDashboard(user) {
         }
     }
 }
-
 function configurarFormularioLogin() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -1583,6 +1582,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

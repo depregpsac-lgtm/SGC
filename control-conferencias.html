@@ -769,6 +769,7 @@
         </div>
     </div>
 </section>
+                
 <section id="conferencias" class="content-section">
     <div class="content-header">
         <h1>📅 Gestión de Conferencias</h1>
@@ -801,7 +802,8 @@
     </div>
 </section>
 
-                <section id="registros" class="content-section">
+               <!-- 👥 Registros de Asistentes -->
+<section id="registros" class="content-section">
     <div class="content-header">
         <h1>👥 Registros de Asistentes</h1>
         <p>Administra los asistentes a las conferencias</p>
@@ -810,9 +812,15 @@
     <div class="table-container">
         <div class="table-header">
             <h3>Listado de Asistentes</h3>
-            <button class="btn-new" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
+            <button onclick="prepararModalAsistente()" class="btn-new">
+                <i class="fas fa-plus"></i> Nuevo Registro
+            </button>
         </div>
-
+        
+        <!-- 🔍 BARRA DE BÚSQUEDA AGREGADA -->
+        <div class="search-bar">
+            <input type="text" id="buscadorRegistros" placeholder="🔍 Buscar por nombre, teléfono, iglesia o conferencia..." onkeyup="filtrarRegistros()">
+        </div>
         
         <div class="table-wrapper">
             <table id="tablaAsistentes">
@@ -827,13 +835,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="6">Cargando registros...</td></tr>
+                    <tr>
+                        <td colspan="6">Cargando registros...</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </section>
-
               <section id="reportes" class="content-section">
     <div class="content-header">
         <h1>📊 Reportes y Estadísticas</h1>

@@ -1,176 +1,551 @@
-Dashboard - MinistryLion
-🦁 MinistryLion
-Sistema de Gestión de Conferencias
-Correo ElectrónicoContraseñaIniciar Sesión
-                © Elaborador por: Natanael León Veras, edición 2026. Todos los derechos reservados.
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MinistryLion</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+    <!-- Contenedor principal -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🦁 MinistryLion</h2>
+                <p>Sistema de Gestión</p>
+            </div>
             
-🦁 MinistryLion
-Sistema de Gestión
-A
-Admin
-Administrador
-[ Dashboard](#)
-[ Conferencias](#)
-[ Registros](#)
-[ Reportes](#)
-[ Configuración](#)
-[ Usuarios](#)
-[ Cerrar Sesión](#)
-👋 Bienvenido al Dashboard
-Resumen general del sistema de gestión de conferencias
-📍
-0
-Total Zonas
-🏛️
-0
-Total Distritos
-⛪
-0
-Total Iglesias
-📅
-0
-ferencias
-👥
-0
-Total Asistentes
-📅 Gestión de Conferencias
-Administra las conferencias de las iglesias
-Listado de Conferencias
-+ Nueva Conferencia
-| Nombre
-|Iglesia
-|Inicio
-|Fin
-|Días
-|Conferenciante
-|Acciones
-|
-| ---|---|---|---|---|---|---|
-| Cargando datos...
-|Cargando datos...
-Cargando datos...
-|Cargando datos...
-|Cargando datos...
-|Cargando datos...
-|Cargando datos...
-|
-👥 Registros de Asistentes
-Administra los asistentes a las conferencias
-Listado de Asistentes
-+ Nuevo Registro
-| Nombre
-|Teléfono
-|Iglesia
-|Conferencia
-|Días Asistidos
-|Acciones
-|
-| ---|---|---|---|---|---|
-| Cargando registros...
-|Cargando registros...
-|Cargando registros...
-|Cargando registros...
-|Cargando registros...
-|Cargando registros...
-|
-🔍 Búsqueda por Nombre
-<input type="text" id="searchNombre" placeholder="Buscar por nombre..." class="search-input">
-<button type="button" id="btnBuscar" class="btn-search">Buscar</button>
-<button type="button" id="btnLimpiar" class="btn-clear">Limpiar</button>
-📊 Reportes y Estadísticas
-Genera reportes de asistencia
-Reporte de Asistencia
-📄 Descargar PDF-- Todas las Conferencias ---- Todas las Iglesias --Aplicar FiltrosLimpiar
-0
-Total Asistentes
-0
-Días Totales
-0
-Iglesias Participantes
-| Nombre
-|Teléfono
-|Iglesia
-|Conferencia
-|Días Asistidos
-|Invitado Por
-|
-| ---|---|---|---|---|---|
-| Seleccione filtros para ver el reporte
-|Seleccione filtros para ver el reporte
-|Seleccione filtros para ver el reporte
-|Seleccione filtros para ver el reporte
-|Seleccione filtros para ver el reporte
-|Seleccione filtros para ver el reporte
-|
-⚙️ Configuración del Sistema
-Administra zonas, distritos e iglesias
-📍 Zonas
-+ Nueva Zona
-| Nombre
-|Descripción
-|Acciones
-|
-| ---|---|---|
-| Sin zonas registradas
-|Sin zonas registradas
-|Sin zonas registradas
-|
-🏛️ Distritos
-+ Nuevo Distrito
-| Distrito
-|Zona
-|Responsable
-|Acciones
-|
-| ---|---|---|---|
-| Sin distritos registrados
-|Sin distritos registrados
-|Sin distritos registrados
-|Sin distritos registrados
-|
-⛪ Iglesias
-+ Nueva Iglesia
-| Iglesia
-|Zona
-|Distrito
-|Pastor
-|Acciones
-|
-| ---|---|---|---|---|
-| Sin iglesias registradas
-|Sin iglesias registradas
-|Sin iglesias registradas
-|Sin iglesias registradas
-|Sin iglesias registradas
-|
-👤 Gestión de Usuarios
-Administra los usuarios del sistema
-Usuarios del Sistema
-+ Nuevo Usuario
-| Nombre
-|Correo
-|Rol
-|Estado
-|Acciones
-|
-| ---|---|---|---|---|
-| Cargando usuarios...
-|Cargando usuarios...
-|Cargando usuarios...
-|Cargando usuarios...
-|Cargando usuarios...
-|
-📍 Registrar Zona
-×Nombre *DescripciónCancelarGuardar Zona
-🏛️ Registrar Distrito
-×Zona *Nombre *ResponsableTeléfonoCancelarGuardar Distrito
-⛪ Registrar Iglesia
-×Zona *Distrito-- Sin distrito --Nombre Iglesia *PastorTeléfonoDirecciónCancelarGuardar Iglesia
-📅 Nueva Conferencia
-×Nombre *Iglesia Sede *Fecha Inicio *Fecha Fin *
-📅 Duración: 0 días
-ConferencianteCancelarGuardar Conferencia
-👥 Nuevo Registro de Asistente
-× Nombre Completo * Teléfono Invitado Por Dirección Iglesia -- Sin iglesia --Conferencia * ✅ Marque los días que asistió: ✅  0  días asistidos de  0  totales Cancelar Guardar Registro
-👤 Nuevo Usuario
-× Nombre Completo * 📧 Correo Electrónico * 🔑 Contraseña Rol 👤 Usuario 👑 Administrador Estado ✅ Activo ❌ Inactivo 🔐 Permisos de Acceso  Dashboard  Conferencias  Registros  Configuración  Usuarios  Reportes Cancelar Guardar Usuario
+            <nav class="sidebar-nav">
+                <a href="#" id="nav-dashboard" class="nav-item active">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="#" id="nav-conferencias" class="nav-item">
+                    <i class="fas fa-calendar-alt"></i> Conferencias
+                </a>
+                <a href="#" id="nav-registros" class="nav-item">
+                    <i class="fas fa-users"></i> Registros
+                </a>
+                <a href="#" id="nav-reportes" class="nav-item">
+                    <i class="fas fa-chart-bar"></i> Reportes
+                </a>
+                <a href="#" id="nav-configuracion" class="nav-item">
+                    <i class="fas fa-cogs"></i> Configuración
+                </a>
+                <a href="#" id="nav-usuarios" class="nav-item">
+                    <i class="fas fa-user-shield"></i> Usuarios
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name">Natanael León</div>
+                        <div class="user-role">Administrador</div>
+                    </div>
+                </div>
+                <button class="btn-logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <div class="top-header">
+                <h1>📊 Panel Principal</h1>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name">Natanael León</div>
+                        <div class="user-role">Administrador</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statZonas">0</h3>
+                        <p>Total Zonas</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statDistritos">0</h3>
+                        <p>Total Distritos</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-church"></>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statIglesias">0</h3>
+                        <p>Total Iglesias</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statConferencias">0</h3>
+                        <p>Total Conferencias</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statAsistentes">0</h3>
+                        <p>Total Asistentes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div id="dashboardSection" class="content-section active">
+                <h2>👋 Bienvenido al Dashboard</h2>
+                <p>Resumen general del sistema de gestión de conferencias</p>
+            </div>
+
+            <div id="conferenciasSection" class="content-section">
+                <h2>📅 Gestión de Conferencias</h2>
+                <p>Administra las conferencias de las iglesias</p>
+                
+                <div class="section-header">
+                    <h3>Listado de Conferencias</h3>
+                    <button class="btn-primary" id="btnNuevaConferencia">
+                        <i class="fas fa-plus"></i> + Nueva Conferencia
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Iglesia</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Días</th>
+                                <th>Conferenciante</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaConferencias">
+                            <tr>
+                                <td>Cargando datos...</td>
+                                <td>Cargando datos...</td>
+                                <td>Cargando datos...</td>
+                                <td>Cargando datos...</td>
+                                <td>Cargando datos...</td>
+                                <td>Cargando datos...</td>
+                                <td>Cargando datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="registrosSection" class="content-section">
+                <h2>👥 Registros de Asistentes</h2>
+                <p>Administra los asistentes a las conferencias</p>
+                
+                <div class="section-header">
+                    <h3>Listado de Asistentes</h3>
+                    <div class="search-bar">
+                        <input type="text" id="searchNombre" placeholder="Buscar por nombre..." class="search-input">
+                        <button type="button" id="btnBuscar" class="btn-search">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button type="button" id="btnLimpiar" class="btn-clear">
+                            <i class="fas fa-times-circle"></i> Limpiar
+                        </button>
+                    </div>
+                    <button class="btn-primary" id="btnNuevoRegistro">
+                        <i class="fas fa-plus"></i> + Nuevo Registro
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Iglesia</th>
+                                <th>Conferencia</th>
+                                <th>Días Asistidos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaAsistentes">
+                            <tr>
+                                <td>Cargando registros...</td>
+                                <td>Cargando registros...</td>
+                                <td>Cargando registros...</td>
+                                <td>Cargando registros...</td>
+                                <td>Cargando registros...</td>
+                                <td>Cargando registros...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="reportesSection" class="content-section">
+                <h2>📊 Reportes y Estadísticas</h2>
+                <p>Genera reportes de asistencia</p>
+                
+                <div class="section-header">
+                    <h3>Reporte de Asistencia</h3>
+                    <button class="btn-primary" id="btnDescargarPDF">
+                        <i class="fas fa-file-pdf"></i> 📄 Descargar PDF
+                    </button>
+                </div>
+                
+                <div class="report-controls">
+                    <select id="reporteConferencia">
+                        <option value="">-- Todas las Conferencias --</option>
+                    </select>
+                    <select id="reporteIglesia">
+                        <option value="">-- Todas las Iglesias --</option>
+                    </select>
+                    <button class="btn-primary" id="btnAplicarFiltros">
+                        <i class="fas fa-filter"></i> Aplicar Filtros
+                    </button>
+                    <button class="btn-secondary" id="btnLimpiarFiltros">
+                        <i class="fas fa-times-circle"></i> Limpiar
+                    </button>
+                </div>
+                
+                <div class="report-summary">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3 id="reporteTotalAsistentes">0</h3>
+                            <p>Total Asistentes</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3 id="reporteTotalDias">0</h3>
+                            <p>Días Totales</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3 id="reporteTotalIglesias">0</h3>
+                            <p>Iglesias Participantes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Iglesia</th>
+                                <th>Conferencia</th>
+                                <th>Días Asistidos</th>
+                                <th>Invitado Por</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaReporte">
+                            <tr>
+                                <td>Seleccione filtros para ver el reporte</td>
+                                <td>Seleccione filtros para ver el reporte</td>
+                                <td>Seleccione filtros para ver el reporte</td>
+                                <td>Seleccione filtros para ver el report</td>
+                                <td>Seleccione filtros para ver el reporte</td>
+                                <td>Seleccione filtros para ver el reporte</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="configuracionSection" class="content-section">
+                <h2>⚙️ Configuración del Sistema</h2>
+                <p>Administra zonas, distritos e iglesias</p>
+                
+                <div class="config-tabs">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="zonas">📍 Zonas</button>
+                        <button class="tab-btn" data-tab="distritos">🏛️ Distritos</button>
+                        <button class="tab-btn" data-tab="iglesias">⛪ Iglesias</button>
+                    </div>
+                    
+                    <div id="tabZonas" class="tab-content active">
+                        <div class="tab-header">
+                            <h3>Zonas</h3>
+                            <button class="btn-primary" id="btnNuevaZona">
+                                <i class="fas fa-plus"></i> + Nueva Zona
+                            </button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaZonas">
+                                    <tr>
+                                        <td>Sin zonas registradas</td>
+                                        <td>Sin zonas registradas</td>
+                                        <td>Sin zonas registradas</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="tabDistritos" class="tab-content">
+                        <div class="tab-header">
+                            <h3>Distritos</h3>
+                            <button class="btn-primary" id="btnNuevoDistrito">
+                                <i class="fas fa-plus"></i> + Nuevo Distrito
+                            </button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Distrito</th>
+                                        <th>Zona</th>
+                                        <th>Responsable</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaDistritos">
+                                    <tr>
+                                        <td>Sin distritos registrados</td>
+                                        <td>Sin distritos registrados</td>
+                                        <td>Sin distritos registrados</td>
+                                        <td>Sin distritos registrados</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="tabIglesias" class="tab-content">
+                        <div class="tab-header">
+                            <h3>Iglesias</h3>
+                            <button class="btn-primary" id="btnNuevaIglesia">
+                                <i class="fas fa-plus"></i> + Nueva Iglesia
+                            </button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Iglesia</th>
+                                        <th>Zona</th>
+                                        <th>Distrito</th>
+                                        <th>Pastor</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaIglesias">
+                                    <tr>
+                                        <td>Sin iglesias registradas</td>
+                                        <td>Sin iglesias registradas</td>
+                                        <td>Sin iglesias registradas</td>
+                                        <td>Sin iglesias registradas</td>
+                                        <td>Sin iglesias registradas</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="usuariosSection" class="content-section">
+                <h2>👤 Gestión de Usuarios</h2>
+                <p>Administra los usuarios del sistema</p>
+                
+                <div class="section-header">
+                    <h3>Usuarios del Sistema</h3>
+                    <button class="btn-primary" id="btnNuevoUsuario">
+                        <i class="fas fa-plus"></i> + Nuevo Usuario
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaUsuarios">
+                            <tr>
+                                <td>Cargando usuarios...</td>
+                                <td>Cargando usuarios...</td>
+                                <td>Cargando usuarios...</td>
+                                <td>Cargando usuarios...</td>
+                                <td>Cargando usuarios...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modales -->
+    <!-- Modal para nueva zona -->
+    <div id="modalNuevaZona" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📍 Registrar Zona</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formZona">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Nombre *</label>
+                    <input type="text" id="zonaNombre" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-comment"></i> Descripción</label>
+                    <textarea id="zonaDescripcion"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Zona</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para nuevo registro de asistente -->
+    <div id="modalNuevoAsistente" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">👥 Nuevo Registro de Asistente</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formAsistente">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Nombre Completo *</label>
+                    <input type="text" id="asistNombre" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Teléfono</label>
+                    <input type="tel" id="asistTelefono">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user-friends"></i> Invitado Por</label>
+                    <input type="text" id="asistInvitado">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-home"></i> Dirección</label>
+                    <input type="text" id="asistDireccion">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-church"></i> Iglesia *</label>
+                        <select id="asistIglesia" required>
+                            <option value="">-- Seleccione Iglesia --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Conferencia *</label>
+                        <select id="asistConferencia" required>
+                            <option value="">-- Seleccione Conferencia --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-check"></i> Días de Asistencia</label>
+                    <div class="fechas-asistencia-container">
+                        <h4>✅ Marque los días que asistió:</h4>
+                        <div class="contador-asistencia">✅ <strong>0</strong> días asistidos de <strong>0</strong> totales</div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="main (1).js"></script>
+    
+    <!-- Script para búsqueda por nombre -->
+    <script>
+        // Función para buscar registros por nombre
+        document.getElementById('btnBuscar').addEventListener('click', function() {
+            const searchTerm = document.getElementById('searchNombre').value.toLowerCase().trim();
+            const tbody = document.getElementById('tablaAsistentes');
+            const rows = tbody.getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const nombreCell = row.cells[0]; // Columna de Nombre
+                
+                if (nombreCell) {
+                    const nombreText = nombreCell.textContent.toLowerCase();
+                    if (nombreText.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            }
+        });
+        
+        // Función para limpiar la búsqueda
+        document.getElementById('btnLimpiar').addEventListener('click', function() {
+            document.getElementById('searchNombre').value = '';
+            const tbody = document.getElementById('tablaAsistentes');
+            const rows = tbody.getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = '';
+            }
+        });
+        
+        // Buscar al presionar Enter
+        document.getElementById('searchNombre').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('btnBuscar').click();
+            }
+        });
+    </script>
+</body>
+</html>

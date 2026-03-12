@@ -135,112 +135,142 @@ document.addEventListener('click', (e) => {
 });
 
 // ============================================
-// BARRA DE BÚSQUEDA - REGISTROS
+// BARRA DE BÚSQUEDA PROFESIONAL - REGISTROS
 // ============================================
 function filtrarRegistros() {
     const buscador = document.getElementById('buscadorRegistros');
-    const clearBtn = document.getElementById('clearSearchBtn');
-    const searchInfo = document.getElementById('searchResultsInfo');
+    const filtroCampo = document.getElementById('filtroCampo');
+    const totalRegistros = document.getElementById('totalRegistros');
     const tabla = document.getElementById('tablaAsistentes');
-    const searchBox = document.querySelector('.search-box-wrapper');
     
     if (!buscador || !tabla) return;
     
     const filtro = buscador.value.toLowerCase().trim();
+    const campo = filtroCampo ? filtroCampo.value : 'todos';
     const filas = tabla.querySelectorAll('tbody tr');
     
-    if (clearBtn) {
-        clearBtn.style.display = filtro ? 'flex' : 'none';
-    }
-    
-    if (filtro) {
-        searchBox?.classList.add('searching');
-    } else {
-        searchBox?.classList.remove('searching');
-    }
-    
     let registrosEncontrados = 0;
-    let registrosOcultados = 0;
     
     filas.forEach(fila => {
+        // Saltar filas de "sin registros" o mensajes
         if (fila.querySelector('td[colspan]')) {
             return;
         }
         
-        const celdas = fila.querySelectorAll('td');
-        let textoCompleto = '';
-        
-        celdas.forEach(celda => {
-            textoCompleto += celda.textContent.toLowerCase() + ' ';
-        });
+        let mostrar = false;
         
         if (filtro === '') {
-            fila.classList.remove('hidden-row', 'highlight-row');
+            // Sin filtro: mostrar todas
+            mostrar = true;
+        } else {
+            // Obtener celdas según el campo seleccionado
+            const celdas = fila.querySelectorAll('td');
+            
+            if (campo === 'todos') {
+                // Buscar en todo el texto de la fila
+                const textoCompleto = fila.textContent.toLowerCase();
+                mostrar = textoCompleto.includes(filtro);
+            } else if (campo === 'nombre' && celdas[0]) {
+                mostrar = celdas[0].textContent.toLowerCase().includes(filtro);
+            } else if (campo === 'telefono' && celdas[1]) {
+                mostrar = celdas[1].textContent.toLowerCase().includes(filtro);
+            } else if (campo === 'iglesia' && celdas[2]) {
+                mostrar = celdas[2].textContent.toLowerCase().includes(filtro);
+            } else if (campo === 'conferencia' && celdas[3]) {
+                mostrar = celdas[3].textContent.toLowerCase().includes(filtro);
+            }
+        }
+        
+        if (mostrar) {
+            fila.classList.remove('hidden-row');
+            fila.classList.add('highlight-row');
             registrosEncontrados++;
         } else {
-            if (textoCompleto.includes(filtro)) {
-                fila.classList.remove('hidden-row');
-                fila.classList.add('highlight-row');
-                registrosEncontrados++;
-            } else {
-                fila.classList.add('hidden-row');
-                fila.classList.remove('highlight-row');
-                registrosOcultados++;
-            }
+            fila.classList.add('hidden-row');
+            fila.classList.remove('highlight-row');
         }
     });
     
-    actualizarInfoBusqueda(searchInfo, registrosEncontrados, registrosOcultados, filtro);
+    // Actualizar contador
+    if (totalRegistros) {
+        totalRegistros.textContent = registrosEncontrados;
+    }
     
-    setTimeout(() => {
-        searchBox?.classList.remove('searching');
-    }, 500);
+    // Actualizar mensaje del contador
+    actualizarMensajeContador(registrosEncontrados, filtro);
 }
 
-function actualizarInfoBusqueda(container, encontrados, ocultados, filtro) {
-    if (!container) return;
-    
-    const total = encontrados + ocultados;
+
+function actualizarMensajeContador(encontrados, filtro) {
+    const contadorEl = document.getElementById('searchResultsCount');
+    if (!contadorEl) return;
     
     if (filtro === '') {
-        container.innerHTML = `
-            <span class="badge-count">
-                <i class="fas fa-list"></i>
-                Mostrando ${total} registro${total !== 1 ? 's' : ''}
-            </span>
+        contadorEl.innerHTML = `
+            <i class="fas fa-list"></i> 
+            Mostrando <strong id="totalRegistros">${encontrados}</strong> registros
         `;
+        contadorEl.style.background = '#f0fdf4';
+        contadorEl.style.borderColor = '#bbf7d0';
+        contadorEl.style.color = '#166534';
     } else if (encontrados === 0) {
-        container.innerHTML = `
-            <span class="badge-count error">
-                <i class="fas fa-exclamation-circle"></i>
-                No se encontraron registros para "${filtro}"
-            </span>
+        contadorEl.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i> 
+            No se encontraron registros
         `;
-    } else if (ocultados > 0) {
-        container.innerHTML = `
-            <span class="badge-count warning">
-                <i class="fas fa-filter"></i>
-                Mostrando ${encontrados} de ${total} registro${total !== 1 ? 's' : ''}
-            </span>
-        `;
+        contadorEl.style.background = '#fef2f2';
+        contadorEl.style.borderColor = '#fecaca';
+        contadorEl.style.color = '#dc2626';
     } else {
-        container.innerHTML = `
-            <span class="badge-count">
-                <i class="fas fa-check-circle"></i>
-                ${encontrados} registro${encontrados !== 1 ? 's' : ''} encontrado${encontrados !== 1 ? 's' : ''}
-            </span>
+        contadorEl.innerHTML = `
+            <i class="fas fa-filter"></i> 
+            Mostrando <strong id="totalRegistros">${encontrados}</strong> registros encontrados
         `;
+        contadorEl.style.background = '#eff6ff';
+        contadorEl.style.borderColor = '#bfdbfe';
+        contadorEl.style.color = '#1e40af';
     }
 }
 
 function limpiarBusqueda() {
     const buscador = document.getElementById('buscadorRegistros');
+    const filtroCampo = document.getElementById('filtroCampo');
+    
+    if (buscador) buscador.value = '';
+    if (filtroCampo) filtroCampo.value = 'todos';
+    
+    filtrarRegistros();
+    
+    // Enfocar el input después de limpiar
     if (buscador) {
-        buscador.value = '';
         buscador.focus();
-        filtrarRegistros();
     }
 }
+
+// Event Listeners para búsqueda en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscadorRegistros');
+    const filtroCampo = document.getElementById('filtroCampo');
+    
+    // Búsqueda al escribir (tiempo real)
+    if (buscador) {
+        buscador.addEventListener('input', filtrarRegistros);
+        
+        // Búsqueda con Enter
+        buscador.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filtrarRegistros();
+                this.blur();
+            }
+        });
+    }
+    
+    // Cambiar filtro de campo
+    if (filtroCampo) {
+        filtroCampo.addEventListener('change', filtrarRegistros);
+    }
+});
+
 
 // ============================================
 // PREPARAR MODALES
@@ -1769,8 +1799,11 @@ window.filtrarRegistros = filtrarRegistros;
 window.limpiarBusqueda = limpiarBusqueda;
 window.checkAuth = checkAuth;
 window.esAdmin = esAdmin;
-
+// Exportar funciones globalmente
+window.filtrarRegistros = filtrarRegistros;
+window.limpiarBusqueda = limpiarBusqueda;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

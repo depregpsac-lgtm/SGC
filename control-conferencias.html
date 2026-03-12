@@ -6,503 +6,696 @@
     <title>Dashboard - MinistryLion</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-    <!-- Contenedor principal -->
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>🦁 MinistryLion</h2>
-                <p>Sistema de Gestión</p>
+                <div class="logo">
+                    <i class="fas fa-church"></i>
+                    <h2>MinistryLion</h2>
+                </div>
             </div>
-            
+
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">ML</div>
+                <div class="user-details">
+                    <h4 id="userName">Administrador</h4>
+                    <p id="userEmail">admin@ministrylion.com</p>
+                </div>
+            </div>
+
             <nav class="sidebar-nav">
-                <a href="#" id="nav-dashboard" class="nav-item active">
+                <a href="#" class="active" data-section="dashboard">
                     <i class="fas fa-home"></i> Dashboard
                 </a>
-                <a href="#" id="nav-conferencias" class="nav-item">
+                <a href="#" data-section="conferencias">
                     <i class="fas fa-calendar-alt"></i> Conferencias
                 </a>
-                <a href="#" id="nav-registros" class="nav-item">
+                <a href="#" data-section="registros">
                     <i class="fas fa-users"></i> Registros
                 </a>
-                <a href="#" id="nav-reportes" class="nav-item">
+                <a href="#" data-section="reportes">
                     <i class="fas fa-chart-bar"></i> Reportes
                 </a>
-                <a href="#" id="nav-configuracion" class="nav-item">
-                    <i class="fas fa-cogs"></i> Configuración
+                <a href="#" data-section="configuracion">
+                    <i class="fas fa-cog"></i> Configuración
                 </a>
-                <a href="#" id="nav-usuarios" class="nav-item">
+                <a href="#" data-section="usuarios">
                     <i class="fas fa-user-shield"></i> Usuarios
                 </a>
             </nav>
-            
+
             <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar">A</div>
-                    <div class="user-details">
-                        <div class="user-name">Natanael León</div>
-                        <div class="user-role">Administrador</div>
-                    </div>
-                </div>
                 <button class="btn-logout" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    <i class="fas fa-sign-out-alt"></i> Salir
                 </button>
             </div>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Header -->
-            <div class="top-header">
-                <h1>📊 Panel Principal</h1>
-                <div class="user-info">
-                    <div class="user-avatar">A</div>
-                    <div class="user-details">
-                        <div class="user-name">Natanael León</div>
-                        <div class="user-role">Administrador</div>
+            <div class="dashboard-content">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <div class="page-header">
+                        <h2><i class="fas fa-home"></i> Panel Principal</h2>
                     </div>
-                </div>
-            </div>
 
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statZonas">0</h3>
-                        <p>Total Zonas</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-building"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statDistritos">0</h3>
-                        <p>Total Distritos</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-church"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statIglesias">0</h3>
-                        <p>Total Iglesias</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar-day"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statConferencias">0</h3>
-                        <p>Total Conferencias</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-user-friends"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="statAsistentes">0</h3>
-                        <p>Total Asistentes</p>
-                    </div>
-                </div>
-            </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon zones">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalZonas">0</h3>
+                                <p>Total Zonas</p>
+                            </div>
+                        </div>
 
-            <!-- Content Sections -->
-            <div id="dashboardSection" class="content-section active">
-                <h2>👋 Bienvenido al Dashboard</h2>
-                <p>Resumen general del sistema de gestión de conferencias</p>
-            </div>
+                        <div class="stat-card">
+                            <div class="stat-icon districts">
+                                <i class="fas fa-city"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalDistritos">0</h3>
+                                <p>Total Distritos</p>
+                            </div>
+                        </div>
 
-            <div id="conferenciasSection" class="content-section">
-                <h2>📅 Gestión de Conferencias</h2>
-                <p>Administra las conferencias de las iglesias</p>
+                        <div class="stat-card">
+                            <div class="stat-icon churches">
+                                <i class="fas fa-church"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalIglesias">0</h3>
+                                <p>Total Iglesias</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon conferences">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalConferencias">0</h3>
+                                <p>Conferencias</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="page-header">
+                            <h2><i class="fas fa-calendar-alt"></i> Próximas Conferencias</h2>
+                            <button class="btn-new" id="btnNuevaConferencia" data-type="conferencia">
+                                <i class="fas fa-plus"></i> Nueva Conferencia
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Evento</th>
+                                    <th>Fecha</th>
+                                    <th>Lugar</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="proximasConferencias">
+                                <tr>
+                                    <td class="empty" colspan="4">Cargando conferencias...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="page-header">
+                            <h2><i class="fas fa-list"></i> Listado de Conferencias</h2>
+                            <button class="btn-new" id="btnNuevaConferencia2" data-type="conferencia">
+                                <i class="fas fa-plus"></i> Nueva Conferencia
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Iglesia</th>
+                                    <th>Inicio</th>
+                                    <th>Fin</th>
+                                    <th>Conferenciante</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listadoConferencias">
+                                <tr>
+                                    <td class="empty" colspan="6">Cargando conferencias...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="page-header">
+                            <h2><i class="fas fa-users"></i> Asistentes Registrados</h2>
+                            <button class="btn-new" id="btnNuevoAsistente" data-type="asistente">
+                                <i class="fas fa-plus"></i> Nuevo Asistente
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Iglesia</th>
+                                    <th>Teléfono</th>
+                                    <th>Conferencia</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="asistentesDashboard">
+                                <tr>
+                                    <td class="empty" colspan="5">Cargando asistentes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="page-header">
+                            <h2><i class="fas fa-map-marked-alt"></i> Zonas, Distritos e Iglesias</h2>
+                        </div>
+                        
+                        <div class="grid-container">
+                            <!-- Zonas -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-map-marker-alt"></i> Zonas Registradas</h3>
+                                    <button class="btn-new" id="btnNuevaZona" data-type="zona">
+                                        <i class="fas fa-plus"></i> + Zona
+                                    </button>
+                                </div>
+                                <div class="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Descripción</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="zonasTabla">
+                                            <tr>
+                                                <td class="empty" colspan="3">Cargando zonas...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Distritos -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-city"></i> Distritos Registrados</h3>
+                                    <button class="btn-new" id="btnNuevoDistrito" data-type="distrito">
+                                        <i class="fas fa-plus"></i> + Distrito
+                                    </button>
+                                </div>
+                                <div class="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Zona</th>
+                                                <th>Nombre</th>
+                                                <th>Responsable</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="distritosTabla">
+                                            <tr>
+                                                <td class="empty" colspan="4">Cargando distritos...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Iglesias -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-church"></i> Iglesias Registradas</h3>
+                                    <button class="btn-new" id="btnNuevaIglesia" data-type="iglesia">
+                                        <i class="fas fa-plus"></i> + Iglesia
+                                    </button>
+                                </div>
+                                <div class="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Distrito</th>
+                                                <th>Nombre</th>
+                                                <th>Pastor</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="iglesiasTabla">
+                                            <tr>
+                                                <td class="empty" colspan="4">Cargando iglesias...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 
-                <div class="section-header">
-                    <h3>Listado de Conferencias</h3>
-                    <button class="btn-primary" id="btnNuevaConferencia">
-                        <i class="fas fa-plus"></i> + Nueva Conferencia
-                    </button>
-                </div>
-                
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Iglesia</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th>Días</th>
-                                <th>Conferenciante</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaConferencias">
-                            <tr>
-                                <td>Cargando datos...</td>
-                                <td>Cargando datos...</td>
-                                <td>Cargando datos...</td>
-                                <td>Cargando datos...</td>
-                                <td>Cargando datos...</td>
-                                <td>Cargando datos...</td>
-                                <td>Cargando datos...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="registrosSection" class="content-section">
-                <h2>👥 Registros de Asistentes</h2>
-                <p>Administra los asistentes a las conferencias</p>
-                
-                <div class="section-header">
-                    <h3>Listado de Asistentes</h3>
-                    <div class="search-bar">
-                        <input type="text" id="searchNombre" placeholder="Buscar por nombre..." class="search-input">
-                        <button type="button" id="btnBuscar" class="btn-search">
-                            <i class="fas fa-search"></i> Buscar
+                <!-- Conferencias Section -->
+                <section id="conferencias" class="content-section">
+                    <div class="page-header">
+                        <h2><i class="fas fa-calendar-alt"></i> Gestión de Conferencias</h2>
+                        <button class="btn-new" id="btnNuevaConferencia3" data-type="conferencia">
+                            <i class="fas fa-plus"></i> Nueva Conferencia
                         </button>
-                        <button type="button" id="btnLimpiar" class="btn-clear">
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Iglesia</th>
+                                    <th>Inicio</th>
+                                    <th>Fin</th>
+                                    <th>Conferenciante</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="conferenciasTabla">
+                                <tr>
+                                    <td class="empty" colspan="6">Cargando conferencias...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- Registros Section (CON BÚSQUEDA) -->
+                <section id="registros" class="content-section">
+                    <div class="page-header">
+                        <h2><i class="fas fa-users"></i> Registros de Asistentes</h2>
+                        <div class="search-bar">
+                            <input type="text" id="searchNombre" placeholder="Buscar por nombre..." class="search-input">
+                            <button type="button" id="btnBuscar" class="btn-search">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <button type="button" id="btnLimpiar" class="btn-clear">
+                                <i class="fas fa-times-circle"></i> Limpiar
+                            </button>
+                        </div>
+                        <button class="btn-new" id="btnNuevoAsistente2" data-type="asistente">
+                            <i class="fas fa-plus"></i> Nuevo Asistente
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Iglesia</th>
+                                    <th>Teléfono</th>
+                                    <th>Conferencia</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaAsistentes">
+                                <tr>
+                                    <td class="empty" colspan="5">Cargando asistentes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- Reportes Section -->
+                <section id="reportes" class="content-section">
+                    <div class="page-header">
+                        <h2><i class="fas fa-chart-bar"></i> Reportes y Estadísticas</h2>
+                        <button class="btn-new" id="btnGenerarPDF">
+                            <i class="fas fa-file-pdf"></i> Descargar PDF
+                        </button>
+                    </div>
+                    
+                    <div class="report-filters">
+                        <select id="reporteConferencia">
+                            <option value="">-- Todas las Conferencias --</option>
+                        </select>
+                        <select id="reporteIglesia">
+                            <option value="">-- Todas las Iglesias --</option>
+                        </select>
+                        <button class="btn-primary" id="btnAplicarFiltros">
+                            <i class="fas fa-filter"></i> Aplicar Filtros
+                        </button>
+                        <button class="btn-secondary" id="btnLimpiarFiltros">
                             <i class="fas fa-times-circle"></i> Limpiar
                         </button>
                     </div>
-                    <button class="btn-primary" id="btnNuevoRegistro">
-                        <i class="fas fa-plus"></i> + Nuevo Registro
-                    </button>
-                </div>
-                
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Teléfono</th>
-                                <th>Iglesia</th>
-                                <th>Conferencia</th>
-                                <th>Días Asistidos</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaAsistentes">
-                            <tr>
-                                <td>Cargando registros...</td>
-                                <td>Cargando registros...</td>
-                                <td>Cargando registros...</td>
-                                <td>Cargando registros...</td>
-                                <td>Cargando registros...</td>
-                                <td>Cargando registros...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="reportesSection" class="content-section">
-                <h2>📊 Reportes y Estadísticas</h2>
-                <p>Genera reportes de asistencia</p>
-                
-                <div class="section-header">
-                    <h3>Reporte de Asistencia</h3>
-                    <button class="btn-primary" id="btnDescargarPDF">
-                        <i class="fas fa-file-pdf"></i> 📄 Descargar PDF
-                    </button>
-                </div>
-                
-                <div class="report-controls">
-                    <select id="reporteConferencia">
-                        <option value="">-- Todas las Conferencias --</option>
-                    </select>
-                    <select id="reporteIglesia">
-                        <option value="">-- Todas las Iglesias --</option>
-                    </select>
-                    <button class="btn-primary" id="btnAplicarFiltros">
-                        <i class="fas fa-filter"></i> Aplicar Filtros
-                    </button>
-                    <button class="btn-secondary" id="btnLimpiarFiltros">
-                        <i class="fas fa-times-circle"></i> Limpiar
-                    </button>
-                </div>
-                
-                <div class="report-summary">
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3 id="reporteTotalAsistentes">0</h3>
-                            <p>Total Asistentes</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3 id="reporteTotalDias">0</h3>
-                            <p>Días Totales</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3 id="reporteTotalIglesias">0</h3>
-                            <p>Iglesias Participantes</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Teléfono</th>
-                                <th>Iglesia</th>
-                                <th>Conferencia</th>
-                                <th>Días Asistidos</th>
-                                <th>Invitado Por</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaReporte">
-                            <tr>
-                                <td>Seleccione filtros para ver el reporte</td>
-                                <td>Seleccione filtros para ver el reporte</td>
-                                <td>Seleccione filtros para ver el reporte</td>
-                                <td>Seleccione filtros para ver el reporte</td>
-                                <td>Seleccione filtros para ver el reporte</td>
-                                <td>Seleccione filtros para ver el reporte</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="configuracionSection" class="content-section">
-                <h2>⚙️ Configuración del Sistema</h2>
-                <p>Administra zonas, distritos e iglesias</p>
-                
-                <div class="config-tabs">
-                    <div class="tabs-header">
-                        <button class="tab-btn active" data-tab="zonas">📍 Zonas</button>
-                        <button class="tab-btn" data-tab="distritos">🏛️ Distritos</button>
-                        <button class="tab-btn" data-tab="iglesias">⛪ Iglesias</button>
-                    </div>
                     
-                    <div id="tabZonas" class="tab-content active">
-                        <div class="tab-header">
-                            <h3>Zonas</h3>
-                            <button class="btn-primary" id="btnNuevaZona">
-                                <i class="fas fa-plus"></i> + Nueva Zona
-                            </button>
+                    <div class="report-summary">
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <h3 id="reporteTotalAsistentes">0</h3>
+                                <p>Total Asistentes</p>
+                            </div>
                         </div>
-                        
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Descripción</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaZonas">
-                                    <tr>
-                                        <td>Sin zonas registradas</td>
-                                        <td>Sin zonas registradas</td>
-                                        <td>Sin zonas registradas</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <h3 id="reporteTotalDias">0</h3>
+                                <p>Días Totales</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <h3 id="reporteTotalIglesias">0</h3>
+                                <p>Iglesias Participantes</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div id="tabDistritos" class="tab-content">
-                        <div class="tab-header">
-                            <h3>Distritos</h3>
-                            <button class="btn-primary" id="btnNuevoDistrito">
-                                <i class="fas fa-plus"></i> + Nuevo Distrito
-                            </button>
-                        </div>
-                        
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Distrito</th>
-                                        <th>Zona</th>
-                                        <th>Responsable</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaDistritos">
-                                    <tr>
-                                        <td>Sin distritos registrados</td>
-                                        <td>Sin distritos registrados</td>
-                                        <td>Sin distritos registrados</td>
-                                        <td>Sin distritos registrados</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Teléfono</th>
+                                    <th>Iglesia</th>
+                                    <th>Conferencia</th>
+                                    <th>Días Asistidos</th>
+                                    <th>Invitado Por</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaReporte">
+                                <tr>
+                                    <td class="empty" colspan="6">Seleccione filtros para ver el reporte</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- Configuración Section -->
+                <section id="configuracion" class="content-section">
+                    <div class="page-header">
+                        <h2><i class="fas fa-cog"></i> Configuración del Sistema</h2>
                     </div>
                     
-                    <div id="tabIglesias" class="tab-content">
-                        <div class="tab-header">
-                            <h3>Iglesias</h3>
-                            <button class="btn-primary" id="btnNuevaIglesia">
-                                <i class="fas fa-plus"></i> + Nueva Iglesia
-                            </button>
-                        </div>
-                        
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Iglesia</th>
-                                        <th>Zona</th>
-                                        <th>Distrito</th>
-                                        <th>Pastor</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaIglesias">
-                                    <tr>
-                                        <td>Sin iglesias registradas</td>
-                                        <td>Sin iglesias registradas</td>
-                                        <td>Sin iglesias registradas</td>
-                                        <td>Sin iglesias registradas</td>
-                                        <td>Sin iglesias registradas</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-container">
+                        <h3><i class="fas fa-map-marker-alt"></i> Zonas Registradas</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="zonasConfigTabla">
+                                <tr>
+                                    <td class="empty" colspan="3">Cargando zonas...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </div>
-
-            <div id="usuariosSection" class="content-section">
-                <h2>👤 Gestión de Usuarios</h2>
-                <p>Administra los usuarios del sistema</p>
+                    
+                    <div class="table-container">
+                        <h3><i class="fas fa-city"></i> Distritos Registrados</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Zona</th>
+                                    <th>Nombre</th>
+                                    <th>Responsable</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="distritosConfigTabla">
+                                <tr>
+                                    <td class="empty" colspan="4">Cargando distritos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-container">
+                        <h3><i class="fas fa-church"></i> Iglesias Registradas</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Distrito</th>
+                                    <th>Nombre</th>
+                                    <th>Pastor</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="iglesiasConfigTabla">
+                                <tr>
+                                    <td class="empty" colspan="4">Cargando iglesias...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
                 
-                <div class="section-header">
-                    <h3>Usuarios del Sistema</h3>
-                    <button class="btn-primary" id="btnNuevoUsuario">
-                        <i class="fas fa-plus"></i> + Nuevo Usuario
-                    </button>
-                </div>
-                
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Correo</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaUsuarios">
-                            <tr>
-                                <td>Cargando usuarios...</td>
-                                <td>Cargando usuarios...</td>
-                                <td>Cargando usuarios...</td>
-                                <td>Cargando usuarios...</td>
-                                <td>Cargando usuarios...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <!-- Usuarios Section -->
+                <section id="usuarios" class="content-section">
+                    <div class="page-header">
+                        <h2><i class="fas fa-user-shield"></i> Gestión de Usuarios</h2>
+                        <button class="btn-new" id="btnNuevoUsuario" data-type="usuario">
+                            <i class="fas fa-plus"></i> Nuevo Usuario
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaUsuarios">
+                                <tr>
+                                    <td class="empty" colspan="5">Cargando usuarios...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
 
-    <!-- Modales -->
-    <!-- Modal para nueva zona -->
-    <div id="modalNuevaZona" class="modal">
+    <!-- Modal para Nueva Conferencia -->
+    <div class="modal" id="modalNuevaConferencia">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">📍 Registrar Zona</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3>Nueva Conferencia</h3>
+                <button class="modal-close">&times;</button>
             </div>
-            <form id="formZona">
+            <form id="formNuevaConferencia">
                 <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Nombre *</label>
-                    <input type="text" id="zonaNombre" required>
+                    <label for="nombreEvento">Nombre del Evento</label>
+                    <input type="text" id="nombreEvento" required>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-comment"></i> Descripción</label>
-                    <textarea id="zonaDescripcion"></textarea>
+                    <label for="iglesiaAnfitriona">Iglesia Anfitriona</label>
+                    <select id="iglesiaAnfitriona" required>
+                        <option value="">Seleccionar Iglesia</option>
+                    </select>
                 </div>
-                <div class="form-actions">
-                    <button type="button class="btn-cancel" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Zona</button>
+                <div class="form-group">
+                    <label for="fechaInicio">Fecha Inicio</label>
+                    <input type="date" id="fechaInicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="fechaFin">Fecha Fin</label>
+                    <input type="date" id="fechaFin" required>
+                </div>
+                <div class="form-group">
+                    <label for="conferenciante">Conferenciante Principal</label>
+                    <input type="text" id="conferenciante" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevaConferencia'))">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para nuevo registro de asistente -->
-    <div id="modalNuevoAsistente" class="modal">
+    <!-- Modal para Nuevo Asistente -->
+    <div class="modal" id="modalNuevoAsistente">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">👥 Nuevo Registro de Asistente</h3>
-                <button class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3>Registrar Asistente</h3>
+                <button class="modal-close">&times;</button>
             </div>
-            <form id="formAsistente">
+            <form id="formNuevoAsistente">
                 <div class="form-group">
-                    <label><i class="fas fa-user"></i> Nombre Completo *</label>
-                    <input type="text" id="asistNombre" required>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-phone"></i> Teléfono</label>
-                    <input type="tel" id="asistTelefono">
+                    <label for="nombreAsistente">Nombre Completo</label>
+                    <input type="text" id="nombreAsistente" required>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-user-friends"></i> Invitado Por</label>
-                    <input type="text" id="asistInvit">
+                    <label for="telefonoAsistente">Teléfono</label>
+                    <input type="tel" id="telefonoAsistente" required>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-home"></i> Dirección</label>
-                    <input type="text" id="asistDireccion">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><i class="fas fa-church"></i> Iglesia *</label>
-                        <select id="asistIglesia" required>
-                            <option value="">-- Seleccione Iglesia --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-calendar-alt"></i> Conferencia *</label>
-                        <select id="asistConferencia" required>
-                            <option value="">-- Seleccione Conferencia --</option>
-                        </select>
-                    </div>
+                    <label for="iglesiaProcedencia">Iglesia de Procedencia</label>
+                    <select id="iglesiaProcedencia" required>
+                        <option value="">Seleccionar Iglesia</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-check"></i> Días de Asistencia</label>
-                    <div class="fechas-asistencia-container">
-                        <h4>✅ Marque los días que asistió:</h4>
-                        <div class="contador-asistencia">✅ <strong>0</strong> días asistidos de <strong>0</strong> totales</div>
-                    </div>
+                    <label for="conferenciaAsistir">Conferencia a Asistir</label>
+                    <select id="conferenciaAsistir" required>
+                        <option value="">Seleccionar Conferencia</option>
+                    </select>
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar Registro</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevoAsistente'))">Cancelar</button>
+                    <button type="submit" class="btn-save">Registrar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Modal para Nueva Zona -->
+    <div class="modal" id="modalNuevaZona">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nueva Zona</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="formNuevaZona">
+                <div class="form-group">
+                    <label for="nombreZona">Nombre de la Zona</label>
+                    <input type="text" id="nombreZona" required>
+                </div>
+                <div class="form-group">
+                    <label for="descripcionZona">Descripción</label>
+                    <textarea id="descripcionZona" rows="3" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevaZona'))">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Nuevo Distrito -->
+    <div class="modal" id="modalNuevoDistrito">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuevo Distrito</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="formNuevoDistrito">
+                <div class="form-group">
+                    <label for="zonaDistrito">Zona</label>
+                    <select id="zonaDistrito" required>
+                        <option value="">Seleccionar Zona</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nombreDistrito">Nombre del Distrito</label>
+                    <input type="text" id="nombreDistrito" required>
+                </div>
+                <div class="form-group">
+                    <label for="responsableDistrito">Responsable</label>
+                    <input type="text" id="responsableDistrito" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefonoDistrito">Teléfono</label>
+                    <input type="tel" id="telefonoDistrito">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevoDistrito'))">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Nueva Iglesia -->
+    <div class="modal" id="modalNuevaIglesia">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nueva Iglesia</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="formNuevaIglesia">
+                <div class="form-group">
+                    <label for="distritoIglesia">Distrito</label>
+                    <select id="distritoIglesia" required>
+                        <option value="">Seleccionar Distrito</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nombreIglesia">Nombre de la Iglesia</label>
+                    <input type="text" id="nombreIglesia" required>
+                </div>
+                <div class="form-group">
+                    <label for="pastorIglesia">Pastor</label>
+                    <input type="text" id="pastorIglesia" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefonoIglesia">Teléfono</label>
+                    <input type="tel" id="telefonoIglesia">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevaIglesia'))">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Registro -->
+    <div class="modal" id="modalEditarRegistro">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalEditarTitulo">Editar Registro</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="formEditarRegistro">
+                <input type="hidden" id="editId">
+                <input type="hidden" id="editType">
+                <div class="form-group">
+                    <label for="editNombre">Nombre</label>
+                    <input type="text" id="editNombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDescripcion">Descripción</label>
+                    <textarea id="editDescripcion" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editTelefono">Teléfono</label>
+                    <input type="tel" id="editTelefono">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalEditarRegistro'))">Cancelar</button>
+                    <button type="submit" class="btn-save">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts con configuración de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="main (1).js"></script>
     

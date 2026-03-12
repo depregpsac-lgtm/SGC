@@ -40,20 +40,37 @@ function calcularDias(fechaInicio, fechaFin) {
 }
 
 // ============================================
+// AUTENTICACIÓN
+// ============================================
+function checkAuth() {
+    try {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    } catch (error) {
+        console.error('❌ Error verificando auth:', error);
+        return null;
+    }
+}
+
+function esAdmin() {
+    const user = checkAuth();
+    return user && (user.rol === 'admin' || user.rol === 'administrador');
+}
+
+// ============================================
 // NAVEGACIÓN
 // ============================================
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
     
-    // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
     if (seccionId === 'usuarios') {
         const user = checkAuth();
         if (!user || user.rol !== 'admin') {
-            mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden ver esta sección', 'error');
+            mostrarMensaje('⛔ Acceso denegado. Solo administradores', 'error');
             seccionId = 'dashboard';
         }
     }
-    
+
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
@@ -85,6 +102,7 @@ function navegarSeccion(seccionId) {
             break;
     }
 }
+
 // ============================================
 // MODALES
 // ============================================
@@ -115,6 +133,114 @@ document.addEventListener('click', (e) => {
         cerrarModal(e.target.id);
     }
 });
+
+// ============================================
+// BARRA DE BÚSQUEDA - REGISTROS
+// ============================================
+function filtrarRegistros() {
+    const buscador = document.getElementById('buscadorRegistros');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    const searchInfo = document.getElementById('searchResultsInfo');
+    const tabla = document.getElementById('tablaAsistentes');
+    const searchBox = document.querySelector('.search-box-wrapper');
+    
+    if (!buscador || !tabla) return;
+    
+    const filtro = buscador.value.toLowerCase().trim();
+    const filas = tabla.querySelectorAll('tbody tr');
+    
+    if (clearBtn) {
+        clearBtn.style.display = filtro ? 'flex' : 'none';
+    }
+    
+    if (filtro) {
+        searchBox?.classList.add('searching');
+    } else {
+        searchBox?.classList.remove('searching');
+    }
+    
+    let registrosEncontrados = 0;
+    let registrosOcultados = 0;
+    
+    filas.forEach(fila => {
+        if (fila.querySelector('td[colspan]')) {
+            return;
+        }
+        
+        const celdas = fila.querySelectorAll('td');
+        let textoCompleto = '';
+        
+        celdas.forEach(celda => {
+            textoCompleto += celda.textContent.toLowerCase() + ' ';
+        });
+        
+        if (filtro === '') {
+            fila.classList.remove('hidden-row', 'highlight-row');
+            registrosEncontrados++;
+        } else {
+            if (textoCompleto.includes(filtro)) {
+                fila.classList.remove('hidden-row');
+                fila.classList.add('highlight-row');
+                registrosEncontrados++;
+            } else {
+                fila.classList.add('hidden-row');
+                fila.classList.remove('highlight-row');
+                registrosOcultados++;
+            }
+        }
+    });
+    
+    actualizarInfoBusqueda(searchInfo, registrosEncontrados, registrosOcultados, filtro);
+    
+    setTimeout(() => {
+        searchBox?.classList.remove('searching');
+    }, 500);
+}
+
+function actualizarInfoBusqueda(container, encontrados, ocultados, filtro) {
+    if (!container) return;
+    
+    const total = encontrados + ocultados;
+    
+    if (filtro === '') {
+        container.innerHTML = `
+            <span class="badge-count">
+                <i class="fas fa-list"></i>
+                Mostrando ${total} registro${total !== 1 ? 's' : ''}
+            </span>
+        `;
+    } else if (encontrados === 0) {
+        container.innerHTML = `
+            <span class="badge-count error">
+                <i class="fas fa-exclamation-circle"></i>
+                No se encontraron registros para "${filtro}"
+            </span>
+        `;
+    } else if (ocultados > 0) {
+        container.innerHTML = `
+            <span class="badge-count warning">
+                <i class="fas fa-filter"></i>
+                Mostrando ${encontrados} de ${total} registro${total !== 1 ? 's' : ''}
+            </span>
+        `;
+    } else {
+        container.innerHTML = `
+            <span class="badge-count">
+                <i class="fas fa-check-circle"></i>
+                ${encontrados} registro${encontrados !== 1 ? 's' : ''} encontrado${encontrados !== 1 ? 's' : ''}
+            </span>
+        `;
+    }
+}
+
+function limpiarBusqueda() {
+    const buscador = document.getElementById('buscadorRegistros');
+    if (buscador) {
+        buscador.value = '';
+        buscador.focus();
+        filtrarRegistros();
+    }
+}
 
 // ============================================
 // PREPARAR MODALES
@@ -385,7 +511,7 @@ async function cargarAsistentes() {
         
         tbody.innerHTML = '';
         
-        // Limpiar el buscador al cargar nuevos datos
+        // Limpiar buscador al cargar
         const buscador = document.getElementById('buscadorRegistros');
         if (buscador) buscador.value = '';
         
@@ -408,6 +534,14 @@ async function cargarAsistentes() {
                 `;
                 tbody.appendChild(tr);
             });
+            
+            // Actualizar contador de búsqueda
+            actualizarInfoBusqueda(
+                document.getElementById('searchResultsInfo'),
+                asistentes.length,
+                0,
+                ''
+            );
         } else {
             tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
         }
@@ -418,175 +552,6 @@ async function cargarAsistentes() {
     }
 }
 
-//----------------------------
-// ============================================
-// FUNCIÓN DE BÚSQUEDA PARA REGISTROS
-// ============================================
-// ============================================
-// FUNCIÓN DE BÚSQUEDA MEJORADA
-// ============================================
-function filtrarRegistros() {
-    const buscador = document.getElementById('buscadorRegistros');
-    const clearBtn = document.getElementById('clearSearch');
-    const searchInfo = document.getElementById('searchInfo');
-    const tabla = document.getElementById('tablaAsistentes');
-    const searchBox = document.querySelector('.search-box');
-    
-    if (!buscador || !tabla) return;
-    
-    const filtro = buscador.value.toLowerCase().trim();
-    const filas = tabla.querySelectorAll('tbody tr');
-    
-    // Mostrar/ocultar botón de limpiar
-    if (clearBtn) {
-        clearBtn.style.display = filtro ? 'flex' : 'none';
-    }
-    
-    // Animación de búsqueda
-    if (filtro) {
-        searchBox?.classList.add('searching');
-    } else {
-        searchBox?.classList.remove('searching');
-    }
-    
-    let registrosEncontrados = 0;
-    let registrosOcultados = 0;
-    
-    filas.forEach(fila => {
-        // Saltar filas vacías o de "sin registros"
-        if (fila.querySelector('td[colspan]')) {
-            return;
-        }
-        
-        const celdas = fila.querySelectorAll('td');
-        let textoCompleto = '';
-        
-        // Obtener texto de todas las celdas
-        celdas.forEach(celda => {
-            textoCompleto += celda.textContent.toLowerCase() + ' ';
-        });
-        
-        if (filtro === '') {
-            // Sin filtro: mostrar todas
-            fila.classList.remove('hidden-row', 'highlight-row');
-            registrosEncontrados++;
-        } else {
-            // Con filtro: buscar coincidencias
-            if (textoCompleto.includes(filtro)) {
-                fila.classList.remove('hidden-row');
-                fila.classList.add('highlight-row');
-                registrosEncontrados++;
-            } else {
-                fila.classList.add('hidden-row');
-                fila.classList.remove('highlight-row');
-                registrosOcultados++;
-            }
-        }
-    });
-    
-    // Actualizar información de búsqueda
-    actualizarInfoBusqueda(searchInfo, registrosEncontrados, registrosOcultados, filtro);
-    
-    // Remover animación después de un momento
-    setTimeout(() => {
-        searchBox?.classList.remove('searching');
-    }, 500);
-}
-
-function actualizarInfoBusqueda(container, encontrados, ocultados, filtro) {
-    if (!container) return;
-    
-    const total = encontrados + ocultados;
-    
-    if (filtro === '') {
-        container.innerHTML = `
-            <span class="badge-info">
-                <i class="fas fa-list"></i>
-                Mostrando ${total} registro${total !== 1 ? 's' : ''}
-            </span>
-        `;
-    } else if (encontrados === 0) {
-        container.innerHTML = `
-            <span class="badge-info error">
-                <i class="fas fa-exclamation-circle"></i>
-                No se encontraron registros para "${filtro}"
-            </span>
-        `;
-    } else if (ocultados > 0) {
-        container.innerHTML = `
-            <span class="badge-info warning">
-                <i class="fas fa-filter"></i>
-                Mostrando ${encontrados} de ${total} registro${total !== 1 ? 's' : ''}
-                (${ocultados} filtrado${ocultados !== 1 ? 's' : ''})
-            </span>
-        `;
-    } else {
-        container.innerHTML = `
-            <span class="badge-info">
-                <i class="fas fa-check-circle"></i>
-                ${encontrados} registro${encontrados !== 1 ? 's' : ''} encontrado${encontrados !== 1 ? 's' : ''}
-            </span>
-        `;
-    }
-}
-
-// Limpiar búsqueda
-function limpiarBusqueda() {
-    const buscador = document.getElementById('buscadorRegistros');
-    if (buscador) {
-        buscador.value = '';
-        buscador.focus();
-        filtrarRegistros();
-    }
-}
-
-// Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-    const buscador = document.getElementById('buscadorRegistros');
-    const clearBtn = document.getElementById('clearSearch');
-    
-    if (buscador) {
-        // Búsqueda en tiempo real
-        buscador.addEventListener('input', filtrarRegistros);
-        
-        // Búsqueda con Enter
-        buscador.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                this.blur();
-            }
-        });
-    }
-    
-    if (clearBtn) {
-        clearBtn.addEventListener('click', limpiarBusqueda);
-    }
-});
-
-// Exportar funciones globalmente
-window.filtrarRegistros = filtrarRegistros;
-window.limpiarBusqueda = limpiarBusqueda;
-    
-    // Mostrar mensaje si no hay resultados
-    const mensajeSinResultados = tabla.querySelector('.sin-resultados');
-    if (registrosEncontrados === 0 && filtro !== '') {
-        if (!mensajeSinResultados) {
-            const tr = document.createElement('tr');
-            tr.className = 'sin-resultados';
-            tr.innerHTML = `<td colspan="6" style="text-align: center; color: #999; padding: 30px;">
-                <i class="fas fa-search" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
-                No se encontraron registros que coincidan con "${filtro}"
-            </td>`;
-            tabla.querySelector('tbody').appendChild(tr);
-        }
-    } else if (mensajeSinResultados) {
-        mensajeSinResultados.remove();
-    }
-}
-
-// Exportar función globalmente
-window.filtrarRegistros = filtrarRegistros;
-
-//-------------------------
 async function cargarUsuarios() {
     try {
         const usuarios = await obtenerUsuarios();
@@ -795,7 +760,7 @@ async function confirmarEliminarDistrito(id) {
     if (confirm('⚠️ ¿Está seguro de eliminar este distrito?')) {
         try {
             await eliminarDistrito(id);
-            mostrarMensaje('✅ Distrito eliminado exitosamente', 'success');
+            mostrarMensaje('✅ Distrito eliminada exitosamente', 'success');
             await cargarDistritos();
             await cargarEstadisticas();
         } catch (error) {
@@ -1125,12 +1090,10 @@ async function editarUsuario(id) {
         document.getElementById('usuarioRol').value = usuario.rol;
         document.getElementById('usuarioEstado').value = usuario.estado || 'activo';
         
-        // ✅ Parsear permisos de forma segura
         let permisosUsuario = [];
         try {
             if (usuario.permisos) {
                 if (typeof usuario.permisos === 'string') {
-                    // Si es string con comillas escapadas
                     if (usuario.permisos.startsWith('"[')) {
                         const cleanPermisos = usuario.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
                         permisosUsuario = JSON.parse(cleanPermisos);
@@ -1142,14 +1105,12 @@ async function editarUsuario(id) {
                 }
             }
         } catch (e) {
-            console.error('❌ Error parseando permisos del usuario:', e);
-            // Si falla, intentar con split por comas
+            console.error('❌ Error parseando permisos:', e);
             if (typeof usuario.permisos === 'string') {
                 permisosUsuario = usuario.permisos.split(',').map(p => p.trim()).filter(p => p);
             }
         }
         
-        // Marcar permisos
         document.querySelectorAll('.permiso-checkbox').forEach(cb => {
             cb.checked = permisosUsuario.includes(cb.value) || usuario.rol === 'admin' || usuario.rol === 'administrador';
         });
@@ -1167,12 +1128,11 @@ async function editarUsuario(id) {
 async function guardarUsuario(e) {
     e.preventDefault();
     
-    // ✅ VERIFICAR QUE SEA ADMIN
     if (!esAdmin()) {
-        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores', 'error');
         return;
     }
-    
+
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1203,41 +1163,11 @@ async function guardarUsuario(e) {
 async function guardarUsuarioEditado(e) {
     e.preventDefault();
     
-    // ✅ VERIFICAR QUE SEA ADMIN
     if (!esAdmin()) {
-        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden editar usuarios', 'error');
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores', 'error');
         return;
     }
-    
-    try {
-        const nombre_completo = document.getElementById('usuarioNombre').value.trim();
-        const email = document.getElementById('usuarioEmail').value.trim();
-        const password = document.getElementById('usuarioPassword').value;
-        const rol = document.getElementById('usuarioRol').value;
-        const estado = document.getElementById('usuarioEstado').value;
-        
-        const permisos = [];
-        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
-            permisos.push(cb.value);
-        });
-        
-        if (!nombre_completo || !email) {
-            mostrarMensaje('Nombre y correo son requeridos', 'error');
-            return;
-        }
-        
-        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
-        mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
-        cerrarModal('modalNuevoUsuario');
-        await cargarUsuarios();
-    } catch (error) {
-        console.error('❌ Error actualizando usuario:', error);
-        mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
-    }
-}
 
-async function guardarUsuarioEditado(e) {
-    e.preventDefault();
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1266,9 +1196,8 @@ async function guardarUsuarioEditado(e) {
 }
 
 async function confirmarEliminarUsuario(id) {
-    // ✅ VERIFICAR QUE SEA ADMIN
     if (!esAdmin()) {
-        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores', 'error');
         return;
     }
     
@@ -1283,6 +1212,7 @@ async function confirmarEliminarUsuario(id) {
         }
     }
 }
+
 // ============================================
 // FUNCIONES DE ASISTENCIA
 // ============================================
@@ -1295,7 +1225,7 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
     const fin = new Date(fechaFin + 'T00:00:00');
     const fechas = [];
     let actual = new Date(inicio);
-    
+
     while (actual <= fin) {
         fechas.push(new Date(actual));
         actual.setDate(actual.getDate() + 1);
@@ -1540,7 +1470,7 @@ async function generarReportePDF() {
         doc.rect(14, 75, 182, 20, 'F');
         doc.setFontSize(10);
         doc.text(`Total Asistentes: ${asistentes.length}`, 20, 85);
-        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85); 
+        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85);  
         doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 85);
         
         const tableData = asistentes.map(asist => {
@@ -1584,8 +1514,9 @@ async function generarReportePDF() {
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOMContentLoaded - Iniciando aplicación...');
+    
     await new Promise(resolve => setTimeout(resolve, 500));
-
+    
     if (!window.db) {
         console.error('❌ window.db no existe');
         mostrarMensaje('Error de conexión con la base de datos', 'error');
@@ -1617,6 +1548,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         navegarSeccion('dashboard');
         
+        // ✅ CONFIGURAR BARRA DE BÚSQUEDA
+        const buscador = document.getElementById('buscadorRegistros');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        
+        if (buscador) {
+            buscador.addEventListener('input', filtrarRegistros);
+            buscador.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.blur();
+                }
+            });
+        }
+        
+        if (clearBtn) {
+            clearBtn.addEventListener('click', limpiarBusqueda);
+        }
+        
         console.log('✅ Aplicación inicializada correctamente');
     } else {
         console.log('🔐 No hay usuario autenticado');
@@ -1645,8 +1593,7 @@ function mostrarDashboard(user) {
     if (userName) userName.textContent = user.nombre;
     if (userRole) userRole.textContent = user.rol === 'admin' ? 'Administrador' : 'Usuario';
     if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
-    
-    // ✅ OCULTAR MENÚ USUARIOS SI NO ES ADMIN
+
     const menuUsuarios = document.getElementById('nav-usuarios');
     if (menuUsuarios) {
         if (user.rol !== 'admin') {
@@ -1656,6 +1603,7 @@ function mostrarDashboard(user) {
         }
     }
 }
+
 function configurarFormularioLogin() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -1733,6 +1681,7 @@ function mostrarAlertaLogin(mensaje, tipo) {
 function togglePassword() {
     const passwordInput = document.getElementById('loginPassword');
     const toggleBtn = document.querySelector('.toggle-password i');
+    
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
         toggleBtn.classList.remove('fa-eye');
@@ -1816,17 +1765,12 @@ window.generarReportePDF = generarReportePDF;
 window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
+window.filtrarRegistros = filtrarRegistros;
+window.limpiarBusqueda = limpiarBusqueda;
+window.checkAuth = checkAuth;
+window.esAdmin = esAdmin;
+
 console.log('✅ main.js cargado correctamente con todas las funciones');
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1140,3 +1140,48 @@ table td {
   justify-content: space-between;
   align-items: center;
 }
+
+/* MODIFICACIÓN 1: Asegurar que el contenido principal ocupe toda la altura */
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100vh - 140px);
+}
+
+/* MODIFICACIÓN 2: Asegurar que la sección de contenido ocupe todo el espacio */
+.content-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* MODIFICACIÓN 3: Ajustar el contenedor de la tabla para que ocupe todo el espacio */
+.table-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  margin-bottom: 30px;
+}
+
+/* MODIFICACIÓN 4: Asegurar que la tabla ocupe todo el espacio disponible */
+.table-container table {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* MODIFICACIÓN 5: Ajustar el encabezado de la tabla para que no ocupe espacio extra */
+.table-container .page-header {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

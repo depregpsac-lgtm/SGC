@@ -422,37 +422,149 @@ async function cargarAsistentes() {
 // ============================================
 // FUNCIÓN DE BÚSQUEDA PARA REGISTROS
 // ============================================
+// ============================================
+// FUNCIÓN DE BÚSQUEDA MEJORADA
+// ============================================
 function filtrarRegistros() {
     const buscador = document.getElementById('buscadorRegistros');
+    const clearBtn = document.getElementById('clearSearch');
+    const searchInfo = document.getElementById('searchInfo');
     const tabla = document.getElementById('tablaAsistentes');
+    const searchBox = document.querySelector('.search-box');
     
     if (!buscador || !tabla) return;
     
     const filtro = buscador.value.toLowerCase().trim();
     const filas = tabla.querySelectorAll('tbody tr');
     
+    // Mostrar/ocultar botón de limpiar
+    if (clearBtn) {
+        clearBtn.style.display = filtro ? 'flex' : 'none';
+    }
+    
+    // Animación de búsqueda
+    if (filtro) {
+        searchBox?.classList.add('searching');
+    } else {
+        searchBox?.classList.remove('searching');
+    }
+    
     let registrosEncontrados = 0;
+    let registrosOcultados = 0;
     
     filas.forEach(fila => {
-        const texto = fila.textContent || fila.innerText;
+        // Saltar filas vacías o de "sin registros"
+        if (fila.querySelector('td[colspan]')) {
+            return;
+        }
+        
+        const celdas = fila.querySelectorAll('td');
+        let textoCompleto = '';
+        
+        // Obtener texto de todas las celdas
+        celdas.forEach(celda => {
+            textoCompleto += celda.textContent.toLowerCase() + ' ';
+        });
         
         if (filtro === '') {
-            // Si no hay filtro, mostrar todas las filas
-            fila.classList.remove('fila-oculta');
-            fila.classList.remove('fila-encontrada');
+            // Sin filtro: mostrar todas
+            fila.classList.remove('hidden-row', 'highlight-row');
             registrosEncontrados++;
         } else {
-            // Buscar el texto en la fila
-            if (texto.toLowerCase().includes(filtro)) {
-                fila.classList.remove('fila-oculta');
-                fila.classList.add('fila-encontrada');
+            // Con filtro: buscar coincidencias
+            if (textoCompleto.includes(filtro)) {
+                fila.classList.remove('hidden-row');
+                fila.classList.add('highlight-row');
                 registrosEncontrados++;
             } else {
-                fila.classList.add('fila-oculta');
-                fila.classList.remove('fila-encontrada');
+                fila.classList.add('hidden-row');
+                fila.classList.remove('highlight-row');
+                registrosOcultados++;
             }
         }
     });
+    
+    // Actualizar información de búsqueda
+    actualizarInfoBusqueda(searchInfo, registrosEncontrados, registrosOcultados, filtro);
+    
+    // Remover animación después de un momento
+    setTimeout(() => {
+        searchBox?.classList.remove('searching');
+    }, 500);
+}
+
+function actualizarInfoBusqueda(container, encontrados, ocultados, filtro) {
+    if (!container) return;
+    
+    const total = encontrados + ocultados;
+    
+    if (filtro === '') {
+        container.innerHTML = `
+            <span class="badge-info">
+                <i class="fas fa-list"></i>
+                Mostrando ${total} registro${total !== 1 ? 's' : ''}
+            </span>
+        `;
+    } else if (encontrados === 0) {
+        container.innerHTML = `
+            <span class="badge-info error">
+                <i class="fas fa-exclamation-circle"></i>
+                No se encontraron registros para "${filtro}"
+            </span>
+        `;
+    } else if (ocultados > 0) {
+        container.innerHTML = `
+            <span class="badge-info warning">
+                <i class="fas fa-filter"></i>
+                Mostrando ${encontrados} de ${total} registro${total !== 1 ? 's' : ''}
+                (${ocultados} filtrado${ocultados !== 1 ? 's' : ''})
+            </span>
+        `;
+    } else {
+        container.innerHTML = `
+            <span class="badge-info">
+                <i class="fas fa-check-circle"></i>
+                ${encontrados} registro${encontrados !== 1 ? 's' : ''} encontrado${encontrados !== 1 ? 's' : ''}
+            </span>
+        `;
+    }
+}
+
+// Limpiar búsqueda
+function limpiarBusqueda() {
+    const buscador = document.getElementById('buscadorRegistros');
+    if (buscador) {
+        buscador.value = '';
+        buscador.focus();
+        filtrarRegistros();
+    }
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscadorRegistros');
+    const clearBtn = document.getElementById('clearSearch');
+    
+    if (buscador) {
+        // Búsqueda en tiempo real
+        buscador.addEventListener('input', filtrarRegistros);
+        
+        // Búsqueda con Enter
+        buscador.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                this.blur();
+            }
+        });
+    }
+    
+    if (clearBtn) {
+        clearBtn.addEventListener('click', limpiarBusqueda);
+    }
+});
+
+// Exportar funciones globalmente
+window.filtrarRegistros = filtrarRegistros;
+window.limpiarBusqueda = limpiarBusqueda;
     
     // Mostrar mensaje si no hay resultados
     const mensajeSinResultados = tabla.querySelector('.sin-resultados');
@@ -1705,6 +1817,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

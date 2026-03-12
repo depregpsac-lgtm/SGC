@@ -1168,6 +1168,7 @@ table td {
   padding: 25px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.08);
   margin-bottom: 30px;
+  overflow-x: auto; /* Permite desplazamiento horizontal */
 }
 
 /* MODIFICACIÓN 4: Asegurar que la tabla ocupe todo el espacio disponible */
@@ -1176,6 +1177,7 @@ table td {
   min-height: 0;
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* Esto hace que las columnas se distribuyan uniformemente */
 }
 
 /* MODIFICACIÓN 5: Ajustar el encabezado de la tabla para que no ocupe espacio extra */
@@ -1184,4 +1186,36 @@ table td {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* MODIFICACIÓN 6: Ajustar las celdas de la tabla para que sean más responsivas */
+.table-container th,
+.table-container td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* MODIFICACIÓN 7: Asegurar que las columnas se distribuyan adecuadamente */
+.table-container table {
+  table-layout: auto; /* Cambia a 'auto' si prefieres que las columnas se ajusten al contenido */
+}
+
+/* MODIFICACIÓN 8: Asegurar que el contenedor principal ocupe el 100% del ancho */
+.dashboard-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* MODIFICACIÓN 9: Asegurar que el contenido principal ocupe todo el ancho */
+.main-content {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* MODIFICACIÓN 10: Asegurar que las tablas con scroll horizontal funcionen correctamente */
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  min-width: 100%;
 }

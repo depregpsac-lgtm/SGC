@@ -1219,3 +1219,65 @@ table td {
   width: 100%;
   min-width: 100%;
 }
+
+/* ============================================
+ANCHO COMPLETO PARA TABLAS ESPECÍFICAS
+(Registros, Reportes, Usuarios)
+============================================ */
+
+/* Asegurar que el contenido principal use todo el espacio disponible */
+#registros .main-content,
+#reportes .main-content,
+#usuarios .main-content {
+    padding: 20px;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Forzar ancho completo en los contenedores de tabla de estas secciones */
+#registros .table-container,
+#reportes .table-container,
+#usuarios .table-container {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 12px;
+    overflow-x: auto; /* Permite scroll horizontal si es necesario */
+}
+
+/* Asegurar que la tabla interna ocupe todo el ancho del contenedor */
+#registros table,
+#reportes table,
+#usuarios table {
+    width: 100%;
+    table-layout: auto; /* Permite que las columnas se ajusten al contenido */
+    min-width: 800px; /* Evita que la tabla se comprima demasiado en pantallas pequeñas */
+}
+
+/* Ajustar celdas para mejor distribución */
+#registros table th,
+#registros table td,
+#reportes table th,
+#reportes table td,
+#usuarios table th,
+#usuarios table td {
+    padding: 15px 20px;
+    white-space: nowrap; /* Evita que el texto se rompa en múltiples líneas */
+}
+
+/* Responsive - Mantener scroll horizontal en móviles */
+@media (max-width: 768px) {
+    #registros .table-container,
+    #reportes .table-container,
+    #usuarios .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+    
+    #registros table,
+    #reportes table,
+    #usuarios table {
+        min-width: 600px;
+    }
+}

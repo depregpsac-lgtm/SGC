@@ -1281,5 +1281,44 @@ table td {
         font-size: 12px;
     }
 
+    /* ============================================
+BARRA DE BÚSQUEDA
+============================================ */
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-bar input {
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+    min-width: 300px;
+    flex: 1;
+}
+
+.search-bar input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-bar input::placeholder {
+    color: #999;
+}
+
+/* Resaltar filas encontradas */
+table tr.fila-encontrada {
+    background-color: #f0f9ff;
+}
+
+table tr.fila-oculta {
+    display: none;
+}
+
 
 }

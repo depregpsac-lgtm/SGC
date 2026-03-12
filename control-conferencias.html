@@ -801,6 +801,7 @@
         </div>
     </div>
 </section>
+                
 <!-- 👥 Registros de Asistentes -->
 <section id="registros" class="content-section">
     <div class="content-header">
@@ -817,22 +818,38 @@
         </div>
         
         <!-- 🔍 BARRA DE BÚSQUEDA PROFESIONAL -->
-        <div class="search-container-professional">
-            <div class="search-box-wrapper">
-                <i class="fas fa-search search-icon"></i>
+        <div class="search-bar-professional">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
                 <input 
                     type="text" 
                     id="buscadorRegistros" 
-                    placeholder="Buscar por nombre, teléfono, iglesia, conferencia o invitado por..."
+                    placeholder="Busque por nombre, teléfono, iglesia o conferencia..."
                     autocomplete="off"
                 >
-                <button class="clear-search-btn" id="clearSearchBtn" type="button" style="display: none;">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
-            <div class="search-results-info" id="searchResultsInfo">
-                <span class="badge-count">Mostrando todos los registros</span>
+            
+            <div class="search-select-wrapper">
+                <select id="filtroCampo">
+                    <option value="todos">Todos</option>
+                    <option value="nombre">Nombre</option>
+                    <option value="telefono">Teléfono</option>
+                    <option value="iglesia">Iglesia</option>
+                    <option value="conferencia">Conferencia</option>
+                </select>
             </div>
+            
+            <button onclick="filtrarRegistros()" class="btn-search">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+            
+            <button onclick="limpiarBusqueda()" class="btn-clear">
+                <i class="fas fa-times"></i> Limpiar
+            </button>
+        </div>
+        
+        <div class="search-results-count" id="searchResultsCount">
+            <i class="fas fa-list"></i> Mostrando <strong id="totalRegistros">0</strong> registros
         </div>
         
         <div class="table-wrapper">

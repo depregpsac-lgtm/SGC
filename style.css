@@ -1280,4 +1280,82 @@ ANCHO COMPLETO PARA TABLAS ESPECÍFICAS
     #usuarios table {
         min-width: 600px;
     }
+
+    /* ============================================
+TABLAS DE ANCHO COMPLETO - REGISTROS, REPORTES, USUARIOS
+============================================ */
+
+/* Expandir el contenido principal al máximo */
+#registros .main-content,
+#reportes .main-content,
+#usuarios .main-content {
+    padding: 20px 30px;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Contenedor de tabla - Sin restricciones de ancho */
+#registros .table-container,
+#reportes .table-container,
+#usuarios .table-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    overflow-x: auto;
+}
+
+/* Tabla - Ancho completo */
+#registros table,
+#reportes table,
+#usuarios table {
+    width: 100%;
+    min-width: 100%;
+    table-layout: auto;
+}
+
+/* Ajustar celdas */
+#registros table th,
+#registros table td,
+#reportes table th,
+#reportes table td,
+#usuarios table th,
+#usuarios table td {
+    padding: 15px 20px;
+    white-space: nowrap;
+}
+
+/* Header de tabla - Ocupar todo el ancho */
+#registros .table-header,
+#reportes .table-header,
+#usuarios .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    width: 100%;
+}
+
+/* Responsive - Mantener en móviles */
+@media (max-width: 768px) {
+    #registros .table-container,
+    #reportes .table-container,
+    #usuarios .table-container {
+        padding: 15px;
+        overflow-x: auto;
+    }
+    
+    #registros table th,
+    #registros table td,
+    #reportes table th,
+    #reportes table td,
+    #usuarios table th,
+    #usuarios table td {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+}
 }

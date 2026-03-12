@@ -817,11 +817,25 @@
             </button>
         </div>
         
-        <!-- 🔍 BARRA DE BÚSQUEDA AGREGADA -->
-        <div class="search-bar">
-            <input type="text" id="buscadorRegistros" placeholder="🔍 Buscar por nombre, teléfono, iglesia o conferencia..." onkeyup="filtrarRegistros()">
-        </div>
-        
+       //
+        <div class="search-container">
+    <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+            type="text" 
+            id="buscadorRegistros" 
+            placeholder="Buscar por nombre, teléfono, iglesia o conferencia..."
+            autocomplete="off"
+        >
+        <button class="clear-search" id="clearSearch" style="display: none;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="search-info" id="searchInfo">
+        <span class="badge-info">Mostrando todos los registros</span>
+    </div>
+</div>
+        //
         <div class="table-wrapper">
             <table id="tablaAsistentes">
                 <thead>

@@ -4,414 +4,908 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+
+        /* Login Page */
+        #loginPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-demo {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .login-alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .login-alert.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .login-alert.success {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        /* Dashboard Page */
+        #dashboardPage {
+            display: none;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .user-details h4 {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .user-details span {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar-nav a i {
+            width: 25px;
+            margin-right: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+        }
+
+        .content-header h1 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .content-header p {
+            color: #666;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table-header h3 {
+            color: #1a1a2e;
+            font-size: 18px;
+        }
+
+        .btn-new {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.3s;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table th {
+            background: #f8f9fa;
+            color: #1a1a2e;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        table td {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 13px;
+        }
+
+        .btn-edit {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-asistencia {
+            padding: 4px 10px;
+            background: #d1fae5;
+            color: #059669;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-estado {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-estado.activo {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-estado.inactivo {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-header h3 {
+            color: #1a1a2e;
+            font-size: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group-modal {
+            margin-bottom: 15px;
+        }
+
+        .form-group-modal label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group-modal input,
+        .form-group-modal select,
+        .form-group-modal textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group-modal input:focus,
+        .form-group-modal select:focus,
+        .form-group-modal textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Fecha Asistencia */
+        .fechas-asistencia-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .fecha-asistencia {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .fecha-asistencia:hover {
+            border-color: #667eea;
+        }
+
+        .fecha-asistencia.seleccionada {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .contador-asistencia {
+            padding: 12px;
+            background: #fef3c7;
+            color: #d97706;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        /* Permisos */
+        .permisos-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .permisos-container label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Report Filters */
+        .report-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .report-filters select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        .btn-apply,
+        .btn-clear,
+        .btn-pdf {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-apply {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-clear {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-pdf {
+            background: #dc2626;
+            color: white;
+        }
+
+        .report-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .report-summary-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .report-summary-card h4 {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .report-summary-card p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .report-filters {
+                flex-direction: column;
+            }
+
+            .report-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fas fa-church"></i>
-                    <h2>MinistryLion</h2>
+    <!-- Login Page -->
+    <div id="loginPage">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>🦁 MinistryLion</h1>
+                <p>Sistema de Gestión de Conferencias</p>
+            </div>
+            
+            <div id="loginAlert" class="login-alert"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="loginEmail" placeholder="admin@ministrylion.com" required>
                 </div>
-            </div>
-
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">ML</div>
-                <div class="user-details">
-                    <h4 id="userName">Administrador</h4>
-                    <p id="userEmail">admin@ministrylion.com</p>
+                
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <div style="position: relative;">
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                        <i class="fas fa-eye toggle-password" onclick="togglePassword()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666;"></i>
+                    </div>
                 </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="#" class="active" data-section="dashboard">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-                <a href="#" data-section="conferencias">
-                    <i class="fas fa-calendar-alt"></i> Conferencias
-                </a>
-                <a href="#" data-section="registros">
-                    <i class="fas fa-users"></i> Registros
-                </a>
-                <a href="#" data-section="reportes">
-                    <i class="fas fa-chart-bar"></i> Reportes
-                </a>
-                <a href="#" data-section="configuracion">
-                    <i class="fas fa-cog"></i> Configuración
-                </a>
-                <a href="#" data-section="usuarios">
-                    <i class="fas fa-user-shield"></i> Usuarios
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <button class="btn-logout" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i> Salir
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="dashboard-content">
-                <!-- Dashboard Section -->
-                <section id="dashboard" class="content-section active">
-                    <div class="page-header">
-                        <h2><i class="fas fa-home"></i> Panel Principal</h2>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon zones">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="totalZonas">0</h3>
-                                <p>Total Zonas</p>
-                            </div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-icon districts">
-                                <i class="fas fa-city"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="totalDistritos">0</h3>
-                                <p>Total Distritos</p>
-                            </div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-icon churches">
-                                <i class="fas fa-church"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="totalIglesias">0</h3>
-                                <p>Total Iglesias</p>
-                            </div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-icon conferences">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="totalConferencias">0</h3>
-                                <p>Conferencias</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="table-container">
-                        <div class="page-header">
-                            <h2><i class="fas fa-calendar-alt"></i> Próximas Conferencias</h2>
-                            <button class="btn-new" id="btnNuevaConferencia" data-type="conferencia">
-                                <i class="fas fa-plus"></i> Nueva Conferencia
-                            </button>
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Evento</th>
-                                    <th>Fecha</th>
-                                    <th>Lugar</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="proximasConferencias">
-                                <tr>
-                                    <td class="empty" colspan="4">Cargando conferencias...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="table-container">
-                        <div class="page-header">
-                            <h2><i class="fas fa-list"></i> Listado de Conferencias</h2>
-                            <button class="btn-new" id="btnNuevaConferencia2" data-type="conferencia">
-                                <i class="fas fa-plus"></i> Nueva Conferencia
-                            </button>
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Iglesia</th>
-                                    <th>Inicio</th>
-                                    <th>Fin</th>
-                                    <th>Conferenciante</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="listadoConferencias">
-                                <tr>
-                                    <td class="empty" colspan="6">Cargando conferencias...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="table-container">
-                        <div class="page-header">
-                            <h2><i class="fas fa-users"></i> Asistentes Registrados</h2>
-                            <button class="btn-new" id="btnNuevoAsistente" data-type="asistente">
-                                <i class="fas fa-plus"></i> Nuevo Asistente
-                            </button>
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Iglesia</th>
-                                    <th>Teléfono</th>
-                                    <th>Conferencia</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="asistentesDashboard">
-                                <tr>
-                                    <td class="empty" colspan="5">Cargando asistentes...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="table-container">
-                        <div class="page-header">
-                            <h2><i class="fas fa-map-marked-alt"></i> Zonas, Distritos e Iglesias</h2>
-                        </div>
-                        
-                        <div class="grid-container">
-                            <!-- Zonas -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3><i class="fas fa-map-marker-alt"></i> Zonas Registradas</h3>
-                                    <button class="btn-new" id="btnNuevaZona" data-type="zona">
-                                        <i class="fas fa-plus"></i> + Zona
-                                    </button>
-                                </div>
-                                <div class="table-container">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>Descripción</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="zonasTabla">
-                                            <tr>
-                                                <td class="empty" colspan="3">Cargando zonas...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Distritos -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3><i class="fas fa-city"></i> Distritos Registrados</h3>
-                                    <button class="btn-new" id="btnNuevoDistrito" data-type="distrito">
-                                        <i class="fas fa-plus"></i> + Distrito
-                                    </button>
-                                </div>
-                                <div class="table-container">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Zona</th>
-                                                <th>Nombre</th>
-                                                <th>Responsable</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="distritosTabla">
-                                            <tr>
-                                                <td class="empty" colspan="4">Cargando distritos...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Iglesias -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3><i class="fas fa-church"></i> Iglesias Registradas</h3>
-                                    <button class="btn-new" id="btnNuevaIglesia" data-type="iglesia">
-                                        <i class="fas fa-plus"></i> + Iglesia
-                                    </button>
-                                </div>
-                                <div class="table-container">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Distrito</th>
-                                                <th>Nombre</th>
-                                                <th>Pastor</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="iglesiasTabla">
-                                            <tr>
-                                                <td class="empty" colspan="4">Cargando iglesias...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
                 
-                <!-- Conferencias Section -->
-                <section id="conferencias" class="content-section">
-                    <div class="page-header">
-                        <h2><i class="fas fa-calendar-alt"></i> Gestión de Conferencias</h2>
-                        <button class="btn-new" id="btnNuevaConferencia3" data-type="conferencia">
-                            <i class="fas fa-plus"></i> Nueva Conferencia
-                        </button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Iglesia</th>
-                                    <th>Inicio</th>
-                                    <th>Fin</th>
-                                    <th>Conferenciante</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="conferenciasTabla">
-                                <tr>
-                                    <td class="empty" colspan="6">Cargando conferencias...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                <button type="submit" class="btn-login">Iniciar Sesión</button>
+            </form>
+            
+            
+            
+            <p style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+                © Elaborador por: Natanael León Veras, edición 2026. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage">
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>🦁 MinistryLion</h2>
+                    <p>Sistema de Gestión</p>
+                </div>
                 
-                <!-- Registros Section (CON BÚSQUEDA) -->
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <h4 id="userName">Admin</h4>
+                        <span id="userRole">Administrador</span>
+                    </div>
+                </div>
+                
+                <ul class="sidebar-nav">
+                    <li><a href="#" id="nav-dashboard" class="active" onclick="navegarSeccion('dashboard')"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#" id="nav-conferencias" onclick="navegarSeccion('conferencias')"><i class="fas fa-calendar-alt"></i> Conferencias</a></li>
+                    <li><a href="#" id="nav-registros" onclick="navegarSeccion('registros')"><i class="fas fa-users"></i> Registros</a></li>
+                    <li><a href="#" id="nav-reportes" onclick="navegarSeccion('reportes')"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+                    <li><a href="#" id="nav-configuracion" onclick="navegarSeccion('configuracion')"><i class="fas fa-cog"></i> Configuración</a></li>
+                    <li><a href="#" id="nav-usuarios" onclick="navegarSeccion('usuarios')"><i class="fas fa-user-shield"></i> Usuarios</a></li>
+                    <li><a href="#" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                </ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+               <!-- Dashboard Section -->
+<section id="dashboard" class="content-section active">
+    <div class="content-header">
+        <h1>👋 Bienvenido al Dashboard</h1>
+        <p>Resumen general del sistema de gestión de conferencias</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📍</div>
+            <h3 id="statZonas">0</h3>
+            <p>Total Zonas</p>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🏛️</div>
+            <h3 id="statDistritos">0</h3>
+            <p>Total Distritos</p>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⛪</div>
+            <h3 id="statIglesias">0</h3>
+            <p>Total Iglesias</p>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <h3 id="statConferencias">0</h3>
+            <p>Conferencias</p>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <h3 id="statAsistentes">0</h3>
+            <p>Total Asistentes</p>
+        </div>
+    </div>
+</section>
+<section id="conferencias" class="content-section">
+    <div class="content-header">
+        <h1>📅 Gestión de Conferencias</h1>
+        <p>Administra las conferencias de las iglesias</p>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Listado de Conferencias</h3>
+            <button class="btn-new" onclick="prepararModalConferencia()">+ Nueva Conferencia</button>
+        </div>
+        <div class="table-wrapper">
+            <table id="tablaConferencias">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Iglesia</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Días</th>
+                        <th>Conferenciante</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="7">Cargando datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
                 <section id="registros" class="content-section">
-                    <div class="page-header">
-                        <h2><i class="fas fa-users"></i> Registros de Asistentes</h2>
-                        <div class="search-bar">
-                            <input type="text" id="searchNombre" placeholder="Buscar por nombre..." class="search-input">
-                            <button type="button" id="btnBuscar" class="btn-search">
-                                <i class="fas fa-search"></i> Buscar
-                            </button>
-                            <button type="button" id="btnLimpiar" class="btn-clear">
-                                <i class="fas fa-times-circle"></i> Limpiar
-                            </button>
-                        </div>
-                        <button class="btn-new" id="btnNuevoAsistente2" data-type="asistente">
-                            <i class="fas fa-plus"></i> Nuevo Asistente
-                        </button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Iglesia</th>
-                                    <th>Teléfono</th>
-                                    <th>Conferencia</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaAsistentes">
-                                <tr>
-                                    <td class="empty" colspan="5">Cargando asistentes...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-                
-                <!-- Reportes Section -->
-                <section id="reportes" class="content-section">
-                    <div class="page-header">
-                        <h2><i class="fas fa-chart-bar"></i> Reportes y Estadísticas</h2>
-                        <button class="btn-new" id="btnGenerarPDF">
-                            <i class="fas fa-file-pdf"></i> Descargar PDF
-                        </button>
-                    </div>
-                    
-                    <div class="report-filters">
-                        <select id="reporteConferencia">
-                            <option value="">-- Todas las Conferencias --</option>
-                        </select>
-                        <select id="reporteIglesia">
-                            <option value="">-- Todas las Iglesias --</option>
-                        </select>
-                        <button class="btn-primary" id="btnAplicarFiltros">
-                            <i class="fas fa-filter"></i> Aplicar Filtros
-                        </button>
-                        <button class="btn-secondary" id="btnLimpiarFiltros">
-                            <i class="fas fa-times-circle"></i> Limpiar
-                        </button>
-                    </div>
-                    
-                    <div class="report-summary">
-                        <div class="stat-card">
-                            <div class="stat-info">
-                                <h3 id="reporteTotalAsistentes">0</h3>
-                                <p>Total Asistentes</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-info">
-                                <h3 id="reporteTotalDias">0</h3>
-                                <p>Días Totales</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-info">
-                                <h3 id="reporteTotalIglesias">0</h3>
-                                <p>Iglesias Participantes</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Iglesia</th>
-                                    <th>Conferencia</th>
-                                    <th>Días Asistidos</th>
-                                    <th>Invitado Por</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaReporte">
-                                <tr>
-                                    <td class="empty" colspan="6">Seleccione filtros para ver el reporte</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-                
+    <div class="content-header">
+        <h1>👥 Registros de Asistentes</h1>
+        <p>Administra los asistentes a las conferencias</p>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Listado de Asistentes</h3>
+            <button class="btn-new" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
+        </div>
+        <div class="table-wrapper">
+            <table id="tablaAsistentes">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th>Conferencia</th>
+                        <th>Días Asistidos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6">Cargando registros...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+              <section id="reportes" class="content-section">
+    <div class="content-header">
+        <h1>📊 Reportes y Estadísticas</h1>
+        <p>Genera reportes de asistencia</p>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Reporte de Asistencia</h3>
+            <button class="btn-pdf" onclick="generarReportePDF()">📄 Descargar PDF</button>
+        </div>
+        
+        <div style="padding: 20px;">
+            <div class="report-filters">
+                <select id="reporteConferencia" onchange="filtrarReporte()">
+                    <option value="">-- Todas las Conferencias --</option>
+                </select>
+                <select id="reporteIglesia" onchange="filtrarReporte()">
+                    <option value="">-- Todas las Iglesias --</option>
+                </select>
+                <button class="btn-apply" onclick="filtrarReporte()">Aplicar Filtros</button>
+                <button class="btn-clear" onclick="limpiarFiltrosReporte()">Limpiar</button>
+            </div>
+            
+            <div class="report-summary">
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalAsistentes">0</h4>
+                    <p>Total Asistentes</p>
+                </div>
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalDias">0</h4>
+                    <p>Días Totales</p>
+                </div>
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalIglesias">0</h4>
+                    <p>Iglesias Participantes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="tablaReporte">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th>Conferencia</th>
+                        <th>Días Asistidos</th>
+                        <th>Invitado Por</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6">Seleccione filtros para ver el reporte</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
                 <!-- Configuración Section -->
                 <section id="configuracion" class="content-section">
-                    <div class="page-header">
-                        <h2><i class="fas fa-cog"></i> Configuración del Sistema</h2>
+                    <div class="content-header">
+                        <h1>⚙️ Configuración del Sistema</h1>
+                        <p>Administra zonas, distritos e iglesias</p>
                     </div>
                     
+                    <!-- Zonas -->
                     <div class="table-container">
-                        <h3><i class="fas fa-map-marker-alt"></i> Zonas Registradas</h3>
-                        <table>
+                        <div class="table-header">
+                            <h3>📍 Zonas</h3>
+                            <button class="btn-new" onclick="prepararModalZona()">+ Nueva Zona</button>
+                        </div>
+                        <table id="tablaZonas">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
@@ -419,64 +913,69 @@
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="zonasConfigTabla">
-                                <tr>
-                                    <td class="empty" colspan="3">Cargando zonas...</td>
-                                </tr>
+                            <tbody>
+                                <tr><td colspan="3">Sin zonas registradas</td></tr>
                             </tbody>
                         </table>
                     </div>
                     
+                    <!-- Distritos -->
                     <div class="table-container">
-                        <h3><i class="fas fa-city"></i> Distritos Registrados</h3>
-                        <table>
+                        <div class="table-header">
+                            <h3>🏛️ Distritos</h3>
+                            <button class="btn-new" onclick="prepararModalDistrito()">+ Nuevo Distrito</button>
+                        </div>
+                        <table id="tablaDistritos">
                             <thead>
                                 <tr>
+                                    <th>Distrito</th>
                                     <th>Zona</th>
-                                    <th>Nombre</th>
                                     <th>Responsable</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="distritosConfigTabla">
-                                <tr>
-                                    <td class="empty" colspan="4">Cargando distritos...</td>
-                                </tr>
+                            <tbody>
+                                <tr><td colspan="4">Sin distritos registrados</td></tr>
                             </tbody>
                         </table>
                     </div>
                     
+                    <!-- Iglesias -->
                     <div class="table-container">
-                        <h3><i class="fas fa-church"></i> Iglesias Registradas</h3>
-                        <table>
+                        <div class="table-header">
+                            <h3>⛪ Iglesias</h3>
+                            <button class="btn-new" onclick="prepararModalIglesia()">+ Nueva Iglesia</button>
+                        </div>
+                        <table id="tablaIglesias">
                             <thead>
                                 <tr>
+                                    <th>Iglesia</th>
+                                    <th>Zona</th>
                                     <th>Distrito</th>
-                                    <th>Nombre</th>
                                     <th>Pastor</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="iglesiasConfigTabla">
-                                <tr>
-                                    <td class="empty" colspan="4">Cargando iglesias...</td>
-                                </tr>
+                            <tbody>
+                                <tr><td colspan="5">Sin iglesias registradas</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </section>
-                
+
                 <!-- Usuarios Section -->
                 <section id="usuarios" class="content-section">
-                    <div class="page-header">
-                        <h2><i class="fas fa-user-shield"></i> Gestión de Usuarios</h2>
-                        <button class="btn-new" id="btnNuevoUsuario" data-type="usuario">
-                            <i class="fas fa-plus"></i> Nuevo Usuario
-                        </button>
+                    <div class="content-header">
+                        <h1>👤 Gestión de Usuarios</h1>
+                        <p>Administra los usuarios del sistema</p>
                     </div>
                     
                     <div class="table-container">
-                        <table>
+                        <div class="table-header">
+                            <h3>Usuarios del Sistema</h3>
+                            <button class="btn-new" onclick="prepararModalUsuario()">+ Nuevo Usuario</button>
+                        </div>
+                        <table id="tablaUsuarios">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
@@ -486,259 +985,273 @@
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="tablaUsuarios">
-                                <tr>
-                                    <td class="empty" colspan="5">Cargando usuarios...</td>
-                                </tr>
+                            <tbody>
+                                <tr><td colspan="5">Cargando usuarios...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </section>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
-    <!-- Modal para Nueva Conferencia -->
-    <div class="modal" id="modalNuevaConferencia">
+    <!-- Modales -->
+    <!-- Modal Zona -->
+    <div id="modalNuevaZona" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Nueva Conferencia</h3>
-                <button class="modal-close">&times;</button>
+                <h3 id="tituloModalZona">📍 Registrar Zona</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">&times;</button>
             </div>
-            <form id="formNuevaConferencia">
-                <div class="form-group">
-                    <label for="nombreEvento">Nombre del Evento</label>
-                    <input type="text" id="nombreEvento" required>
-                </div>
-                <div class="form-group">
-                    <label for="iglesiaAnfitriona">Iglesia Anfitriona</label>
-                    <select id="iglesiaAnfitriona" required>
-                        <option value="">Seleccionar Iglesia</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="fechaInicio">Fecha Inicio</label>
-                    <input type="date" id="fechaInicio" required>
-                </div>
-                <div class="form-group">
-                    <label for="fechaFin">Fecha Fin</label>
-                    <input type="date" id="fechaFin" required>
-                </div>
-                <div class="form-group">
-                    <label for="conferenciante">Conferenciante Principal</label>
-                    <input type="text" id="conferenciante" required>
+            <form id="formZona">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Nombre *</label>
+                        <input type="text" id="zonaNombre" placeholder="Nombre de la zona" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Descripción</label>
+                        <input type="text" id="zonaDescripcion" placeholder="Descripción de la zona">
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevaConferencia'))">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Zona</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para Nuevo Asistente -->
-    <div class="modal" id="modalNuevoAsistente">
+    <!-- Modal Distrito -->
+    <div id="modalNuevoDistrito" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Registrar Asistente</h3>
-                <button class="modal-close">&times;</button>
+                <h3 id="tituloModalDistrito">🏛️ Registrar Distrito</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</button>
             </div>
-            <form id="formNuevoAsistente">
-                <div class="form-group">
-                    <label for="nombreAsistente">Nombre Completo</label>
-                    <input type="text" id="nombreAsistente" required>
-                </div>
-                <div class="form-group">
-                    <label for="telefonoAsistente">Teléfono</label>
-                    <input type="tel" id="telefonoAsistente" required>
-                </div>
-                <div class="form-group">
-                    <label for="iglesiaProcedencia">Iglesia de Procedencia</label>
-                    <select id="iglesiaProcedencia" required>
-                        <option value="">Seleccionar Iglesia</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="conferenciaAsistir">Conferencia a Asistir</label>
-                    <select id="conferenciaAsistir" required>
-                        <option value="">Seleccionar Conferencia</option>
-                    </select>
+            <form id="formDistrito">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Zona *</label>
+                        <select id="distritoZona" required></select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Nombre *</label>
+                        <input type="text" id="distritoNombre" placeholder="Nombre del distrito" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Responsable</label>
+                        <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Teléfono</label>
+                        <input type="text" id="distritoTelefono" placeholder="Teléfono de contacto">
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevoAsistente'))">Cancelar</button>
-                    <button type="submit" class="btn-save">Registrar</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoDistrito')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Distrito</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para Nueva Zona -->
-    <div class="modal" id="modalNuevaZona">
+    <!-- Modal Iglesia -->
+    <div id="modalNuevaIglesia" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Nueva Zona</h3>
-                <button class="modal-close">&times;</button>
+                <h3 id="tituloModalIglesia">⛪ Registrar Iglesia</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</button>
             </div>
-            <form id="formNuevaZona">
-                <div class="form-group">
-                    <label for="nombreZona">Nombre de la Zona</label>
-                    <input type="text" id="nombreZona" required>
-                </div>
-                <div class="form-group">
-                    <label for="descripcionZona">Descripción</label>
-                    <textarea id="descripcionZona" rows="3" required></textarea>
+            <form id="formIglesia">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Zona *</label>
+                        <select id="iglesiaZona" required onchange="cargarDistritosPorZona(this.value)"></select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Distrito</label>
+                        <select id="iglesiaDistrito">
+                            <option value="">-- Sin distrito --</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Nombre Iglesia *</label>
+                        <input type="text" id="iglesiaNombre" placeholder="Nombre de la iglesia" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Pastor</label>
+                        <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Teléfono</label>
+                        <input type="text" id="iglesiaTelefono" placeholder="Teléfono de la iglesia">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Dirección</label>
+                        <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevaZona'))">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaIglesia')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Iglesia</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para Nuevo Distrito -->
-    <div class="modal" id="modalNuevoDistrito">
+    <!-- Modal Conferencia -->
+    <div id="modalNuevaConferencia" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Nuevo Distrito</h3>
-                <button class="modal-close">&times;</button>
+                <h3 id="tituloModalConferencia">📅 Nueva Conferencia</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaConferencia')">&times;</button>
             </div>
-            <form id="formNuevoDistrito">
-                <div class="form-group">
-                    <label for="zonaDistrito">Zona</label>
-                    <select id="zonaDistrito" required>
-                        <option value="">Seleccionar Zona</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="nombreDistrito">Nombre del Distrito</label>
-                    <input type="text" id="nombreDistrito" required>
-                </div>
-                <div class="form-group">
-                    <label for="responsableDistrito">Responsable</label>
-                    <input type="text" id="responsableDistrito" required>
-                </div>
-                <div class="form-group">
-                    <label for="telefonoDistrito">Teléfono</label>
-                    <input type="tel" id="telefonoDistrito">
+            <form id="formConferencia">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Nombre *</label>
+                        <input type="text" id="confNombre" placeholder="Nombre de la conferencia" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Iglesia Sede *</label>
+                        <select id="confIglesia" required></select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group-modal">
+                            <label>Fecha Inicio *</label>
+                            <input type="date" id="confFechaInicio" required>
+                        </div>
+                        <div class="form-group-modal">
+                            <label>Fecha Fin *</label>
+                            <input type="date" id="confFechaFin" required>
+                        </div>
+                    </div>
+                    <p class="duracion-conferencia" style="color: #667eea; font-size: 14px; margin-bottom: 15px;">📅 Duración: 0 días</p>
+                    <div class="form-group-modal">
+                        <label>Conferenciante</label>
+                        <input type="text" id="confConferenciante" placeholder="Nombre del conferenciante">
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevoDistrito'))">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaConferencia')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Conferencia</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para Nueva Iglesia -->
-    <div class="modal" id="modalNuevaIglesia">
+    <!-- Modal Asistente -->
+    <div id="modalNuevoAsistente" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Nueva Iglesia</h3>
-                <button class="modal-close">&times;</button>
+                <h3 id="tituloModalAsistente">👥 Nuevo Registro de Asistente</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">&times;</button>
             </div>
-            <form id="formNuevaIglesia">
-                <div class="form-group">
-                    <label for="distritoIglesia">Distrito</label>
-                    <select id="distritoIglesia" required>
-                        <option value="">Seleccionar Distrito</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="nombreIglesia">Nombre de la Iglesia</label>
-                    <input type="text" id="nombreIglesia" required>
-                </div>
-                <div class="form-group">
-                    <label for="pastorIglesia">Pastor</label>
-                    <input type="text" id="pastorIglesia" required>
-                </div>
-                <div class="form-group">
-                    <label for="telefonoIglesia">Teléfono</label>
-                    <input type="tel" id="telefonoIglesia">
+            <form id="formAsistente">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="asistNombre" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Teléfono</label>
+                        <input type="text" id="asistTelefono" placeholder="Teléfono de contacto">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Invitado Por</label>
+                        <input type="text" id="asistInvitado" placeholder="Persona que lo invitó">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Dirección</label>
+                        <input type="text" id="asistDireccion" placeholder="Dirección completa">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Iglesia</label>
+                        <select id="asistIglesia">
+                            <option value="">-- Sin iglesia --</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Conferencia *</label>
+                        <select id="asistConferencia" required onchange="cargarFechasConferencia(this.value)"></select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>✅ Marque los días que asistió:</label>
+                        <div id="fechasAsistenciaContainer" class="fechas-asistencia-container"></div>
+                        <div class="contador-asistencia">✅ <strong>0</strong> días asistidos de <strong>0</strong> totales</div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalNuevaIglesia'))">Cancelar</button>
-                    <button type="submit" class="btn-save">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Registro</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para Editar Registro -->
-    <div class="modal" id="modalEditarRegistro">
+    <!-- Modal Usuario -->
+    <div id="modalNuevoUsuario" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalEditarTitulo">Editar Registro</h3>
-                <button class="modal-close">&times;</button>
+                <h3 id="tituloModalUsuario">👤 Nuevo Usuario</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoUsuario')">&times;</button>
             </div>
-            <form id="formEditarRegistro">
-                <input type="hidden" id="editId">
-                <input type="hidden" id="editType">
-                <div class="form-group">
-                    <label for="editNombre">Nombre</label>
-                    <input type="text" id="editNombre" required>
-                </div>
-                <div class="form-group">
-                    <label for="editDescripcion">Descripción</label>
-                    <textarea id="editDescripcion" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="editTelefono">Teléfono</label>
-                    <input type="tel" id="editTelefono">
+            <form id="formUsuario">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="usuarioNombre" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>📧 Correo Electrónico *</label>
+                        <input type="email" id="usuarioEmail" placeholder="correo@ejemplo.com" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>🔑 Contraseña</label>
+                        <input type="password" id="usuarioPassword" placeholder="Deje vacío para mantener la contraseña actual">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group-modal">
+                            <label>Rol</label>
+                            <select id="usuarioRol">
+                                <option value="usuario">👤 Usuario</option>
+                                <option value="admin">👑 Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group-modal">
+                            <label>Estado</label>
+                            <select id="usuarioEstado">
+                                <option value="activo">✅ Activo</option>
+                                <option value="inactivo">❌ Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>🔐 Permisos de Acceso</label>
+                        <div class="permisos-container">
+                            <label><input type="checkbox" class="permiso-checkbox" value="dashboard"> Dashboard</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="conferencias"> Conferencias</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="registros"> Registros</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="configuracion"> Configuración</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="usuarios"> Usuarios</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="reportes"> Reportes</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeModal(document.getElementById('modalEditarRegistro'))">Cancelar</button>
-                    <button type="submit" class="btn-save">Actualizar</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoUsuario')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Usuario</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Scripts con configuración de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Scripts -->
     <script src="config.js"></script>
-    <script src="main (1).js"></script>
-    
-    <!-- Script para búsqueda por nombre -->
-    <script>
-        // Función para buscar registros por nombre
-        document.getElementById('btnBuscar').addEventListener('click', function() {
-            const searchTerm = document.getElementById('searchNombre').value.toLowerCase().trim();
-            const tbody = document.getElementById('tablaAsistentes');
-            const rows = tbody.getElementsByTagName('tr');
-            
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                const nombreCell = row.cells[0]; // Columna de Nombre
-                
-                if (nombreCell) {
-                    const nombreText = nombreCell.textContent.toLowerCase();
-                    if (nombreText.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                }
-            }
-        });
-        
-        // Función para limpiar la búsqueda
-        document.getElementById('btnLimpiar').addEventListener('click', function() {
-            document.getElementById('searchNombre').value = '';
-            const tbody = document.getElementById('tablaAsistentes');
-            const rows = tbody.getElementsByTagName('tr');
-            
-            for (let i = 0; i < rows.length; i++) {
-                rows[i].style.display = '';
-            }
-        });
-        
-        // Buscar al presionar Enter
-        document.getElementById('searchNombre').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('btnBuscar').click();
-            }
-        });
-    </script>
+    <script src="auth.js"></script>
+    <script src="db.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
+

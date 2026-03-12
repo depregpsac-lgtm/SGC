@@ -545,6 +545,9 @@ async function cargarAsistentes() {
         const buscador = document.getElementById('buscadorRegistros');
         if (buscador) buscador.value = '';
         
+        const filtroCampo = document.getElementById('filtroCampo');
+        if (filtroCampo) filtroCampo.value = 'todos';
+        
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
@@ -565,13 +568,11 @@ async function cargarAsistentes() {
                 tbody.appendChild(tr);
             });
             
-            // Actualizar contador de búsqueda
-            actualizarInfoBusqueda(
-                document.getElementById('searchResultsInfo'),
-                asistentes.length,
-                0,
-                ''
-            );
+            // Actualizar contador
+            const totalRegistros = document.getElementById('totalRegistros');
+            if (totalRegistros) {
+                totalRegistros.textContent = asistentes.length;
+            }
         } else {
             tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
         }
@@ -1803,6 +1804,7 @@ window.esAdmin = esAdmin;
 window.filtrarRegistros = filtrarRegistros;
 window.limpiarBusqueda = limpiarBusqueda;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

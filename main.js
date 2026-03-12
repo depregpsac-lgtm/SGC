@@ -412,6 +412,65 @@ async function cargarAsistentes() {
     }
 }
 
+
+
+//----------------------------
+// ============================================
+// FUNCIÓN DE BÚSQUEDA PARA REGISTROS
+// ============================================
+function filtrarRegistros() {
+    const buscador = document.getElementById('buscadorRegistros');
+    const tabla = document.getElementById('tablaAsistentes');
+    
+    if (!buscador || !tabla) return;
+    
+    const filtro = buscador.value.toLowerCase().trim();
+    const filas = tabla.querySelectorAll('tbody tr');
+    
+    let registrosEncontrados = 0;
+    
+    filas.forEach(fila => {
+        const texto = fila.textContent || fila.innerText;
+        
+        if (filtro === '') {
+            // Si no hay filtro, mostrar todas las filas
+            fila.classList.remove('fila-oculta');
+            fila.classList.remove('fila-encontrada');
+            registrosEncontrados++;
+        } else {
+            // Buscar el texto en la fila
+            if (texto.toLowerCase().includes(filtro)) {
+                fila.classList.remove('fila-oculta');
+                fila.classList.add('fila-encontrada');
+                registrosEncontrados++;
+            } else {
+                fila.classList.add('fila-oculta');
+                fila.classList.remove('fila-encontrada');
+            }
+        }
+    });
+    
+    // Mostrar mensaje si no hay resultados
+    const mensajeSinResultados = tabla.querySelector('.sin-resultados');
+    if (registrosEncontrados === 0 && filtro !== '') {
+        if (!mensajeSinResultados) {
+            const tr = document.createElement('tr');
+            tr.className = 'sin-resultados';
+            tr.innerHTML = `<td colspan="6" style="text-align: center; color: #999; padding: 30px;">
+                <i class="fas fa-search" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                No se encontraron registros que coincidan con "${filtro}"
+            </td>`;
+            tabla.querySelector('tbody').appendChild(tr);
+        }
+    } else if (mensajeSinResultados) {
+        mensajeSinResultados.remove();
+    }
+}
+
+// Exportar función globalmente
+window.filtrarRegistros = filtrarRegistros;
+
+//-------------------------
 async function cargarUsuarios() {
     try {
         const usuarios = await obtenerUsuarios();
@@ -1642,6 +1701,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

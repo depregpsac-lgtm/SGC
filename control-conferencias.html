@@ -813,12 +813,6 @@
             <button class="btn-new" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
         </div>
 
-         <!-- Barra de Búsqueda para Registros -->
-    <div class="row mb-3">
-    <div class="col-md-6">
-        <input type="text" id="buscadorRegistros" class="form-control" placeholder="Buscar por referencia, nombre o teléfono...">
-    </div>
-    </div>
         
         <div class="table-wrapper">
             <table id="tablaAsistentes">
@@ -1264,32 +1258,6 @@
 
 
 
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const buscador = document.getElementById('buscadorRegistros');
-    // Asegúrate de que tu tabla tenga este ID o ajusta el selector
-    const tabla = document.getElementById('tablaRegistros'); 
 
-    if (buscador && tabla) {
-        buscador.addEventListener('keyup', function() {
-            const filtro = buscador.value.toLowerCase();
-            const filas = tabla.getElementsByTagName('tr');
-
-            // Recorrer todas las filas de la tabla (empezando desde 1 para saltar el encabezado)
-            for (let i = 1; i < filas.length; i++) {
-                let fila = filas[i];
-                let texto = fila.textContent || fila.innerText;
-                
-                // Verificar si el texto de la fila coincide con la búsqueda
-                if (texto.toLowerCase().indexOf(filtro) > -1) {
-                    fila.style.display = "";
-                } else {
-                    fila.style.display = "none";
-                }
-            }
-        });
-    }
-});
-</script>
 </body>
 </html>

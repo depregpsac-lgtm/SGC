@@ -376,12 +376,18 @@ async function cargarAsistentes() {
         console.log('📥 Cargando asistentes...');
         const asistentes = await obtenerAsistentes();
         console.log('✅ Asistentes obtenidos:', asistentes.length);
+        
         const tbody = document.querySelector('#tablaAsistentes tbody');
         if (!tbody) {
             console.error('❌ No se encontró el tbody de la tabla');
             return;
         }
+        
         tbody.innerHTML = '';
+        
+        // Limpiar el buscador al cargar nuevos datos
+        const buscador = document.getElementById('buscadorRegistros');
+        if (buscador) buscador.value = '';
         
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
@@ -411,8 +417,6 @@ async function cargarAsistentes() {
         if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
     }
 }
-
-
 
 //----------------------------
 // ============================================
@@ -1701,6 +1705,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

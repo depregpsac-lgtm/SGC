@@ -801,8 +801,7 @@
         </div>
     </div>
 </section>
-
-               <!-- 👥 Registros de Asistentes -->
+<!-- 👥 Registros de Asistentes -->
 <section id="registros" class="content-section">
     <div class="content-header">
         <h1>👥 Registros de Asistentes</h1>
@@ -817,25 +816,25 @@
             </button>
         </div>
         
-       //
-        <div class="search-container">
-    <div class="search-box">
-        <i class="fas fa-search search-icon"></i>
-        <input 
-            type="text" 
-            id="buscadorRegistros" 
-            placeholder="Buscar por nombre, teléfono, iglesia o conferencia..."
-            autocomplete="off"
-        >
-        <button class="clear-search" id="clearSearch" style="display: none;">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="search-info" id="searchInfo">
-        <span class="badge-info">Mostrando todos los registros</span>
-    </div>
-</div>
-        //
+        <!-- 🔍 BARRA DE BÚSQUEDA PROFESIONAL -->
+        <div class="search-container-professional">
+            <div class="search-box-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    id="buscadorRegistros" 
+                    placeholder="Buscar por nombre, teléfono, iglesia, conferencia o invitado por..."
+                    autocomplete="off"
+                >
+                <button class="clear-search-btn" id="clearSearchBtn" type="button" style="display: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="search-results-info" id="searchResultsInfo">
+                <span class="badge-count">Mostrando todos los registros</span>
+            </div>
+        </div>
+        
         <div class="table-wrapper">
             <table id="tablaAsistentes">
                 <thead>

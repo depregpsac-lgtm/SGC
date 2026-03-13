@@ -45,6 +45,12 @@ function calcularDias(fechaInicio, fechaFin) {
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
     
+    
+    // ✅ Limpiar buscador al salir de registros
+    if (seccionId !== 'registros') {
+        limpiarBuscadorAsistentes();
+    }
+    
     // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
     if (seccionId === 'usuarios') {
         const user = checkAuth();
@@ -1754,6 +1760,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

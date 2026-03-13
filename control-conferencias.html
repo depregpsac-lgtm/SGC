@@ -948,8 +948,8 @@
                         <tr>
                             <td>${c.nombre || ''}</td>
                             <td>${church ? church.nombre : '-'}</td>
-                            <td>${formatDate(c.fecha_inicio)}</td>
-                            <td>${formatDate(c.fecha_fin)}</td>
+                            <td>${formatDateLocal(c.fecha_inicio)}</td>
+                            <td>${formatDateLocal(c.fecha_fin)}</td>
                             <td>${days}</td>
                             <td>${c.conferenciante || '-'}</td>
                             <td>
@@ -986,7 +986,16 @@
             tbody.innerHTML = registrations.map(r => {
                 const church = churches.find(c => c.id == r.iglesia_id);
                 const conference = conferences.find(c => c.id == r.conferencia_id);
-                const daysAttended = r.dias_asistidos ? r.dias_asistidos.split(',').filter(d => d).length : 0;
+                // Parse dias_asistidos - can be string of numbers or array
+                let daysAttended = 0;
+                if (r.dias_asistidos) {
+                    if (typeof r.dias_asistidos === 'string') {
+                        const daysArray = r.dias_asistidos.split(',').filter(d => d.trim() !== '');
+                        daysAttended = daysArray.length;
+                    } else if (Array.isArray(r.dias_asistidos)) {
+                        daysAttended = r.dias_asistidos.length;
+                    }
+                }
                 return `
                 <tr data-nombre="${(r.nombre_completo || r.nombre || '').toLowerCase()}">
                     <td>${r.nombre_completo || r.nombre || '-'}</td>
@@ -1073,13 +1082,13 @@
             
             if (conference) {
                 // Show conference info
-                document.getElementById('conf-info-start').textContent = formatDate(conference.fecha_inicio);
-                document.getElementById('conf-info-end').textContent = formatDate(conference.fecha_fin);
+                document.getElementById('conf-info-start').textContent = formatDateLocal(conference.fecha_inicio);
+                document.getElementById('conf-info-end').textContent = formatDateLocal(conference.fecha_fin);
                 const totalDays = calculateDays(conference.fecha_inicio, conference.fecha_fin);
                 document.getElementById('conf-info-days').textContent = totalDays;
                 infoDiv.style.display = 'block';
                 
-                // Generate checkboxes for each day
+                // Generate checkboxes for each day (using day numbers, not dates)
                 generateDayCheckboxes(totalDays, conference.fecha_inicio);
             } else {
                 infoDiv.style.display = 'none';
@@ -1092,20 +1101,26 @@
             const container = document.getElementById('days-checkboxes');
             container.innerHTML = '';
             
-            const start = new Date(startDate);
+            // Parse date without timezone issues
+            const startDateObj = new Date(startDate + 'T00:00:00');
             
             for (let i = 1; i <= totalDays; i++) {
-                const currentDate = new Date(start);
-                currentDate.setDate(start.getDate() + (i - 1));
-                const dateStr = currentDate.toISOString().split('T')[0];
+                const currentDate = new Date(startDateObj);
+                currentDate.setDate(startDateObj.getDate() + (i - 1));
+                
+                // Format date for display (local timezone)
+                const day = currentDate.getDate();
+                const month = currentDate.getMonth() + 1;
+                const year = currentDate.getFullYear();
+                const dateDisplay = `${day}/${month}/${year}`;
                 
                 const checkboxDiv = document.createElement('div');
                 checkboxDiv.className = 'day-checkbox-item';
                 checkboxDiv.innerHTML = `
-                    <input type="checkbox" class="form-check-input day-checkbox me-2" value="${dateStr}" id="day-${i}" onchange="updateDaysCount()">
+                    <input type="checkbox" class="form-check-input day-checkbox me-2" value="${i}" id="day-${i}" onchange="updateDaysCount()">
                     <label class="form-check-label" for="day-${i}">
                         <strong>Día ${i}</strong><br>
-                        <small>${formatDate(dateStr)}</small>
+                        <small>${dateDisplay}</small>
                     </label>
                 `;
                 container.appendChild(checkboxDiv);
@@ -1243,14 +1258,22 @@
         }
         function calculateDays(start, end) {
             if(!start || !end) return 0;
-            const diff = new Date(end) - new Date(start);
+            const startDate = new Date(start + 'T00:00:00');
+            const endDate = new Date(end + 'T00:00:00');
+            const diff = endDate - startDate;
             return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
         }
-        function formatDate(dateStr) {
+        
+        // Format date for display (local timezone)
+        function formatDateLocal(dateStr) {
             if (!dateStr) return '-';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('es-DO');
+            const date = new Date(dateStr + 'T00:00:00');
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
         }
+        
         async function saveConference() {
             const item = {
                 id: document.getElementById('conf-id').value || undefined,
@@ -1294,7 +1317,7 @@
             document.getElementById('days-total-count').textContent = '0';
         }
         async function saveRegistration() {
-            // Get checked days
+            // Get checked days (now just numbers: 1,2,3...)
             const checkedDays = Array.from(document.querySelectorAll('.day-checkbox:checked'))
                 .map(cb => cb.value)
                 .join(',');
@@ -1307,7 +1330,7 @@
                 conferencia_id: document.getElementById('registro-conferencia').value,
                 invitado_por: document.getElementById('registro-invitado-por').value,
                 direccion: document.getElementById('registro-direccion').value,
-                dias_asistidos: checkedDays
+                dias_asistidos: checkedDays // Now stores: "1,2,3" instead of dates
             };
             const result = await DB.save('asistentes', item);
             if (result) {
@@ -1330,11 +1353,17 @@
             // Load conference info and checkboxes
             await onConferenceSelect();
             
-            // Check previously attended days
+            // Check previously attended days (now numbers)
             if (reg.dias_asistidos) {
-                const attendedDays = reg.dias_asistidos.split(',');
-                attendedDays.forEach(day => {
-                    const checkbox = document.querySelector(`.day-checkbox[value="${day}"]`);
+                let attendedDays = [];
+                if (typeof reg.dias_asistidos === 'string') {
+                    attendedDays = reg.dias_asistidos.split(',').filter(d => d.trim() !== '');
+                } else if (Array.isArray(reg.dias_asistidos)) {
+                    attendedDays = reg.dias_asistidos;
+                }
+                
+                attendedDays.forEach(dayNum => {
+                    const checkbox = document.querySelector(`.day-checkbox[value="${dayNum}"]`);
                     if (checkbox) checkbox.checked = true;
                 });
                 updateDaysCount();
@@ -1406,7 +1435,15 @@
             tbody.innerHTML = filtered.map(r => {
                 const church = churches.find(c => c.id == r.iglesia_id);
                 const conference = conferences.find(c => c.id == r.conferencia_id);
-                const daysAttended = r.dias_asistidos ? r.dias_asistidos.split(',').filter(d => d).length : 0;
+                // Count days attended
+                let daysAttended = 0;
+                if (r.dias_asistidos) {
+                    if (typeof r.dias_asistidos === 'string') {
+                        daysAttended = r.dias_asistidos.split(',').filter(d => d.trim() !== '').length;
+                    } else if (Array.isArray(r.dias_asistidos)) {
+                        daysAttended = r.dias_asistidos.length;
+                    }
+                }
                 return `
                 <tr>
                     <td>${r.nombre_completo || r.nombre || '-'}</td>
@@ -1419,7 +1456,17 @@
             }).join('');
             
             document.getElementById('report-total-asistentes').innerText = filtered.length;
-            const totalDays = filtered.reduce((sum, r) => sum + (r.dias_asistidos ? r.dias_asistidos.split(',').filter(d => d).length : 0), 0);
+            const totalDays = filtered.reduce((sum, r) => {
+                let days = 0;
+                if (r.dias_asistidos) {
+                    if (typeof r.dias_asistidos === 'string') {
+                        days = r.dias_asistidos.split(',').filter(d => d.trim() !== '').length;
+                    } else if (Array.isArray(r.dias_asistidos)) {
+                        days = r.dias_asistidos.length;
+                    }
+                }
+                return sum + days;
+            }, 0);
             document.getElementById('report-total-dias').innerText = totalDays;
             const uniqueChurches = new Set(filtered.map(r => r.iglesia_id)).size;
             document.getElementById('report-total-iglesias').innerText = uniqueChurches;

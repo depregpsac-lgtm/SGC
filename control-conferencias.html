@@ -192,6 +192,40 @@
             font-size: 0.85rem;
             margin-right: 5px;
         }
+        .search-box {
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        .days-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .day-checkbox-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .day-checkbox-item:hover {
+            border-color: var(--primary-color);
+            background: #e9ecef;
+        }
+        .day-checkbox-item.checked {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .conference-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
         @media (max-width: 768px) {
             .sidebar { margin-left: calc(-1 * var(--sidebar-width)); }
             .sidebar.active { margin-left: 0; }
@@ -382,6 +416,15 @@
                         <i class="bi bi-plus-lg"></i> Nuevo Registro
                     </button>
                 </div>
+                
+                <!-- Search Box -->
+                <div class="search-box">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="search-registros" placeholder="Buscar por nombre..." onkeyup="filterRegistrations()">
+                    </div>
+                </div>
+
                 <div class="table-container">
                     <div class="table-responsive">
                         <table class="table table-striped table-hover">
@@ -595,10 +638,30 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3"><label class="form-label">Iglesia</label><select class="form-select" id="registro-iglesia"></select></div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">Conferencia *</label><select class="form-select" id="registro-conferencia"></select></div>
+                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">Conferencia *</label><select class="form-select" id="registro-conferencia" onchange="onConferenceSelect()"></select></div>
                         </div>
+                        
+                        <!-- Conference Info Display -->
+                        <div id="conference-info" class="conference-info" style="display: none;">
+                            <h6 class="mb-2">📅 Información de la Conferencia</h6>
+                            <div class="row">
+                                <div class="col-md-6"><strong>Inicio:</strong> <span id="conf-info-start"></span></div>
+                                <div class="col-md-6"><strong>Fin:</strong> <span id="conf-info-end"></span></div>
+                                <div class="col-md-12 mt-2"><strong>Total de días:</strong> <span id="conf-info-days"></span></div>
+                            </div>
+                        </div>
+
                         <div class="mb-3"><label class="form-label">Invitado Por</label><input type="text" class="form-control" id="registro-invitado-por"></div>
                         <div class="mb-3"><label class="form-label">Dirección</label><input type="text" class="form-control" id="registro-direccion"></div>
+                        
+                        <!-- Days Checkboxes -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">✅ Días que asistió:</label>
+                            <div id="days-checkboxes" class="days-checkboxes">
+                                <small class="text-muted">Seleccione una conferencia primero</small>
+                            </div>
+                            <small class="text-muted"><span id="days-attended-count">0</span> de <span id="days-total-count">0</span> días</small>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-lion" onclick="saveRegistration()">Guardar</button></div>
@@ -657,12 +720,19 @@
             },
             async save(table, item) {
                 try {
+                    // Remove id if it's undefined or null for insert
+                    if (!item.id || item.id === '' || item.id === 'undefined') {
+                        delete item.id;
+                    }
+                    
                     let result;
                     if (item.id) {
+                        // Update existing
                         const { data, error } = await window.db.from(table).update(item).eq('id', item.id).select();
                         if (error) throw error;
                         result = data[0];
                     } else {
+                        // Insert new - let Supabase generate the ID
                         const { data, error } = await window.db.from(table).insert([item]).select();
                         if (error) throw error;
                         result = data[0];
@@ -686,6 +756,9 @@
                 }
             }
         };
+
+        // Global variable to store conferences data
+        let allConferences = [];
 
         // ============================================
         // LOGIN
@@ -856,13 +929,13 @@
 
         async function loadConferences() {
             try {
-                const conferences = await DB.getAll('conferencias');
+                allConferences = await DB.getAll('conferencias');
                 const churches = await DB.getAll('iglesias');
                 
                 const homeTbody = document.getElementById('home-conferences-table');
                 const confTbody = document.getElementById('conferences-table');
                 
-                if (!conferences || conferences.length === 0) {
+                if (!allConferences || allConferences.length === 0) {
                     homeTbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Sin conferencias registradas</td></tr>';
                     confTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Sin conferencias registradas</td></tr>';
                     return;
@@ -875,8 +948,8 @@
                         <tr>
                             <td>${c.nombre || ''}</td>
                             <td>${church ? church.nombre : '-'}</td>
-                            <td>${c.fecha_inicio || '-'}</td>
-                            <td>${c.fecha_fin || '-'}</td>
+                            <td>${formatDate(c.fecha_inicio)}</td>
+                            <td>${formatDate(c.fecha_fin)}</td>
                             <td>${days}</td>
                             <td>${c.conferenciante || '-'}</td>
                             <td>
@@ -886,7 +959,7 @@
                         </tr>`;
                 };
 
-                const rows = conferences.map(createRow).join('');
+                const rows = allConferences.map(createRow).join('');
                 const rowsArray = rows.split('</tr>').filter(r => r.trim());
                 homeTbody.innerHTML = rowsArray.slice(0, 5).join('</tr>') + '</tr>';
                 confTbody.innerHTML = rows;
@@ -908,12 +981,14 @@
                 return;
             }
 
+            window.allRegistrations = registrations; // Store for search
+            
             tbody.innerHTML = registrations.map(r => {
                 const church = churches.find(c => c.id == r.iglesia_id);
                 const conference = conferences.find(c => c.id == r.conferencia_id);
                 const daysAttended = r.dias_asistidos ? r.dias_asistidos.split(',').filter(d => d).length : 0;
                 return `
-                <tr>
+                <tr data-nombre="${(r.nombre_completo || r.nombre || '').toLowerCase()}">
                     <td>${r.nombre_completo || r.nombre || '-'}</td>
                     <td>${r.telefono || '-'}</td>
                     <td>${church ? church.nombre : '-'}</td>
@@ -925,6 +1000,21 @@
                     </td>
                 </tr>`;
             }).join('');
+        }
+
+        // Search function
+        function filterRegistrations() {
+            const searchTerm = document.getElementById('search-registros').value.toLowerCase();
+            const rows = document.querySelectorAll('#registrations-table tr[data-nombre]');
+            
+            rows.forEach(row => {
+                const nombre = row.getAttribute('data-nombre');
+                if (nombre.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
 
         async function loadUsers() {
@@ -972,6 +1062,65 @@
         }
 
         // ============================================
+        // CONFERENCE SELECTION HANDLER
+        // ============================================
+        function onConferenceSelect() {
+            const confId = document.getElementById('registro-conferencia').value;
+            const conference = allConferences.find(c => c.id == confId);
+            
+            const infoDiv = document.getElementById('conference-info');
+            const checkboxesDiv = document.getElementById('days-checkboxes');
+            
+            if (conference) {
+                // Show conference info
+                document.getElementById('conf-info-start').textContent = formatDate(conference.fecha_inicio);
+                document.getElementById('conf-info-end').textContent = formatDate(conference.fecha_fin);
+                const totalDays = calculateDays(conference.fecha_inicio, conference.fecha_fin);
+                document.getElementById('conf-info-days').textContent = totalDays;
+                infoDiv.style.display = 'block';
+                
+                // Generate checkboxes for each day
+                generateDayCheckboxes(totalDays, conference.fecha_inicio);
+            } else {
+                infoDiv.style.display = 'none';
+                checkboxesDiv.innerHTML = '<small class="text-muted">Seleccione una conferencia primero</small>';
+                document.getElementById('days-total-count').textContent = '0';
+            }
+        }
+
+        function generateDayCheckboxes(totalDays, startDate) {
+            const container = document.getElementById('days-checkboxes');
+            container.innerHTML = '';
+            
+            const start = new Date(startDate);
+            
+            for (let i = 1; i <= totalDays; i++) {
+                const currentDate = new Date(start);
+                currentDate.setDate(start.getDate() + (i - 1));
+                const dateStr = currentDate.toISOString().split('T')[0];
+                
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'day-checkbox-item';
+                checkboxDiv.innerHTML = `
+                    <input type="checkbox" class="form-check-input day-checkbox me-2" value="${dateStr}" id="day-${i}" onchange="updateDaysCount()">
+                    <label class="form-check-label" for="day-${i}">
+                        <strong>Día ${i}</strong><br>
+                        <small>${formatDate(dateStr)}</small>
+                    </label>
+                `;
+                container.appendChild(checkboxDiv);
+            }
+            
+            document.getElementById('days-total-count').textContent = totalDays;
+            updateDaysCount();
+        }
+
+        function updateDaysCount() {
+            const checked = document.querySelectorAll('.day-checkbox:checked').length;
+            document.getElementById('days-attended-count').textContent = checked;
+        }
+
+        // ============================================
         // CRUD FUNCTIONS
         // ============================================
         function clearZoneForm() { 
@@ -980,7 +1129,7 @@
         }
         async function saveZone() {
             const item = {
-                id: document.getElementById('zona-id').value ? parseInt(document.getElementById('zona-id').value) : undefined,
+                id: document.getElementById('zona-id').value || undefined,
                 nombre: document.getElementById('zona-nombre').value,
                 descripcion: document.getElementById('zona-descripcion').value
             };
@@ -1011,7 +1160,7 @@
         }
         async function saveDistrict() {
             const item = {
-                id: document.getElementById('distrito-id').value ? parseInt(document.getElementById('distrito-id').value) : undefined,
+                id: document.getElementById('distrito-id').value || undefined,
                 zona_id: document.getElementById('distrito-zona').value,
                 nombre: document.getElementById('distrito-nombre').value,
                 responsable: document.getElementById('distrito-responsable').value,
@@ -1046,7 +1195,7 @@
         }
         async function saveChurch() {
             const item = {
-                id: document.getElementById('iglesia-id').value ? parseInt(document.getElementById('iglesia-id').value) : undefined,
+                id: document.getElementById('iglesia-id').value || undefined,
                 zona_id: document.getElementById('iglesia-zona').value,
                 distrito_id: document.getElementById('iglesia-distrito').value,
                 nombre: document.getElementById('iglesia-nombre').value,
@@ -1097,9 +1246,14 @@
             const diff = new Date(end) - new Date(start);
             return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
         }
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-DO');
+        }
         async function saveConference() {
             const item = {
-                id: document.getElementById('conf-id').value ? parseInt(document.getElementById('conf-id').value) : undefined,
+                id: document.getElementById('conf-id').value || undefined,
                 nombre: document.getElementById('conf-nombre').value,
                 iglesia_id: document.getElementById('conf-iglesia').value,
                 fecha_inicio: document.getElementById('conf-start').value,
@@ -1134,16 +1288,26 @@
         function clearRegistrationForm() {
             document.getElementById('formRegistro').reset();
             document.getElementById('registro-id').value = '';
+            document.getElementById('conference-info').style.display = 'none';
+            document.getElementById('days-checkboxes').innerHTML = '<small class="text-muted">Seleccione una conferencia primero</small>';
+            document.getElementById('days-attended-count').textContent = '0';
+            document.getElementById('days-total-count').textContent = '0';
         }
         async function saveRegistration() {
+            // Get checked days
+            const checkedDays = Array.from(document.querySelectorAll('.day-checkbox:checked'))
+                .map(cb => cb.value)
+                .join(',');
+            
             const item = {
-                id: document.getElementById('registro-id').value ? parseInt(document.getElementById('registro-id').value) : undefined,
+                id: document.getElementById('registro-id').value || undefined,
                 nombre_completo: document.getElementById('registro-nombre-completo').value,
                 telefono: document.getElementById('registro-telefono').value,
                 iglesia_id: document.getElementById('registro-iglesia').value,
                 conferencia_id: document.getElementById('registro-conferencia').value,
                 invitado_por: document.getElementById('registro-invitado-por').value,
-                direccion: document.getElementById('registro-direccion').value
+                direccion: document.getElementById('registro-direccion').value,
+                dias_asistidos: checkedDays
             };
             const result = await DB.save('asistentes', item);
             if (result) {
@@ -1154,6 +1318,7 @@
         async function editRegistration(id) {
             const reg = await DB.getById('asistentes', id);
             if (!reg) return;
+            
             document.getElementById('registro-id').value = reg.id;
             document.getElementById('registro-nombre-completo').value = reg.nombre_completo || reg.nombre || '';
             document.getElementById('registro-telefono').value = reg.telefono;
@@ -1161,6 +1326,20 @@
             document.getElementById('registro-conferencia').value = reg.conferencia_id;
             document.getElementById('registro-invitado-por').value = reg.invitado_por || '';
             document.getElementById('registro-direccion').value = reg.direccion;
+            
+            // Load conference info and checkboxes
+            await onConferenceSelect();
+            
+            // Check previously attended days
+            if (reg.dias_asistidos) {
+                const attendedDays = reg.dias_asistidos.split(',');
+                attendedDays.forEach(day => {
+                    const checkbox = document.querySelector(`.day-checkbox[value="${day}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateDaysCount();
+            }
+            
             new bootstrap.Modal(document.getElementById('modalRegistro')).show();
         }
         async function deleteRegistration(id) {
@@ -1176,7 +1355,7 @@
         }
         async function saveUser() {
             const item = {
-                id: document.getElementById('usuario-id').value ? parseInt(document.getElementById('usuario-id').value) : undefined,
+                id: document.getElementById('usuario-id').value || undefined,
                 nombre_completo: document.getElementById('usuario-nombre').value,
                 email: document.getElementById('usuario-email').value,
                 password_hash: document.getElementById('usuario-password').value,

@@ -1759,7 +1759,14 @@ window.generarReportePDF = generarReportePDF;
 window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
+
+window.filtrarAsistentes = filtrarAsistentes;
+window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
+// ... resto de exports ...
+
+
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

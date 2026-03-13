@@ -28,14 +28,9 @@ if (!window.db) {
     initSupabase();
 }
 
-
-}
-</script>
-
 // Exportar función para usar en otros archivos
 window.initSupabase = initSupabase;
 window.SUPABASE_CONFIG = SUPABASE_CONFIG;
-
 
 
 

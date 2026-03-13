@@ -46,6 +46,9 @@ function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
     
     
+   function navegarSeccion(seccionId) {
+    console.log('📍 Navegando a:', seccionId);
+    
     // ✅ Limpiar buscador al salir de registros
     if (seccionId !== 'registros') {
         limpiarBuscadorAsistentes();
@@ -59,6 +62,9 @@ function navegarSeccion(seccionId) {
             seccionId = 'dashboard';
         }
     }
+    
+    // ... resto del código existente ...
+}
     
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -1772,6 +1778,7 @@ window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
 
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -1775,9 +1775,17 @@ window.togglePassword = togglePassword;
 window.filtrarAsistentes = filtrarAsistentes;
 window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
 // ... resto de exports ...
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES
+// ============================================
+// ... funciones existentes ...
+window.filtrarAsistentes = filtrarAsistentes;
+window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
+// ... resto de exports ...
 
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -801,34 +801,31 @@
     </div>
 </section>
 
-                <section id="registros" class="content-section">
-    <div class="content-header">
-        <h1>👥 Registros de Asistentes</h1>
+                <!-- 👥 Registros de Asistentes -->
+<section id="registros" class="content-section">
+    <div class="section-header">
+        <h2>👥 Registros de Asistentes</h2>
         <p>Administra los asistentes a las conferencias</p>
     </div>
     
+    <div class="table-controls">
+        <button onclick="prepararModalAsistente()" class="btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Registro
+        </button>
+        <!-- ✅ AGREGAR ESTO: Campo de Búsqueda -->
+        <div class="search-box">
+            <input type="text" id="buscadorAsistentes" 
+                   placeholder="🔍 Buscar por nombre, teléfono, iglesia..." 
+                   onkeyup="filtrarAsistentes()">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+    
     <div class="table-container">
-        <div class="table-header">
-            <h3>Listado de Asistentes</h3>
-            <button class="btn-new" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
-        </div>
-        <div class="table-wrapper">
-            <table id="tablaAsistentes">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Iglesia</th>
-                        <th>Conferencia</th>
-                        <th>Días Asistidos</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="6">Cargando registros...</td></tr>
-                </tbody>
-            </table>
-        </div>
+        <h3>Listado de Asistentes</h3>
+        <table id="tablaAsistentes">
+            <!-- ... resto de la tabla ... -->
+        </table>
     </div>
 </section>
 

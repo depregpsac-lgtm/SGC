@@ -13,7 +13,6 @@ function checkAuth() {
             return null;
         }
         
-        // ✅ Validar que sea JSON válido antes de parsear
         if (!user.startsWith('{')) {
             console.log('❌ Datos corruptos en localStorage, limpiando...');
             localStorage.removeItem('user');
@@ -70,24 +69,20 @@ async function iniciarSesion(email, password) {
             return { success: false, message: 'Correo o contraseña incorrectos' };
         }
         
-        // ✅ Parsear permisos de forma segura (maneja string o JSON)
+        // Parsear permisos de forma segura
         let permisosArray = [];
         if (data.permisos) {
             try {
-                // Si es string con comillas escapadas, removerlas primero
                 if (typeof data.permisos === 'string' && data.permisos.startsWith('"[')) {
-                    // Remover las comillas externas y escapar
                     const cleanPermisos = data.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
                     permisosArray = JSON.parse(cleanPermisos);
                 } else {
-                    // Intentar parsear como JSON normal
                     permisosArray = typeof data.permisos === 'string' 
                         ? JSON.parse(data.permisos) 
                         : data.permisos;
                 }
             } catch (e) {
                 console.error('❌ Error parseando permisos:', e);
-                // Si falla, usar array vacío o convertir string separado por comas
                 if (typeof data.permisos === 'string') {
                     permisosArray = data.permisos.split(',').map(p => p.trim()).filter(p => p);
                 }
@@ -106,7 +101,7 @@ async function iniciarSesion(email, password) {
         console.log('✅ Login exitoso:', user);
         
         return { success: true, user: user };
-        
+         
     } catch (error) {
         console.error('❌ Error en login:', error);
         return { success: false, message: error.message };
@@ -119,7 +114,7 @@ async function iniciarSesion(email, password) {
 function cerrarSesion() {
     console.log('🚪 Cerrando sesión...');
     localStorage.removeItem('user');
-    window.location.reload();
+    window.location.href = 'index.html';
 }
 
 // ============================================
@@ -157,11 +152,3 @@ window.tienePermiso = tienePermiso;
 window.obtenerUsuarioActual = obtenerUsuarioActual;
 window.esAdmin = esAdmin;
 console.log('✅ auth.js inicializado correctamente');
-
-
-
-
-
-
-
-

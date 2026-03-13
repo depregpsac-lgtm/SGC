@@ -986,7 +986,7 @@
             tbody.innerHTML = registrations.map(r => {
                 const church = churches.find(c => c.id == r.iglesia_id);
                 const conference = conferences.find(c => c.id == r.conferencia_id);
-                // Parse dias_asistidos - can be string of numbers or array
+                // Parse dias_asistidos - count the number of days
                 let daysAttended = 0;
                 if (r.dias_asistidos) {
                     if (typeof r.dias_asistidos === 'string') {
@@ -1002,7 +1002,7 @@
                     <td>${r.telefono || '-'}</td>
                     <td>${church ? church.nombre : '-'}</td>
                     <td>${conference ? conference.nombre : '-'}</td>
-                    <td>${daysAttended}</td>
+                    <td><strong class="text-primary">${daysAttended}</strong> ${daysAttended === 1 ? 'día' : 'días'}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary action-btn" onclick="editRegistration(${r.id})"><i class="bi bi-pencil"></i></button>
                         <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteRegistration(${r.id})"><i class="bi bi-trash"></i></button>
@@ -1335,7 +1335,9 @@
             const result = await DB.save('asistentes', item);
             if (result) {
                 bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
-                loadAllData();
+                // Reload data to show updated days attended
+                await loadRegistrations();
+                alert('✅ Registro guardado exitosamente');
             }
         }
         async function editRegistration(id) {
@@ -1450,7 +1452,7 @@
                     <td>${r.telefono || '-'}</td>
                     <td>${church ? church.nombre : '-'}</td>
                     <td>${conference ? conference.nombre : '-'}</td>
-                    <td>${daysAttended}</td>
+                    <td><strong>${daysAttended}</strong> ${daysAttended === 1 ? 'día' : 'días'}</td>
                     <td>${r.invitado_por || '-'}</td>
                 </tr>`;
             }).join('');

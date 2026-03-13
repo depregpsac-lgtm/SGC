@@ -412,6 +412,118 @@ async function cargarAsistentes() {
     }
 }
 
+// ============================================
+// ✅ FUNCIONES DE BÚSQUEDA - ASISTENTES
+// ============================================
+
+// Variable global para almacenar todos los asistentes (sin filtrar)
+window.todosLosAsistentes = [];
+
+// Modificar cargarAsistentes para guardar todos los datos
+async function cargarAsistentes() {
+    try {
+        console.log('📥 Cargando asistentes...');
+        const asistentes = await obtenerAsistentes();
+        window.todosLosAsistentes = asistentes; // ✅ Guardar copia completa
+        console.log('✅ Asistentes obtenidos:', asistentes.length);
+        
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró el tbody de la tabla');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>
+                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando asistentes:', error);
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
+    }
+}
+
+// ✅ Función para filtrar asistentes
+function filtrarAsistentes() {
+    const buscador = document.getElementById('buscadorAsistentes');
+    if (!buscador) return;
+    
+    const textoBusqueda = buscador.value.toLowerCase().trim();
+    const tbody = document.querySelector('#tablaAsistentes tbody');
+    const filas = tbody.querySelectorAll('tr');
+    
+    let resultadosEncontrados = 0;
+    
+    filas.forEach(fila => {
+        const celdas = fila.querySelectorAll('td');
+        if (celdas.length < 6) return; // Saltar filas de "sin datos"
+        
+        const nombre = celdas[0]?.textContent?.toLowerCase() || '';
+        const telefono = celdas[1]?.textContent?.toLowerCase() || '';
+        const iglesia = celdas[2]?.textContent?.toLowerCase() || '';
+        const conferencia = celdas[3]?.textContent?.toLowerCase() || '';
+        
+        // ✅ Buscar en múltiples campos
+        const coincide = nombre.includes(textoBusqueda) || 
+                        telefono.includes(textoBusqueda) || 
+                        iglesia.includes(textoBusqueda) || 
+                        conferencia.includes(textoBusqueda);
+        
+        if (coincide) {
+            fila.style.display = '';
+            fila.classList.remove('tr-oculto');
+            resultadosEncontrados++;
+            
+            // ✅ Resaltar si hay búsqueda activa
+            if (textoBusqueda.length > 0) {
+                fila.classList.add('tr-highlight');
+            } else {
+                fila.classList.remove('tr-highlight');
+            }
+        } else {
+            fila.style.display = 'none';
+            fila.classList.add('tr-oculto');
+        }
+    });
+    
+    // ✅ Mostrar mensaje si no hay resultados
+    if (resultadosEncontrados === 0 && textoBusqueda.length > 0) {
+        tbody.innerHTML = '<tr><td colspan="6">🔍 No se encontraron registros que coincidan con "' + textoBusqueda + '"</td></tr>';
+    } else if (textoBusqueda.length === 0 && filas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+    }
+}
+
+// ✅ Limpiar búsqueda al cambiar de sección
+function limpiarBuscadorAsistentes() {
+    const buscador = document.getElementById('buscadorAsistentes');
+    if (buscador) {
+        buscador.value = '';
+        filtrarAsistentes();
+    }
+}
+
 async function cargarUsuarios() {
     try {
         const usuarios = await obtenerUsuarios();
@@ -1642,6 +1754,7 @@ window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

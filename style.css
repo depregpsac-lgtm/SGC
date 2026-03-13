@@ -1358,7 +1358,7 @@ table td {
 .search-box i {
     position: absolute;
     left: 15px;
-    top: 75%;
+    top: 100%;
     transform: translateY(-50%);
     color: #9ca3af;
 }

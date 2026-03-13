@@ -470,27 +470,30 @@ async function cargarAsistentes() {
     }
 }
 
-// ✅ Función para filtrar asistentes
+// ============================================
+// ✅ FUNCIONES DE BÚSQUEDA - AGREGAR AL FINAL
+// ============================================
+
 function filtrarAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (!buscador) return;
     
     const textoBusqueda = buscador.value.toLowerCase().trim();
     const tbody = document.querySelector('#tablaAsistentes tbody');
-    const filas = tbody.querySelectorAll('tr');
+    if (!tbody) return;
     
+    const filas = tbody.querySelectorAll('tr');
     let resultadosEncontrados = 0;
     
     filas.forEach(fila => {
         const celdas = fila.querySelectorAll('td');
-        if (celdas.length < 6) return; // Saltar filas de "sin datos"
+        if (celdas.length < 6) return;
         
         const nombre = celdas[0]?.textContent?.toLowerCase() || '';
         const telefono = celdas[1]?.textContent?.toLowerCase() || '';
         const iglesia = celdas[2]?.textContent?.toLowerCase() || '';
         const conferencia = celdas[3]?.textContent?.toLowerCase() || '';
         
-        // ✅ Buscar en múltiples campos
         const coincide = nombre.includes(textoBusqueda) || 
                         telefono.includes(textoBusqueda) || 
                         iglesia.includes(textoBusqueda) || 
@@ -498,26 +501,29 @@ function filtrarAsistentes() {
         
         if (coincide) {
             fila.style.display = '';
-            fila.classList.remove('tr-oculto');
-            resultadosEncontrados++;
-            
-            // ✅ Resaltar si hay búsqueda activa
             if (textoBusqueda.length > 0) {
                 fila.classList.add('tr-highlight');
             } else {
                 fila.classList.remove('tr-highlight');
             }
+            resultadosEncontrados++;
         } else {
             fila.style.display = 'none';
-            fila.classList.add('tr-oculto');
+            fila.classList.remove('tr-highlight');
         }
     });
     
-    // ✅ Mostrar mensaje si no hay resultados
+    // Mostrar mensaje si no hay resultados
     if (resultadosEncontrados === 0 && textoBusqueda.length > 0) {
         tbody.innerHTML = '<tr><td colspan="6">🔍 No se encontraron registros que coincidan con "' + textoBusqueda + '"</td></tr>';
-    } else if (textoBusqueda.length === 0 && filas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+    }
+}
+
+function limpiarBuscadorAsistentes() {
+    const buscador = document.getElementById('buscadorAsistentes');
+    if (buscador) {
+        buscador.value = '';
+        filtrarAsistentes();
     }
 }
 
@@ -1766,6 +1772,7 @@ window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
 
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 
 

@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Librería para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --primary-color: #1a237e;
@@ -446,11 +449,11 @@
                     <div class="row g-3 align-items-end">
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Conferencia</label>
-                            <select class="form-select" id="report-conference"><option>-- Todas --</option></select>
+                            <select class="form-select" id="report-conference"><option value="">-- Todas --</option></select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Iglesia</label>
-                            <select class="form-select" id="report-church"><option>-- Todas --</option></select>
+                            <select class="form-select" id="report-church"><option value="">-- Todas --</option></select>
                         </div>
                         <div class="col-md-4">
                             <button class="btn btn-primary w-100" onclick="applyReportFilters()">
@@ -465,11 +468,14 @@
                     <div class="col-md-4"><div class="stat-card"><h5 id="report-total-iglesias">0</h5><small class="text-muted">Iglesias</small></div></div>
                 </div>
                 <div class="table-container">
-                    <div class="d-flex justify-content-end mb-3">
-                        <button class="btn btn-danger btn-sm"><i class="bi bi-file-pdf"></i> Descargar PDF</button>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="m-0">📋 Detalle del Reporte</h5>
+                        <button class="btn btn-danger" onclick="exportToPDF()">
+                            <i class="bi bi-file-pdf"></i> Descargar PDF
+                        </button>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered" id="reports-table-element">
                             <thead><tr><th>Nombre</th><th>Teléfono</th><th>Iglesia</th><th>Conferencia</th><th>Días</th><th>Invitado Por</th></tr></thead>
                             <tbody id="reports-table">
                                 <tr><td colspan="6" class="text-center py-4">Seleccione filtros para ver el reporte</td></tr>
@@ -593,7 +599,7 @@
                     <input type="hidden" id="iglesia-id">
                     <div class="row">
                         <div class="col-md-6 mb-3"><label class="form-label fw-bold">Zona *</label><select class="form-select" id="iglesia-zona"></select></div>
-                        <div class="col-md-6 mb-3"><label class="form-label">Distrito</label><select class="form-select" id="iglesia-distrito"><option>-- Sin distrito --</option></select></div>
+                        <div class="col-md-6 mb-3"><label class="form-label">Distrito</label><select class="form-select" id="iglesia-distrito"><option value="">-- Sin distrito --</option></select></div>
                     </div>
                     <div class="mb-3"><label class="form-label fw-bold">Nombre Iglesia *</label><input type="text" class="form-control" id="iglesia-nombre" required></div>
                     <div class="mb-3"><label class="form-label">Pastor</label><input type="text" class="form-control" id="iglesia-pastor"></div>
@@ -720,19 +726,16 @@
             },
             async save(table, item) {
                 try {
-                    // Remove id if it's undefined or null for insert
                     if (!item.id || item.id === '' || item.id === 'undefined') {
                         delete item.id;
                     }
                     
                     let result;
                     if (item.id) {
-                        // Update existing
                         const { data, error } = await window.db.from(table).update(item).eq('id', item.id).select();
                         if (error) throw error;
                         result = data[0];
                     } else {
-                        // Insert new - let Supabase generate the ID
                         const { data, error } = await window.db.from(table).insert([item]).select();
                         if (error) throw error;
                         result = data[0];
@@ -757,8 +760,9 @@
             }
         };
 
-        // Global variable to store conferences data
         let allConferences = [];
+        let allChurches = [];
+        let currentReportData = [];
 
         // ============================================
         // LOGIN
@@ -902,15 +906,15 @@
         }
 
         async function loadChurches() {
-            const churches = await DB.getAll('iglesias');
+            allChurches = await DB.getAll('iglesias');
             const zones = await DB.getAll('zonas');
             const districts = await DB.getAll('distritos');
             const tbody = document.getElementById('churches-table');
-            if (churches.length === 0) {
+            if (allChurches.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Sin iglesias registradas</td></tr>';
                 return;
             }
-            tbody.innerHTML = churches.map(c => {
+            tbody.innerHTML = allChurches.map(c => {
                 const zone = zones.find(z => z.id == c.zona_id);
                 const district = districts.find(d => d.id == c.distrito_id);
                 return `
@@ -981,12 +985,11 @@
                 return;
             }
 
-            window.allRegistrations = registrations; // Store for search
+            window.allRegistrations = registrations;
             
             tbody.innerHTML = registrations.map(r => {
                 const church = churches.find(c => c.id == r.iglesia_id);
                 const conference = conferences.find(c => c.id == r.conferencia_id);
-                // dias_asistidos is now an INTEGER (count of days)
                 const daysAttended = r.dias_asistidos || 0;
                 return `
                 <tr data-nombre="${(r.nombre_completo || r.nombre || '').toLowerCase()}">
@@ -1003,7 +1006,6 @@
             }).join('');
         }
 
-        // Search function
         function filterRegistrations() {
             const searchTerm = document.getElementById('search-registros').value.toLowerCase();
             const rows = document.querySelectorAll('#registrations-table tr[data-nombre]');
@@ -1073,14 +1075,12 @@
             const checkboxesDiv = document.getElementById('days-checkboxes');
             
             if (conference) {
-                // Show conference info
                 document.getElementById('conf-info-start').textContent = formatDateLocal(conference.fecha_inicio);
                 document.getElementById('conf-info-end').textContent = formatDateLocal(conference.fecha_fin);
                 const totalDays = calculateDays(conference.fecha_inicio, conference.fecha_fin);
                 document.getElementById('conf-info-days').textContent = totalDays;
                 infoDiv.style.display = 'block';
                 
-                // Generate checkboxes for each day
                 generateDayCheckboxes(totalDays, conference.fecha_inicio);
             } else {
                 infoDiv.style.display = 'none';
@@ -1093,14 +1093,12 @@
             const container = document.getElementById('days-checkboxes');
             container.innerHTML = '';
             
-            // Parse date without timezone issues
             const startDateObj = new Date(startDate + 'T00:00:00');
             
             for (let i = 1; i <= totalDays; i++) {
                 const currentDate = new Date(startDateObj);
                 currentDate.setDate(startDateObj.getDate() + (i - 1));
                 
-                // Format date for display (local timezone)
                 const day = currentDate.getDate();
                 const month = currentDate.getMonth() + 1;
                 const year = currentDate.getFullYear();
@@ -1125,6 +1123,99 @@
         function updateDaysCount() {
             const checked = document.querySelectorAll('.day-checkbox:checked').length;
             document.getElementById('days-attended-count').textContent = checked;
+        }
+
+        // ============================================
+        // PDF EXPORT FUNCTION ✅
+        // ============================================
+        async function exportToPDF() {
+            if (currentReportData.length === 0) {
+                alert('⚠️ No hay datos para exportar. Aplique filtros primero.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Header
+            doc.setFillColor(26, 35, 126);
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.text('🦁 MinistryLion', 105, 15, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text('Reporte de Asistencia a Conferencias', 105, 24, { align: 'center' });
+
+            // Report Info
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            const fechaReporte = new Date().toLocaleDateString('es-DO');
+            doc.text(`Fecha del Reporte: ${fechaReporte}`, 14, 40);
+            
+            const confFilter = document.getElementById('report-conference').value;
+            const churchFilter = document.getElementById('report-church').value;
+            
+            if (confFilter) {
+                const conf = allConferences.find(c => c.id == confFilter);
+                if (conf) doc.text(`Conferencia: ${conf.nombre}`, 14, 46);
+            }
+            
+            if (churchFilter) {
+                const church = allChurches.find(c => c.id == churchFilter);
+                if (church) doc.text(`Iglesia: ${church.nombre}`, 14, 52);
+            }
+
+            // Summary Stats
+            doc.setFillColor(231, 243, 255);
+            doc.rect(14, 58, 182, 20, 'F');
+            doc.setTextColor(26, 35, 126);
+            doc.setFontSize(11);
+            doc.text(`Total Asistentes: ${document.getElementById('report-total-asistentes').innerText}`, 20, 66);
+            doc.text(`Total Días: ${document.getElementById('report-total-dias').innerText}`, 80, 66);
+            doc.text(`Iglesias: ${document.getElementById('report-total-iglesias').innerText}`, 140, 66);
+
+            // Table
+            const tableData = currentReportData.map(r => [
+                r.nombre_completo || r.nombre || '',
+                r.telefono || '',
+                r.iglesia_nombre || '',
+                r.conferencia_nombre || '',
+                `${r.dias_asistidos || 0} ${r.dias_asistidos === 1 ? 'día' : 'días'}`,
+                r.invitado_por || ''
+            ]);
+
+            doc.autoTable({
+                startY: 85,
+                head: [['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [26, 35, 126] },
+                styles: { fontSize: 9 },
+                columnStyles: {
+                    0: { cellWidth: 45 },
+                    1: { cellWidth: 30 },
+                    2: { cellWidth: 35 },
+                    3: { cellWidth: 35 },
+                    4: { cellWidth: 20 },
+                    5: { cellWidth: 35 }
+                }
+            });
+
+            // Footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`Página ${i} de ${pageCount}`, 105, doc.internal.pageSize.height - 10, { align: 'center' });
+                doc.text('© Elaborado por: Natanael León Veras, edición 2026', 105, doc.internal.pageSize.height - 5, { align: 'center' });
+            }
+
+            // Download
+            const nombreArchivo = `Reporte_Asistencia_${fechaReporte.replace(/\//g, '-')}.pdf`;
+            doc.save(nombreArchivo);
+            
+            alert('✅ PDF generado exitosamente');
         }
 
         // ============================================
@@ -1256,7 +1347,6 @@
             return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
         }
         
-        // Format date for display (local timezone)
         function formatDateLocal(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr + 'T00:00:00');
@@ -1309,9 +1399,7 @@
             document.getElementById('days-total-count').textContent = '0';
         }
         
-        // ✅ CORRECCIÓN PRINCIPAL: Guardar solo el NÚMERO de días (INTEGER)
         async function saveRegistration() {
-            // Contar los días marcados
             const checkedDays = Array.from(document.querySelectorAll('.day-checkbox:checked'));
             const daysCount = checkedDays.length;
             
@@ -1323,7 +1411,7 @@
                 conferencia_id: document.getElementById('registro-conferencia').value,
                 invitado_por: document.getElementById('registro-invitado-por').value,
                 direccion: document.getElementById('registro-direccion').value,
-                dias_asistidos: daysCount  // ✅ Guardar solo el número (INTEGER)
+                dias_asistidos: daysCount
             };
             
             const result = await DB.save('asistentes', item);
@@ -1346,11 +1434,8 @@
             document.getElementById('registro-invitado-por').value = reg.invitado_por || '';
             document.getElementById('registro-direccion').value = reg.direccion;
             
-            // Load conference info and checkboxes
             await onConferenceSelect();
             
-            // Note: We can't know which specific days were attended, only the count
-            // So we'll just show the count in the UI
             const daysAttended = reg.dias_asistidos || 0;
             document.getElementById('days-attended-count').textContent = daysAttended;
             
@@ -1409,8 +1494,15 @@
             if(confId) filtered = filtered.filter(r => r.conferencia_id == confId);
             if(churchId) filtered = filtered.filter(r => r.iglesia_id == churchId);
             
+            // Store data with church and conference names for PDF
+            currentReportData = filtered.map(r => ({
+                ...r,
+                iglesia_nombre: churches.find(c => c.id == r.iglesia_id)?.nombre || '',
+                conferencia_nombre: conferences.find(c => c.id == r.conferencia_id)?.nombre || ''
+            }));
+            
             const tbody = document.getElementById('reports-table');
-            if(filtered.length === 0) {
+            if(currentReportData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay datos para mostrar</td></tr>';
                 document.getElementById('report-total-asistentes').innerText = '0';
                 document.getElementById('report-total-dias').innerText = '0';
@@ -1418,13 +1510,13 @@
                 return;
             }
             
-            tbody.innerHTML = filtered.map(r => {
+            tbody.innerHTML = currentReportData.map(r => {
                 const church = churches.find(c => c.id == r.iglesia_id);
                 const conference = conferences.find(c => c.id == r.conferencia_id);
                 const daysAttended = r.dias_asistidos || 0;
                 return `
                 <tr>
-                    <td>${r.nombre_completo || r.nombre || '-'}</td>
+                    <td>${r.nombre_completo || r.nombre || ''}</td>
                     <td>${r.telefono || '-'}</td>
                     <td>${church ? church.nombre : '-'}</td>
                     <td>${conference ? conference.nombre : '-'}</td>
@@ -1433,10 +1525,10 @@
                 </tr>`;
             }).join('');
             
-            document.getElementById('report-total-asistentes').innerText = filtered.length;
-            const totalDays = filtered.reduce((sum, r) => sum + (r.dias_asistidos || 0), 0);
+            document.getElementById('report-total-asistentes').innerText = currentReportData.length;
+            const totalDays = currentReportData.reduce((sum, r) => sum + (r.dias_asistidos || 0), 0);
             document.getElementById('report-total-dias').innerText = totalDays;
-            const uniqueChurches = new Set(filtered.map(r => r.iglesia_id)).size;
+            const uniqueChurches = new Set(currentReportData.map(r => r.iglesia_id)).size;
             document.getElementById('report-total-iglesias').innerText = uniqueChurches;
         }
 

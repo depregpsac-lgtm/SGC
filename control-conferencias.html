@@ -590,7 +590,7 @@
                     <form id="formRegistro">
                         <input type="hidden" id="registro-id">
                         <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">Nombre Completo *</label><input type="text" class="form-control" id="registro-nombre" required></div>
+                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">Nombre Completo *</label><input type="text" class="form-control" id="registro-nombre-completo" required></div>
                             <div class="col-md-6 mb-3"><label class="form-label">Teléfono</label><input type="text" class="form-control" id="registro-telefono"></div>
                         </div>
                         <div class="row">
@@ -914,7 +914,7 @@
                 const daysAttended = r.dias_asistidos ? r.dias_asistidos.split(',').filter(d => d).length : 0;
                 return `
                 <tr>
-                    <td>${r.nombre || ''}</td>
+                    <td>${r.nombre_completo || r.nombre || '-'}</td>
                     <td>${r.telefono || '-'}</td>
                     <td>${church ? church.nombre : '-'}</td>
                     <td>${conference ? conference.nombre : '-'}</td>
@@ -1138,7 +1138,7 @@
         async function saveRegistration() {
             const item = {
                 id: document.getElementById('registro-id').value ? parseInt(document.getElementById('registro-id').value) : undefined,
-                nombre: document.getElementById('registro-nombre').value,
+                nombre_completo: document.getElementById('registro-nombre-completo').value,
                 telefono: document.getElementById('registro-telefono').value,
                 iglesia_id: document.getElementById('registro-iglesia').value,
                 conferencia_id: document.getElementById('registro-conferencia').value,
@@ -1155,7 +1155,7 @@
             const reg = await DB.getById('asistentes', id);
             if (!reg) return;
             document.getElementById('registro-id').value = reg.id;
-            document.getElementById('registro-nombre').value = reg.nombre;
+            document.getElementById('registro-nombre-completo').value = reg.nombre_completo || reg.nombre || '';
             document.getElementById('registro-telefono').value = reg.telefono;
             document.getElementById('registro-iglesia').value = reg.iglesia_id;
             document.getElementById('registro-conferencia').value = reg.conferencia_id;
@@ -1230,7 +1230,7 @@
                 const daysAttended = r.dias_asistidos ? r.dias_asistidos.split(',').filter(d => d).length : 0;
                 return `
                 <tr>
-                    <td>${r.nombre || ''}</td>
+                    <td>${r.nombre_completo || r.nombre || '-'}</td>
                     <td>${r.telefono || '-'}</td>
                     <td>${church ? church.nombre : '-'}</td>
                     <td>${conference ? conference.nombre : '-'}</td>

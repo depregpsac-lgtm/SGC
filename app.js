@@ -76,6 +76,350 @@ function checkAuth() {
 }
 
 // ============================================
+// ZONAS
+// ============================================
+async function obtenerZonas() {
+    const { data, error } = await window.db
+        .from('zonas')
+        .select('*')
+        .order('nombre');
+    if (error) throw error;
+    return data;
+}
+
+async function crearZona(nombre, descripcion) {
+    const { data, error } = await window.db
+        .from('zonas')
+        .insert([{ nombre, descripcion }])
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function actualizarZona(id, nombre, descripcion) {
+    const { data, error } = await window.db
+        .from('zonas')
+        .update({ nombre, descripcion })
+        .eq('id', id)
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function eliminarZona(id) {
+    const { data: distritos, error: checkError } = await window.db
+        .from('distritos')
+        .select('id')
+        .eq('zona_id', id)
+        .limit(1);
+    if (checkError) throw checkError;
+    if (distritos && distritos.length > 0) {
+        throw new Error('No se puede eliminar: hay distritos asociados');
+    }
+    const { error } = await window.db
+        .from('zonas')
+        .delete()
+        .eq('id', id);
+    if (error) throw error;
+}
+
+// ============================================
+// DISTRITOS
+// ============================================
+async function obtenerDistritos() {
+    const { data, error } = await window.db
+        .from('distritos')
+        .select(`*, zonas (nombre)`)
+        .order('nombre');
+    if (error) throw error;
+    return data;
+}
+
+async function crearDistrito(zona_id, nombre, responsable, telefono) {
+    const { data, error } = await window.db
+        .from('distritos')
+        .insert([{ zona_id, nombre, responsable, telefono }])
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function actualizarDistrito(id, zona_id, nombre, responsable, telefono) {
+    const { data, error } = await window.db
+        .from('distritos')
+        .update({ zona_id, nombre, responsable, telefono })
+        .eq('id', id)
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function eliminarDistrito(id) {
+    const { data: iglesias, error: checkError } = await window.db
+        .from('iglesias')
+        .select('id')
+        .eq('distrito_id', id)
+        .limit(1);
+    if (checkError) throw checkError;
+    if (iglesias && iglesias.length > 0) {
+        throw new Error('No se puede eliminar: hay iglesias asociadas');
+    }
+    const { error } = await window.db
+        .from('distritos')
+        .delete()
+        .eq('id', id);
+    if (error) throw error;
+}
+
+// ============================================
+// IGLESIAS
+// ============================================
+async function obtenerIglesias() {
+    const { data, error } = await window.db
+        .from('iglesias')
+        .select(`*, zonas (nombre), distritos (nombre)`)
+        .order('nombre');
+    if (error) throw error;
+    return data;
+}
+
+async function crearIglesia(zona_id, distrito_id, nombre, pastor, direccion, telefono) {
+    const { data, error } = await window.db
+        .from('iglesias')
+        .insert([{ zona_id, distrito_id, nombre, pastor, direccion, telefono }])
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function actualizarIglesia(id, zona_id, distrito_id, nombre, pastor, direccion, telefono) {
+    const { data, error } = await window.db
+        .from('iglesias')
+        .update({ zona_id, distrito_id, nombre, pastor, direccion, telefono })
+        .eq('id', id)
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function eliminarIglesia(id) {
+    const { data: conferencias, error: checkError } = await window.db
+        .from('conferencias')
+        .select('id')
+        .eq('iglesia_id', id)
+        .limit(1);
+    if (checkError) throw checkError;
+    if (conferencias && conferencias.length > 0) {
+        throw new Error('No se puede eliminar: hay conferencias asociadas');
+    }
+    const { error } = await window.db
+        .from('iglesias')
+        .delete()
+        .eq('id', id);
+    if (error) throw error;
+}
+
+// ============================================
+// CONFERENCIAS
+// ============================================
+async function obtenerConferencias() {
+    const { data, error } = await window.db
+        .from('conferencias')
+        .select(`*, iglesias (nombre)`)
+        .order('fecha_inicio', { ascending: false });
+    if (error) throw error;
+    return data;
+}
+
+async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
+    const { data, error } = await window.db
+        .from('conferencias')
+        .insert([{
+            iglesia_id,
+            nombre,
+            fecha_inicio,
+            fecha_fin,
+            conferenciante
+        }])
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
+    const { data, error } = await window.db
+        .from('conferencias')
+        .update({
+            iglesia_id,
+            nombre,
+            fecha_inicio,
+            fecha_fin,
+            conferenciante
+        })
+        .eq('id', id)
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function eliminarConferencia(id) {
+    const { data: asistentes, error: checkError } = await window.db
+        .from('asistentes')
+        .select('id')
+        .eq('conferencia_id', id)
+        .limit(1);
+    if (checkError) throw checkError;
+    if (asistentes && asistentes.length > 0) {
+        throw new Error('No se puede eliminar: hay asistentes registrados');
+    }
+    const { error } = await window.db
+        .from('conferencias')
+        .delete()
+        .eq('id', id);
+    if (error) throw error;
+}
+
+// ============================================
+// ASISTENTES
+// ============================================
+async function obtenerAsistentes(conferencia_id = null) {
+    let query = window.db
+        .from('asistentes')
+        .select(`*, iglesias (nombre), conferencias (nombre)`);
+    if (conferencia_id) {
+        query = query.eq('conferencia_id', conferencia_id);
+    }
+    const { data, error } = await query.order('nombre_completo');
+    if (error) throw error;
+    return data;
+}
+
+async function crearAsistente(datos) {
+    const { data, error } = await window.db
+        .from('asistentes')
+        .insert([{
+            nombre_completo: datos.nombre_completo,
+            direccion: datos.direccion,
+            telefono: datos.telefono,
+            invitado_por: datos.invitado_por,
+            iglesia_id: datos.iglesia_id,
+            conferencia_id: datos.conferencia_id,
+            fechas_asistencia: datos.fechas_asistencia || '[]'
+        }])
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function actualizarAsistente(id, datos) {
+    const { data, error } = await window.db
+        .from('asistentes')
+        .update({
+            nombre_completo: datos.nombre_completo,
+            direccion: datos.direccion,
+            telefono: datos.telefono,
+            invitado_por: datos.invitado_por,
+            iglesia_id: datos.iglesia_id,
+            conferencia_id: datos.conferencia_id,
+            fechas_asistencia: datos.fechas_asistencia || '[]'
+        })
+        .eq('id', id)
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function eliminarAsistente(id) {
+    const { error } = await window.db
+        .from('asistentes')
+        .delete()
+        .eq('id', id);
+    if (error) throw error;
+}
+
+// ============================================
+// USUARIOS
+// ============================================
+async function obtenerUsuarios() {
+    const { data, error } = await window.db
+        .from('usuarios_sistema')
+        .select('*')
+        .order('nombre_completo');
+    if (error) throw error;
+    return data;
+}
+
+async function crearUsuario(nombre_completo, email, password_hash, rol, permisos, estado) {
+    const { data, error } = await window.db
+        .from('usuarios_sistema')
+        .insert([{ nombre_completo, email, password_hash, rol, permisos, estado }])
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function actualizarUsuario(id, nombre_completo, email, password_hash, rol, permisos, estado) {
+    const updateData = { nombre_completo, email, rol, permisos, estado };
+    if (password_hash && password_hash.trim() !== '') {
+        updateData.password_hash = password_hash;
+    }
+    const { data, error } = await window.db
+        .from('usuarios_sistema')
+        .update(updateData)
+        .eq('id', id)
+        .select();
+    if (error) throw error;
+    return data;
+}
+
+async function eliminarUsuario(id) {
+    const { data: admins, error: checkError } = await window.db
+        .from('usuarios_sistema')
+        .select('id')
+        .eq('rol', 'administrador')
+        .eq('estado', 'activo');
+    if (checkError) throw checkError;
+    if (admins && admins.length <= 1) {
+        throw new Error('No se puede eliminar: debe haber al menos un administrador activo');
+    }
+    const { error } = await window.db
+        .from('usuarios_sistema')
+        .delete()
+        .eq('id', id);
+    if (error) throw error;
+}
+
+// ============================================
+// ESTADÍSTICAS
+// ============================================
+async function obtenerEstadisticas() {
+    try {
+        const zonas = await obtenerZonas();
+        const distritos = await obtenerDistritos();
+        const iglesias = await obtenerIglesias();
+        const conferencias = await obtenerConferencias();
+        const asistentes = await obtenerAsistentes();
+        
+        return {
+            total_zonas: zonas ? zonas.length : 0,
+            total_distritos: distritos ? distritos.length : 0,
+            total_iglesias: iglesias ? iglesias.length : 0,
+            total_conferencias: conferencias ? conferencias.length : 0,
+            total_asistentes: asistentes ? asistentes.length : 0
+        };
+    } catch (error) {
+        console.log('Error cargando estadísticas:', error);
+        return {
+            total_zonas: 0,
+            total_distritos: 0,
+            total_iglesias: 0,
+            total_conferencias: 0,
+            total_asistentes: 0
+        };
+    }
+}
+
+// ============================================
 // UTILIDADES - MENSAJES TOAST
 // ============================================
 function mostrarMensaje(mensaje, tipo = 'info') {
@@ -139,8 +483,34 @@ if (!document.getElementById('toast-styles')) {
 window.login = login;
 window.logout = logout;
 window.checkAuth = checkAuth;
+window.obtenerZonas = obtenerZonas;
+window.crearZona = crearZona;
+window.actualizarZona = actualizarZona;
+window.eliminarZona = eliminarZona;
+window.obtenerDistritos = obtenerDistritos;
+window.crearDistrito = crearDistrito;
+window.actualizarDistrito = actualizarDistrito;
+window.eliminarDistrito = eliminarDistrito;
+window.obtenerIglesias = obtenerIglesias;
+window.crearIglesia = crearIglesia;
+window.actualizarIglesia = actualizarIglesia;
+window.eliminarIglesia = eliminarIglesia;
+window.obtenerConferencias = obtenerConferencias;
+window.crearConferencia = crearConferencia;
+window.actualizarConferencia = actualizarConferencia;
+window.eliminarConferencia = eliminarConferencia;
+window.obtenerAsistentes = obtenerAsistentes;
+window.crearAsistente = crearAsistente;
+window.actualizarAsistente = actualizarAsistente;
+window.eliminarAsistente = eliminarAsistente;
+window.obtenerUsuarios = obtenerUsuarios;
+window.crearUsuario = crearUsuario;
+window.actualizarUsuario = actualizarUsuario;
+window.eliminarUsuario = eliminarUsuario;
+window.obtenerEstadisticas = obtenerEstadisticas;
 window.mostrarMensaje = mostrarMensaje;
 window.fechaISOaLocal = fechaISOaLocal;
 window.formatearFechaParaTabla = formatearFechaParaTabla;
 window.calcularDias = calcularDias;
+
 console.log('✅ app.js cargado correctamente con todas las funciones');

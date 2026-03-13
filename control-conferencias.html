@@ -986,16 +986,8 @@
             tbody.innerHTML = registrations.map(r => {
                 const church = churches.find(c => c.id == r.iglesia_id);
                 const conference = conferences.find(c => c.id == r.conferencia_id);
-                // Parse dias_asistidos - count the number of days
-                let daysAttended = 0;
-                if (r.dias_asistidos) {
-                    if (typeof r.dias_asistidos === 'string') {
-                        const daysArray = r.dias_asistidos.split(',').filter(d => d.trim() !== '');
-                        daysAttended = daysArray.length;
-                    } else if (Array.isArray(r.dias_asistidos)) {
-                        daysAttended = r.dias_asistidos.length;
-                    }
-                }
+                // dias_asistidos is now an INTEGER (count of days)
+                const daysAttended = r.dias_asistidos || 0;
                 return `
                 <tr data-nombre="${(r.nombre_completo || r.nombre || '').toLowerCase()}">
                     <td>${r.nombre_completo || r.nombre || '-'}</td>
@@ -1088,7 +1080,7 @@
                 document.getElementById('conf-info-days').textContent = totalDays;
                 infoDiv.style.display = 'block';
                 
-                // Generate checkboxes for each day (using day numbers, not dates)
+                // Generate checkboxes for each day
                 generateDayCheckboxes(totalDays, conference.fecha_inicio);
             } else {
                 infoDiv.style.display = 'none';
@@ -1316,11 +1308,12 @@
             document.getElementById('days-attended-count').textContent = '0';
             document.getElementById('days-total-count').textContent = '0';
         }
+        
+        // ✅ CORRECCIÓN PRINCIPAL: Guardar solo el NÚMERO de días (INTEGER)
         async function saveRegistration() {
-            // Get checked days (now just numbers: 1,2,3...)
-            const checkedDays = Array.from(document.querySelectorAll('.day-checkbox:checked'))
-                .map(cb => cb.value)
-                .join(',');
+            // Contar los días marcados
+            const checkedDays = Array.from(document.querySelectorAll('.day-checkbox:checked'));
+            const daysCount = checkedDays.length;
             
             const item = {
                 id: document.getElementById('registro-id').value || undefined,
@@ -1330,16 +1323,17 @@
                 conferencia_id: document.getElementById('registro-conferencia').value,
                 invitado_por: document.getElementById('registro-invitado-por').value,
                 direccion: document.getElementById('registro-direccion').value,
-                dias_asistidos: checkedDays // Now stores: "1,2,3" instead of dates
+                dias_asistidos: daysCount  // ✅ Guardar solo el número (INTEGER)
             };
+            
             const result = await DB.save('asistentes', item);
             if (result) {
                 bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
-                // Reload data to show updated days attended
                 await loadRegistrations();
                 alert('✅ Registro guardado exitosamente');
             }
         }
+        
         async function editRegistration(id) {
             const reg = await DB.getById('asistentes', id);
             if (!reg) return;
@@ -1355,24 +1349,14 @@
             // Load conference info and checkboxes
             await onConferenceSelect();
             
-            // Check previously attended days (now numbers)
-            if (reg.dias_asistidos) {
-                let attendedDays = [];
-                if (typeof reg.dias_asistidos === 'string') {
-                    attendedDays = reg.dias_asistidos.split(',').filter(d => d.trim() !== '');
-                } else if (Array.isArray(reg.dias_asistidos)) {
-                    attendedDays = reg.dias_asistidos;
-                }
-                
-                attendedDays.forEach(dayNum => {
-                    const checkbox = document.querySelector(`.day-checkbox[value="${dayNum}"]`);
-                    if (checkbox) checkbox.checked = true;
-                });
-                updateDaysCount();
-            }
+            // Note: We can't know which specific days were attended, only the count
+            // So we'll just show the count in the UI
+            const daysAttended = reg.dias_asistidos || 0;
+            document.getElementById('days-attended-count').textContent = daysAttended;
             
             new bootstrap.Modal(document.getElementById('modalRegistro')).show();
         }
+        
         async function deleteRegistration(id) {
             if(confirm('¿Eliminar este registro?')) {
                 await DB.delete('asistentes', id);
@@ -1437,15 +1421,7 @@
             tbody.innerHTML = filtered.map(r => {
                 const church = churches.find(c => c.id == r.iglesia_id);
                 const conference = conferences.find(c => c.id == r.conferencia_id);
-                // Count days attended
-                let daysAttended = 0;
-                if (r.dias_asistidos) {
-                    if (typeof r.dias_asistidos === 'string') {
-                        daysAttended = r.dias_asistidos.split(',').filter(d => d.trim() !== '').length;
-                    } else if (Array.isArray(r.dias_asistidos)) {
-                        daysAttended = r.dias_asistidos.length;
-                    }
-                }
+                const daysAttended = r.dias_asistidos || 0;
                 return `
                 <tr>
                     <td>${r.nombre_completo || r.nombre || '-'}</td>
@@ -1458,17 +1434,7 @@
             }).join('');
             
             document.getElementById('report-total-asistentes').innerText = filtered.length;
-            const totalDays = filtered.reduce((sum, r) => {
-                let days = 0;
-                if (r.dias_asistidos) {
-                    if (typeof r.dias_asistidos === 'string') {
-                        days = r.dias_asistidos.split(',').filter(d => d.trim() !== '').length;
-                    } else if (Array.isArray(r.dias_asistidos)) {
-                        days = r.dias_asistidos.length;
-                    }
-                }
-                return sum + days;
-            }, 0);
+            const totalDays = filtered.reduce((sum, r) => sum + (r.dias_asistidos || 0), 0);
             document.getElementById('report-total-dias').innerText = totalDays;
             const uniqueChurches = new Set(filtered.map(r => r.iglesia_id)).size;
             document.getElementById('report-total-iglesias').innerText = uniqueChurches;

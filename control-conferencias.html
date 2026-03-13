@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -267,6 +263,26 @@
 
         .badge-activo { background-color: #198754; }
         .badge-inactivo { background-color: #dc3545; }
+
+        .db-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            z-index: 9999;
+        }
+        .db-connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .db-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
@@ -293,6 +309,9 @@
                     <span id="loginSpinner" class="loading-spinner ms-2" style="display:none;"></span>
                 </button>
             </form>
+            <div class="mt-3">
+                <small class="text-muted" id="db-status-text">Conectando a base de datos...</small>
+            </div>
             <div class="mt-4 text-muted" style="font-size: 0.8rem;">
                 © Elaborado por: Natanael León Veras, edición 2026.
             </div>
@@ -351,7 +370,7 @@
                             <div class="stat-card">
                                 <div>
                                     <h6 class="text-muted">Total Zonas</h6>
-                                    <h3 class="fw-bold" id="stat-zonas">0</h3>
+                                    <h3 class="fw-bold" id="stat-zonas"><div class="loading-spinner"></div></h3>
                                 </div>
                                 <div class="stat-icon bg-light-primary"><i class="bi bi-geo-alt"></i></div>
                             </div>
@@ -360,7 +379,7 @@
                             <div class="stat-card">
                                 <div>
                                     <h6 class="text-muted">Total Distritos</h6>
-                                    <h3 class="fw-bold" id="stat-distritos">0</h3>
+                                    <h3 class="fw-bold" id="stat-distritos"><div class="loading-spinner"></div></h3>
                                 </div>
                                 <div class="stat-icon bg-light-warning"><i class="bi bi-building"></i></div>
                             </div>
@@ -369,7 +388,7 @@
                             <div class="stat-card">
                                 <div>
                                     <h6 class="text-muted">Total Iglesias</h6>
-                                    <h3 class="fw-bold" id="stat-iglesias">0</h3>
+                                    <h3 class="fw-bold" id="stat-iglesias"><div class="loading-spinner"></div></h3>
                                 </div>
                                 <div class="stat-icon bg-light-success"><i class="bi bi-church"></i></div>
                             </div>
@@ -377,8 +396,17 @@
                         <div class="col-md-3">
                             <div class="stat-card">
                                 <div>
+                                    <h6 class="text-muted">Total Conferencias</h6>
+                                    <h3 class="fw-bold" id="stat-conferencias"><div class="loading-spinner"></div></h3>
+                                </div>
+                                <div class="stat-icon bg-light-primary"><i class="bi bi-calendar-event"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div>
                                     <h6 class="text-muted">Total Asistentes</h6>
-                                    <h3 class="fw-bold" id="stat-asistentes">0</h3>
+                                    <h3 class="fw-bold" id="stat-asistentes"><div class="loading-spinner"></div></h3>
                                 </div>
                                 <div class="stat-icon bg-light-danger"><i class="bi bi-people"></i></div>
                             </div>
@@ -407,7 +435,7 @@
                                         <tbody id="home-conferences-table">
                                             <tr>
                                                 <td colspan="6" class="text-center text-muted py-4">
-                                                    <div class="loading-spinner"></div> Cargando datos...
+                                                    <div class="loading-spinner"></div> Cargando datos desde Supabase...
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -419,7 +447,7 @@
                             <div class="table-container h-100">
                                 <h5 class="m-0 mb-3">🔔 Notificaciones</h5>
                                 <div class="alert alert-info border-0 shadow-sm">
-                                    <i class="bi bi-info-circle"></i> Los datos se cargan desde la base de datos local (localStorage).
+                                    <i class="bi bi-info-circle"></i> Conectado a Supabase
                                 </div>
                                 <div class="alert alert-warning border-0 shadow-sm">
                                     <i class="bi bi-exclamation-triangle"></i> <span id="notification-count">0</span> conferencias próximas
@@ -452,7 +480,7 @@
                                 <tbody id="conferences-table">
                                     <tr>
                                         <td colspan="7" class="text-center text-muted">
-                                            <div class="loading-spinner"></div> Cargando datos...
+                                            <div class="loading-spinner"></div> Cargando datos desde Supabase...
                                         </td>
                                     </tr>
                                 </tbody>
@@ -483,7 +511,7 @@
                                 <tbody id="registrations-table">
                                     <tr>
                                         <td colspan="6" class="text-center text-muted">
-                                            <div class="loading-spinner"></div> Cargando registros...
+                                            <div class="loading-spinner"></div> Cargando registros desde Supabase...
                                         </td>
                                     </tr>
                                 </tbody>
@@ -553,7 +581,7 @@
                                 <table class="table">
                                     <thead><tr><th>Nombre</th><th>Descripción</th><th>Acciones</th></tr></thead>
                                     <tbody id="zones-table">
-                                        <tr><td colspan="3" class="text-center"><div class="loading-spinner"></div> Cargando...</td></tr>
+                                        <tr><td colspan="3" class="text-center"><div class="loading-spinner"></div> Cargando desde Supabase...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -568,7 +596,7 @@
                                 <table class="table">
                                     <thead><tr><th>Distrito</th><th>Zona</th><th>Responsable</th><th>Acciones</th></tr></thead>
                                     <tbody id="districts-table">
-                                        <tr><td colspan="4" class="text-center"><div class="loading-spinner"></div> Cargando...</td></tr>
+                                        <tr><td colspan="4" class="text-center"><div class="loading-spinner"></div> Cargando desde Supabase...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -583,7 +611,7 @@
                                 <table class="table">
                                     <thead><tr><th>Iglesia</th><th>Zona</th><th>Distrito</th><th>Pastor</th><th>Acciones</th></tr></thead>
                                     <tbody id="churches-table">
-                                        <tr><td colspan="5" class="text-center"><div class="loading-spinner"></div> Cargando...</td></tr>
+                                        <tr><td colspan="5" class="text-center"><div class="loading-spinner"></div> Cargando desde Supabase...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -606,7 +634,7 @@
                             </thead>
                             <tbody id="users-table">
                                 <tr>
-                                    <td colspan="5" class="text-center"><div class="loading-spinner"></div> Cargando usuarios...</td>
+                                    <td colspan="5" class="text-center"><div class="loading-spinner"></div> Cargando usuarios desde Supabase...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -619,6 +647,11 @@
             </div>
         </div>
     </section>
+
+    <!-- DB Status Indicator -->
+    <div id="db-status" class="db-status db-disconnected" style="display:none;">
+        <i class="bi bi-wifi-off"></i> <span id="db-status-text">Desconectado</span>
+    </div>
 
     <!-- MODALS -->
 
@@ -812,81 +845,160 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Supabase Config -->
     <script>
         // ============================================
-        // DATABASE SIMULATION (localStorage)
+        // SUPABASE CONFIGURATION
+        // ============================================
+        const SUPABASE_CONFIG = {
+            url: 'https://qalzqyjuyptemtrhwsbz.supabase.co',
+            key: 'sb_publishable_6qbyMCMlswqUm_kuCPJtyA_B7m4xFvr'
+        };
+
+        // Initialize Supabase
+        let supabaseClient = null;
+        let dbConnected = false;
+
+        function initSupabase() {
+            if (typeof supabase === 'undefined') {
+                console.error('❌ La librería de Supabase no se ha cargado.');
+                updateDBStatus(false);
+                return false;
+            }
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+                console.log('✅ Supabase inicializado correctamente');
+                console.log('📡 URL:', SUPABASE_CONFIG.url);
+                updateDBStatus(true);
+                dbConnected = true;
+                return true;
+            } catch (error) {
+                console.error('❌ Error al inicializar Supabase:', error);
+                updateDBStatus(false);
+                return false;
+            }
+        }
+
+        function updateDBStatus(connected) {
+            const statusEl = document.getElementById('db-status');
+            const statusText = document.getElementById('db-status-text');
+            const loginStatusText = document.getElementById('db-status-text');
+            
+            if (connected) {
+                statusEl.className = 'db-status db-connected';
+                statusEl.innerHTML = '<i class="bi bi-wifi"></i> <span>Conectado a Supabase</span>';
+                statusEl.style.display = 'block';
+                if(loginStatusText) loginStatusText.innerText = '✅ Base de datos conectada';
+            } else {
+                statusEl.className = 'db-status db-disconnected';
+                statusEl.innerHTML = '<i class="bi bi-wifi-off"></i> <span>Desconectado</span>';
+                statusEl.style.display = 'block';
+                if(loginStatusText) loginStatusText.innerText = '❌ Error de conexión';
+            }
+        }
+
+        // Initialize on load
+        initSupabase();
+
+        // ============================================
+        // DATABASE OPERATIONS WITH SUPABASE
         // ============================================
         
         const DB = {
-            // Initialize database with default data
-            init: function() {
-                if (!localStorage.getItem('ml_zonas')) {
-                    localStorage.setItem('ml_zonas', JSON.stringify([
-                        { id: 1, nombre: 'Zona Norte', descripcion: 'Iglesias del norte' },
-                        { id: 2, nombre: 'Zona Sur', descripcion: 'Iglesias del sur' }
-                    ]));
-                }
-                if (!localStorage.getItem('ml_distritos')) {
-                    localStorage.setItem('ml_distritos', JSON.stringify([
-                        { id: 1, zonaId: 1, nombre: 'Distrito Central', responsable: 'Pastor Juan', telefono: '809-555-0001' }
-                    ]));
-                }
-                if (!localStorage.getItem('ml_iglesias')) {
-                    localStorage.setItem('ml_iglesias', JSON.stringify([
-                        { id: 1, zonaId: 1, distritoId: 1, nombre: 'Iglesia Betel', pastor: 'Pastor Pedro', telefono: '809-555-0002', direccion: 'Calle 1 #123' }
-                    ]));
-                }
-                if (!localStorage.getItem('ml_conferencias')) {
-                    localStorage.setItem('ml_conferencias', JSON.stringify([]));
-                }
-                if (!localStorage.getItem('ml_registros')) {
-                    localStorage.setItem('ml_registros', JSON.stringify([]));
-                }
-                if (!localStorage.getItem('ml_usuarios')) {
-                    localStorage.setItem('ml_usuarios', JSON.stringify([
-                        { id: 1, nombre: 'Admin', correo: 'admin@ministrylion.com', rol: 'Administrador', estado: 'Activo' }
-                    ]));
+            // Generic fetch
+            async getAll(table) {
+                if (!supabaseClient) return [];
+                try {
+                    const { data, error } = await supabaseClient
+                        .from(table)
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                    
+                    if (error) {
+                        console.error(`Error fetching ${table}:`, error);
+                        return [];
+                    }
+                    return data || [];
+                } catch (error) {
+                    console.error(`Error fetching ${table}:`, error);
+                    return [];
                 }
             },
 
-            // Generic CRUD operations
-            getAll: function(table) {
-                return JSON.parse(localStorage.getItem('ml_' + table) || '[]');
-            },
-            getById: function(table, id) {
-                const data = this.getAll(table);
-                return data.find(item => item.id == id);
-            },
-            save: function(table, item) {
-                const data = this.getAll(table);
-                if (item.id) {
-                    const index = data.findIndex(i => i.id == item.id);
-                    if (index >= 0) data[index] = item;
-                } else {
-                    item.id = Date.now();
-                    data.push(item);
+            // Get by ID
+            async getById(table, id) {
+                if (!supabaseClient) return null;
+                try {
+                    const { data, error } = await supabaseClient
+                        .from(table)
+                        .select('*')
+                        .eq('id', id)
+                        .single();
+                    
+                    if (error) return null;
+                    return data;
+                } catch (error) {
+                    console.error(`Error fetching ${table} by ID:`, error);
+                    return null;
                 }
-                localStorage.setItem('ml_' + table, JSON.stringify(data));
-                return item;
             },
-            delete: function(table, id) {
-                const data = this.getAll(table);
-                const filtered = data.filter(item => item.id != id);
-                localStorage.setItem('ml_' + table, JSON.stringify(filtered));
+
+            // Insert or Update
+            async save(table, item) {
+                if (!supabaseClient) return null;
+                try {
+                    let result;
+                    if (item.id) {
+                        // Update
+                        const { data, error } = await supabaseClient
+                            .from(table)
+                            .update(item)
+                            .eq('id', item.id)
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data[0];
+                    } else {
+                        // Insert
+                        const { data, error } = await supabaseClient
+                            .from(table)
+                            .insert([item])
+                            .select();
+                        
+                        if (error) throw error;
+                        result = data[0];
+                    }
+                    return result;
+                } catch (error) {
+                    console.error(`Error saving to ${table}:`, error);
+                    showAlert('Error al guardar: ' + error.message, 'danger');
+                    return null;
+                }
             },
-            getNextId: function(table) {
-                const data = this.getAll(table);
-                return data.length > 0 ? Math.max(...data.map(i => i.id)) + 1 : 1;
+
+            // Delete
+            async delete(table, id) {
+                if (!supabaseClient) return false;
+                try {
+                    const { error } = await supabaseClient
+                        .from(table)
+                        .delete()
+                        .eq('id', id);
+                    
+                    if (error) throw error;
+                    return true;
+                } catch (error) {
+                    console.error(`Error deleting from ${table}:`, error);
+                    showAlert('Error al eliminar: ' + error.message, 'danger');
+                    return false;
+                }
             }
         };
-
-        // Initialize database on load
-        DB.init();
 
         // ============================================
         // LOGIN LOGIC
         // ============================================
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btnText = document.getElementById('loginBtnText');
             const spinner = document.getElementById('loginSpinner');
@@ -894,10 +1006,15 @@
             btnText.innerText = 'Verificando...';
             spinner.style.display = 'inline-block';
             
+            // Simulate login (in production, use Supabase Auth)
             setTimeout(() => {
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('dashboard-section').style.display = 'block';
-                loadAllData();
+                if (dbConnected) {
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('dashboard-section').style.display = 'block';
+                    loadAllData();
+                } else {
+                    showAlert('⚠️ No hay conexión a la base de datos. Verifica tu configuración.', 'warning');
+                }
                 btnText.innerText = 'Iniciar Sesión';
                 spinner.style.display = 'none';
             }, 1000);
@@ -935,7 +1052,6 @@
                 document.getElementById('sidebar').classList.remove('active');
             }
 
-            // Reload data for the section
             loadAllData();
         }
 
@@ -946,36 +1062,38 @@
         // ============================================
         // DATA LOADING FUNCTIONS
         // ============================================
-        function loadAllData() {
-            loadStats();
-            loadZones();
-            loadDistricts();
-            loadChurches();
-            loadConferences();
-            loadRegistrations();
-            loadUsers();
-            loadSelectOptions();
+        async function loadAllData() {
+            await Promise.all([
+                loadStats(),
+                loadZones(),
+                loadDistricts(),
+                loadChurches(),
+                loadConferences(),
+                loadRegistrations(),
+                loadUsers(),
+                loadSelectOptions()
+            ]);
         }
 
-        function loadStats() {
-            const zonas = DB.getAll('zonas');
-            const distritos = DB.getAll('distritos');
-            const iglesias = DB.getAll('iglesias');
-            const registros = DB.getAll('registros');
+        async function loadStats() {
+            const zonas = await DB.getAll('zonas');
+            const distritos = await DB.getAll('distritos');
+            const iglesias = await DB.getAll('iglesias');
+            const conferencias = await DB.getAll('conferencias');
+            const registros = await DB.getAll('registros');
             
             document.getElementById('stat-zonas').innerText = zonas.length;
             document.getElementById('stat-distritos').innerText = distritos.length;
             document.getElementById('stat-iglesias').innerText = iglesias.length;
+            document.getElementById('stat-conferencias').innerText = conferencias.length;
             document.getElementById('stat-asistentes').innerText = registros.length;
 
-            // Notification count
-            const conferencias = DB.getAll('conferencias');
             const upcoming = conferencias.filter(c => new Date(c.fin) >= new Date()).length;
             document.getElementById('notification-count').innerText = upcoming;
         }
 
-        function loadZones() {
-            const zones = DB.getAll('zonas');
+        async function loadZones() {
+            const zones = await DB.getAll('zonas');
             const tbody = document.getElementById('zones-table');
             
             if (zones.length === 0) {
@@ -995,9 +1113,9 @@
             `).join('');
         }
 
-        function loadDistricts() {
-            const districts = DB.getAll('distritos');
-            const zones = DB.getAll('zonas');
+        async function loadDistricts() {
+            const districts = await DB.getAll('distritos');
+            const zones = await DB.getAll('zonas');
             const tbody = document.getElementById('districts-table');
             
             if (districts.length === 0) {
@@ -1006,7 +1124,7 @@
             }
 
             tbody.innerHTML = districts.map(d => {
-                const zone = zones.find(z => z.id == d.zonaId);
+                const zone = zones.find(z => z.id == d.zona_id);
                 return `
                 <tr>
                     <td>${d.nombre}</td>
@@ -1020,10 +1138,10 @@
             `}).join('');
         }
 
-        function loadChurches() {
-            const churches = DB.getAll('iglesias');
-            const zones = DB.getAll('zonas');
-            const districts = DB.getAll('distritos');
+        async function loadChurches() {
+            const churches = await DB.getAll('iglesias');
+            const zones = await DB.getAll('zonas');
+            const districts = await DB.getAll('distritos');
             const tbody = document.getElementById('churches-table');
             
             if (churches.length === 0) {
@@ -1032,8 +1150,8 @@
             }
 
             tbody.innerHTML = churches.map(c => {
-                const zone = zones.find(z => z.id == c.zonaId);
-                const district = districts.find(d => d.id == c.distritoId);
+                const zone = zones.find(z => z.id == c.zona_id);
+                const district = districts.find(d => d.id == c.distrito_id);
                 return `
                 <tr>
                     <td>${c.nombre}</td>
@@ -1048,13 +1166,11 @@
             `}).join('');
         }
 
-        function loadConferences() {
-            const conferences = DB.getAll('conferencias');
-            const churches = DB.getAll('iglesias');
+        async function loadConferences() {
+            const conferences = await DB.getAll('conferencias');
+            const churches = await DB.getAll('iglesias');
             
-            // Home table (last 5)
             const homeTbody = document.getElementById('home-conferences-table');
-            // Conferences page table
             const confTbody = document.getElementById('conferences-table');
             
             if (conferences.length === 0) {
@@ -1064,7 +1180,7 @@
             }
 
             const rows = conferences.map(c => {
-                const church = churches.find(ch => ch.id == c.iglesiaId);
+                const church = churches.find(ch => ch.id == c.iglesia_id);
                 const days = calculateDays(c.inicio, c.fin);
                 return `
                 <tr>
@@ -1085,10 +1201,10 @@
             confTbody.innerHTML = rows.join('');
         }
 
-        function loadRegistrations() {
-            const registrations = DB.getAll('registros');
-            const churches = DB.getAll('iglesias');
-            const conferences = DB.getAll('conferencias');
+        async function loadRegistrations() {
+            const registrations = await DB.getAll('registros');
+            const churches = await DB.getAll('iglesias');
+            const conferences = await DB.getAll('conferencias');
             const tbody = document.getElementById('registrations-table');
             
             if (registrations.length === 0) {
@@ -1097,9 +1213,9 @@
             }
 
             tbody.innerHTML = registrations.map(r => {
-                const church = churches.find(c => c.id == r.iglesiaId);
-                const conference = conferences.find(c => c.id == r.conferenciaId);
-                const daysAttended = r.diasAsistidos ? r.diasAsistidos.split(',').length : 0;
+                const church = churches.find(c => c.id == r.iglesia_id);
+                const conference = conferences.find(c => c.id == r.conferencia_id);
+                const daysAttended = r.dias_asistidos ? r.dias_asistidos.split(',').length : 0;
                 return `
                 <tr>
                     <td>${r.nombre}</td>
@@ -1115,8 +1231,8 @@
             `}).join('');
         }
 
-        function loadUsers() {
-            const users = DB.getAll('usuarios');
+        async function loadUsers() {
+            const users = await DB.getAll('usuarios');
             const tbody = document.getElementById('users-table');
             
             if (users.length === 0) {
@@ -1138,29 +1254,25 @@
             `).join('');
         }
 
-        function loadSelectOptions() {
-            // Zones
-            const zones = DB.getAll('zonas');
+        async function loadSelectOptions() {
+            const zones = await DB.getAll('zonas');
             const zoneOptions = '<option value="">Seleccionar</option>' + zones.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
             
             document.getElementById('distrito-zona').innerHTML = zoneOptions;
             document.getElementById('iglesia-zona').innerHTML = zoneOptions;
 
-            // Districts
-            const districts = DB.getAll('distritos');
+            const districts = await DB.getAll('distritos');
             const districtOptions = '<option value="">-- Sin distrito --</option>' + districts.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
             
             document.getElementById('iglesia-distrito').innerHTML = districtOptions;
 
-            // Churches
-            const churches = DB.getAll('iglesias');
+            const churches = await DB.getAll('iglesias');
             const churchOptions = '<option value="">-- Sin iglesia --</option>' + churches.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
             
             document.getElementById('conf-iglesia').innerHTML = churchOptions;
             document.getElementById('registro-iglesia').innerHTML = churchOptions;
 
-            // Conferences
-            const conferences = DB.getAll('conferencias');
+            const conferences = await DB.getAll('conferencias');
             const confOptions = '<option value="">Seleccionar</option>' + conferences.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
             
             document.getElementById('registro-conferencia').innerHTML = confOptions;
@@ -1177,30 +1289,35 @@
             document.getElementById('formZona').reset();
             document.getElementById('zona-id').value = '';
         }
-        function saveZone() {
+        async function saveZone() {
             const id = document.getElementById('zona-id').value;
             const item = {
-                id: id ? parseInt(id) : null,
+                id: id ? parseInt(id) : undefined,
                 nombre: document.getElementById('zona-nombre').value,
                 descripcion: document.getElementById('zona-descripcion').value
             };
-            DB.save('zonas', item);
-            bootstrap.Modal.getInstance(document.getElementById('modalZona')).hide();
-            loadAllData();
-            showAlert('Zona guardada correctamente', 'success');
+            const result = await DB.save('zonas', item);
+            if (result) {
+                bootstrap.Modal.getInstance(document.getElementById('modalZona')).hide();
+                loadAllData();
+                showAlert('Zona guardada correctamente', 'success');
+            }
         }
-        function editZone(id) {
-            const zone = DB.getById('zonas', id);
+        async function editZone(id) {
+            const zone = await DB.getById('zonas', id);
+            if (!zone) return;
             document.getElementById('zona-id').value = zone.id;
             document.getElementById('zona-nombre').value = zone.nombre;
             document.getElementById('zona-descripcion').value = zone.descripcion;
             new bootstrap.Modal(document.getElementById('modalZona')).show();
         }
-        function deleteZone(id) {
+        async function deleteZone(id) {
             if(confirm('¿Eliminar esta zona?')) {
-                DB.delete('zonas', id);
-                loadAllData();
-                showAlert('Zona eliminada', 'info');
+                const success = await DB.delete('zonas', id);
+                if (success) {
+                    loadAllData();
+                    showAlert('Zona eliminada', 'info');
+                }
             }
         }
 
@@ -1209,34 +1326,39 @@
             document.getElementById('formDistrito').reset();
             document.getElementById('distrito-id').value = '';
         }
-        function saveDistrict() {
+        async function saveDistrict() {
             const id = document.getElementById('distrito-id').value;
             const item = {
-                id: id ? parseInt(id) : null,
-                zonaId: document.getElementById('distrito-zona').value,
+                id: id ? parseInt(id) : undefined,
+                zona_id: document.getElementById('distrito-zona').value,
                 nombre: document.getElementById('distrito-nombre').value,
                 responsable: document.getElementById('distrito-responsable').value,
                 telefono: document.getElementById('distrito-telefono').value
             };
-            DB.save('distritos', item);
-            bootstrap.Modal.getInstance(document.getElementById('modalDistrito')).hide();
-            loadAllData();
-            showAlert('Distrito guardado correctamente', 'success');
+            const result = await DB.save('distritos', item);
+            if (result) {
+                bootstrap.Modal.getInstance(document.getElementById('modalDistrito')).hide();
+                loadAllData();
+                showAlert('Distrito guardado correctamente', 'success');
+            }
         }
-        function editDistrict(id) {
-            const district = DB.getById('distritos', id);
+        async function editDistrict(id) {
+            const district = await DB.getById('distritos', id);
+            if (!district) return;
             document.getElementById('distrito-id').value = district.id;
-            document.getElementById('distrito-zona').value = district.zonaId;
+            document.getElementById('distrito-zona').value = district.zona_id;
             document.getElementById('distrito-nombre').value = district.nombre;
             document.getElementById('distrito-responsable').value = district.responsable;
             document.getElementById('distrito-telefono').value = district.telefono;
             new bootstrap.Modal(document.getElementById('modalDistrito')).show();
         }
-        function deleteDistrict(id) {
+        async function deleteDistrict(id) {
             if(confirm('¿Eliminar este distrito?')) {
-                DB.delete('distritos', id);
-                loadAllData();
-                showAlert('Distrito eliminado', 'info');
+                const success = await DB.delete('distritos', id);
+                if (success) {
+                    loadAllData();
+                    showAlert('Distrito eliminado', 'info');
+                }
             }
         }
 
@@ -1245,38 +1367,43 @@
             document.getElementById('formIglesia').reset();
             document.getElementById('iglesia-id').value = '';
         }
-        function saveChurch() {
+        async function saveChurch() {
             const id = document.getElementById('iglesia-id').value;
             const item = {
-                id: id ? parseInt(id) : null,
-                zonaId: document.getElementById('iglesia-zona').value,
-                distritoId: document.getElementById('iglesia-distrito').value,
+                id: id ? parseInt(id) : undefined,
+                zona_id: document.getElementById('iglesia-zona').value,
+                distrito_id: document.getElementById('iglesia-distrito').value,
                 nombre: document.getElementById('iglesia-nombre').value,
                 pastor: document.getElementById('iglesia-pastor').value,
                 telefono: document.getElementById('iglesia-telefono').value,
                 direccion: document.getElementById('iglesia-direccion').value
             };
-            DB.save('iglesias', item);
-            bootstrap.Modal.getInstance(document.getElementById('modalIglesia')).hide();
-            loadAllData();
-            showAlert('Iglesia guardada correctamente', 'success');
+            const result = await DB.save('iglesias', item);
+            if (result) {
+                bootstrap.Modal.getInstance(document.getElementById('modalIglesia')).hide();
+                loadAllData();
+                showAlert('Iglesia guardada correctamente', 'success');
+            }
         }
-        function editChurch(id) {
-            const church = DB.getById('iglesias', id);
+        async function editChurch(id) {
+            const church = await DB.getById('iglesias', id);
+            if (!church) return;
             document.getElementById('iglesia-id').value = church.id;
-            document.getElementById('iglesia-zona').value = church.zonaId;
-            document.getElementById('iglesia-distrito').value = church.distritoId;
+            document.getElementById('iglesia-zona').value = church.zona_id;
+            document.getElementById('iglesia-distrito').value = church.distrito_id;
             document.getElementById('iglesia-nombre').value = church.nombre;
             document.getElementById('iglesia-pastor').value = church.pastor;
             document.getElementById('iglesia-telefono').value = church.telefono;
             document.getElementById('iglesia-direccion').value = church.direccion;
             new bootstrap.Modal(document.getElementById('modalIglesia')).show();
         }
-        function deleteChurch(id) {
+        async function deleteChurch(id) {
             if(confirm('¿Eliminar esta iglesia?')) {
-                DB.delete('iglesias', id);
-                loadAllData();
-                showAlert('Iglesia eliminada', 'info');
+                const success = await DB.delete('iglesias', id);
+                if (success) {
+                    loadAllData();
+                    showAlert('Iglesia eliminada', 'info');
+                }
             }
         }
 
@@ -1300,37 +1427,42 @@
             const diff = new Date(end) - new Date(start);
             return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
         }
-        function saveConference() {
+        async function saveConference() {
             const id = document.getElementById('conf-id').value;
             const item = {
-                id: id ? parseInt(id) : null,
+                id: id ? parseInt(id) : undefined,
                 nombre: document.getElementById('conf-nombre').value,
-                iglesiaId: document.getElementById('conf-iglesia').value,
+                iglesia_id: document.getElementById('conf-iglesia').value,
                 inicio: document.getElementById('conf-start').value,
                 fin: document.getElementById('conf-end').value,
                 conferenciante: document.getElementById('conf-conferenciante').value
             };
-            DB.save('conferencias', item);
-            bootstrap.Modal.getInstance(document.getElementById('modalConferencia')).hide();
-            loadAllData();
-            showAlert('Conferencia guardada correctamente', 'success');
+            const result = await DB.save('conferencias', item);
+            if (result) {
+                bootstrap.Modal.getInstance(document.getElementById('modalConferencia')).hide();
+                loadAllData();
+                showAlert('Conferencia guardada correctamente', 'success');
+            }
         }
-        function editConference(id) {
-            const conf = DB.getById('conferencias', id);
+        async function editConference(id) {
+            const conf = await DB.getById('conferencias', id);
+            if (!conf) return;
             document.getElementById('conf-id').value = conf.id;
             document.getElementById('conf-nombre').value = conf.nombre;
-            document.getElementById('conf-iglesia').value = conf.iglesiaId;
+            document.getElementById('conf-iglesia').value = conf.iglesia_id;
             document.getElementById('conf-start').value = conf.inicio;
             document.getElementById('conf-end').value = conf.fin;
             document.getElementById('conf-conferenciante').value = conf.conferenciante;
             calcDays();
             new bootstrap.Modal(document.getElementById('modalConferencia')).show();
         }
-        function deleteConference(id) {
+        async function deleteConference(id) {
             if(confirm('¿Eliminar esta conferencia?')) {
-                DB.delete('conferencias', id);
-                loadAllData();
-                showAlert('Conferencia eliminada', 'info');
+                const success = await DB.delete('conferencias', id);
+                if (success) {
+                    loadAllData();
+                    showAlert('Conferencia eliminada', 'info');
+                }
             }
         }
 
@@ -1358,39 +1490,42 @@
             const checked = document.querySelectorAll('.day-checkbox:checked').length;
             document.getElementById('days-attended').innerText = checked;
         }
-        function saveRegistration() {
+        async function saveRegistration() {
             const id = document.getElementById('registro-id').value;
             const checkedDays = Array.from(document.querySelectorAll('.day-checkbox:checked')).map(cb => cb.value);
             const item = {
-                id: id ? parseInt(id) : null,
+                id: id ? parseInt(id) : undefined,
                 nombre: document.getElementById('registro-nombre').value,
                 telefono: document.getElementById('registro-telefono').value,
-                iglesiaId: document.getElementById('registro-iglesia').value,
-                conferenciaId: document.getElementById('registro-conferencia').value,
+                iglesia_id: document.getElementById('registro-iglesia').value,
+                conferencia_id: document.getElementById('registro-conferencia').value,
                 invitado: document.getElementById('registro-invitado').value,
                 direccion: document.getElementById('registro-direccion').value,
-                diasAsistidos: checkedDays.join(',')
+                dias_asistidos: checkedDays.join(',')
             };
-            DB.save('registros', item);
-            bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
-            loadAllData();
-            showAlert('Registro guardado correctamente', 'success');
+            const result = await DB.save('registros', item);
+            if (result) {
+                bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
+                loadAllData();
+                showAlert('Registro guardado correctamente', 'success');
+            }
         }
-        function editRegistration(id) {
-            const reg = DB.getById('registros', id);
-            const conf = DB.getById('conferencias', reg.conferenciaId);
+        async function editRegistration(id) {
+            const reg = await DB.getById('registros', id);
+            if (!reg) return;
+            const conf = await DB.getById('conferencias', reg.conferencia_id);
             document.getElementById('registro-id').value = reg.id;
             document.getElementById('registro-nombre').value = reg.nombre;
             document.getElementById('registro-telefono').value = reg.telefono;
-            document.getElementById('registro-iglesia').value = reg.iglesiaId;
-            document.getElementById('registro-conferencia').value = reg.conferenciaId;
+            document.getElementById('registro-iglesia').value = reg.iglesia_id;
+            document.getElementById('registro-conferencia').value = reg.conferencia_id;
             document.getElementById('registro-invitado').value = reg.invitado;
             document.getElementById('registro-direccion').value = reg.direccion;
             
             if(conf) {
                 const totalDays = calculateDays(conf.inicio, conf.fin);
                 updateDaysCheckboxes(totalDays);
-                const attendedDays = reg.diasAsistidos ? reg.diasAsistidos.split(',') : [];
+                const attendedDays = reg.dias_asistidos ? reg.dias_asistidos.split(',') : [];
                 attendedDays.forEach(d => {
                     const cb = document.querySelector(`.day-checkbox[value="${d}"]`);
                     if(cb) cb.checked = true;
@@ -1400,11 +1535,13 @@
             
             new bootstrap.Modal(document.getElementById('modalRegistro')).show();
         }
-        function deleteRegistration(id) {
+        async function deleteRegistration(id) {
             if(confirm('¿Eliminar este registro?')) {
-                DB.delete('registros', id);
-                loadAllData();
-                showAlert('Registro eliminado', 'info');
+                const success = await DB.delete('registros', id);
+                if (success) {
+                    loadAllData();
+                    showAlert('Registro eliminado', 'info');
+                }
             }
         }
 
@@ -1413,23 +1550,26 @@
             document.getElementById('formUsuario').reset();
             document.getElementById('usuario-id').value = '';
         }
-        function saveUser() {
+        async function saveUser() {
             const id = document.getElementById('usuario-id').value;
             const item = {
-                id: id ? parseInt(id) : null,
+                id: id ? parseInt(id) : undefined,
                 nombre: document.getElementById('usuario-nombre').value,
                 correo: document.getElementById('usuario-correo').value,
                 password: document.getElementById('usuario-password').value,
                 rol: document.getElementById('usuario-rol').value,
                 estado: document.querySelector('input[name="estado"]:checked').value
             };
-            DB.save('usuarios', item);
-            bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
-            loadAllData();
-            showAlert('Usuario guardado correctamente', 'success');
+            const result = await DB.save('usuarios', item);
+            if (result) {
+                bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
+                loadAllData();
+                showAlert('Usuario guardado correctamente', 'success');
+            }
         }
-        function editUser(id) {
-            const user = DB.getById('usuarios', id);
+        async function editUser(id) {
+            const user = await DB.getById('usuarios', id);
+            if (!user) return;
             document.getElementById('usuario-id').value = user.id;
             document.getElementById('usuario-nombre').value = user.nombre;
             document.getElementById('usuario-correo').value = user.correo;
@@ -1441,25 +1581,27 @@
             }
             new bootstrap.Modal(document.getElementById('modalUsuario')).show();
         }
-        function deleteUser(id) {
+        async function deleteUser(id) {
             if(confirm('¿Eliminar este usuario?')) {
-                DB.delete('usuarios', id);
-                loadAllData();
-                showAlert('Usuario eliminado', 'info');
+                const success = await DB.delete('usuarios', id);
+                if (success) {
+                    loadAllData();
+                    showAlert('Usuario eliminado', 'info');
+                }
             }
         }
 
         // Reports
-        function applyReportFilters() {
+        async function applyReportFilters() {
             const confId = document.getElementById('report-conference').value;
             const churchId = document.getElementById('report-church').value;
-            const registrations = DB.getAll('registros');
-            const churches = DB.getAll('iglesias');
-            const conferences = DB.getAll('conferencias');
+            const registrations = await DB.getAll('registros');
+            const churches = await DB.getAll('iglesias');
+            const conferences = await DB.getAll('conferencias');
             
             let filtered = registrations;
-            if(confId) filtered = filtered.filter(r => r.conferenciaId == confId);
-            if(churchId) filtered = filtered.filter(r => r.iglesiaId == churchId);
+            if(confId) filtered = filtered.filter(r => r.conferencia_id == confId);
+            if(churchId) filtered = filtered.filter(r => r.iglesia_id == churchId);
             
             const tbody = document.getElementById('reports-table');
             if(filtered.length === 0) {
@@ -1471,9 +1613,9 @@
             }
             
             tbody.innerHTML = filtered.map(r => {
-                const church = churches.find(c => c.id == r.iglesiaId);
-                const conference = conferences.find(c => c.id == r.conferenciaId);
-                const daysAttended = r.diasAsistidos ? r.diasAsistidos.split(',').length : 0;
+                const church = churches.find(c => c.id == r.iglesia_id);
+                const conference = conferences.find(c => c.id == r.conferencia_id);
+                const daysAttended = r.dias_asistidos ? r.dias_asistidos.split(',').length : 0;
                 return `
                 <tr>
                     <td>${r.nombre}</td>
@@ -1485,11 +1627,10 @@
                 </tr>
             `}).join('');
             
-            // Stats
             document.getElementById('report-total-asistentes').innerText = filtered.length;
-            const totalDays = filtered.reduce((sum, r) => sum + (r.diasAsistidos ? r.diasAsistidos.split(',').length : 0), 0);
+            const totalDays = filtered.reduce((sum, r) => sum + (r.dias_asistidos ? r.dias_asistidos.split(',').length : 0), 0);
             document.getElementById('report-total-dias').innerText = totalDays;
-            const uniqueChurches = new Set(filtered.map(r => r.iglesiaId)).size;
+            const uniqueChurches = new Set(filtered.map(r => r.iglesia_id)).size;
             document.getElementById('report-total-iglesias').innerText = uniqueChurches;
         }
 
@@ -1509,18 +1650,10 @@
             `;
             document.body.insertAdjacentHTML('beforeend', alertHtml);
             setTimeout(() => {
-                document.querySelector('.alert').remove();
+                const alert = document.querySelector('.alert');
+                if(alert) alert.remove();
             }, 3000);
         }
-
-         <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script src="db.js"></script>
-    <script src="main.js"></script>
     </script>
-    
-
-    
 </body>
 </html>
-  

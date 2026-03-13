@@ -4,893 +4,1261 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
-    <!-- 1. Librería de Supabase -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- 2. Tu configuración -->
-    <script src="config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        
-        /* ESTILOS GENERALES */
-        .table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .table th, .table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e0e0e0; }
-        .table th { background: #f8f9fa; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
-        .table tr:hover { background: #f8f9fa; }
-        
-        .btn { padding: 6px 12px; font-size: 0.8rem; border: none; border-radius: 4px; cursor: pointer; margin: 2px; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-success { background: #48bb78; color: white; }
-        .btn-danger { background: #f56565; color: white; }
-        .btn-warning { background: #ed8936; color: white; }
-        .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        .form-control { padding: 8px 10px; font-size: 0.85rem; border: 1px solid #ddd; border-radius: 4px; margin: 5px 0; width: 100%; }
-        .card { background: white; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; display: inline-block; }
-        .badge-success { background: #c6f6d5; color: #22543d; }
-        
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 500; }
+        body {
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
 
-        /* LOGIN MÁS GRANDE */
-        .login-container { max-width: 500px; margin: 80px auto; padding: 30px; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
-        .login-box h1 { text-align: center; margin-bottom: 10px; font-size: 2rem; color: #667eea; }
-        .login-box h3 { text-align: center; margin-bottom: 30px; font-size: 1.1rem; color: #718096; }
-        .login-box .form-group { margin-bottom: 20px; }
-        .login-box .form-control { padding: 12px 15px; font-size: 1rem; }
-        .login-box .btn { padding: 12px 20px; font-size: 1rem; width: 100%; margin-top: 10px; }
+        /* Login Page */
+        #loginPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-demo {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .login-alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .login-alert.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .login-alert.success {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        /* Dashboard Page */
+        #dashboardPage {
+            display: none;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
 
         /* Sidebar */
-        .sidebar { width: 250px; background: #1a202c; color: white; height: 100vh; position: fixed; left: 0; top: 0; overflow-y: auto; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #2d3748; }
-        .sidebar-menu { list-style: none; padding: 15px 0; }
-        .sidebar-menu li { margin: 5px 0; }
-        .sidebar-menu a { display: block; padding: 12px 20px; color: #e2e8f0; text-decoration: none; font-size: 0.9rem; }
-        .sidebar-menu a:hover, .sidebar-menu a.active { background: #2d3748; }
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
 
-        /* Main content */
-        .main-content { margin-left: 250px; padding: 20px; }
-        .page-header { margin-bottom: 20px; }
-        .page-header h2 { font-size: 1.5rem; margin-bottom: 5px; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .stat-card .icon { font-size: 2rem; margin-bottom: 10px; }
-        .stat-card .value { font-size: 2rem; font-weight: bold; color: #667eea; }
-        .stat-card .label { font-size: 0.85rem; color: #718096; }
+        .sidebar-header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
 
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .modal.active { display: flex; align-items: center; justify-content: center; }
-        .modal-dialog { background: white; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
-        .modal-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { font-size: 1.1rem; }
-        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #718096; }
-        .modal-body { padding: 20px; }
-        .modal-footer { padding: 15px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
+        .sidebar-header h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
 
-        /* Utilities */
-        .text-center { text-align: center; }
-        .hidden { display: none; }
-        .section { display: none; }
-        .section.active { display: block; }
-        .user-info { padding: 15px 20px; border-bottom: 1px solid #2d3748; display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #667eea; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
-        .user-details h4 { font-size: 0.9rem; margin-bottom: 3px; }
-        .user-details p { font-size: 0.75rem; color: #a0aec0; }
-        .footer { text-align: center; padding: 20px; color: #718096; font-size: 0.85rem; margin-top: 30px; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
-        .action-buttons { display: flex; gap: 5px; }
-        .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
-        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .summary-card { background: white; padding: 20px; border-radius: 8px; text-align: center; }
-        .summary-card .number { font-size: 2rem; font-weight: bold; color: #667eea; }
-        .summary-card .text { font-size: 0.85rem; color: #718096; }
-        .config-section { margin-bottom: 25px; }
-        .config-section h3 { font-size: 1rem; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #667eea; }
-        .days-selector { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
-        .day-checkbox { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; }
-        .permissions-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0; }
-        .permission-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        
-        /* Loading spinner */
-        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 5px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .user-details h4 {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .user-details span {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar-nav a i {
+            width: 25px;
+            margin-right: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+        }
+
+        .content-header h1 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .content-header p {
+            color: #666;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table-header h3 {
+            color: #1a1a2e;
+            font-size: 8px;
+        }
+
+        .btn-new {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.3s;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table th {
+            background: #f8f9fa;
+            color: #1a1a2e;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        table td {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 13px;
+        }
+
+        .btn-edit {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-asistencia {
+            padding: 4px 10px;
+            background: #d1fae5;
+            color: #059669;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-estado {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-estado.activo {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-estado.inactivo {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-header h3 {
+            color: #1a1a2e;
+            font-size: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group-modal {
+            margin-bottom: 15px;
+        }
+
+        .form-group-modal label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group-modal input,
+        .form-group-modal select,
+        .form-group-modal textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group-modal input:focus,
+        .form-group-modal select:focus,
+        .form-group-modal textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Fecha Asistencia */
+        .fechas-asistencia-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .fecha-asistencia {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .fecha-asistencia:hover {
+            border-color: #667eea;
+        }
+
+        .fecha-asistencia.seleccionada {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .contador-asistencia {
+            padding: 12px;
+            background: #fef3c7;
+            color: #d97706;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        /* Permisos */
+        .permisos-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .permisos-container label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Report Filters */
+        .report-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .report-filters select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        .btn-apply,
+        .btn-clear,
+        .btn-pdf {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-apply {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-clear {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-pdf {
+            background: #dc2626;
+            color: white;
+        }
+
+        .report-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .report-summary-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .report-summary-card h4 {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .report-summary-card p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .report-filters {
+                flex-direction: column;
+            }
+
+            .report-summary {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Login Section -->
-    <div id="loginSection" class="section active">
+    <!-- Login Page -->
+    <div id="loginPage">
         <div class="login-container">
-            <div class="login-box">
+            <div class="login-header">
                 <h1>🦁 MinistryLion</h1>
-                <h3>Sistema de Gestión de Conferencias</h3>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label>Correo Electrónico</label>
-                        <input type="email" class="form-control" id="loginEmail" placeholder="admin@ministrylion.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="btnLogin">
-                        Iniciar Sesión
-                    </button>
-                </form>
-                <p style="text-align: center; margin-top: 20px; color: #718096; font-size: 0.85rem;">
-                    Usuario por defecto: <strong>admin@ministrylion.com</strong> / <strong>admin123</strong>
-                </p>
-                <div id="loginError" style="color: red; text-align: center; margin-top: 10px; display: none;"></div>
+                <p>Sistema de Gestión de Conferencias</p>
             </div>
-            <div class="footer">
-                © Elaborado por: Natanael León Veras, edición 2026. Todos los derechos reservados.
-            </div>
+            
+            <div id="loginAlert" class="login-alert"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="loginEmail" placeholder="admin@ministrylion.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <div style="position: relative;">
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                        <i class="fas fa-eye toggle-password" onclick="togglePassword()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666;"></i>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-login">Iniciar Sesión</button>
+            </form>
+            
+            
+            
+            <p style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+                © Elaborador por: Natanael León Veras, edición 2026. Todos los derechos reservados.
+            </p>
         </div>
     </div>
 
-    <!-- Main App -->
-    <div id="mainApp" class="section hidden">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>🦁 MinistryLion</h2>
-                <p style="font-size: 0.8rem; color: #a0aec0;">Sistema de Gestión</p>
-            </div>
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">A</div>
-                <div class="user-details">
-                    <h4 id="userName">Admin</h4>
-                    <p id="userRole">Administrador</p>
+    <!-- Dashboard Page -->
+    <div id="dashboardPage">
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>🦁 MinistryLion</h2>
+                    <p>Sistema de Gestión</p>
                 </div>
-            </div>
-            <ul class="sidebar-menu">
-                <li><a href="#" class="active" data-section="dashboard">📊 Dashboard</a></li>
-                <li><a href="#" data-section="conferencias">📅 Conferencias</a></li>
-                <li><a href="#" data-section="registros">👥 Registros</a></li>
-                <li><a href="#" data-section="reportes">📈 Reportes</a></li>
-                <li><a href="#" data-section="configuracion">⚙️ Configuración</a></li>
-                <li><a href="#" data-section="usuarios">👤 Usuarios</a></li>
-                <li><a href="#" onclick="logout()">🚪 Cerrar Sesión</a></li>
-            </ul>
+                
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <h4 id="userName">Admin</h4>
+                        <span id="userRole">Administrador</span>
+                    </div>
+                </div>
+                
+                <ul class="sidebar-nav">
+                    <li><a href="#" id="nav-dashboard" class="active" onclick="navegarSeccion('dashboard')"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#" id="nav-conferencias" onclick="navegarSeccion('conferencias')"><i class="fas fa-calendar-alt"></i> Conferencias</a></li>
+                    <li><a href="#" id="nav-registros" onclick="navegarSeccion('registros')"><i class="fas fa-users"></i> Registros</a></li>
+                    <li><a href="#" id="nav-reportes" onclick="navegarSeccion('reportes')"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+                    <li><a href="#" id="nav-configuracion" onclick="navegarSeccion('configuracion')"><i class="fas fa-cog"></i> Configuración</a></li>
+                    <li><a href="#" id="nav-usuarios" onclick="navegarSeccion('usuarios')"><i class="fas fa-user-shield"></i> Usuarios</a></li>
+                    <li><a href="#" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                </ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+               <!-- Dashboard Section -->
+<section id="dashboard" class="content-section active">
+    <div class="content-header">
+        <h1>👋 Bienvenido al Dashboard</h1>
+        <p>Resumen general del sistema de gestión de conferencias</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📍</div>
+            <h3 id="statZonas">0</h3>
+            <p>Total Zonas</p>
         </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🏛️</div>
+            <h3 id="statDistritos">0</h3>
+            <p>Total Distritos</p>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⛪</div>
+            <h3 id="statIglesias">0</h3>
+            <p>Total Iglesias</p>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <h3 id="statConferencias">0</h3>
+            <p>Conferencias</p>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <h3 id="statAsistentes">0</h3>
+            <p>Total Asistentes</p>
+        </div>
+    </div>
+</section>
+<section id="conferencias" class="content-section">
+    <div class="content-header">
+        <h1>📅 Gestión de Conferencias</h1>
+        <p>Administra las conferencias de las iglesias</p>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Listado de Conferencias</h3>
+            <button class="btn-new" onclick="prepararModalConferencia()">+ Nueva Conferencia</button>
+        </div>
+        <div class="table-wrapper">
+            <table id="tablaConferencias">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Iglesia</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Días</th>
+                        <th>Conferenciante</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="7">Cargando datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Dashboard Section -->
-            <div id="dashboard" class="section active">
-                <div class="page-header">
-                    <h2>👋 Bienvenido al Dashboard</h2>
-                    <p style="color: #718096;">Resumen general del sistema de gestión de conferencias</p>
+               <!-- 👥 Registros de Asistentes -->
+<section id="registros" class="content-section">
+    <div class="section-header">
+        <h2>👥 Registros de Asistentes</h2>
+      
+    </div>
+    
+    <div class="table-controls">
+        <button onclick="prepararModalAsistente()" class="btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Registro
+        </button>
+        <!-- ✅ CAMPO DE BÚSQUEDA -->
+        <div class="search-box">
+            <input type="text" id="buscadorAsistentes" 
+                   placeholder="🔍 Buscar por nombre    , teléfono,     iglesia..." 
+                   onkeyup="filtrarAsistentes()">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <h3>Listado de Asistentes</h3>
+        <table id="tablaAsistentes">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Iglesia</th>
+                    <th>Conferencia</th>
+                    <th>Días Asistidos</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6">Cargando registros...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+              <section id="reportes" class="content-section">
+    <div class="content-header">
+        <h1>📊 Reportes y Estadísticas</h1>
+        <p>Genera reportes de asistencia</p>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Reporte de Asistencia</h3>
+            <button class="btn-pdf" onclick="generarReportePDF()">📄 Descargar PDF</button>
+        </div>
+        
+        <div style="padding: 20px;">
+            <div class="report-filters">
+                <select id="reporteConferencia" onchange="filtrarReporte()">
+                    <option value="">-- Todas las Conferencias --</option>
+                </select>
+                <select id="reporteIglesia" onchange="filtrarReporte()">
+                    <option value="">-- Todas las Iglesias --</option>
+                </select>
+                <button class="btn-apply" onclick="filtrarReporte()">Aplicar Filtros</button>
+                <button class="btn-clear" onclick="limpiarFiltrosReporte()">Limpiar</button>
+            </div>
+            
+            <div class="report-summary">
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalAsistentes">0</h4>
+                    <p>Total Asistentes</p>
                 </div>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="icon">📍</div><div class="value" id="totalZonas">0</div><div class="label">Total Zonas</div></div>
-                    <div class="stat-card"><div class="icon">🏛️</div><div class="value" id="totalDistritos">0</div><div class="label">Total Distritos</div></div>
-                    <div class="stat-card"><div class="icon">⛪</div><div class="value" id="totalIglesias">0</div><div class="label">Total Iglesias</div></div>
-                    <div class="stat-card"><div class="icon">📅</div><div class="value" id="totalConferencias">0</div><div class="label">Conferencias</div></div>
-                    <div class="stat-card"><div class="icon">👥</div><div class="value" id="totalAsistentes">0</div><div class="label">Total Asistentes</div></div>
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalDias">0</h4>
+                    <p>Días Totales</p>
+                </div>
+                <div class="report-summary-card">
+                    <h4 id="reporteTotalIglesias">0</h4>
+                    <p>Iglesias Participantes</p>
                 </div>
             </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="tablaReporte">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th>Conferencia</th>
+                        <th>Días Asistidos</th>
+                        <th>Invitado Por</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6">Seleccione filtros para ver el reporte</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
-            <!-- Conferencias Section -->
-            <div id="conferencias" class="section">
-                <div class="page-header"><h2>📅 Gestión de Conferencias</h2><p style="color: #718096;">Administra las conferencias de las iglesias</p></div>
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3>Listado de Conferencias</h3>
-                        <button class="btn btn-success" onclick="openModal('conferenciaModal')">+ Nueva Conferencia</button>
+                <!-- Configuración Section -->
+                <section id="configuracion" class="content-section">
+                    <div class="content-header">
+                        <h1>⚙️ Configuración del Sistema</h1>
+                        <p>Administra zonas, distritos e iglesias</p>
                     </div>
-                    <table class="table">
-                        <thead><tr><th>Nombre</th><th>Iglesia</th><th>Inicio</th><th>Fin</th><th>Días</th><th>Conferenciante</th><th>Acciones</th></tr></thead>
-                        <tbody id="conferenciasTable"><tr><td colspan="7" class="text-center">Cargando datos...</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Registros Section -->
-            <div id="registros" class="section">
-                <div class="page-header"><h2>👥 Registros de Asistentes</h2></div>
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <button class="btn btn-success" onclick="openModal('registroModal')">+ Nuevo Registro</button>
-                        <div class="search-box" style="max-width: 350px; margin: 0;">
-                            <input type="text" class="form-control" id="searchRegistro" placeholder="Buscar por nombre..." onkeyup="buscarRegistro()">
-                            <button class="btn btn-primary">🔍</button>
+                    
+                    <!-- Zonas -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>📍 Zonas</h3>
+                            <button class="btn-new" onclick="prepararModalZona()">+ Nueva Zona</button>
                         </div>
+                        <table id="tablaZonas">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="3">Sin zonas registradas</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <h3 style="margin-bottom: 15px;">Listado de Asistentes</h3>
-                    <table class="table">
-                        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Iglesia</th><th>Conferencia</th><th>Días Asistidos</th><th>Acciones</th></tr></thead>
-                        <tbody id="registrosTable"><tr><td colspan="6" class="text-center">Cargando registros...</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Reportes Section -->
-            <div id="reportes" class="section">
-                <div class="page-header"><h2>📊 Reportes y Estadísticas</h2><p style="color: #718096;">Genera reportes de asistencia</p></div>
-                <div class="card">
-                    <h3 style="margin-bottom: 15px;">Reporte de Asistencia</h3>
-                    <div class="filters">
-                        <div><label>Conferencia</label><select class="form-control" id="reportConferencia"><option value="">-- Todas las Conferencias --</option></select></div>
-                        <div><label>Iglesia</label><select class="form-control" id="reportIglesia"><option value="">-- Todas las Iglesias --</option></select></div>
-                        <div style="display: flex; align-items: flex-end; gap: 10px;">
-                            <button class="btn btn-primary" onclick="generarReporte()">Aplicar Filtros</button>
-                            <button class="btn btn-warning" onclick="limpiarReporte()">Limpiar</button>
-                            <button class="btn btn-success" onclick="descargarPDF()">📄 Descargar PDF</button>
+                    
+                    <!-- Distritos -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>🏛️ Distritos</h3>
+                            <button class="btn-new" onclick="prepararModalDistrito()">+ Nuevo Distrito</button>
                         </div>
+                        <table id="tablaDistritos">
+                            <thead>
+                                <tr>
+                                    <th>Distrito</th>
+                                    <th>Zona</th>
+                                    <th>Responsable</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="4">Sin distritos registrados</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="summary-cards">
-                        <div class="summary-card"><div class="number" id="reportTotalAsistentes">0</div><div class="text">Total Asistentes</div></div>
-                        <div class="summary-card"><div class="number" id="reportTotalDias">0</div><div class="text">Días Totales</div></div>
-                        <div class="summary-card"><div class="number" id="reportIglesiasParticipantes">0</div><div class="text">Iglesias Participantes</div></div>
+                    
+                    <!-- Iglesias -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>⛪ Iglesias</h3>
+                            <button class="btn-new" onclick="prepararModalIglesia()">+ Nueva Iglesia</button>
+                        </div>
+                        <table id="tablaIglesias">
+                            <thead>
+                                <tr>
+                                    <th>Iglesia</th>
+                                    <th>Zona</th>
+                                    <th>Distrito</th>
+                                    <th>Pastor</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5">Sin iglesias registradas</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <table class="table">
-                        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Iglesia</th><th>Conferencia</th><th>Días Asistidos</th><th>Invitado Por</th></tr></thead>
-                        <tbody id="reportesTable"><tr><td colspan="6" class="text-center">Seleccione filtros para ver el reporte</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
+                </section>
 
-            <!-- Configuración Section -->
-            <div id="configuracion" class="section">
-                <div class="page-header"><h2>⚙️ Configuración del Sistema</h2><p style="color: #718096;">Administra zonas, distritos e iglesias</p></div>
-                <div class="config-section">
-                    <h3>📍 Zonas</h3>
-                    <div class="card">
-                        <div style="margin-bottom: 15px;"><button class="btn btn-success" onclick="openModal('zonaModal')">+ Nueva Zona</button></div>
-                        <table class="table"><thead><tr><th>Nombre</th><th>Descripción</th><th>Acciones</th></tr></thead><tbody id="zonasTable"><tr><td colspan="3" class="text-center">Sin zonas registradas</td></tr></tbody></table>
+                <!-- Usuarios Section -->
+                <section id="usuarios" class="content-section">
+                    <div class="content-header">
+                        <h1>👤 Gestión de Usuarios</h1>
+                        <p>Administra los usuarios del sistema</p>
                     </div>
-                </div>
-                <div class="config-section">
-                    <h3>🏛️ Distritos</h3>
-                    <div class="card">
-                        <div style="margin-bottom: 15px;"><button class="btn btn-success" onclick="openModal('distritoModal')">+ Nuevo Distrito</button></div>
-                        <table class="table"><thead><tr><th>Distrito</th><th>Zona</th><th>Responsable</th><th>Acciones</th></tr></thead><tbody id="distritosTable"><tr><td colspan="4" class="text-center">Sin distritos registrados</td></tr></tbody></table>
+                    
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Usuarios del Sistema</h3>
+                            <button class="btn-new" onclick="prepararModalUsuario()">+ Nuevo Usuario</button>
+                        </div>
+                        <table id="tablaUsuarios">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5">Cargando usuarios...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-                <div class="config-section">
-                    <h3>⛪ Iglesias</h3>
-                    <div class="card">
-                        <div style="margin-bottom: 15px;"><button class="btn btn-success" onclick="openModal('iglesiaModal')">+ Nueva Iglesia</button></div>
-                        <table class="table"><thead><tr><th>Iglesia</th><th>Zona</th><th>Distrito</th><th>Pastor</th><th>Acciones</th></tr></thead><tbody id="iglesiasTable"><tr><td colspan="5" class="text-center">Sin iglesias registradas</td></tr></tbody></table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Usuarios Section -->
-            <div id="usuarios" class="section">
-                <div class="page-header"><h2>👤 Gestión de Usuarios</h2><p style="color: #718096;">Administra los usuarios del sistema</p></div>
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3>Usuarios del Sistema</h3>
-                        <button class="btn btn-success" onclick="openModal('usuarioModal')">+ Nuevo Usuario</button>
-                    </div>
-                    <table class="table">
-                        <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
-                        <tbody id="usuariosTable"><tr><td colspan="5" class="text-center">Cargando usuarios...</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
+                </section>
+            </main>
         </div>
     </div>
 
-    <!-- Modales (Se mantienen igual que antes, solo asegurando IDs correctos) -->
+    <!-- Modales -->
     <!-- Modal Zona -->
-    <div id="zonaModal" class="modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h3>📍 Registrar Zona</h3><button class="close-btn" onclick="closeModal('zonaModal')">&times;</button></div>
-                <div class="modal-body">
-                    <form id="zonaForm">
-                        <div class="form-group"><label>Nombre *</label><input type="text" class="form-control" id="zonaNombre" required></div>
-                        <div class="form-group"><label>Descripción</label><textarea class="form-control" id="zonaDescripcion" rows="3"></textarea></div>
-                    </form>
-                </div>
-                <div class="modal-footer"><button class="btn btn-danger" onclick="closeModal('zonaModal')">Cancelar</button><button class="btn btn-success" onclick="guardarZona()">Guardar Zona</button></div>
+    <div id="modalNuevaZona" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tituloModalZona">📍 Registrar Zona</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaZona')">&times;</button>
             </div>
+            <form id="formZona">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Nombre *</label>
+                        <input type="text" id="zonaNombre" placeholder="Nombre de la zona" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Descripción</label>
+                        <input type="text" id="zonaDescripcion" placeholder="Descripción de la zona">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Zona</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Modal Distrito -->
-    <div id="distritoModal" class="modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h3>🏛️ Registrar Distrito</h3><button class="close-btn" onclick="closeModal('distritoModal')">&times;</button></div>
-                <div class="modal-body">
-                    <form id="distritoForm">
-                        <div class="form-group"><label>Zona *</label><select class="form-control" id="distritoZona" required><option value="">Seleccione zona</option></select></div>
-                        <div class="form-group"><label>Nombre *</label><input type="text" class="form-control" id="distritoNombre" required></div>
-                        <div class="form-group"><label>Responsable</label><input type="text" class="form-control" id="distritoResponsable"></div>
-                        <div class="form-group"><label>Teléfono</label><input type="tel" class="form-control" id="distritoTelefono"></div>
-                    </form>
-                </div>
-                <div class="modal-footer"><button class="btn btn-danger" onclick="closeModal('distritoModal')">Cancelar</button><button class="btn btn-success" onclick="guardarDistrito()">Guardar Distrito</button></div>
+    <div id="modalNuevoDistrito" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tituloModalDistrito">🏛️ Registrar Distrito</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</button>
             </div>
+            <form id="formDistrito">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Zona *</label>
+                        <select id="distritoZona" required></select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Nombre *</label>
+                        <input type="text" id="distritoNombre" placeholder="Nombre del distrito" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Responsable</label>
+                        <input type="text" id="distritoResponsable" placeholder="Nombre del responsable">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Teléfono</label>
+                        <input type="text" id="distritoTelefono" placeholder="Teléfono de contacto">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoDistrito')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Distrito</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Modal Iglesia -->
-    <div id="iglesiaModal" class="modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h3>⛪ Registrar Iglesia</h3><button class="close-btn" onclick="closeModal('iglesiaModal')">&times;</button></div>
-                <div class="modal-body">
-                    <form id="iglesiaForm">
-                        <div class="form-group"><label>Zona *</label><select class="form-control" id="iglesiaZona" required onchange="cargarDistritosIglesia()"><option value="">Seleccione zona</option></select></div>
-                        <div class="form-group"><label>Distrito</label><select class="form-control" id="iglesiaDistrito"><option value="">-- Sin distrito --</option></select></div>
-                        <div class="form-group"><label>Nombre Iglesia *</label><input type="text" class="form-control" id="iglesiaNombre" required></div>
-                        <div class="form-group"><label>Pastor</label><input type="text" class="form-control" id="iglesiaPastor"></div>
-                        <div class="form-group"><label>Teléfono</label><input type="tel" class="form-control" id="iglesiaTelefono"></div>
-                        <div class="form-group"><label>Dirección</label><textarea class="form-control" id="iglesiaDireccion" rows="2"></textarea></div>
-                    </form>
-                </div>
-                <div class="modal-footer"><button class="btn btn-danger" onclick="closeModal('iglesiaModal')">Cancelar</button><button class="btn btn-success" onclick="guardarIglesia()">Guardar Iglesia</button></div>
+    <div id="modalNuevaIglesia" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tituloModalIglesia">⛪ Registrar Iglesia</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</button>
             </div>
+            <form id="formIglesia">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Zona *</label>
+                        <select id="iglesiaZona" required onchange="cargarDistritosPorZona(this.value)"></select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Distrito</label>
+                        <select id="iglesiaDistrito">
+                            <option value="">-- Sin distrito --</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Nombre Iglesia *</label>
+                        <input type="text" id="iglesiaNombre" placeholder="Nombre de la iglesia" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Pastor</label>
+                        <input type="text" id="iglesiaPastor" placeholder="Nombre del pastor">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Teléfono</label>
+                        <input type="text" id="iglesiaTelefono" placeholder="Teléfono de la iglesia">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Dirección</label>
+                        <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaIglesia')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Iglesia</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Modal Conferencia -->
-    <div id="conferenciaModal" class="modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h3>📅 Nueva Conferencia</h3><button class="close-btn" onclick="closeModal('conferenciaModal')">&times;</button></div>
-                <div class="modal-body">
-                    <form id="conferenciaForm">
-                        <div class="form-group"><label>Nombre *</label><input type="text" class="form-control" id="conferenciaNombre" required></div>
-                        <div class="form-group"><label>Iglesia Sede *</label><select class="form-control" id="conferenciaIglesia" required><option value="">Seleccione iglesia</option></select></div>
-                        <div class="form-group"><label>Fecha Inicio *</label><input type="date" class="form-control" id="conferenciaInicio" required onchange="calcularDiasConferencia()"></div>
-                        <div class="form-group"><label>Fecha Fin *</label><input type="date" class="form-control" id="conferenciaFin" required onchange="calcularDiasConferencia()"></div>
-                        <div class="form-group"><label>📅 Duración: <span id="duracionDias">0</span> días</label></div>
-                        <div class="form-group"><label>Conferenciante</label><input type="text" class="form-control" id="conferenciaConferenciante"></div>
-                    </form>
-                </div>
-                <div class="modal-footer"><button class="btn btn-danger" onclick="closeModal('conferenciaModal')">Cancelar</button><button class="btn btn-success" onclick="guardarConferencia()">Guardar Conferencia</button></div>
+    <div id="modalNuevaConferencia" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tituloModalConferencia">📅 Nueva Conferencia</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevaConferencia')">&times;</button>
             </div>
+            <form id="formConferencia">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Nombre *</label>
+                        <input type="text" id="confNombre" placeholder="Nombre de la conferencia" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Iglesia Sede *</label>
+                        <select id="confIglesia" required></select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group-modal">
+                            <label>Fecha Inicio *</label>
+                            <input type="date" id="confFechaInicio" required>
+                        </div>
+                        <div class="form-group-modal">
+                            <label>Fecha Fin *</label>
+                            <input type="date" id="confFechaFin" required>
+                        </div>
+                    </div>
+                    <p class="duracion-conferencia" style="color: #667eea; font-size: 14px; margin-bottom: 15px;">📅 Duración: 0 días</p>
+                    <div class="form-group-modal">
+                        <label>Conferenciante</label>
+                        <input type="text" id="confConferenciante" placeholder="Nombre del conferenciante">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevaConferencia')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Conferencia</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Modal Registro -->
-    <div id="registroModal" class="modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h3>👥 Nuevo Registro de Asistente</h3><button class="close-btn" onclick="closeModal('registroModal')">&times;</button></div>
-                <div class="modal-body">
-                    <form id="registroForm">
-                        <div class="form-group"><label>Nombre Completo *</label><input type="text" class="form-control" id="registroNombre" required></div>
-                        <div class="form-group"><label>Teléfono</label><input type="tel" class="form-control" id="registroTelefono"></div>
-                        <div class="form-group"><label>Invitado Por</label><input type="text" class="form-control" id="registroInvitadoPor"></div>
-                        <div class="form-group"><label>Dirección</label><textarea class="form-control" id="registroDireccion" rows="2"></textarea></div>
-                        <div class="form-group"><label>Iglesia</label><select class="form-control" id="registroIglesia"><option value="">-- Sin iglesia --</option></select></div>
-                        <div class="form-group"><label>Conferencia *</label><select class="form-control" id="registroConferencia" required onchange="cargarDiasConferencia()"><option value="">Seleccione conferencia</option></select></div>
-                        <div class="form-group">
-                            <label>✅ Marque los días que asistió:</label>
-                            <div class="days-selector" id="diasConferencia"><p style="color: #718096;">Seleccione una conferencia primero</p></div>
-                            <p style="font-size: 0.85rem; margin-top: 10px;"><span id="diasAsistidosCount">0</span> días asistidos de <span id="diasTotalesCount">0</span> totales</p>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer"><button class="btn btn-danger" onclick="closeModal('registroModal')">Cancelar</button><button class="btn btn-success" onclick="guardarRegistro()">Guardar Registro</button></div>
+    <!-- Modal Asistente -->
+    <div id="modalNuevoAsistente" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tituloModalAsistente">👥 Nuevo Registro de Asistente</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoAsistente')">&times;</button>
             </div>
+            <form id="formAsistente">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="asistNombre" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Teléfono</label>
+                        <input type="text" id="asistTelefono" placeholder="Teléfono de contacto">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Invitado Por</label>
+                        <input type="text" id="asistInvitado" placeholder="Persona que lo invitó">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Dirección</label>
+                        <input type="text" id="asistDireccion" placeholder="Dirección completa">
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Iglesia</label>
+                        <select id="asistIglesia">
+                            <option value="">-- Sin iglesia --</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>Conferencia *</label>
+                        <select id="asistConferencia" required onchange="cargarFechasConferencia(this.value)"></select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>✅ Marque los días que asistió:</label>
+                        <div id="fechasAsistenciaContainer" class="fechas-asistencia-container"></div>
+                        <div class="contador-asistencia">✅ <strong>0</strong> días asistidos de <strong>0</strong> totales</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Registro</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Modal Usuario -->
-    <div id="usuarioModal" class="modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h3>👤 Nuevo Usuario</h3><button class="close-btn" onclick="closeModal('usuarioModal')">&times;</button></div>
-                <div class="modal-body">
-                    <form id="usuarioForm">
-                        <div class="form-group"><label>Nombre Completo *</label><input type="text" class="form-control" id="usuarioNombre" required></div>
-                        <div class="form-group"><label>📧 Correo Electrónico *</label><input type="email" class="form-control" id="usuarioCorreo" required></div>
-                        <div class="form-group"><label>🔑 Contraseña</label><input type="password" class="form-control" id="usuarioContrasena"></div>
-                        <div class="form-group"><label>Rol</label><select class="form-control" id="usuarioRol"><option value="usuario">👤 Usuario</option><option value="admin">👑 Administrador</option></select></div>
-                        <div class="form-group"><label>Estado</label><select class="form-control" id="usuarioEstado"><option value="activo">✅ Activo</option><option value="inactivo">❌ Inactivo</option></select></div>
-                    </form>
-                </div>
-                <div class="modal-footer"><button class="btn btn-danger" onclick="closeModal('usuarioModal')">Cancelar</button><button class="btn btn-success" onclick="guardarUsuario()">Guardar Usuario</button></div>
+    <div id="modalNuevoUsuario" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tituloModalUsuario">👤 Nuevo Usuario</h3>
+                <button class="modal-close" onclick="cerrarModal('modalNuevoUsuario')">&times;</button>
             </div>
+            <form id="formUsuario">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="usuarioNombre" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>📧 Correo Electrónico *</label>
+                        <input type="email" id="usuarioEmail" placeholder="correo@ejemplo.com" required>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>🔑 Contraseña</label>
+                        <input type="password" id="usuarioPassword" placeholder="Deje vacío para mantener la contraseña actual">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group-modal">
+                            <label>Rol</label>
+                            <select id="usuarioRol">
+                                <option value="usuario">👤 Usuario</option>
+                                <option value="admin">👑 Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group-modal">
+                            <label>Estado</label>
+                            <select id="usuarioEstado">
+                                <option value="activo">✅ Activo</option>
+                                <option value="inactivo">❌ Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group-modal">
+                        <label>🔐 Permisos de Acceso</label>
+                        <div class="permisos-container">
+                            <label><input type="checkbox" class="permiso-checkbox" value="dashboard"> Dashboard</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="conferencias"> Conferencias</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="registros"> Registros</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="configuracion"> Configuración</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="usuarios"> Usuarios</label>
+                            <label><input type="checkbox" class="permiso-checkbox" value="reportes"> Reportes</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoUsuario')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Usuario</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script>
-        // Variables Globales
-        let db = null; // Cliente Supabase
-        let currentUser = null;
-        
-        // Caché de datos para evitar consultas constantes
-        let cache = {
-            zonas: [],
-            distritos: [],
-            iglesias: [],
-            conferencias: [],
-            registros: [],
-            usuarios: []
-        };
-
-        // Inicialización
-        window.onload = async function() {
-            // Esperar a que config.js inicialice Supabase
-            let attempts = 0;
-            while (!window.db && attempts < 10) {
-                await new Promise(r => setTimeout(r, 100));
-                attempts++;
-            }
-
-            if (window.db) {
-                db = window.db;
-                console.log('✅ Conectado a Supabase');
-                verificarSesion();
-            } else {
-                console.error('❌ No se pudo conectar a Supabase');
-                alert('Error de conexión con la base de datos. Verifica config.js');
-            }
-        };
-
-        // Verificar si hay sesión activa
-        async function verificarSesion() {
-            const session = localStorage.getItem('ministrylion_session');
-            if (session) {
-                currentUser = JSON.parse(session);
-                mostrarApp();
-            } else {
-                document.getElementById('loginSection').classList.add('active');
-                document.getElementById('mainApp').classList.add('hidden');
-            }
-        }
-
-        // Login con Supabase
-        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('btnLogin');
-            const errorDiv = document.getElementById('loginError');
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Verificando...';
-            errorDiv.style.display = 'none';
-
-            try {
-                // Consulta a la tabla 'usuarios' en Supabase
-                const { data, error } = await db
-                    .from('usuarios')
-                    .select('*')
-                    .eq('correo', email)
-                    .eq('contrasena', password)
-                    .eq('estado', 'activo')
-                    .single();
-
-                if (error || !data) {
-                    throw new Error('Credenciales incorrectas o usuario inactivo');
-                }
-
-                // Guardar sesión
-                currentUser = data;
-                localStorage.setItem('ministrylion_session', JSON.stringify(data));
-                
-                mostrarApp();
-            } catch (err) {
-                console.error(err);
-                errorDiv.textContent = '❌ ' + err.message;
-                errorDiv.style.display = 'block';
-                btn.disabled = false;
-                btn.innerHTML = 'Iniciar Sesión';
-            }
-        });
-
-        function mostrarApp() {
-            document.getElementById('loginSection').classList.remove('active');
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('mainApp').classList.add('active');
-            
-            // Actualizar UI del usuario
-            document.getElementById('userName').textContent = currentUser.nombre;
-            document.getElementById('userRole').textContent = currentUser.rol === 'admin' ? 'Administrador' : 'Usuario';
-            document.getElementById('userAvatar').textContent = currentUser.nombre.charAt(0).toUpperCase();
-            
-            cargarDashboard();
-        }
-
-        function logout() {
-            localStorage.removeItem('ministrylion_session');
-            currentUser = null;
-            location.reload();
-        }
-
-        // Navegación
-        document.querySelectorAll('.sidebar-menu a[data-section]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const section = this.getAttribute('data-section');
-                document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-                document.querySelectorAll('.main-content .section').forEach(s => s.classList.remove('active'));
-                document.getElementById(section).classList.add('active');
-                
-                if (section === 'dashboard') cargarDashboard();
-                if (section === 'conferencias') cargarConferencias();
-                if (section === 'registros') cargarRegistros();
-                if (section === 'configuracion') cargarConfiguracion();
-                if (section === 'usuarios') cargarUsuarios();
-                if (section === 'reportes') cargarReportes();
-            });
-        });
-
-        // --- FUNCIONES DE DATOS (SUPABASE) ---
-
-        async function cargarDatosTabla(tabla) {
-            const { data, error } = await db.from(tabla).select('*').order('id', { ascending: false });
-            if (error) console.error(`Error cargando ${tabla}:`, error);
-            return data || [];
-        }
-
-        // Dashboard
-        async function cargarDashboard() {
-            cache.zonas = await cargarDatosTabla('zonas');
-            cache.distritos = await cargarDatosTabla('distritos');
-            cache.iglesias = await cargarDatosTabla('iglesias');
-            cache.conferencias = await cargarDatosTabla('conferencias');
-            cache.registros = await cargarDatosTabla('registros');
-            
-            document.getElementById('totalZonas').textContent = cache.zonas.length;
-            document.getElementById('totalDistritos').textContent = cache.distritos.length;
-            document.getElementById('totalIglesias').textContent = cache.iglesias.length;
-            document.getElementById('totalConferencias').textContent = cache.conferencias.length;
-            document.getElementById('totalAsistentes').textContent = cache.registros.length;
-        }
-
-        // Zonas
-        async function guardarZona() {
-            const nombre = document.getElementById('zonaNombre').value;
-            const descripcion = document.getElementById('zonaDescripcion').value;
-            if (!nombre) return alert('Nombre requerido');
-
-            const { error } = await db.from('zonas').insert([{ nombre, descripcion }]);
-            if (error) return alert('Error: ' + error.message);
-            
-            closeModal('zonaModal');
-            document.getElementById('zonaForm').reset();
-            cargarConfiguracion();
-        }
-
-        async function eliminarZona(id) {
-            if(!confirm('¿Eliminar zona?')) return;
-            await db.from('zonas').delete().eq('id', id);
-            cargarConfiguracion();
-        }
-
-        // Distritos
-        async function guardarDistrito() {
-            const zonaId = document.getElementById('distritoZona').value;
-            const nombre = document.getElementById('distritoNombre').value;
-            const responsable = document.getElementById('distritoResponsable').value;
-            const telefono = document.getElementById('distritoTelefono').value;
-            if (!zonaId || !nombre) return alert('Campos requeridos');
-
-            await db.from('distritos').insert([{ zona_id: parseInt(zonaId), nombre, responsable, telefono }]);
-            closeModal('distritoModal');
-            document.getElementById('distritoForm').reset();
-            cargarConfiguracion();
-        }
-
-        async function eliminarDistrito(id) {
-            if(!confirm('¿Eliminar distrito?')) return;
-            await db.from('distritos').delete().eq('id', id);
-            cargarConfiguracion();
-        }
-
-        // Iglesias
-        async function guardarIglesia() {
-            const zonaId = document.getElementById('iglesiaZona').value;
-            const distritoId = document.getElementById('iglesiaDistrito').value;
-            const nombre = document.getElementById('iglesiaNombre').value;
-            const pastor = document.getElementById('iglesiaPastor').value;
-            const telefono = document.getElementById('iglesiaTelefono').value;
-            const direccion = document.getElementById('iglesiaDireccion').value;
-            if (!zonaId || !nombre) return alert('Campos requeridos');
-
-            await db.from('iglesias').insert([{ 
-                zona_id: parseInt(zonaId), 
-                distrito_id: distritoId ? parseInt(distritoId) : null, 
-                nombre, pastor, telefono, direccion 
-            }]);
-            closeModal('iglesiaModal');
-            document.getElementById('iglesiaForm').reset();
-            cargarConfiguracion();
-        }
-
-        async function eliminarIglesia(id) {
-            if(!confirm('¿Eliminar iglesia?')) return;
-            await db.from('iglesias').delete().eq('id', id);
-            cargarConfiguracion();
-        }
-
-        // Conferencias
-        function calcularDiasConferencia() {
-            const inicio = new Date(document.getElementById('conferenciaInicio').value);
-            const fin = new Date(document.getElementById('conferenciaFin').value);
-            if (inicio && fin && fin >= inicio) {
-                const diffDays = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)) + 1;
-                document.getElementById('duracionDias').textContent = diffDays;
-            }
-        }
-
-        async function guardarConferencia() {
-            const nombre = document.getElementById('conferenciaNombre').value;
-            const iglesiaId = document.getElementById('conferenciaIglesia').value;
-            const inicio = document.getElementById('conferenciaInicio').value;
-            const fin = document.getElementById('conferenciaFin').value;
-            const conferenciante = document.getElementById('conferenciaConferenciante').value;
-            if (!nombre || !iglesiaId || !inicio || !fin) return alert('Campos requeridos');
-
-            await db.from('conferencias').insert([{ nombre, iglesia_id: parseInt(iglesiaId), inicio, fin, conferenciante }]);
-            closeModal('conferenciaModal');
-            document.getElementById('conferenciaForm').reset();
-            cargarConferencias();
-        }
-
-        async function cargarConferencias() {
-            cache.conferencias = await cargarDatosTabla('conferencias');
-            cache.iglesias = await cargarDatosTabla('iglesias');
-            
-            const tbody = document.getElementById('conferenciasTable');
-            if (cache.conferencias.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center">Sin conferencias</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = cache.conferencias.map(conf => {
-                const iglesia = cache.iglesias.find(i => i.id === conf.iglesia_id);
-                const dias = Math.ceil((new Date(conf.fin) - new Date(conf.inicio)) / (1000 * 60 * 60 * 24)) + 1;
-                return `
-                    <tr>
-                        <td>${conf.nombre}</td>
-                        <td>${iglesia ? iglesia.nombre : 'N/A'}</td>
-                        <td>${new Date(conf.inicio).toLocaleDateString()}</td>
-                        <td>${new Date(conf.fin).toLocaleDateString()}</td>
-                        <td><span class="badge badge-success">${dias} días</span></td>
-                        <td>${conf.conferenciante || 'N/A'}</td>
-                        <td class="action-buttons">
-                            <button class="btn btn-danger btn-sm" onclick="eliminarConferencia(${conf.id})">🗑️</button>
-                        </td>
-                    </tr>`;
-            }).join('');
-        }
-
-        async function eliminarConferencia(id) {
-            if(!confirm('¿Eliminar conferencia?')) return;
-            await db.from('conferencias').delete().eq('id', id);
-            cargarConferencias();
-        }
-
-        // Registros
-        async function cargarRegistros() {
-            cache.registros = await cargarDatosTabla('registros');
-            cache.iglesias = await cargarDatosTabla('iglesias');
-            cache.conferencias = await cargarDatosTabla('conferencias');
-            
-            const tbody = document.getElementById('registrosTable');
-            if (cache.registros.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros en la base de datos</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = cache.registros.map(reg => {
-                const iglesia = reg.iglesia_id ? cache.iglesias.find(i => i.id === reg.iglesia_id) : null;
-                const conferencia = cache.conferencias.find(c => c.id === reg.conferencia_id);
-                // dias_asistidos viene como string/array desde Supabase
-                let diasCount = 0;
-                if(reg.dias_asistidos) {
-                    try { diasCount = JSON.parse(reg.dias_asistidos).length; } catch(e) {}
-                }
-                
-                return `
-                    <tr>
-                        <td><strong>${reg.nombre}</strong></td>
-                        <td>${reg.telefono || 'N/A'}</td>
-                        <td>${iglesia ? iglesia.nombre : 'N/A'}</td>
-                        <td>${conferencia ? conferencia.nombre : 'N/A'}</td>
-                        <td><span class="badge badge-success">${diasCount} días</span></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-danger btn-sm" onclick="eliminarRegistro(${reg.id})">🗑️</button>
-                        </td>
-                    </tr>`;
-            }).join('');
-        }
-
-        function cargarSelectsRegistro() {
-            const selectConf = document.getElementById('registroConferencia');
-            const selectIgl = document.getElementById('registroIglesia');
-            if(selectConf) selectConf.innerHTML = '<option value="">Seleccione conferencia</option>' + cache.conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-            if(selectIgl) selectIgl.innerHTML = '<option value="">-- Sin iglesia --</option>' + cache.iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
-        }
-
-        function cargarDiasConferencia() {
-            const confId = document.getElementById('registroConferencia').value;
-            const container = document.getElementById('diasConferencia');
-            if (!confId) { container.innerHTML = '<p style="color: #718096;">Seleccione una conferencia</p>'; return; }
-
-            const conferencia = cache.conferencias.find(c => c.id === parseInt(confId));
-            if (conferencia) {
-                const inicio = new Date(conferencia.inicio);
-                const fin = new Date(conferencia.fin);
-                const dias = [];
-                for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) dias.push(new Date(d));
-                document.getElementById('diasTotalesCount').textContent = dias.length;
-                container.innerHTML = dias.map((dia, index) => `
-                    <div class="day-checkbox">
-                        <input type="checkbox" id="dia${index}" value="${dia.toISOString().split('T')[0]}" onchange="actualizarDiasAsistidos()">
-                        <label for="dia${index}">${dia.toLocaleDateString('es-DO', { weekday: 'short', day: 'numeric', month: 'short' })}</label>
-                    </div>`).join('');
-            }
-        }
-
-        function actualizarDiasAsistidos() {
-            const checkboxes = document.querySelectorAll('#diasConferencia input[type="checkbox"]:checked');
-            document.getElementById('diasAsistidosCount').textContent = checkboxes.length;
-        }
-
-        async function guardarRegistro() {
-            const nombre = document.getElementById('registroNombre').value;
-            const telefono = document.getElementById('registroTelefono').value;
-            const invitadoPor = document.getElementById('registroInvitadoPor').value;
-            const direccion = document.getElementById('registroDireccion').value;
-            const iglesiaId = document.getElementById('registroIglesia').value;
-            const conferenciaId = document.getElementById('registroConferencia').value;
-            const diasCheckboxes = document.querySelectorAll('#diasConferencia input[type="checkbox"]:checked');
-            const diasAsistidos = Array.from(diasCheckboxes).map(cb => cb.value);
-
-            if (!nombre || !conferenciaId || diasAsistidos.length === 0) return alert('Complete campos obligatorios y marque días');
-
-            await db.from('registros').insert([{
-                nombre, telefono, invitado_por: invitadoPor, direccion,
-                iglesia_id: iglesiaId ? parseInt(iglesiaId) : null,
-                conferencia_id: parseInt(conferenciaId),
-                dias_asistidos: JSON.stringify(diasAsistidos)
-            }]);
-            
-            closeModal('registroModal');
-            document.getElementById('registroForm').reset();
-            cargarRegistros();
-        }
-
-        async function eliminarRegistro(id) {
-            if(!confirm('¿Eliminar registro?')) return;
-            await db.from('registros').delete().eq('id', id);
-            cargarRegistros();
-        }
-
-        function buscarRegistro() {
-            const busqueda = document.getElementById('searchRegistro').value.toLowerCase();
-            const filas = document.querySelectorAll('#registrosTable tr');
-            filas.forEach((fila, index) => {
-                if (index === 0) return;
-                const nombre = fila.cells[0]?.textContent.toLowerCase() || '';
-                fila.style.display = nombre.includes(busqueda) ? '' : 'none';
-            });
-        }
-
-        // Configuración UI
-        async function cargarConfiguracion() {
-            cache.zonas = await cargarDatosTabla('zonas');
-            cache.distritos = await cargarDatosTabla('distritos');
-            cache.iglesias = await cargarDatosTabla('iglesias');
-
-            // Render Zonas
-            const zonasTbody = document.getElementById('zonasTable');
-            zonasTbody.innerHTML = cache.zonas.length ? cache.zonas.map(z => `
-                <tr><td>${z.nombre}</td><td>${z.descripcion || 'N/A'}</td>
-                <td class="action-buttons"><button class="btn btn-danger btn-sm" onclick="eliminarZona(${z.id})">🗑️</button></td></tr>`).join('') 
-                : '<tr><td colspan="3" class="text-center">Sin zonas</td></tr>';
-
-            // Render Distritos
-            const distTbody = document.getElementById('distritosTable');
-            distTbody.innerHTML = cache.distritos.length ? cache.distritos.map(d => {
-                const zona = cache.zonas.find(z => z.id === d.zona_id);
-                return `<tr><td>${d.nombre}</td><td>${zona ? zona.nombre : 'N/A'}</td><td>${d.responsable || 'N/A'}</td>
-                <td class="action-buttons"><button class="btn btn-danger btn-sm" onclick="eliminarDistrito(${d.id})">🗑️</button></td></tr>`;
-            }).join('') : '<tr><td colspan="4" class="text-center">Sin distritos</td></tr>';
-
-            // Render Iglesias
-            const iglTbody = document.getElementById('iglesiasTable');
-            iglTbody.innerHTML = cache.iglesias.length ? cache.iglesias.map(i => {
-                const zona = cache.zonas.find(z => z.id === i.zona_id);
-                const distrito = i.distrito_id ? cache.distritos.find(d => d.id === i.distrito_id) : null;
-                return `<tr><td>${i.nombre}</td><td>${zona ? zona.nombre : 'N/A'}</td><td>${distrito ? distrito.nombre : 'N/A'}</td><td>${i.pastor || 'N/A'}</td>
-                <td class="action-buttons"><button class="btn btn-danger btn-sm" onclick="eliminarIglesia(${i.id})">🗑️</button></td></tr>`;
-            }).join('') : '<tr><td colspan="5" class="text-center">Sin iglesias</td></tr>';
-
-            // Actualizar Selects
-            ['distritoZona', 'iglesiaZona'].forEach(id => {
-                const sel = document.getElementById(id);
-                if(sel) sel.innerHTML = '<option value="">Seleccione zona</option>' + cache.zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
-            });
-            const confSel = document.getElementById('conferenciaIglesia');
-            if(confSel) confSel.innerHTML = '<option value="">Seleccione iglesia</option>' + cache.iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
-        }
-
-        function cargarDistritosIglesia() {
-            const zonaId = document.getElementById('iglesiaZona').value;
-            const sel = document.getElementById('iglesiaDistrito');
-            if (!zonaId) { sel.innerHTML = '<option value="">-- Sin distrito --</option>'; return; }
-            const dists = cache.distritos.filter(d => d.zona_id === parseInt(zonaId));
-            sel.innerHTML = '<option value="">-- Sin distrito --</option>' + dists.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
-        }
-
-        // Usuarios
-        async function cargarUsuarios() {
-            cache.usuarios = await cargarDatosTabla('usuarios');
-            const tbody = document.getElementById('usuariosTable');
-            tbody.innerHTML = cache.usuarios.length ? cache.usuarios.map(u => `
-                <tr><td>${u.nombre}</td><td>${u.correo}</td><td>${u.rol === 'admin' ? '👑 Admin' : '👤 User'}</td>
-                <td>${u.estado === 'activo' ? '✅' : '❌'}</td>
-                <td class="action-buttons"><button class="btn btn-danger btn-sm" onclick="eliminarUsuario(${u.id})">🗑️</button></td></tr>`).join('')
-                : '<tr><td colspan="5" class="text-center">Sin usuarios</td></tr>';
-        }
-
-        async function guardarUsuario() {
-            const nombre = document.getElementById('usuarioNombre').value;
-            const correo = document.getElementById('usuarioCorreo').value;
-            const contrasena = document.getElementById('usuarioContrasena').value;
-            const rol = document.getElementById('usuarioRol').value;
-            const estado = document.getElementById('usuarioEstado').value;
-            if (!nombre || !correo) return alert('Nombre y correo requeridos');
-
-            await db.from('usuarios').insert([{ nombre, correo, contrasena, rol, estado }]);
-            closeModal('usuarioModal');
-            document.getElementById('usuarioForm').reset();
-            cargarUsuarios();
-        }
-
-        async function eliminarUsuario(id) {
-            if(!confirm('¿Eliminar usuario?')) return;
-            await db.from('usuarios').delete().eq('id', id);
-            cargarUsuarios();
-        }
-
-        // Reportes
-        function cargarReportes() {
-            const selectConf = document.getElementById('reportConferencia');
-            const selectIgl = document.getElementById('reportIglesia');
-            if(selectConf) selectConf.innerHTML = '<option value="">-- Todas --</option>' + cache.conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-            if(selectIgl) selectIgl.innerHTML = '<option value="">-- Todas --</option>' + cache.iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
-        }
-
-        function generarReporte() {
-            // Lógica de filtrado local sobre cache.registros
-            const confId = document.getElementById('reportConferencia').value;
-            const iglId = document.getElementById('reportIglesia').value;
-            let filtrados = cache.registros;
-            if (confId) filtrados = filtrados.filter(r => r.conferencia_id === parseInt(confId));
-            if (iglId) filtrados = filtrados.filter(r => r.iglesia_id === parseInt(iglId));
-
-            const tbody = document.getElementById('reportesTable');
-            if (filtrados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Sin resultados</td></tr>';
-                return;
-            }
-            // ... (Render similar a cargarRegistros)
-            tbody.innerHTML = filtrados.map(reg => `<tr><td>${reg.nombre}</td><td>${reg.telefono||'N/A'}</td><td>...</td></tr>`).join('');
-        }
-        
-        function limpiarReporte() { location.reload(); }
-        function descargarPDF() { alert('En desarrollo'); }
-
-        // Modales
-        function openModal(id) { 
-            document.getElementById(id).classList.add('active'); 
-            if(id === 'registroModal') { cache.iglesias = await cargarDatosTabla('iglesias'); cache.conferencias = await cargarDatosTabla('conferencias'); cargarSelectsRegistro(); }
-        }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.classList.remove('active'); }
-    </script>
-       <!-- Scripts -->
+    <!-- Scripts -->
     <script src="config.js"></script>
     <script src="auth.js"></script>
     <script src="db.js"></script>

@@ -28,11 +28,7 @@ if (!window.db) {
     initSupabase();
 }
 
-<script src="config.js"></script>
-<script>
-// Hacer initSupabase global si no lo es
-if (typeof initSupabase !== 'undefined') {
-    window.initSupabase = initSupabase;
+
 }
 </script>
 

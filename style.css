@@ -1368,4 +1368,41 @@ table td {
     background-color: #fef3c7 !important;
     transition: background-color 0.3s ease;
 }
+    //-----------------------------------------
+    /* Estilos para tablas más compactas */
+.table-compact {
+    font-size: 0.85rem;
+}
+
+.table-compact th,
+.table-compact td {
+    padding: 0.5rem 0.75rem;
+    vertical-align: middle;
+}
+
+.table-compact tr {
+    height: auto;
+}
+
+/* Reducir espacio en celdas */
+td, th {
+    padding: 8px 12px !important;
+}
+
+/* Reducir tamaño de fuente en tablas */
+table {
+    font-size: 0.9rem;
+}
+
+/* Hacer badges más pequeños */
+.badge, .tag {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Botones de acción más pequeños */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
 }

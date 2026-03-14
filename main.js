@@ -45,11 +45,15 @@ function calcularDias(fechaInicio, fechaFin) {
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
     
+    
+   function navegarSeccion(seccionId) {
+    console.log('📍 Navegando a:', seccionId);
+    
     // ✅ Limpiar buscador al salir de registros
     if (seccionId !== 'registros') {
         limpiarBuscadorAsistentes();
     }
-
+    
     // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
     if (seccionId === 'usuarios') {
         const user = checkAuth();
@@ -58,7 +62,10 @@ function navegarSeccion(seccionId) {
             seccionId = 'dashboard';
         }
     }
-
+    
+    // ... resto del código existente ...
+}
+    
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
@@ -90,7 +97,6 @@ function navegarSeccion(seccionId) {
             break;
     }
 }
-
 // ============================================
 // MODALES
 // ============================================
@@ -151,7 +157,7 @@ async function prepararModalIglesia() {
     const titulo = document.getElementById('tituloModalIglesia');
     if (titulo) titulo.textContent = '⛪ Registrar Iglesia';
     await cargarZonasEnSelect('iglesiaZona');
-    document.getElementById('iglesiaDistrito').innerHTML = '-- Sin distrito --';
+    document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
     abrirModal('modalNuevaIglesia');
 }
 
@@ -382,8 +388,6 @@ async function cargarAsistentes() {
         console.log('📥 Cargando asistentes...');
         const asistentes = await obtenerAsistentes();
         console.log('✅ Asistentes obtenidos:', asistentes.length);
-        window.todosLosAsistentes = asistentes; // ✅ Guardar copia completa
-        
         const tbody = document.querySelector('#tablaAsistentes tbody');
         if (!tbody) {
             console.error('❌ No se encontró el tbody de la tabla');
@@ -423,16 +427,70 @@ async function cargarAsistentes() {
 // ============================================
 // ✅ FUNCIONES DE BÚSQUEDA - ASISTENTES
 // ============================================
+
+// Variable global para almacenar todos los asistentes (sin filtrar)
+window.todosLosAsistentes = [];
+
+// Modificar cargarAsistentes para guardar todos los datos
+async function cargarAsistentes() {
+    try {
+        console.log('📥 Cargando asistentes...');
+        const asistentes = await obtenerAsistentes();
+        window.todosLosAsistentes = asistentes; // ✅ Guardar copia completa
+        console.log('✅ Asistentes obtenidos:', asistentes.length);
+        
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró el tbody de la tabla');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>
+                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando asistentes:', error);
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
+    }
+}
+
+// ============================================
+// ✅ FUNCIONES DE BÚSQUEDA - AGREGAR AL FINAL
+// ============================================
+
 function filtrarAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (!buscador) return;
+    
     const textoBusqueda = buscador.value.toLowerCase().trim();
     const tbody = document.querySelector('#tablaAsistentes tbody');
     if (!tbody) return;
-
+    
     const filas = tbody.querySelectorAll('tr');
     let resultadosEncontrados = 0;
-
+    
     filas.forEach(fila => {
         const celdas = fila.querySelectorAll('td');
         if (celdas.length < 6) return;
@@ -443,9 +501,9 @@ function filtrarAsistentes() {
         const conferencia = celdas[3]?.textContent?.toLowerCase() || '';
         
         const coincide = nombre.includes(textoBusqueda) || 
-                         telefono.includes(textoBusqueda) || 
-                         iglesia.includes(textoBusqueda) || 
-                         conferencia.includes(textoBusqueda);
+                        telefono.includes(textoBusqueda) || 
+                        iglesia.includes(textoBusqueda) || 
+                        conferencia.includes(textoBusqueda);
         
         if (coincide) {
             fila.style.display = '';
@@ -460,13 +518,22 @@ function filtrarAsistentes() {
             fila.classList.remove('tr-highlight');
         }
     });
-
+    
     // Mostrar mensaje si no hay resultados
     if (resultadosEncontrados === 0 && textoBusqueda.length > 0) {
         tbody.innerHTML = '<tr><td colspan="6">🔍 No se encontraron registros que coincidan con "' + textoBusqueda + '"</td></tr>';
     }
 }
 
+function limpiarBuscadorAsistentes() {
+    const buscador = document.getElementById('buscadorAsistentes');
+    if (buscador) {
+        buscador.value = '';
+        filtrarAsistentes();
+    }
+}
+
+// ✅ Limpiar búsqueda al cambiar de sección
 function limpiarBuscadorAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (buscador) {
@@ -1024,7 +1091,7 @@ async function editarUsuario(id) {
                         permisosUsuario = JSON.parse(cleanPermisos);
                     } else {
                         permisosUsuario = JSON.parse(usuario.permisos);
-                    } 
+                    }
                 } else {
                     permisosUsuario = usuario.permisos;
                 }
@@ -1054,12 +1121,13 @@ async function editarUsuario(id) {
 
 async function guardarUsuario(e) {
     e.preventDefault();
+    
     // ✅ VERIFICAR QUE SEA ADMIN
     if (!esAdmin()) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
         return;
     }
-
+    
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1089,12 +1157,42 @@ async function guardarUsuario(e) {
 
 async function guardarUsuarioEditado(e) {
     e.preventDefault();
+    
     // ✅ VERIFICAR QUE SEA ADMIN
     if (!esAdmin()) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden editar usuarios', 'error');
         return;
     }
+    
+    try {
+        const nombre_completo = document.getElementById('usuarioNombre').value.trim();
+        const email = document.getElementById('usuarioEmail').value.trim();
+        const password = document.getElementById('usuarioPassword').value;
+        const rol = document.getElementById('usuarioRol').value;
+        const estado = document.getElementById('usuarioEstado').value;
+        
+        const permisos = [];
+        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+            permisos.push(cb.value);
+        });
+        
+        if (!nombre_completo || !email) {
+            mostrarMensaje('Nombre y correo son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
+        mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
+        cerrarModal('modalNuevoUsuario');
+        await cargarUsuarios();
+    } catch (error) {
+        console.error('❌ Error actualizando usuario:', error);
+        mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
+    }
+}
 
+async function guardarUsuarioEditado(e) {
+    e.preventDefault();
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1128,6 +1226,7 @@ async function confirmarEliminarUsuario(id) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
         return;
     }
+    
     if (confirm('⚠️ ¿Está seguro de eliminar este usuario?')) {
         try {
             await eliminarUsuario(id);
@@ -1139,7 +1238,6 @@ async function confirmarEliminarUsuario(id) {
         }
     }
 }
-
 // ============================================
 // FUNCIONES DE ASISTENCIA
 // ============================================
@@ -1147,11 +1245,12 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (!container) return;
     container.innerHTML = '';
+    
     const inicio = new Date(fechaInicio + 'T00:00:00');
     const fin = new Date(fechaFin + 'T00:00:00');
     const fechas = [];
     let actual = new Date(inicio);
-
+    
     while (actual <= fin) {
         fechas.push(new Date(actual));
         actual.setDate(actual.getDate() + 1);
@@ -1193,6 +1292,7 @@ function actualizarContadorAsistencia() {
     const totalDias = document.querySelectorAll('.fecha-asistencia').length;
     const diasAsistidos = botonesSeleccionados.length;
     const contadorElement = document.querySelector('.contador-asistencia');
+    
     if (contadorElement) {
         contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> días asistidos de <strong>${totalDias}</strong> totales`;
         if (diasAsistidos === 0) {
@@ -1216,6 +1316,7 @@ function obtenerFechasSeleccionadas() {
 function marcarFechasGuardadas(fechasGuardadas) {
     if (!fechasGuardadas || fechasGuardadas.length === 0) return;
     const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
+    
     fechas.forEach(fechaISO => {
         const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
         if (boton) {
@@ -1230,6 +1331,7 @@ async function cargarFechasConferencia(conferenciaId) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
+    
     if (!conferenciaId) return;
 
     try {
@@ -1255,6 +1357,7 @@ function actualizarDuracionConferencia() {
     const inicio = document.getElementById('confFechaInicio')?.value;
     const fin = document.getElementById('confFechaFin')?.value;
     const duracionElement = document.querySelector('#modalNuevaConferencia .duracion-conferencia');
+    
     if (inicio && fin && duracionElement) {
         const dias = calcularDias(inicio, fin);
         duracionElement.textContent = `📅 Duración: ${dias} días`;
@@ -1392,7 +1495,7 @@ async function generarReportePDF() {
         doc.rect(14, 75, 182, 20, 'F');
         doc.setFontSize(10);
         doc.text(`Total Asistentes: ${asistentes.length}`, 20, 85);
-        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85);  
+        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85); 
         doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 85);
         
         const tableData = asistentes.map(asist => {
@@ -1437,7 +1540,7 @@ async function generarReportePDF() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOMContentLoaded - Iniciando aplicación...');
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     if (!window.db) {
         console.error('❌ window.db no existe');
         mostrarMensaje('Error de conexión con la base de datos', 'error');
@@ -1497,7 +1600,7 @@ function mostrarDashboard(user) {
     if (userName) userName.textContent = user.nombre;
     if (userRole) userRole.textContent = user.rol === 'admin' ? 'Administrador' : 'Usuario';
     if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
-
+    
     // ✅ OCULTAR MENÚ USUARIOS SI NO ES ADMIN
     const menuUsuarios = document.getElementById('nav-usuarios');
     if (menuUsuarios) {
@@ -1508,7 +1611,6 @@ function mostrarDashboard(user) {
         }
     }
 }
-
 function configurarFormularioLogin() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -1669,7 +1771,17 @@ window.generarReportePDF = generarReportePDF;
 window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
+
 window.filtrarAsistentes = filtrarAsistentes;
 window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
+// ... resto de exports ...
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES
+// ============================================
+// ... funciones existentes ...
+window.filtrarAsistentes = filtrarAsistentes;
+window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
+// ... resto de exports ...
+
 
 console.log('✅ main.js cargado correctamente con todas las funciones');

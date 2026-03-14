@@ -1109,6 +1109,11 @@ async function confirmarEliminarUsuario(id) {
 // ============================================
 // ✅ FUNCIONES DE ASISTENCIA - DÍAS MARCADOS
 // ============================================
+// ============================================
+// ✅ FUNCIONES DE ASISTENCIA - FECHAS MARCADAS
+// ============================================
+
+// Generar botones de fechas
 function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (!container) return;
@@ -1127,18 +1132,21 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
     const diasSemana = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
     const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
-    fechas.forEach(fecha => {
+    fechas.forEach((fecha, index) => {
         const diaSemana = diasSemana[fecha.getDay()];
         const dia = fecha.getDate();
         const mes = meses[fecha.getMonth()];
         const año = fecha.getFullYear();
         const fechaISO = fecha.toISOString().split('T')[0];
         
-        const boton = document.createElement('button');
-        boton.type = 'button';
+        const boton = document.createElement('div');
         boton.className = 'fecha-asistencia';
         boton.dataset.fecha = fechaISO;
-        boton.textContent = `${diaSemana}, ${dia} ${mes} ${año}`;
+        boton.dataset.dia = index + 1;
+        boton.innerHTML = `
+            <span class="dia-label">Día ${index + 1}</span>
+            <span class="fecha-label">${diaSemana}, ${dia} ${mes}</span>
+        `;
         
         boton.addEventListener('click', function() {
             toggleFechaAsistencia(this);
@@ -1150,7 +1158,7 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
     actualizarContadorAsistencia();
 }
 
-// ✅ Toggle de selección de fecha - Mantiene color verde
+// ✅ Toggle de selección - MANTIENE EL ESTADO MARCADO
 function toggleFechaAsistencia(boton) {
     boton.classList.toggle('seleccionada');
     actualizarContadorAsistencia();
@@ -1164,18 +1172,16 @@ function actualizarContadorAsistencia() {
     const contadorElement = document.querySelector('.contador-asistencia');
     
     if (contadorElement) {
-        contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> días asistidos de <strong>${totalDias}</strong> totales`;
+        contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> de <strong>${totalDias}</strong> días`;
+        
+        // Resetear clases
+        contadorElement.classList.remove('completo', 'vacio');
         
         // Cambiar color según progreso
         if (diasAsistidos === 0) {
-            contadorElement.style.background = '#fee2e2';
-            contadorElement.style.color = '#dc2626';
+            contadorElement.classList.add('vacio');
         } else if (diasAsistidos === totalDias) {
-            contadorElement.style.background = '#d1fae5';
-            contadorElement.style.color = '#059669';
-        } else {
-            contadorElement.style.background = '#fef3c7';
-            contadorElement.style.color = '#d97706';
+            contadorElement.classList.add('completo');
         }
     }
 }
@@ -1194,10 +1200,16 @@ function marcarFechasGuardadas(fechasGuardadas) {
         ? JSON.parse(fechasGuardadas) 
         : fechasGuardadas;
     
+    // Primero desmarcar todas
+    document.querySelectorAll('.fecha-asistencia').forEach(boton => {
+        boton.classList.remove('seleccionada');
+    });
+    
+    // Luego marcar las guardadas
     fechas.forEach(fechaISO => {
         const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
         if (boton) {
-            boton.classList.add('seleccionada'); // ✅ Agrega clase que pone verde
+            boton.classList.add('seleccionada');
         }
     });
     
@@ -1211,16 +1223,24 @@ async function cargarFechasConferencia(conferenciaId) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     
+    // Actualizar info de la conferencia
+    document.getElementById('confInicio').textContent = '-';
+    document.getElementById('confFin').textContent = '-';
+    document.getElementById('confTotalDias').textContent = '0';
+    
     actualizarContadorAsistencia();
     
-    if (!conferenciaId) return;
+    if (!conferenciaId) {
+        if (container) container.innerHTML = '<p style="color: #666; font-size: 14px; padding: 10px;">Seleccione una conferencia primero</p>';
+        return;
+    }
 
     try {
         const conferencias = await obtenerConferencias();
         const conferencia = conferencias.find(c => c.id == conferenciaId);
         
         if (conferencia) {
-            // Actualizar info de la conferencia
+            // Actualizar info visible
             document.getElementById('confInicio').textContent = formatearFechaParaTabla(conferencia.fecha_inicio);
             document.getElementById('confFin').textContent = formatearFechaParaTabla(conferencia.fecha_fin);
             document.getElementById('confTotalDias').textContent = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
@@ -1232,7 +1252,7 @@ async function cargarFechasConferencia(conferenciaId) {
             if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
                 setTimeout(() => {
                     marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
-                }, 150);
+                }, 200);
             }
         }
     } catch (error) {

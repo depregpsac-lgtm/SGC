@@ -1405,4 +1405,57 @@ table {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
 }
+    //---------------------------------------------//
+    /* Contenedor de fechas de asistencia */
+#fechasAsistenciaContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+/* Botones de fecha */
+.fecha-asistencia {
+    padding: 8px 12px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.fecha-asistencia:hover {
+    border-color: #6366f1;
+    background: #f0f0ff;
+}
+
+/* ✅ DÍA SELECCIONADO - COLOR VERDE */
+.fecha-asistencia.seleccionada {
+    background: #10b981 !important;
+    border-color: #059669 !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.fecha-asistencia.seleccionada:hover {
+    background: #059669 !important;
+    border-color: #047857 !important;
+}
+
+/* Contador de asistencia */
+.contador-asistencia {
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 10px;
+    text-align: center;
+}
 }

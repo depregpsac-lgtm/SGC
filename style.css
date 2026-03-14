@@ -1406,34 +1406,40 @@ table {
     font-size: 0.8rem;
 }
     //---------------------------------------------//
-    /* Contenedor de fechas de asistencia */
+   /* ✅ ESTILOS PARA FECHAS DE ASISTENCIA */
 #fechasAsistenciaContainer {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     margin: 15px 0;
     padding: 15px;
-    background: #f9fafb;
+    background: #f8f9fa;
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e1e5eb;
+    min-height: 80px;
 }
 
-/* Botones de fecha */
 .fecha-asistencia {
-    padding: 8px 12px;
+    padding: 12px 18px;
     border: 2px solid #d1d5db;
-    border-radius: 6px;
+    border-radius: 8px;
     background: white;
     color: #374151;
     cursor: pointer;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 100px;
 }
 
 .fecha-asistencia:hover {
     border-color: #6366f1;
     background: #f0f0ff;
+    transform: translateY(-2px);
 }
 
 /* ✅ DÍA SELECCIONADO - COLOR VERDE */
@@ -1441,7 +1447,7 @@ table {
     background: #10b981 !important;
     border-color: #059669 !important;
     color: white !important;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 .fecha-asistencia.seleccionada:hover {
@@ -1449,13 +1455,35 @@ table {
     border-color: #047857 !important;
 }
 
-/* Contador de asistencia */
+.fecha-asistencia .dia-label {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.fecha-asistencia .fecha-label {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
 .contador-asistencia {
-    padding: 10px 15px;
-    border-radius: 6px;
+    padding: 12px 18px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
-    margin-top: 10px;
+    margin-top: 12px;
     text-align: center;
+    background: #fef3c7;
+    color: #d97706;
+    transition: all 0.3s ease;
+}
+
+.contador-asistencia.completo {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.contador-asistencia.vacio {
+    background: #fee2e2;
+    color: #dc2626;
 }
 }

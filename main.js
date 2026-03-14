@@ -910,8 +910,11 @@ async function editarAsistente(id) {
         document.getElementById('tituloModalAsistente').textContent = '👥 Editar Asistente';
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
-        // ✅ Cargar fechas y marcar las guardadas
-        await cargarFechasConferencia(asist.conferencia_id);
+        // ✅ Cargar fechas Y MARCAR LAS GUARDADAS
+        if (asist.conferencia_id) {
+            await cargarFechasConferencia(asist.conferencia_id);
+        }
+        
         abrirModal('modalNuevoAsistente');
     } catch (error) {
         console.error('❌ Error editando asistente:', error);
@@ -964,6 +967,8 @@ async function guardarAsistenteEditado(e) {
         const direccion = document.getElementById('asistDireccion').value.trim();
         const iglesia_id = document.getElementById('asistIglesia').value;
         const conferencia_id = document.getElementById('asistConferencia').value;
+        
+        // ✅ OBTENER FECHAS MARCADAS (las que están en verde)
         const fechas_asistencia = obtenerFechasSeleccionadas();
         
         if (!nombre_completo || !conferencia_id) {

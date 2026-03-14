@@ -631,49 +631,61 @@
         </div></div>
     </div>
 
-    <div class="modal fade" id="modalRegistro" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">👥 Nuevo Registro de Asistente</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body">
-                    <form id="formRegistro">
-                        <input type="hidden" id="registro-id">
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">Nombre Completo *</label><input type="text" class="form-control" id="registro-nombre-completo" required></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Teléfono</label><input type="text" class="form-control" id="registro-telefono"></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Iglesia</label><select class="form-select" id="registro-iglesia"></select></div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">Conferencia *</label><select class="form-select" id="registro-conferencia" onchange="onConferenceSelect()"></select></div>
-                        </div>
-                        
-                        <!-- Conference Info Display -->
-                        <div id="conference-info" class="conference-info" style="display: none;">
-                            <h6 class="mb-2">📅 Información de la Conferencia</h6>
-                            <div class="row">
-                                <div class="col-md-6"><strong>Inicio:</strong> <span id="conf-info-start"></span></div>
-                                <div class="col-md-6"><strong>Fin:</strong> <span id="conf-info-end"></span></div>
-                                <div class="col-md-12 mt-2"><strong>Total de días:</strong> <span id="conf-info-days"></span></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3"><label class="form-label">Invitado Por</label><input type="text" class="form-control" id="registro-invitado-por"></div>
-                        <div class="mb-3"><label class="form-label">Dirección</label><input type="text" class="form-control" id="registro-direccion"></div>
-                        
-                        <!-- Days Checkboxes -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">✅ Días que asistió:</label>
-                            <div id="days-checkboxes" class="days-checkboxes">
-                                <small class="text-muted">Seleccione una conferencia primero</small>
-                            </div>
-                            <small class="text-muted"><span id="days-attended-count">0</span> de <span id="days-total-count">0</span> días</small>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-lion" onclick="saveRegistration()">Guardar</button></div>
+    <div id="modalNuevoAsistente" class="modal">
+    <div class="modal-content">
+        <h3 id="tituloModalAsistente">👥 Nuevo Registro de Asistente</h3>
+        <form id="formAsistente">
+            <div class="form-group">
+                <label>Nombre Completo *</label>
+                <input type="text" id="asistNombre" required>
             </div>
-        </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="tel" id="asistTelefono">
+            </div>
+            <div class="form-group">
+                <label>Iglesia</label>
+                <select id="asistIglesia"></select>
+            </div>
+            <div class="form-group">
+                <label>Conferencia *</label>
+                <select id="asistConferencia" required onchange="cargarFechasConferencia(this.value)"></select>
+            </div>
+            
+            <!-- ✅ INFORMACIÓN DE CONFERENCIA -->
+            <div class="info-conferencia" id="infoConferencia">
+                <p><strong>Inicio:</strong> <span id="confInicio">-</span></p>
+                <p><strong>Fin:</strong> <span id="confFin">-</span></p>
+                <p><strong>Total de días:</strong> <span id="confTotalDias">0</span></p>
+            </div>
+            
+            <div class="form-group">
+                <label>Invitado Por</label>
+                <input type="text" id="asistInvitado">
+            </div>
+            <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" id="asistDireccion">
+            </div>
+            
+            <!-- ✅ DÍAS QUE ASISTIÓ -->
+            <div class="form-group">
+                <label>✅ Días que asistió:</label>
+                <div id="fechasAsistenciaContainer">
+                    <p style="color: #666; font-size: 14px;">Seleccione una conferencia primero</p>
+                </div>
+                <div class="contador-asistencia">
+                    ✅ <strong>0</strong> de <strong>0</strong> días
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
+                <button type="submit" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
+</div>
 
     <div class="modal fade" id="modalUsuario" tabindex="-1">
         <div class="modal-dialog"><div class="modal-content">

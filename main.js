@@ -182,9 +182,20 @@ async function prepararModalAsistente() {
     actualizarContadorAsistencia();
     await cargarIglesiasEnSelect('asistIglesia');
     await cargarConferenciasEnSelect('asistConferencia');
+    
+    // ✅ AGREGAR LISTENER PARA CARGAR FECAS AL CAMBIAR CONFERENCIA
+    const confSelect = document.getElementById('asistConferencia');
+    if (confSelect) {
+        confSelect.addEventListener('change', async (e) => {
+            const container = document.getElementById('fechasAsistenciaContainer');
+            if (container) container.innerHTML = '';
+            actualizarContadorAsistencia();
+            await cargarFechasConferencia(e.target.value);
+        });
+    }
+    
     abrirModal('modalNuevoAsistente');
 }
-
 async function prepararModalUsuario() {
     window.editMode = { tipo: null, id: null, data: null };
     window.tempPassword = '';

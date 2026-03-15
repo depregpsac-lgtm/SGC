@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -20,7 +22,6 @@
             background-color: var(--bg-light);
             overflow-x: hidden;
         }
-        /* Sidebar Styles */
         #sidebar-wrapper {
             min-height: 100vh;
             margin-left: -15rem;
@@ -71,7 +72,6 @@
                 margin-left: -15rem;
             }
         }
-        /* Cards & Stats */
         .stat-card {
             border: none;
             border-radius: 10px;
@@ -85,7 +85,6 @@
             font-size: 2.5rem;
             opacity: 0.8;
         }
-        /* Tables & Containers */
         .table-container {
             background: white;
             border-radius: 10px;
@@ -108,7 +107,6 @@
             font-size: 0.8rem;
             color: #6c757d;
         }
-        /* Login Screen */
         #login-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -126,6 +124,16 @@
             width: 100%;
             max-width: 400px;
         }
+        .spinner-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -138,16 +146,20 @@
             <h3 class="mt-2">MinistryLion</h3>
             <p class="text-muted">Sistema de Gestión de Conferencias</p>
         </div>
-        <form onsubmit="event.preventDefault(); document.getElementById('login-screen').style.display='none';">
+        <form id="loginForm">
             <div class="mb-3 text-start">
                 <label class="form-label">Correo Electrónico</label>
-                <input type="email" class="form-control" placeholder="admin@ministrylion.com" value="admin@ministrylion.com">
+                <input type="email" id="loginEmail" class="form-control" placeholder="admin@ministrylion.com" required>
             </div>
             <div class="mb-3 text-start">
                 <label class="form-label">Contraseña</label>
-                <input type="password" class="form-control" placeholder="••••••••" value="password">
+                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+            <div id="loginError" class="alert alert-danger d-none"></div>
+            <button type="submit" class="btn btn-primary w-100" id="btnLogin">
+                <span class="spinner-border spinner-border-sm d-none" id="loginSpinner"></span>
+                Iniciar Sesión
+            </button>
         </form>
         <div class="mt-4 footer-text">
             © Elaborado por: Natanael León Veras, edición 2026.
@@ -156,7 +168,7 @@
 </div>
 
 <!-- MAIN DASHBOARD WRAPPER -->
-<div class="d-flex" id="wrapper">
+<div class="d-flex" id="wrapper" style="display:none;">
     <!-- Sidebar -->
     <div id="sidebar-wrapper">
         <div class="sidebar-heading text-center">
@@ -181,7 +193,7 @@
             <a class="list-group-item list-group-item-action" onclick="showSection('usuarios', this)">
                 <i class="bi bi-person-badge me-2"></i> Usuarios
             </a>
-            <a class="list-group-item list-group-item-action text-danger mt-5" href="#" onclick="document.getElementById('login-screen').style.display='flex'">
+            <a class="list-group-item list-group-item-action text-danger mt-5" href="#" onclick="cerrarSesion()">
                 <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
             </a>
         </div>
@@ -197,12 +209,12 @@
             <div class="ms-auto d-flex align-items-center">
                 <div class="dropdown">
                     <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle me-2"></i>Administrador
+                        <i class="bi bi-person-circle me-2"></i><span id="userNameDisplay">Administrador</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#">Perfil</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Salir</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="cerrarSesion()">Salir</a></li>
                     </ul>
                 </div>
             </div>
@@ -222,7 +234,7 @@
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="card-title">Total Zonas</h6>
-                                    <h2 class="mb-0">12</h2>
+                                    <h2 class="mb-0" id="statZonas">0</h2>
                                 </div>
                                 <i class="bi bi-geo-alt icon-box"></i>
                             </div>
@@ -233,7 +245,7 @@
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="card-title">Total Distritos</h6>
-                                    <h2 class="mb-0">45</h2>
+                                    <h2 class="mb-0" id="statDistritos">0</h2>
                                 </div>
                                 <i class="bi bi-building icon-box"></i>
                             </div>
@@ -244,7 +256,7 @@
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="card-title">Total Iglesias</h6>
-                                    <h2 class="mb-0">120</h2>
+                                    <h2 class="mb-0" id="statIglesias">0</h2>
                                 </div>
                                 <i class="bi bi-church icon-box"></i>
                             </div>
@@ -254,8 +266,8 @@
                         <div class="card stat-card bg-warning text-dark h-100">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="card-title">Conferencias Activas</h6>
-                                    <h2 class="mb-0">3</h2>
+                                    <h6 class="card-title">Conferencias</h6>
+                                    <h2 class="mb-0" id="statConferencias">0</h2>
                                 </div>
                                 <i class="bi bi-calendar-check icon-box"></i>
                             </div>
@@ -266,7 +278,7 @@
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="card-title">Total Asistentes</h6>
-                                    <h2 class="mb-0">1,250</h2>
+                                    <h2 class="mb-0" id="statAsistentes">0</h2>
                                 </div>
                                 <i class="bi bi-people-fill icon-box"></i>
                             </div>
@@ -274,49 +286,32 @@
                     </div>
                 </div>
 
-                <!-- Recent Conferences Table -->
+                <!-- Conferencias Table -->
                 <div class="table-container mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="mb-0">📅 Gestión de Conferencias Recientes</h4>
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalConferencia">
+                        <h4 class="mb-0">📅 Gestión de Conferencias</h4>
+                        <button class="btn btn-primary btn-sm" onclick="openModalConferencia()">
                             <i class="bi bi-plus-lg"></i> Nueva Conferencia
                         </button>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table-responsive position-relative">
+                        <div id="loadingConferencias" class="spinner-overlay d-none">
+                            <div class="spinner-border text-primary"></div>
+                        </div>
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
                                     <th>Nombre</th>
-                                    <th>Iglesia Sede</th>
+                                    <th>Iglesia</th>
                                     <th>Inicio</th>
                                     <th>Fin</th>
+                                    <th>Días</th>
                                     <th>Conferenciante</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Convención Nacional 2026</td>
-                                    <td>Iglesia Central</td>
-                                    <td>2026-05-10</td>
-                                    <td>2026-05-15</td>
-                                    <td>Pastor Juan Pérez</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Juventud Lion</td>
-                                    <td>Iglesia Norte</td>
-                                    <td>2026-06-01</td>
-                                    <td>2026-06-03</td>
-                                    <td>Lic. María Gómez</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
+                            <tbody id="tableConferenciasBody">
+                                <tr><td colspan="7" class="text-center">Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -329,7 +324,7 @@
                 <div class="table-container">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="mb-0">Listado Completo</h4>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalConferencia">
+                        <button class="btn btn-primary" onclick="openModalConferencia()">
                             <i class="bi bi-plus-lg"></i> Nueva Conferencia
                         </button>
                     </div>
@@ -337,8 +332,8 @@
                         <thead>
                             <tr><th>Nombre</th><th>Iglesia</th><th>Inicio</th><th>Fin</th><th>Días</th><th>Conferenciante</th><th>Acciones</th></tr>
                         </thead>
-                        <tbody>
-                            <tr><td>Convención Nacional</td><td>Iglesia Central</td><td>2026-05-10</td><td>2026-05-15</td><td>5</td><td>Pastor Juan</td><td><button class="btn btn-sm btn-light">Editar</button></td></tr>
+                        <tbody id="tableConferenciasFullBody">
+                            <tr><td colspan="7" class="text-center">Cargando...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -350,7 +345,7 @@
                 <div class="table-container">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="mb-0">Asistentes Registrados</h4>
-                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistro">
+                        <button class="btn btn-success" onclick="openModalRegistro()">
                             <i class="bi bi-plus-lg"></i> Nuevo Registro
                         </button>
                     </div>
@@ -358,8 +353,8 @@
                         <thead>
                             <tr><th>Nombre</th><th>Teléfono</th><th>Iglesia</th><th>Conferencia</th><th>Días Asistidos</th><th>Acciones</th></tr>
                         </thead>
-                        <tbody>
-                            <tr><td>Carlos Ruiz</td><td>555-0101</td><td>Iglesia Sur</td><td>Convención 2026</td><td>5</td><td><button class="btn btn-sm btn-light">Editar</button></td></tr>
+                        <tbody id="tableAsistentesBody">
+                            <tr><td colspan="6" class="text-center">Cargando...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -371,24 +366,28 @@
                 <div class="table-container">
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">
-                            <select class="form-select"><option>-- Todas las Conferencias --</option></select>
+                            <select class="form-select" id="filtroConferencia">
+                                <option value="">-- Todas las Conferencias --</option>
+                            </select>
                         </div>
                         <div class="col-md-4">
-                            <select class="form-select"><option>-- Todas las Iglesias --</option></select>
+                            <select class="form-select" id="filtroIglesia">
+                                <option value="">-- Todas las Iglesias --</option>
+                            </select>
                         </div>
                         <div class="col-md-4">
-                            <button class="btn btn-primary w-100">Aplicar Filtros</button>
+                            <button class="btn btn-primary w-100" onclick="aplicarFiltros()">Aplicar Filtros</button>
                         </div>
                     </div>
                     <div class="row g-4 mb-4">
-                        <div class="col-md-4"><div class="card stat-card bg-primary text-white p-3"><h3>0</h3><p>Total Asistentes</p></div></div>
-                        <div class="col-md-4"><div class="card stat-card bg-success text-white p-3"><h3>0</h3><p>Días Totales</p></div></div>
-                        <div class="col-md-4"><div class="card stat-card bg-info text-white p-3"><h3>0</h3><p>Iglesias</p></div></div>
+                        <div class="col-md-4"><div class="card stat-card bg-primary text-white p-3"><h3 id="reportAsistentes">0</h3><p>Total Asistentes</p></div></div>
+                        <div class="col-md-4"><div class="card stat-card bg-success text-white p-3"><h3 id="reportDias">0</h3><p>Días Totales</p></div></div>
+                        <div class="col-md-4"><div class="card stat-card bg-info text-white p-3"><h3 id="reportIglesias">0</h3><p>Iglesias</p></div></div>
                     </div>
                     <h5>📋 Detalle del Reporte</h5>
                     <table class="table table-bordered">
                         <thead><tr><th>Nombre</th><th>Teléfono</th><th>Iglesia</th><th>Conferencia</th><th>Días</th><th>Invitado Por</th></tr></thead>
-                        <tbody><tr><td colspan="6" class="text-center text-muted">Seleccione filtros para ver el reporte</td></tr></tbody>
+                        <tbody id="tableReporteBody"><tr><td colspan="6" class="text-center text-muted">Seleccione filtros para ver el reporte</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -415,16 +414,13 @@
                         <div class="table-container">
                             <div class="d-flex justify-content-between mb-3">
                                 <h5>Listado de Zonas</h5>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalZona">
+                                <button class="btn btn-success btn-sm" onclick="openModalZona()">
                                     <i class="bi bi-plus-lg"></i> Nueva Zona
                                 </button>
                             </div>
                             <table class="table table-striped">
                                 <thead><tr><th>Nombre</th><th>Descripción</th><th>Acciones</th></tr></thead>
-                                <tbody>
-                                    <tr><td>Zona Norte</td><td>Región norte del país</td><td><button class="btn btn-sm btn-light">Editar</button></td></tr>
-                                    <tr><td>Zona Sur</td><td>Región sur del país</td><td><button class="btn btn-sm btn-light">Editar</button></td></tr>
-                                </tbody>
+                                <tbody id="tableZonasBody"><tr><td colspan="3">Cargando...</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -433,15 +429,13 @@
                         <div class="table-container">
                             <div class="d-flex justify-content-between mb-3">
                                 <h5>Listado de Distritos</h5>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalDistrito">
+                                <button class="btn btn-success btn-sm" onclick="openModalDistrito()">
                                     <i class="bi bi-plus-lg"></i> Nuevo Distrito
                                 </button>
                             </div>
                             <table class="table table-striped">
                                 <thead><tr><th>Distrito</th><th>Zona</th><th>Responsable</th><th>Acciones</th></tr></thead>
-                                <tbody>
-                                    <tr><td>Distrito 1</td><td>Zona Norte</td><td>Pr. Pedro</td><td><button class="btn btn-sm btn-light">Editar</button></td></tr>
-                                </tbody>
+                                <tbody id="tableDistritosBody"><tr><td colspan="4">Cargando...</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -450,15 +444,13 @@
                         <div class="table-container">
                             <div class="d-flex justify-content-between mb-3">
                                 <h5>Listado de Iglesias</h5>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalIglesia">
+                                <button class="btn btn-success btn-sm" onclick="openModalIglesia()">
                                     <i class="bi bi-plus-lg"></i> Nueva Iglesia
                                 </button>
                             </div>
                             <table class="table table-striped">
                                 <thead><tr><th>Iglesia</th><th>Zona</th><th>Distrito</th><th>Pastor</th><th>Acciones</th></tr></thead>
-                                <tbody>
-                                    <tr><td>Iglesia Central</td><td>Zona Norte</td><td>Distrito 1</td><td>Pr. Juan</td><td><button class="btn btn-sm btn-light">Editar</button></td></tr>
-                                </tbody>
+                                <tbody id="tableIglesiasBody"><tr><td colspan="5">Cargando...</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -471,7 +463,7 @@
                 <div class="table-container">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="mb-0">Usuarios del Sistema</h4>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUsuario">
+                        <button class="btn btn-primary" onclick="openModalUsuario()">
                             <i class="bi bi-plus-lg"></i> Nuevo Usuario
                         </button>
                     </div>
@@ -479,8 +471,8 @@
                         <thead>
                             <tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
                         </thead>
-                        <tbody>
-                            <tr><td>Administrador</td><td>admin@ministrylion.com</td><td>Administrador</td><td><span class="badge bg-success">Activo</span></td><td><button class="btn btn-sm btn-light">Editar</button></td></tr>
+                        <tbody id="tableUsuariosBody">
+                            <tr><td colspan="5" class="text-center">Cargando...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -504,37 +496,37 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formConferencia">
                     <div class="mb-3">
                         <label class="form-label">Nombre *</label>
-                        <input type="text" class="form-control" required>
+                        <input type="text" class="form-control" id="confNombre" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Iglesia Sede *</label>
-                        <select class="form-select"><option>Seleccione...</option><option>Iglesia Central</option></select>
+                        <select class="form-select" id="confIglesia" required></select>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Fecha Inicio *</label>
-                            <input type="date" class="form-control" id="confStart" onchange="calcDays()">
+                            <input type="date" class="form-control" id="confInicio" required onchange="calcDays()">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Fecha Fin *</label>
-                            <input type="date" class="form-control" id="confEnd" onchange="calcDays()">
+                            <input type="date" class="form-control" id="confFin" required onchange="calcDays()">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">📅 Duración: <span id="daysDisplay">0</span> días</label>
+                        <label class="form-label">📅 Duración: <span id="confDias">0</span> días</label>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Conferenciante</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="confConferenciante">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarConferencia()">Guardar</button>
             </div>
         </div>
     </div>
@@ -549,20 +541,20 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formZona">
                     <div class="mb-3">
                         <label class="form-label">Nombre *</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="zonaNombre" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
-                        <textarea class="form-control"></textarea>
+                        <textarea class="form-control" id="zonaDescripcion"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-success" onclick="guardarZona()">Guardar</button>
             </div>
         </div>
     </div>
@@ -577,28 +569,28 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formDistrito">
                     <div class="mb-3">
                         <label class="form-label">Zona *</label>
-                        <select class="form-select"><option>Seleccione...</option></select>
+                        <select class="form-select" id="distritoZona" required></select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nombre *</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="distritoNombre" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Responsable</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="distritoResponsable">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Teléfono</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="distritoTelefono">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-success" onclick="guardarDistrito()">Guardar</button>
             </div>
         </div>
     </div>
@@ -613,36 +605,36 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formIglesia">
                     <div class="mb-3">
                         <label class="form-label">Zona *</label>
-                        <select class="form-select"><option>Seleccione...</option></select>
+                        <select class="form-select" id="iglesiaZona" required onchange="cargarDistritosSelect()"></select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Distrito</label>
-                        <select class="form-select"><option>-- Sin distrito --</option></select>
+                        <select class="form-select" id="iglesiaDistrito"><option>-- Sin distrito --</option></select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nombre Iglesia *</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="iglesiaNombre" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Pastor</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="iglesiaPastor">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Teléfono</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="iglesiaTelefono">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Dirección</label>
-                        <textarea class="form-control"></textarea>
+                        <textarea class="form-control" id="iglesiaDireccion"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-success" onclick="guardarIglesia()">Guardar</button>
             </div>
         </div>
     </div>
@@ -657,38 +649,36 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formRegistro">
                     <div class="mb-3">
                         <label class="form-label">Nombre Completo *</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="asistenteNombre" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Teléfono</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="asistenteTelefono">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Iglesia</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="asistenteIglesia">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Conferencia *</label>
-                        <select class="form-select"><option>Seleccione...</option></select>
+                        <select class="form-select" id="asistenteConferencia" required onchange="actualizarDiasAsistencia()"></select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Invitado Por</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="asistenteInvitado">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">✅ Días que asistió:</label>
-                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label">Día 1</label></div>
-                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label">Día 2</label></div>
-                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label">Día 3</label></div>
+                        <div id="diasCheckContainer"></div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-success" onclick="guardarAsistente()">Guardar</button>
             </div>
         </div>
     </div>
@@ -703,31 +693,31 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formUsuario">
                     <div class="mb-3">
                         <label class="form-label">Nombre Completo *</label>
-                        <input type="text" class="form-control">
+                        <input type="text" class="form-control" id="usuarioNombre" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email *</label>
-                        <input type="email" class="form-control">
+                        <input type="email" class="form-control" id="usuarioEmail" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Contraseña *</label>
-                        <input type="password" class="form-control">
+                        <input type="password" class="form-control" id="usuarioPassword" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
-                        <select class="form-select">
-                            <option>Usuario</option>
-                            <option>Administrador</option>
+                        <select class="form-select" id="usuarioRol">
+                            <option value="usuario">Usuario</option>
+                            <option value="admin">Administrador</option>
                         </select>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarUsuario()">Guardar</button>
             </div>
         </div>
     </div>
@@ -735,9 +725,42 @@
 
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- CONFIG & DB FILES -->
+<script src="config.js"></script>
+<script src="db.js"></script>
+
+<!-- APP LOGIC -->
 <script>
-    // Sidebar Toggle
-    window.addEventListener('DOMContentLoaded', event => {
+    // ============================================
+    // 🚀 INICIALIZACIÓN DE LA APLICACIÓN
+    // ============================================
+    let currentUser = null;
+    let globalData = {
+        zonas: [],
+        distritos: [],
+        iglesias: [],
+        conferencias: [],
+        asistentes: [],
+        usuarios: []
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('🚀 Aplicación iniciando...');
+        
+        // Wait for Supabase to initialize
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Verificar autenticación
+        currentUser = checkAuth();
+        if (currentUser) {
+            mostrarDashboard();
+        } else {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('wrapper').style.display = 'none';
+        }
+
+        // Configurar sidebar toggle
         const sidebarToggle = document.body.querySelector('#sidebarToggle');
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', event => {
@@ -745,34 +768,646 @@
                 document.body.classList.toggle('sb-sidenav-toggled');
             });
         }
+
+        // Configurar login form
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
     });
 
-    // Section Navigation Logic
+    // ============================================
+    // 🔐 AUTENTICACIÓN
+    // ============================================
+    async function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const btn = document.getElementById('btnLogin');
+        const spinner = document.getElementById('loginSpinner');
+        const errorDiv = document.getElementById('loginError');
+
+        btn.disabled = true;
+        spinner.classList.remove('d-none');
+        errorDiv.classList.add('d-none');
+
+        const result = await iniciarSesion(email, password);
+        
+        if (result.success) {
+            currentUser = result.user;
+            mostrarDashboard();
+        } else {
+            errorDiv.textContent = result.message;
+            errorDiv.classList.remove('d-none');
+            btn.disabled = false;
+            spinner.classList.add('d-none');
+        }
+    }
+
+    function mostrarDashboard() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('wrapper').style.display = 'flex';
+        document.getElementById('userNameDisplay').textContent = currentUser.nombre;
+        
+        // Cargar todos los datos
+        cargarTodosLosDatos();
+    }
+
+    function cerrarSesion() {
+        window.cerrarSesion();
+    }
+
+    // ============================================
+    // 📊 CARGA DE DATOS
+    // ============================================
+    async function cargarTodosLosDatos() {
+        showLoading(true);
+        
+        try {
+            // Cargar estadísticas
+            const stats = await obtenerEstadisticas();
+            document.getElementById('statZonas').textContent = stats.total_zonas;
+            document.getElementById('statDistritos').textContent = stats.total_distritos;
+            document.getElementById('statIglesias').textContent = stats.total_iglesias;
+            document.getElementById('statConferencias').textContent = stats.total_conferencias;
+            document.getElementById('statAsistentes').textContent = stats.total_asistentes;
+
+            // Cargar datos completos
+            globalData.zonas = await obtenerZonas();
+            globalData.distritos = await obtenerDistritos();
+            globalData.iglesias = await obtenerIglesias();
+            globalData.conferencias = await obtenerConferencias();
+            globalData.asistentes = await obtenerAsistentes();
+            globalData.usuarios = await obtenerUsuarios();
+
+            // Renderizar tablas
+            renderConferencias();
+            renderAsistentes();
+            renderZonas();
+            renderDistritos();
+            renderIglesias();
+            renderUsuarios();
+            llenarSelects();
+            
+            // Aplicar filtros de reporte si existen
+            aplicarFiltros();
+
+        } catch (error) {
+            console.error('❌ Error cargando datos:', error);
+            alert('Error al cargar datos de la base de datos');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function showLoading(show) {
+        const loading = document.getElementById('loadingConferencias');
+        if (loading) {
+            loading.classList.toggle('d-none', !show);
+        }
+    }
+
+    // ============================================
+    // 📋 RENDERIZADO DE TABLAS
+    // ============================================
+    function renderConferencias() {
+        const tbody = document.getElementById('tableConferenciasBody');
+        const tbodyFull = document.getElementById('tableConferenciasFullBody');
+        
+        if (globalData.conferencias.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay conferencias registradas</td></tr>';
+            tbodyFull.innerHTML = '<tr><td colspan="7" class="text-center">No hay conferencias registradas</td></tr>';
+            return;
+        }
+
+        let html = '';
+        let htmlFull = '';
+        
+        globalData.conferencias.forEach(conf => {
+            const dias = calcularDias(conf.fecha_inicio, conf.fecha_fin);
+            const iglesiaNombre = conf.iglesias ? conf.iglesias.nombre : 'N/A';
+            
+            html += `
+                <tr>
+                    <td>${conf.nombre}</td>
+                    <td>${iglesiaNombre}</td>
+                    <td>${conf.fecha_inicio}</td>
+                    <td>${conf.fecha_fin}</td>
+                    <td>${dias}</td>
+                    <td>${conf.conferenciante || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarConferencia(${conf.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+
+            htmlFull += `
+                <tr>
+                    <td>${conf.nombre}</td>
+                    <td>${iglesiaNombre}</td>
+                    <td>${conf.fecha_inicio}</td>
+                    <td>${conf.fecha_fin}</td>
+                    <td>${dias}</td>
+                    <td>${conf.conferenciante || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarConferencia(${conf.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+        tbodyFull.innerHTML = htmlFull;
+    }
+
+    function renderAsistentes() {
+        const tbody = document.getElementById('tableAsistentesBody');
+        
+        if (globalData.asistentes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay asistentes registrados</td></tr>';
+            return;
+        }
+
+        let html = '';
+        globalData.asistentes.forEach(asist => {
+            const iglesiaNombre = asist.iglesias ? asist.iglesias.nombre : (asist.iglesia || 'N/A');
+            const confNombre = asist.conferencias ? asist.conferencias.nombre : (asist.conferencia || 'N/A');
+            const diasCount = asist.dias_asistidos ? JSON.parse(asist.dias_asistidos).filter(d => d).length : 0;
+            
+            html += `
+                <tr>
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${iglesiaNombre}</td>
+                    <td>${confNombre}</td>
+                    <td>${diasCount}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarAsistente(${asist.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    function renderZonas() {
+        const tbody = document.getElementById('tableZonasBody');
+        if (globalData.zonas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center">No hay zonas registradas</td></tr>';
+            return;
+        }
+        tbody.innerHTML = globalData.zonas.map(z => `
+            <tr>
+                <td>${z.nombre}</td>
+                <td>${z.descripcion || '-'}</td>
+                <td><button class="btn btn-sm btn-outline-danger" onclick="eliminarZona(${z.id})"><i class="bi bi-trash"></i></button></td>
+            </tr>
+        `).join('');
+    }
+
+    function renderDistritos() {
+        const tbody = document.getElementById('tableDistritosBody');
+        if (globalData.distritos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No hay distritos registrados</td></tr>';
+            return;
+        }
+        tbody.innerHTML = globalData.distritos.map(d => `
+            <tr>
+                <td>${d.nombre}</td>
+                <td>${d.zonas ? d.zonas.nombre : 'N/A'}</td>
+                <td>${d.responsable || '-'}</td>
+                <td><button class="btn btn-sm btn-outline-danger" onclick="eliminarDistrito(${d.id})"><i class="bi bi-trash"></i></button></td>
+            </tr>
+        `).join('');
+    }
+
+    function renderIglesias() {
+        const tbody = document.getElementById('tableIglesiasBody');
+        if (globalData.iglesias.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay iglesias registradas</td></tr>';
+            return;
+        }
+        tbody.innerHTML = globalData.iglesias.map(i => `
+            <tr>
+                <td>${i.nombre}</td>
+                <td>${i.zonas ? i.zonas.nombre : 'N/A'}</td>
+                <td>${i.distritos ? i.distritos.nombre : '-'}</td>
+                <td>${i.pastor || '-'}</td>
+                <td><button class="btn btn-sm btn-outline-danger" onclick="eliminarIglesia(${i.id})"><i class="bi bi-trash"></i></button></td>
+            </tr>
+        `).join('');
+    }
+
+    function renderUsuarios() {
+        const tbody = document.getElementById('tableUsuariosBody');
+        if (globalData.usuarios.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay usuarios registrados</td></tr>';
+            return;
+        }
+        tbody.innerHTML = globalData.usuarios.map(u => `
+            <tr>
+                <td>${u.nombre_completo}</td>
+                <td>${u.email}</td>
+                <td><span class="badge bg-${u.rol === 'admin' ? 'danger' : 'primary'}">${u.rol}</span></td>
+                <td><span class="badge bg-${u.estado === 'activo' ? 'success' : 'secondary'}">${u.estado}</span></td>
+                <td><button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button></td>
+            </tr>
+        `).join('');
+    }
+
+    // ============================================
+    // 📝 LLENAR SELECTS
+    // ============================================
+    function llenarSelects() {
+        // Select Iglesias para Conferencias
+        const confIglesia = document.getElementById('confIglesia');
+        confIglesia.innerHTML = '<option value="">Seleccione...</option>';
+        globalData.iglesias.forEach(i => {
+            confIglesia.innerHTML += `<option value="${i.id}">${i.nombre}</option>`;
+        });
+
+        // Select Zonas para Distritos
+        const distZona = document.getElementById('distritoZona');
+        distZona.innerHTML = '<option value="">Seleccione...</option>';
+        globalData.zonas.forEach(z => {
+            distZona.innerHTML += `<option value="${z.id}">${z.nombre}</option>`;
+        });
+
+        // Select Zonas para Iglesias
+        const iglZona = document.getElementById('iglesiaZona');
+        iglZona.innerHTML = '<option value="">Seleccione...</option>';
+        globalData.zonas.forEach(z => {
+            iglZona.innerHTML += `<option value="${z.id}">${z.nombre}</option>`;
+        });
+
+        // Select Conferencias para Asistentes y Reportes
+        const asistConf = document.getElementById('asistenteConferencia');
+        const filtroConf = document.getElementById('filtroConferencia');
+        asistConf.innerHTML = '<option value="">Seleccione...</option>';
+        filtroConf.innerHTML = '<option value="">-- Todas las Conferencias --</option>';
+        globalData.conferencias.forEach(c => {
+            asistConf.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+            filtroConf.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+        });
+
+        // Select Iglesias para Reportes
+        const filtroIgl = document.getElementById('filtroIglesia');
+        filtroIgl.innerHTML = '<option value="">-- Todas las Iglesias --</option>';
+        globalData.iglesias.forEach(i => {
+            filtroIgl.innerHTML += `<option value="${i.id}">${i.nombre}</option>`;
+        });
+    }
+
+    function cargarDistritosSelect() {
+        const zonaId = document.getElementById('iglesiaZona').value;
+        const distSelect = document.getElementById('iglesiaDistrito');
+        distSelect.innerHTML = '<option value="">-- Sin distrito --</option>';
+        
+        if (zonaId) {
+            const distritosFiltrados = globalData.distritos.filter(d => d.zona_id == zonaId);
+            distritosFiltrados.forEach(d => {
+                distSelect.innerHTML += `<option value="${d.id}">${d.nombre}</option>`;
+            });
+        }
+    }
+
+    // ============================================
+    // 💾 GUARDAR DATOS (CREATE)
+    // ============================================
+    async function guardarConferencia() {
+        const nombre = document.getElementById('confNombre').value;
+        const iglesia_id = document.getElementById('confIglesia').value;
+        const fecha_inicio = document.getElementById('confInicio').value;
+        const fecha_fin = document.getElementById('confFin').value;
+        const conferenciante = document.getElementById('confConferenciante').value;
+
+        if (!nombre || !iglesia_id || !fecha_inicio || !fecha_fin) {
+            alert('Por favor complete los campos obligatorios');
+            return;
+        }
+
+        try {
+            await crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
+            alert('✅ Conferencia creada exitosamente');
+            bootstrap.Modal.getInstance(document.getElementById('modalConferencia')).hide();
+            document.getElementById('formConferencia').reset();
+            cargarTodosLosDatos();
+        } catch (error) {
+            alert('❌ Error al crear conferencia: ' + error.message);
+        }
+    }
+
+    async function guardarZona() {
+        const nombre = document.getElementById('zonaNombre').value;
+        const descripcion = document.getElementById('zonaDescripcion').value;
+
+        if (!nombre) {
+            alert('El nombre es obligatorio');
+            return;
+        }
+
+        try {
+            await crearZona(nombre, descripcion);
+            alert('✅ Zona creada exitosamente');
+            bootstrap.Modal.getInstance(document.getElementById('modalZona')).hide();
+            document.getElementById('formZona').reset();
+            cargarTodosLosDatos();
+        } catch (error) {
+            alert('❌ Error al crear zona: ' + error.message);
+        }
+    }
+
+    async function guardarDistrito() {
+        const zona_id = document.getElementById('distritoZona').value;
+        const nombre = document.getElementById('distritoNombre').value;
+        const responsable = document.getElementById('distritoResponsable').value;
+        const telefono = document.getElementById('distritoTelefono').value;
+
+        if (!zona_id || !nombre) {
+            alert('Zona y nombre son obligatorios');
+            return;
+        }
+
+        try {
+            await crearDistrito(zona_id, nombre, responsable, telefono);
+            alert('✅ Distrito creado exitosamente');
+            bootstrap.Modal.getInstance(document.getElementById('modalDistrito')).hide();
+            document.getElementById('formDistrito').reset();
+            cargarTodosLosDatos();
+        } catch (error) {
+            alert('❌ Error al crear distrito: ' + error.message);
+        }
+    }
+
+    async function guardarIglesia() {
+        const zona_id = document.getElementById('iglesiaZona').value;
+        const distrito_id = document.getElementById('iglesiaDistrito').value || null;
+        const nombre = document.getElementById('iglesiaNombre').value;
+        const pastor = document.getElementById('iglesiaPastor').value;
+        const telefono = document.getElementById('iglesiaTelefono').value;
+        const direccion = document.getElementById('iglesiaDireccion').value;
+
+        if (!zona_id || !nombre) {
+            alert('Zona y nombre son obligatorios');
+            return;
+        }
+
+        try {
+            await crearIglesia(zona_id, distrito_id, nombre, pastor, direccion, telefono);
+            alert('✅ Iglesia creada exitosamente');
+            bootstrap.Modal.getInstance(document.getElementById('modalIglesia')).hide();
+            document.getElementById('formIglesia').reset();
+            cargarTodosLosDatos();
+        } catch (error) {
+            alert('❌ Error al crear iglesia: ' + error.message);
+        }
+    }
+
+    async function guardarAsistente() {
+        const nombre_completo = document.getElementById('asistenteNombre').value;
+        const telefono = document.getElementById('asistenteTelefono').value;
+        const iglesia = document.getElementById('asistenteIglesia').value;
+        const conferencia_id = document.getElementById('asistenteConferencia').value;
+        const invitado_por = document.getElementById('asistenteInvitado').value;
+        
+        // Obtener días seleccionados
+        const diasCheck = document.querySelectorAll('.dia-check:checked');
+        const dias_asistidos = JSON.stringify(Array.from(diasCheck).map(c => c.value));
+
+        if (!nombre_completo || !conferencia_id) {
+            alert('Nombre y conferencia son obligatorios');
+            return;
+        }
+
+        try {
+            await crearAsistente({
+                nombre_completo,
+                telefono,
+                iglesia,
+                conferencia_id,
+                invitado_por,
+                dias_asistidos
+            });
+            alert('✅ Asistente registrado exitosamente');
+            bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
+            document.getElementById('formRegistro').reset();
+            cargarTodosLosDatos();
+        } catch (error) {
+            alert('❌ Error al registrar asistente: ' + error.message);
+        }
+    }
+
+    async function guardarUsuario() {
+        const nombre_completo = document.getElementById('usuarioNombre').value;
+        const email = document.getElementById('usuarioEmail').value;
+        const password = document.getElementById('usuarioPassword').value;
+        const rol = document.getElementById('usuarioRol').value;
+
+        if (!nombre_completo || !email || !password) {
+            alert('Complete los campos obligatorios');
+            return;
+        }
+
+        try {
+            await crearUsuario(nombre_completo, email, password, rol, '', 'activo');
+            alert('✅ Usuario creado exitosamente');
+            bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
+            document.getElementById('formUsuario').reset();
+            cargarTodosLosDatos();
+        } catch (error) {
+            alert('❌ Error al crear usuario: ' + error.message);
+        }
+    }
+
+    // ============================================
+    // 🗑️ ELIMINAR DATOS
+    // ============================================
+    async function eliminarConferencia(id) {
+        if (confirm('¿Está seguro de eliminar esta conferencia?')) {
+            try {
+                await eliminarConferencia(id);
+                alert('✅ Conferencia eliminada');
+                cargarTodosLosDatos();
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+    }
+
+    async function eliminarZona(id) {
+        if (confirm('¿Está seguro de eliminar esta zona?')) {
+            try {
+                await eliminarZona(id);
+                alert('✅ Zona eliminada');
+                cargarTodosLosDatos();
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+    }
+
+    async function eliminarDistrito(id) {
+        if (confirm('¿Está seguro de eliminar este distrito?')) {
+            try {
+                await eliminarDistrito(id);
+                alert('✅ Distrito eliminado');
+                cargarTodosLosDatos();
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+    }
+
+    async function eliminarIglesia(id) {
+        if (confirm('¿Está seguro de eliminar esta iglesia?')) {
+            try {
+                await eliminarIglesia(id);
+                alert('✅ Iglesia eliminada');
+                cargarTodosLosDatos();
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+    }
+
+    async function eliminarAsistente(id) {
+        if (confirm('¿Está seguro de eliminar este asistente?')) {
+            try {
+                await eliminarAsistente(id);
+                alert('✅ Asistente eliminado');
+                cargarTodosLosDatos();
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+    }
+
+    // ============================================
+    // 🔧 UTILIDADES
+    // ============================================
     function showSection(sectionId, element) {
-        // Hide all sections
         document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
-        // Show target section
         document.getElementById(sectionId).classList.add('active');
         
-        // Update Sidebar Active State
         document.querySelectorAll('#sidebar-wrapper .list-group-item').forEach(el => el.classList.remove('active'));
         element.classList.add('active');
 
-        // On mobile, close sidebar after click
         if (window.innerWidth < 768) {
             document.body.classList.add('sb-sidenav-toggled');
         }
     }
 
-    // Calculate Days Function
+    function openModalConferencia() {
+        new bootstrap.Modal(document.getElementById('modalConferencia')).show();
+    }
+
+    function openModalZona() {
+        new bootstrap.Modal(document.getElementById('modalZona')).show();
+    }
+
+    function openModalDistrito() {
+        new bootstrap.Modal(document.getElementById('modalDistrito')).show();
+    }
+
+    function openModalIglesia() {
+        new bootstrap.Modal(document.getElementById('modalIglesia')).show();
+    }
+
+    function openModalRegistro() {
+        new bootstrap.Modal(document.getElementById('modalRegistro')).show();
+    }
+
+    function openModalUsuario() {
+        new bootstrap.Modal(document.getElementById('modalUsuario')).show();
+    }
+
     function calcDays() {
-        const start = document.getElementById('confStart').value;
-        const end = document.getElementById('confEnd').value;
-        if(start && end) {
+        const start = document.getElementById('confInicio').value;
+        const end = document.getElementById('confFin').value;
+        if (start && end) {
             const diff = new Date(end) - new Date(start);
             const days = Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
-            document.getElementById('daysDisplay').innerText = days > 0 ? days : 0;
+            document.getElementById('confDias').innerText = days > 0 ? days : 0;
         }
+    }
+
+    function calcularDias(inicio, fin) {
+        if (!inicio || !fin) return 0;
+        const diff = new Date(fin) - new Date(inicio);
+        return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+    }
+
+    function actualizarDiasAsistencia() {
+        const confId = document.getElementById('asistenteConferencia').value;
+        const container = document.getElementById('diasCheckContainer');
+        container.innerHTML = '';
+
+        if (confId) {
+            const conf = globalData.conferencias.find(c => c.id == confId);
+            if (conf) {
+                const totalDias = calcularDias(conf.fecha_inicio, conf.fecha_fin);
+                for (let i = 1; i <= totalDias; i++) {
+                    container.innerHTML += `
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input dia-check" type="checkbox" value="${i}" id="dia${i}">
+                            <label class="form-check-label" for="dia${i}">Día ${i}</label>
+                        </div>
+                    `;
+                }
+            }
+        }
+    }
+
+    function aplicarFiltros() {
+        const confId = document.getElementById('filtroConferencia').value;
+        const iglId = document.getElementById('filtroIglesia').value;
+        
+        let filtrados = globalData.asistentes;
+        
+        if (confId) {
+            filtrados = filtrados.filter(a => a.conferencia_id == confId);
+        }
+        if (iglId) {
+            filtrados = filtrados.filter(a => a.iglesia_id == iglId || (a.iglesias && a.iglesias.id == iglId));
+        }
+
+        // Actualizar estadísticas del reporte
+        document.getElementById('reportAsistentes').textContent = filtrados.length;
+        
+        let totalDias = 0;
+        const iglesiasUnicas = new Set();
+        
+        filtrados.forEach(a => {
+            if (a.dias_asistidos) {
+                const dias = JSON.parse(a.dias_asistidos).filter(d => d).length;
+                totalDias += dias;
+            }
+            if (a.iglesias) iglesiasUnicas.add(a.iglesias.id);
+        });
+
+        document.getElementById('reportDias').textContent = totalDias;
+        document.getElementById('reportIglesias').textContent = iglesiasUnicas.size;
+
+        // Renderizar tabla
+        const tbody = document.getElementById('tableReporteBody');
+        if (filtrados.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay datos para mostrar</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = filtrados.map(a => {
+            const diasCount = a.dias_asistidos ? JSON.parse(a.dias_asistidos).filter(d => d).length : 0;
+            return `
+                <tr>
+                    <td>${a.nombre_completo}</td>
+                    <td>${a.telefono || '-'}</td>
+                    <td>${a.iglesias ? a.iglesias.nombre : (a.iglesia || '-')}</td>
+                    <td>${a.conferencias ? a.conferencias.nombre : (a.conferencia || '-')}</td>
+                    <td>${diasCount}</td>
+                    <td>${a.invitado_por || '-'}</td>
+                </tr>
+            `;
+        }).join('');
     }
 </script>
 

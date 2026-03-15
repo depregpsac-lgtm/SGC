@@ -1496,5 +1496,29 @@ table {
     width: 100%;
     border-collapse: collapse;
 }
+    /* Agregar en tu archivo CSS */
+.fecha-asistencia {
+    background: #fee2e2; /* Rojo claro - no asistió */
+    color: #dc2626;
+    border: 1px solid #dc2626;
+}
+
+.fecha-asistencia.seleccionada {
+    background: #d1fae5; /* Verde - asistió */
+    color: #059669;
+    border: 1px solid #059669;
+}
+
+.fecha-asistencia:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.contador-asistencia {
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-weight: bold;
+}
     
 }

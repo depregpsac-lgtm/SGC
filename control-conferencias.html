@@ -907,37 +907,51 @@
         tbodyFull.innerHTML = htmlFull;
     }
 
-    function renderAsistentes() {
-        const tbody = document.getElementById('tableAsistentesBody');
-        
-        if (globalData.asistentes.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay asistentes registrados</td></tr>';
-            return;
-        }
-
-        let html = '';
-        globalData.asistentes.forEach(asist => {
-            const iglesiaNombre = asist.iglesias ? asist.iglesias.nombre : (asist.iglesia || 'N/A');
-            const confNombre = asist.conferencias ? asist.conferencias.nombre : (asist.conferencia || 'N/A');
-            const diasCount = asist.dias_asistidos ? JSON.parse(asist.dias_asistidos).filter(d => d).length : 0;
-            
-            html += `
-                <tr>
-                    <td>${asist.nombre_completo}</td>
-                    <td>${asist.telefono || '-'}</td>
-                    <td>${iglesiaNombre}</td>
-                    <td>${confNombre}</td>
-                    <td>${diasCount}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarAsistente(${asist.id})"><i class="bi bi-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        tbody.innerHTML = html;
+   function renderAsistentes() {
+    const tbody = document.getElementById('tableAsistentesBody');
+    
+    if (globalData.asistentes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay asistentes registrados</td></tr>';
+        return;
     }
+
+    let html = '';
+    globalData.asistentes.forEach(asist => {
+        const iglesiaNombre = asist.iglesias ? asist.iglesias.nombre : (asist.iglesia || 'N/A');
+        const confNombre = asist.conferencias ? asist.conferencias.nombre : (asist.conferencia || 'N/A');
+        
+        // CORRECCIÓN: Manejo seguro de dias_asistidos
+        let diasCount = 0;
+        if (asist.dias_asistidos) {
+            try {
+                const diasArray = typeof asist.dias_asistidos === 'string' 
+                    ? JSON.parse(asist.dias_asistidos) 
+                    : asist.dias_asistidos;
+                if (Array.isArray(diasArray)) {
+                    diasCount = diasArray.filter(d => d).length;
+                }
+            } catch (e) {
+                console.error('Error parsing dias_asistidos:', e);
+            }
+        }
+        
+        html += `
+            <tr>
+                <td>${asist.nombre_completo}</td>
+                <td>${asist.telefono || '-'}</td>
+                <td>${iglesiaNombre}</td>
+                <td>${confNombre}</td>
+                <td>${diasCount}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarAsistente(${asist.id})"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
+}
 
     function renderZonas() {
         const tbody = document.getElementById('tableZonasBody');
@@ -1152,40 +1166,40 @@
         }
     }
 
-    async function guardarAsistente() {
-        const nombre_completo = document.getElementById('asistenteNombre').value;
-        const telefono = document.getElementById('asistenteTelefono').value;
-        const iglesia = document.getElementById('asistenteIglesia').value;
-        const conferencia_id = document.getElementById('asistenteConferencia').value;
-        const invitado_por = document.getElementById('asistenteInvitado').value;
-        
-        // Obtener días seleccionados
-        const diasCheck = document.querySelectorAll('.dia-check:checked');
-        const dias_asistidos = JSON.stringify(Array.from(diasCheck).map(c => c.value));
+   async function guardarAsistente() {
+    const nombre_completo = document.getElementById('asistenteNombre').value;
+    const telefono = document.getElementById('asistenteTelefono').value;
+    const iglesia = document.getElementById('asistenteIglesia').value;
+    const conferencia_id = document.getElementById('asistenteConferencia').value;
+    const invitado_por = document.getElementById('asistenteInvitado').value;
+    
+    // Obtener días seleccionados
+    const diasCheck = document.querySelectorAll('.dia-check:checked');
+    const diasArray = Array.from(diasCheck).map(c => parseInt(c.value));
+    const dias_asistidos = JSON.stringify(diasArray); // Esto asegura que sea un JSON string válido
 
-        if (!nombre_completo || !conferencia_id) {
-            alert('Nombre y conferencia son obligatorios');
-            return;
-        }
-
-        try {
-            await crearAsistente({
-                nombre_completo,
-                telefono,
-                iglesia,
-                conferencia_id,
-                invitado_por,
-                dias_asistidos
-            });
-            alert('✅ Asistente registrado exitosamente');
-            bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
-            document.getElementById('formRegistro').reset();
-            await cargarTodosLosDatos();
-        } catch (error) {
-            alert('❌ Error al registrar asistente: ' + error.message);
-        }
+    if (!nombre_completo || !conferencia_id) {
+        alert('Nombre y conferencia son obligatorios');
+        return;
     }
 
+    try {
+        await crearAsistente({
+            nombre_completo,
+            telefono,
+            iglesia,
+            conferencia_id,
+            invitado_por,
+            dias_asistidos
+        });
+        alert('✅ Asistente registrado exitosamente');
+        bootstrap.Modal.getInstance(document.getElementById('modalRegistro')).hide();
+        document.getElementById('formRegistro').reset();
+        await cargarTodosLosDatos();
+    } catch (error) {
+        alert('❌ Error al registrar asistente: ' + error.message);
+    }
+}
     async function guardarUsuario() {
         const nombre_completo = document.getElementById('usuarioNombre').value;
         const email = document.getElementById('usuarioEmail').value;
@@ -1348,56 +1362,79 @@
     }
 
     function aplicarFiltros() {
-        const confId = document.getElementById('filtroConferencia').value;
-        const iglId = document.getElementById('filtroIglesia').value;
-        
-        let filtrados = globalData.asistentes;
-        
-        if (confId) {
-            filtrados = filtrados.filter(a => a.conferencia_id == confId);
-        }
-        if (iglId) {
-            filtrados = filtrados.filter(a => a.iglesia_id == iglId || (a.iglesias && a.iglesias.id == iglId));
-        }
-
-        // Actualizar estadísticas del reporte
-        document.getElementById('reportAsistentes').textContent = filtrados.length;
-        
-        let totalDias = 0;
-        const iglesiasUnicas = new Set();
-        
-        filtrados.forEach(a => {
-            if (a.dias_asistidos) {
-                const dias = JSON.parse(a.dias_asistidos).filter(d => d).length;
-                totalDias += dias;
-            }
-            if (a.iglesias) iglesiasUnicas.add(a.iglesias.id);
-        });
-
-        document.getElementById('reportDias').textContent = totalDias;
-        document.getElementById('reportIglesias').textContent = iglesiasUnicas.size;
-
-        // Renderizar tabla
-        const tbody = document.getElementById('tableReporteBody');
-        if (filtrados.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay datos para mostrar</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = filtrados.map(a => {
-            const diasCount = a.dias_asistidos ? JSON.parse(a.dias_asistidos).filter(d => d).length : 0;
-            return `
-                <tr>
-                    <td>${a.nombre_completo}</td>
-                    <td>${a.telefono || '-'}</td>
-                    <td>${a.iglesias ? a.iglesias.nombre : (a.iglesia || '-')}</td>
-                    <td>${a.conferencias ? a.conferencias.nombre : (a.conferencia || '-')}</td>
-                    <td>${diasCount}</td>
-                    <td>${a.invitado_por || '-'}</td>
-                </tr>
-            `;
-        }).join('');
+    const confId = document.getElementById('filtroConferencia').value;
+    const iglId = document.getElementById('filtroIglesia').value;
+    
+    let filtrados = globalData.asistentes;
+    
+    if (confId) {
+        filtrados = filtrados.filter(a => a.conferencia_id == confId);
     }
+    if (iglId) {
+        filtrados = filtrados.filter(a => a.iglesia_id == iglId || (a.iglesias && a.iglesias.id == iglId));
+    }
+
+    // Actualizar estadísticas del reporte
+    document.getElementById('reportAsistentes').textContent = filtrados.length;
+    
+    let totalDias = 0;
+    const iglesiasUnicas = new Set();
+    
+    filtrados.forEach(a => {
+        // CORRECCIÓN: Manejo seguro de dias_asistidos
+        if (a.dias_asistidos) {
+            try {
+                const diasArray = typeof a.dias_asistidos === 'string' 
+                    ? JSON.parse(a.dias_asistidos) 
+                    : a.dias_asistidos;
+                if (Array.isArray(diasArray)) {
+                    totalDias += diasArray.filter(d => d).length;
+                }
+            } catch (e) {
+                console.error('Error parsing dias_asistidos in filters:', e);
+            }
+        }
+        if (a.iglesias) iglesiasUnicas.add(a.iglesias.id);
+    });
+
+    document.getElementById('reportDias').textContent = totalDias;
+    document.getElementById('reportIglesias').textContent = iglesiasUnicas.size;
+
+    // Renderizar tabla
+    const tbody = document.getElementById('tableReporteBody');
+    if (filtrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay datos para mostrar</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filtrados.map(a => {
+        // CORRECCIÓN: Manejo seguro de dias_asistidos
+        let diasCount = 0;
+        if (a.dias_asistidos) {
+            try {
+                const diasArray = typeof a.dias_asistidos === 'string' 
+                    ? JSON.parse(a.dias_asistidos) 
+                    : a.dias_asistidos;
+                if (Array.isArray(diasArray)) {
+                    diasCount = diasArray.filter(d => d).length;
+                }
+            } catch (e) {
+                console.error('Error parsing dias_asistidos:', e);
+            }
+        }
+        
+        return `
+            <tr>
+                <td>${a.nombre_completo}</td>
+                <td>${a.telefono || '-'}</td>
+                <td>${a.iglesias ? a.iglesias.nombre : (a.iglesia || '-')}</td>
+                <td>${a.conferencias ? a.conferencias.nombre : (a.conferencia || '-')}</td>
+                <td>${diasCount}</td>
+                <td>${a.invitado_por || '-'}</td>
+            </tr>
+        `;
+    }).join('');
+}
 </script>
 
 </body>

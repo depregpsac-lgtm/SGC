@@ -1,1470 +1,1790 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - MinistryLion</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
-            color: #fff;
-        }
-
-        /* LOGIN PAGE */
-        #loginPage {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        }
-
-        .login-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .login-header p {
-            color: #a0aec0;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #e2e8f0;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .form-group select option {
-            background: #1a1a2e;
-            color: #fff;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .login-alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            display: none;
-        }
-
-        .login-alert.error {
-            background: rgba(220, 38, 38, 0.2);
-            color: #fca5a5;
-            border: 1px solid #dc2626;
-        }
-
-        .login-alert.success {
-            background: rgba(5, 150, 105, 0.2);
-            color: #6ee7b7;
-            border: 1px solid #059669;
-        }
-
-        .toggle-password {
-            position: relative;
-        }
-
-        .toggle-password i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #a0aec0;
-        }
-
-        .login-footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #a0aec0;
-            font-size: 12px;
-        }
-
-        /* DASHBOARD PAGE */
-        #dashboardPage {
-            display: none;
-        }
-
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            width: 260px;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-header {
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .sidebar-header h2 {
-            font-size: 24px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-header p {
-            color: #a0aec0;
-            font-size: 12px;
-        }
-
-        .sidebar-nav {
-            list-style: none;
-        }
-
-        .sidebar-nav li {
-            margin-bottom: 5px;
-        }
-
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            color: #e2e8f0;
-            text-decoration: none;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-nav a:hover,
-        .sidebar-nav a.active {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: #fff;
-        }
-
-        .sidebar-nav a i {
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .user-info {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 12px;
-        }
-
-        .user-details {
-            flex: 1;
-        }
-
-        .user-details h4 {
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .user-details p {
-            font-size: 12px;
-            color: #a0aec0;
-        }
-
-        .btn-logout {
-            background: rgba(220, 38, 38, 0.2);
-            color: #fca5a5;
-            border: 1px solid #dc2626;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-        }
-
-        .content-section {
-            display: none;
-        }
-
-        .content-section.active {
-            display: block;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .section-header h2 {
-            font-size: 28px;
-        }
-
-        .btn-primary {
-            padding: 12px 24px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-        }
-
-        /* CARDS */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
-
-        .stat-card h3 {
-            font-size: 36px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .stat-card p {
-            color: #a0aec0;
-            font-size: 14px;
-        }
-
-        /* TABLES */
-        .table-container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        th {
-            background: rgba(0, 0, 0, 0.2);
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        td {
-            color: #cbd5e0;
-        }
-
-        tr:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .btn-edit, .btn-delete {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-right: 5px;
-            font-size: 12px;
-        }
-
-        .btn-edit {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            border: 1px solid #3b82f6;
-        }
-
-        .btn-delete {
-            background: rgba(220, 38, 38, 0.2);
-            color: #fca5a5;
-            border: 1px solid #dc2626;
-        }
-
-        .badge-asistencia {
-            padding: 4px 12px;
-            background: rgba(5, 150, 105, 0.2);
-            color: #6ee7b7;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
-        .badge-estado {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
-        .badge-estado.activo {
-            background: rgba(5, 150, 105, 0.2);
-            color: #6ee7b7;
-        }
-
-        .badge-estado.inactivo {
-            background: rgba(220, 38, 38, 0.2);
-            color: #fca5a5;
-        }
-
-        /* MODALS */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal.show {
-            opacity: 1;
-        }
-
-        .modal-content {
-            background: #1a1a2e;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal.show .modal-content {
-            transform: scale(1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .modal-header h3 {
-            font-size: 22px;
-        }
-
-        .btn-close {
-            background: none;
-            border: none;
-            color: #a0aec0;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-secondary {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: #e2e8f0;
-            cursor: pointer;
-        }
-
-        /* FECHAS ASISTENCIA */
-        .fechas-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .fecha-asistencia {
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #e2e8f0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        .fecha-asistencia:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #667eea;
-        }
-
-        .fecha-asistencia.seleccionada {
-            background: rgba(5, 150, 105, 0.3);
-            border-color: #059669;
-            color: #6ee7b7;
-        }
-
-        .contador-asistencia {
-            padding: 12px;
-            background: #fef3c7;
-            color: #d97706;
-            border-radius: 8px;
-            text-align: center;
-            margin: 15px 0;
-            font-size: 14px;
-        }
-
-        .conf-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .conf-info-item {
-            text-align: center;
-        }
-
-        .conf-info-item label {
-            display: block;
-            font-size: 12px;
-            color: #a0aec0;
-            margin-bottom: 5px;
-        }
-
-        .conf-info-item span {
-            font-size: 14px;
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        /* FILTROS REPORTE */
-        .filtros-reporte {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .filtros-reporte select {
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #e2e8f0;
-            min-width: 200px;
-        }
-
-        .filtros-reporte select option {
-            background: #1a1a2e;
-            color: #fff;
-        }
-
-        .tr-highlight {
-            background: rgba(102, 126, 234, 0.2) !important;
-        }
-
-        /* CONFIG TABS */
-        .config-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .config-tab {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #e2e8f0;
-            cursor: pointer;
-        }
-
-        .config-tab.active {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border-color: #667eea;
-        }
-
-        .config-section {
-            display: none;
-        }
-
-        .config-section.active {
-            display: block;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .app-container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: auto;
-                z-index: 100;
-            }
-
-            .sidebar-nav {
-                display: flex;
-                justify-content: space-around;
-            }
-
-            .sidebar-nav a span {
-                display: none;
-            }
-
-            .user-info {
-                display: none;
-            }
-
-            .main-content {
-                padding: 15px;
-                margin-bottom: 70px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .modal-content {
-                width: 95%;
-                padding: 20px;
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- LOGIN PAGE -->
-    <div id="loginPage">
-        <div class="login-container">
-            <div class="login-header">
-                <h1>MinistryLion</h1>
-                <p>Sistema de Gestión de Conferencias</p>
-            </div>
-            
-            <div id="loginAlert" class="login-alert"></div>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Correo Electrónico</label>
-                    <input type="email" id="loginEmail" required placeholder="admin@ministrylion.com">
-                </div>
-                
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <div class="toggle-password">
-                        <input type="password" id="loginPassword" required placeholder="••••••••">
-                        <i class="fas fa-eye" onclick="togglePassword()"></i>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                </button>
-            </form>
-            
-            <div class="login-footer">
-                <p>© Elaborado por: Natanael León Veras, edición 2026.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- DASHBOARD PAGE -->
-    <div id="dashboardPage">
-        <div class="app-container">
-            <!-- SIDEBAR -->
-            <aside class="sidebar">
-                <div class="sidebar-header">
-                    <h2>MinistryLion</h2>
-                    <p>Sistema de Gestión</p>
-                </div>
-                
-                <ul class="sidebar-nav">
-                    <li><a href="#" id="nav-dashboard" class="active" onclick="navegarSeccion('dashboard')"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
-                    <li><a href="#" id="nav-conferencias" onclick="navegarSeccion('conferencias')"><i class="fas fa-calendar-alt"></i> <span>Conferencias</span></a></li>
-                    <li><a href="#" id="nav-registros" onclick="navegarSeccion('registros')"><i class="fas fa-users"></i> <span>Registros</span></a></li>
-                    <li><a href="#" id="nav-reportes" onclick="navegarSeccion('reportes')"><i class="fas fa-chart-bar"></i> <span>Reportes</span></a></li>
-                    <li><a href="#" id="nav-configuracion" onclick="navegarSeccion('configuracion')"><i class="fas fa-cog"></i> <span>Configuración</span></a></li>
-                    <li><a href="#" id="nav-usuarios" onclick="navegarSeccion('usuarios')"><i class="fas fa-user-shield"></i> <span>Usuarios</span></a></li>
-                </ul>
-                
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">A</div>
-                    <div class="user-details">
-                        <h4 id="userName">Administrador</h4>
-                        <p id="userRole">admin@ministrylion.com</p>
-                    </div>
-                    <button class="btn-logout" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i></button>
-                </div>
-            </aside>
-
-            <!-- MAIN CONTENT -->
-            <main class="main-content">
-                <!-- DASHBOARD SECTION -->
-                <section id="dashboard" class="content-section active">
-                    <div class="section-header">
-                        <h2>👋 Bienvenido al Dashboard</h2>
-                    </div>
-                    
-                    <p style="color: #a0aec0; margin-bottom: 25px;">Resumen general del sistema de gestión de conferencias</p>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <h3 id="statZonas">0</h3>
-                            <p>Total Zonas</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="statDistritos">0</h3>
-                            <p>Total Distritos</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="statIglesias">0</h3>
-                            <p>Total Iglesias</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="statConferencias">0</h3>
-                            <p>Conferencias</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="statAsistentes">0</h3>
-                            <p>Total Asistentes</p>
-                        </div>
-                    </div>
-                    
-                    <div class="table-container">
-                        <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-                            <h3>📅 Últimas Conferencias</h3>
-                            <button class="btn-primary" onclick="prepararModalConferencia()">+ Nueva</button>
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Iglesia</th>
-                                    <th>Inicio</th>
-                                    <th>Fin</th>
-                                    <th>Conferenciante</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6" style="text-align: center;">Cargando datos...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- CONFERENCIAS SECTION -->
-                <section id="conferencias" class="content-section">
-                    <div class="section-header">
-                        <h2>📅 Gestión de Conferencias</h2>
-                        <button class="btn-primary" onclick="prepararModalConferencia()">+ Nueva Conferencia</button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table id="tablaConferencias">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Iglesia</th>
-                                    <th>Inicio</th>
-                                    <th>Fin</th>
-                                    <th>Días</th>
-                                    <th>Conferenciante</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="7" style="text-align: center;">Cargando...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- REGISTROS SECTION -->
-                <section id="registros" class="content-section">
-                    <div class="section-header">
-                        <h2>👥 Registros de Asistentes</h2>
-                        <button class="btn-primary" onclick="prepararModalAsistente()">+ Nuevo Registro</button>
-                    </div>
-                    
-                    <div class="form-group" style="max-width: 400px; margin-bottom: 20px;">
-                        <input type="text" id="buscadorAsistentes" placeholder="🔍 Buscar por nombre, teléfono, iglesia..." oninput="filtrarAsistentes()">
-                    </div>
-                    
-                    <div class="table-container">
-                        <table id="tablaAsistentes">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Iglesia</th>
-                                    <th>Conferencia</th>
-                                    <th>Días Asistidos</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6" style="text-align: center;">Cargando...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- REPORTES SECTION -->
-                <section id="reportes" class="content-section">
-                    <div class="section-header">
-                        <h2>📊 Reportes y Estadísticas</h2>
-                    </div>
-                    
-                    <div class="filtros-reporte">
-                        <select id="reporteConferencia" onchange="filtrarReporte()">
-                            <option value="">-- Todas las Conferencias --</option>
-                        </select>
-                        <select id="reporteIglesia" onchange="filtrarReporte()">
-                            <option value="">-- Todas las Iglesias --</option>
-                        </select>
-                        <button class="btn-primary" onclick="filtrarReporte()">Aplicar Filtros</button>
-                        <button class="btn-secondary" onclick="limpiarFiltrosReporte()">Limpiar</button>
-                        <button class="btn-primary" onclick="generarReportePDF()"><i class="fas fa-file-pdf"></i> Descargar PDF</button>
-                    </div>
-                    
-                    <div class="stats-grid" style="margin-bottom: 20px;">
-                        <div class="stat-card">
-                            <h3 id="reporteTotalAsistentes">0</h3>
-                            <p>Total Asistentes</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="reporteTotalDias">0</h3>
-                            <p>Días Totales</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="reporteTotalIglesias">0</h3>
-                            <p>Iglesias</p>
-                        </div>
-                    </div>
-                    
-                    <div class="table-container">
-                        <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            <h3>📋 Detalle del Reporte</h3>
-                        </div>
-                        <table id="tablaReporte">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Iglesia</th>
-                                    <th>Conferencia</th>
-                                    <th>Días</th>
-                                    <th>Invitado Por</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6" style="text-align: center;">Seleccione filtros para ver el reporte</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- CONFIGURACION SECTION -->
-                <section id="configuracion" class="content-section">
-                    <div class="section-header">
-                        <h2>⚙️ Configuración del Sistema</h2>
-                    </div>
-                    
-                    <div class="config-tabs">
-                        <div class="config-tab active" onclick="mostrarConfigTab('zonas')">📍 Zonas</div>
-                        <div class="config-tab" onclick="mostrarConfigTab('distritos')">🏛️ Distritos</div>
-                        <div class="config-tab" onclick="mostrarConfigTab('iglesias')">⛪ Iglesias</div>
-                    </div>
-                    
-                    <!-- ZONAS -->
-                    <div id="config-zonas" class="config-section active">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h3>Zonas</h3>
-                            <button class="btn-primary" onclick="prepararModalZona()">+ Nueva</button>
-                        </div>
-                        <div class="table-container">
-                            <table id="tablaZonas">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Descripción</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="3" style="text-align: center;">Cargando...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- DISTRITOS -->
-                    <div id="config-distritos" class="config-section">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h3>Distritos</h3>
-                            <button class="btn-primary" onclick="prepararModalDistrito()">+ Nuevo</button>
-                        </div>
-                        <div class="table-container">
-                            <table id="tablaDistritos">
-                                <thead>
-                                    <tr>
-                                        <th>Distrito</th>
-                                        <th>Zona</th>
-                                        <th>Responsable</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="4" style="text-align: center;">Cargando...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- IGLESIAS -->
-                    <div id="config-iglesias" class="config-section">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h3>Iglesias</h3>
-                            <button class="btn-primary" onclick="prepararModalIglesia()">+ Nueva</button>
-                        </div>
-                        <div class="table-container">
-                            <table id="tablaIglesias">
-                                <thead>
-                                    <tr>
-                                        <th>Iglesia</th>
-                                        <th>Zona</th>
-                                        <th>Distrito</th>
-                                        <th>Pastor</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="5" style="text-align: center;">Cargando...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- USUARIOS SECTION -->
-                <section id="usuarios" class="content-section">
-                    <div class="section-header">
-                        <h2>👤 Gestión de Usuarios</h2>
-                        <button class="btn-primary" onclick="prepararModalUsuario()">+ Nuevo Usuario</button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table id="tablaUsuarios">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Rol</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="4" style="text-align: center;">Cargando...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </main>
-        </div>
-    </div>
-
-    <!-- MODALS -->
-    <!-- Modal Zona -->
-    <div id="modalNuevaZona" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalZona">📍 Registrar Zona</h3>
-                <button class="btn-close" onclick="cerrarModal('modalNuevaZona')">&times;</button>
-            </div>
-            <form id="formZona">
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="zonaNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <input type="text" id="zonaDescripcion">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalNuevaZona')">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Distrito -->
-    <div id="modalNuevoDistrito" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalDistrito">🏛️ Registrar Distrito</h3>
-                <button class="btn-close" onclick="cerrarModal('modalNuevoDistrito')">&times;</button>
-            </div>
-            <form id="formDistrito">
-                <div class="form-group">
-                    <label>Zona *</label>
-                    <select id="distritoZona" required></select>
-                </div>
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="distritoNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Responsable</label>
-                    <input type="text" id="distritoResponsable">
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="text" id="distritoTelefono">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalNuevoDistrito')">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Iglesia -->
-    <div id="modalNuevaIglesia" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalIglesia">⛪ Registrar Iglesia</h3>
-                <button class="btn-close" onclick="cerrarModal('modalNuevaIglesia')">&times;</button>
-            </div>
-            <form id="formIglesia">
-                <div class="form-group">
-                    <label>Zona *</label>
-                    <select id="iglesiaZona" required onchange="cargarDistritosPorZona(this.value)"></select>
-                </div>
-                <div class="form-group">
-                    <label>Distrito</label>
-                    <select id="iglesiaDistrito">
-                        <option value="">-- Sin distrito --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Nombre Iglesia *</label>
-                    <input type="text" id="iglesiaNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Pastor</label>
-                    <input type="text" id="iglesiaPastor">
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="text" id="iglesiaTelefono">
-                </div>
-                <div class="form-group">
-                    <label>Dirección</label>
-                    <input type="text" id="iglesiaDireccion">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalNuevaIglesia')">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Conferencia -->
-    <div id="modalNuevaConferencia" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalConferencia">📅 Nueva Conferencia</h3>
-                <button class="btn-close" onclick="cerrarModal('modalNuevaConferencia')">&times;</button>
-            </div>
-            <form id="formConferencia">
-                <div class="form-group">
-                    <label>Nombre *</label>
-                    <input type="text" id="confNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Iglesia Sede *</label>
-                    <select id="confIglesia" required></select>
-                </div>
-                <div class="form-group">
-                    <label>Fecha Inicio *</label>
-                    <input type="date" id="confFechaInicio" required>
-                </div>
-                <div class="form-group">
-                    <label>Fecha Fin *</label>
-                    <input type="date" id="confFechaFin" required>
-                </div>
-                <div class="form-group">
-                    <label>Conferenciante</label>
-                    <input type="text" id="confConferenciante">
-                </div>
-                <div class="form-group">
-                    <p class="duracion-conferencia" style="color: #a0aec0; font-size: 14px;">📅 Duración: 0 días</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalNuevaConferencia')">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Asistente -->
-    <div id="modalNuevoAsistente" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalAsistente">👥 Nuevo Registro de Asistente</h3>
-                <button class="btn-close" onclick="cerrarModal('modalNuevoAsistente')">&times;</button>
-            </div>
-            <form id="formAsistente">
-                <div class="form-group">
-                    <label>Nombre Completo *</label>
-                    <input type="text" id="asistNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="text" id="asistTelefono">
-                </div>
-                <div class="form-group">
-                    <label>Iglesia</label>
-                    <select id="asistIglesia"></select>
-                </div>
-                <div class="form-group">
-                    <label>Conferencia *</label>
-                    <select id="asistConferencia" required onchange="cargarFechasConferencia(this.value)"></select>
-                </div>
-                
-                <div class="conf-info">
-                    <div class="conf-info-item">
-                        <label>Inicio:</label>
-                        <span id="confInfoInicio">-</span>
-                    </div>
-                    <div class="conf-info-item">
-                        <label>Fin:</label>
-                        <span id="confInfoFin">-</span>
-                    </div>
-                    <div class="conf-info-item">
-                        <label>Total de días:</label>
-                        <span id="confInfoTotalDias">-</span>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Invitado Por</label>
-                    <input type="text" id="asistInvitado">
-                </div>
-                <div class="form-group">
-                    <label>Dirección</label>
-                    <input type="text" id="asistDireccion">
-                </div>
-                
-                <div class="form-group">
-                    <label>✅ Días que asistió:</label>
-                    <p style="color: #a0aec0; font-size: 13px; margin-bottom: 10px;">Seleccione una conferencia primero</p>
-                    <div id="fechasAsistenciaContainer" class="fechas-container">
-                        <p style="color: #a0aec0; text-align: center;">Seleccione una conferencia primero</p>
-                    </div>
-                    <div class="contador-asistencia">
-                        ✅ <strong>0</strong> días asistidos de <strong>0</strong> totales
-                    </div>
-                </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalNuevoAsistente')">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Usuario -->
-    <div id="modalNuevoUsuario" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="tituloModalUsuario">👤 Nuevo Usuario</h3>
-                <button class="btn-close" onclick="cerrarModal('modalNuevoUsuario')">&times;</button>
-            </div>
-            <form id="formUsuario">
-                <div class="form-group">
-                    <label>Nombre Completo *</label>
-                    <input type="text" id="usuarioNombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Email *</label>
-                    <input type="email" id="usuarioEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="usuarioPassword">
-                </div>
-                <div class="form-group">
-                    <label>Rol</label>
-                    <select id="usuarioRol">
-                        <option value="usuario">Usuario</option>
-                        <option value="admin">Administrador</option>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="cerrarModal('modalNuevoUsuario')">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+// main.js - Control de la aplicación MinistryLion
+console.log('🔍 main.js cargado');
+console.log('🔍 window.db existe:', !!window.db);
+
+window.editMode = {
+    tipo: null,
+    id: null,
+    data: null
+};
+
+// ============================================
+// FUNCIONES DE UTILIDAD
+// ============================================
+function mostrarMensaje(mensaje, tipo) {
+    const notificacion = document.createElement('div');
+    notificacion.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 15px 25px; background: ${tipo === 'success' ? '#d1fae5' : '#fee2e2'}; color: ${tipo === 'success' ? '#059669' : '#dc2626'}; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; font-weight: 500; animation: slideIn 0.3s ease;`;
+    notificacion.innerHTML = `<i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${mensaje}`;
+    document.body.appendChild(notificacion);
+    setTimeout(() => notificacion.remove(), 3000);
+}
+
+function fechaISOaLocal(fechaISO) {
+    if (!fechaISO) return '';
+    const fecha = new Date(fechaISO + 'T00:00:00');
+    return fecha.toISOString().split('T')[0];
+}
+
+function formatearFechaParaTabla(fechaISO) {
+    if (!fechaISO) return '-';
+    const fecha = new Date(fechaISO + 'T00:00:00');
+    return fecha.toLocaleDateString('es-ES');
+}
+
+function calcularDias(fechaInicio, fechaFin) {
+    if (!fechaInicio || !fechaFin) return 0;
+    const inicio = new Date(fechaInicio + 'T00:00:00');
+    const fin = new Date(fechaFin + 'T00:00:00');
+    const diferencia = fin.getTime() - inicio.getTime();
+    return Math.floor(diferencia / (1000 * 60 * 60 * 24)) + 1;
+}
+
+// ============================================
+// NAVEGACIÓN
+// ============================================
+function navegarSeccion(seccionId) {
+    console.log('📍 Navegando a:', seccionId);
     
-    <!-- Database Config -->
-    <script>
-        // ✅ CONFIGURACIÓN DE SUPABASE
-        const SUPABASE_URL = 'https://qalzqyjuyptemtrhwsbz.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_6qbyMCMlswqUm_kuCPJtyA_B7m4xFvr';
-        
-        window.db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        // Funciones de base de datos
-        async function obtenerZonas() {
-            const { data, error } = await window.db.from('zonas').select('*').order('nombre');
-            if (error) throw error;
-            return data || [];
-        }
-        
-        async function obtenerDistritos() {
-            const { data, error } = await window.db.from('distritos').select('*, zonas(nombre)').order('nombre');
-            if (error) throw error;
-            return data || [];
-        }
-        
-        async function obtenerIglesias() {
-            const { data, error } = await window.db.from('iglesias').select('*, zonas(nombre), distritos(nombre)').order('nombre');
-            if (error) throw error;
-            return data || [];
-        }
-        
-        async function obtenerConferencias() {
-            const { data, error } = await window.db.from('conferencias').select('*, iglesias(nombre)').order('fecha_inicio', { ascending: false });
-            if (error) throw error;
-            return data || [];
-        }
-        
-        async function obtenerAsistentes() {
-            const { data, error } = await window.db.from('asistentes').select('*, iglesias(nombre), conferencias(nombre)').order('nombre_completo');
-            if (error) throw error;
-            return data || [];
-        }
-        
-        async function obtenerUsuarios() {
-            const { data, error } = await window.db.from('usuarios').select('*').order('nombre_completo');
-            if (error) throw error;
-            return data || [];
-        }
-        
-        async function obtenerEstadisticas() {
-            const [zonas, distritos, iglesias, conferencias, asistentes] = await Promise.all([
-                obtenerZonas(),
-                obtenerDistritos(),
-                obtenerIglesias(),
-                obtenerConferencias(),
-                obtenerAsistentes()
-            ]);
-            
-            return {
-                total_zonas: zonas.length,
-                total_distritos: distritos.length,
-                total_iglesias: iglesias.length,
-                total_conferencias: conferencias.length,
-                total_asistentes: asistentes.length
-            };
-        }
-        
-        async function crearZona(nombre, descripcion) {
-            const { error } = await window.db.from('zonas').insert({ nombre, descripcion });
-            if (error) throw error;
-        }
-        
-        async function actualizarZona(id, nombre, descripcion) {
-            const { error } = await window.db.from('zonas').update({ nombre, descripcion }).eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function eliminarZona(id) {
-            const { error } = await window.db.from('zonas').delete().eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function crearDistrito(zona_id, nombre, responsable, telefono) {
-            const { error } = await window.db.from('distritos').insert({ zona_id, nombre, responsable, telefono });
-            if (error) throw error;
-        }
-        
-        async function actualizarDistrito(id, zona_id, nombre, responsable, telefono) {
-            const { error } = await window.db.from('distritos').update({ zona_id, nombre, responsable, telefono }).eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function eliminarDistrito(id) {
-            const { error } = await window.db.from('distritos').delete().eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function crearIglesia(zona_id, distrito_id, nombre, pastor, direccion, telefono) {
-            const { error } = await window.db.from('iglesias').insert({ zona_id, distrito_id, nombre, pastor, direccion, telefono });
-            if (error) throw error;
-        }
-        
-        async function actualizarIglesia(id, zona_id, distrito_id, nombre, pastor, direccion, telefono) {
-            const { error } = await window.db.from('iglesias').update({ zona_id, distrito_id, nombre, pastor, direccion, telefono }).eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function eliminarIglesia(id) {
-            const { error } = await window.db.from('iglesias').delete().eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
-            const { error } = await window.db.from('conferencias').insert({ iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante });
-            if (error) throw error;
-        }
-        
-        async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
-            const { error } = await window.db.from('conferencias').update({ iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante }).eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function eliminarConferencia(id) {
-            const { error } = await window.db.from('conferencias').delete().eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function crearAsistente(data) {
-            const { error } = await window.db.from('asistentes').insert(data);
-            if (error) throw error;
-        }
-        
-        async function actualizarAsistente(id, data) {
-            const { error } = await window.db.from('asistentes').update(data).eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function eliminarAsistente(id) {
-            const { error } = await window.db.from('asistentes').delete().eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function crearUsuario(nombre_completo, email, password, rol, permisos, estado) {
-            const { error } = await window.db.from('usuarios').insert({ nombre_completo, email, password, rol, permisos, estado });
-            if (error) throw error;
-        }
-        
-        async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado) {
-            const updateData = { nombre_completo, email, rol, permisos, estado };
-            if (password) updateData.password = password;
-            const { error } = await window.db.from('usuarios').update(updateData).eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function eliminarUsuario(id) {
-            const { error } = await window.db.from('usuarios').delete().eq('id', id);
-            if (error) throw error;
-        }
-        
-        async function iniciarSesion(email, password) {
-            const { data, error } = await window.db.from('usuarios').select('*').eq('email', email).eq('password', password).eq('estado', 'activo').single();
-            if (error || !data) {
-                return { success: false, message: 'Credenciales inválidas' };
-            }
-            localStorage.setItem('user', JSON.stringify(data));
-            return { success: true, user: data };
-        }
-        
-        function checkAuth() {
-            const user = localStorage.getItem('user');
-            return user ? JSON.parse(user) : null;
-        }
-        
-        function esAdmin() {
-            const user = checkAuth();
-            return user && (user.rol === 'admin' || user.rol === 'administrador');
-        }
-        
-        function mostrarConfigTab(tab) {
-            document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.config-section').forEach(s => s.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById('config-' + tab).classList.add('active');
-        }
-    </script>
     
-    <!-- Main JS -->
-    <script src="main.js"></script>
-</body>
-</html>
+   function navegarSeccion(seccionId) {
+    console.log('📍 Navegando a:', seccionId);
+    
+    // ✅ Limpiar buscador al salir de registros
+    if (seccionId !== 'registros') {
+        limpiarBuscadorAsistentes();
+    }
+    
+    // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
+    if (seccionId === 'usuarios') {
+        const user = checkAuth();
+        if (!user || user.rol !== 'admin') {
+            mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden ver esta sección', 'error');
+            seccionId = 'dashboard';
+        }
+    }
+    
+    // ... resto del código existente ...
+}
+    
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.classList.remove('active');
+    });
+
+    const section = document.getElementById(seccionId);
+    if (section) section.classList.add('active');
+
+    const navLink = document.getElementById('nav-' + seccionId);
+    if (navLink) navLink.classList.add('active');
+
+    switch(seccionId) {
+        case 'dashboard': cargarEstadisticas(); break;
+        case 'conferencias': cargarConferencias(); break;
+        case 'registros': cargarAsistentes(); break;
+        case 'reportes': cargarReportes(); break;
+        case 'configuracion': 
+            cargarZonas(); 
+            cargarDistritos(); 
+            cargarIglesias(); 
+            break;
+        case 'usuarios': 
+            if (esAdmin()) {
+                cargarUsuarios(); 
+            }
+            break;
+    }
+}
+// ============================================
+// MODALES
+// ============================================
+function abrirModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function cerrarModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+        document.body.style.overflow = '';
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+    }
+}
+
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+        cerrarModal(e.target.id);
+    }
+});
+
+// ============================================
+// PREPARAR MODALES
+// ============================================
+async function prepararModalZona() {
+    window.editMode = { tipo: null, id: null, data: null };
+    document.getElementById('formZona').reset();
+    document.getElementById('formZona').onsubmit = guardarZona;
+    const titulo = document.getElementById('tituloModalZona');
+    if (titulo) titulo.textContent = '📍 Registrar Zona';
+    abrirModal('modalNuevaZona');
+}
+
+async function prepararModalDistrito() {
+    window.editMode = { tipo: null, id: null, data: null };
+    document.getElementById('formDistrito').reset();
+    document.getElementById('formDistrito').onsubmit = guardarDistrito;
+    const titulo = document.getElementById('tituloModalDistrito');
+    if (titulo) titulo.textContent = '🏛️ Registrar Distrito';
+    await cargarZonasEnSelect('distritoZona');
+    abrirModal('modalNuevoDistrito');
+}
+
+async function prepararModalIglesia() {
+    window.editMode = { tipo: null, id: null, data: null };
+    document.getElementById('formIglesia').reset();
+    document.getElementById('formIglesia').onsubmit = guardarIglesia;
+    const titulo = document.getElementById('tituloModalIglesia');
+    if (titulo) titulo.textContent = '⛪ Registrar Iglesia';
+    await cargarZonasEnSelect('iglesiaZona');
+    document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
+    abrirModal('modalNuevaIglesia');
+}
+
+async function prepararModalConferencia() {
+    window.editMode = { tipo: null, id: null, data: null };
+    document.getElementById('formConferencia').reset();
+    document.getElementById('formConferencia').onsubmit = guardarConferencia;
+    const titulo = document.getElementById('tituloModalConferencia');
+    if (titulo) titulo.textContent = '📅 Nueva Conferencia';
+    await cargarIglesiasEnSelect('confIglesia');
+    abrirModal('modalNuevaConferencia');
+}
+
+async function prepararModalAsistente() {
+    window.editMode = { tipo: null, id: null, data: null };
+    document.getElementById('formAsistente').reset();
+    document.getElementById('formAsistente').onsubmit = guardarAsistente;
+    const titulo = document.getElementById('tituloModalAsistente');
+    if (titulo) titulo.textContent = '👥 Nuevo Registro de Asistente';
+    const container = document.getElementById('fechasAsistenciaContainer');
+    if (container) container.innerHTML = '';
+    actualizarContadorAsistencia();
+    await cargarIglesiasEnSelect('asistIglesia');
+    await cargarConferenciasEnSelect('asistConferencia');
+    abrirModal('modalNuevoAsistente');
+}
+
+async function prepararModalUsuario() {
+    window.editMode = { tipo: null, id: null, data: null };
+    window.tempPassword = '';
+    document.getElementById('formUsuario').reset();
+    document.getElementById('formUsuario').onsubmit = guardarUsuario;
+    const titulo = document.getElementById('tituloModalUsuario');
+    if (titulo) titulo.textContent = '👤 Nuevo Usuario';
+    abrirModal('modalNuevoUsuario');
+}
+
+// ============================================
+// CARGAR SELECTS
+// ============================================
+async function cargarZonasEnSelect(selectId) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        const zonas = await obtenerZonas();
+        select.innerHTML = '<option value="">-- Seleccione Zona --</option>' +
+            zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando zonas:', error);
+    }
+}
+
+async function cargarDistritosEnSelect(selectId, zonaId = null) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        let distritos = await obtenerDistritos();
+        if (zonaId) {
+            distritos = distritos.filter(d => d.zona_id == zonaId);
+        }
+        select.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
+            distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando distritos:', error);
+    }
+}
+
+async function cargarIglesiasEnSelect(selectId) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        const iglesias = await obtenerIglesias();
+        select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>' +
+            iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando iglesias:', error);
+    }
+}
+
+async function cargarConferenciasEnSelect(selectId) {
+    try {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        const conferencias = await obtenerConferencias();
+        select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
+            conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando conferencias:', error);
+    }
+}
+
+async function cargarDistritosPorZona(zonaId) {
+    await cargarDistritosEnSelect('iglesiaDistrito', zonaId);
+}
+
+// ============================================
+// CARGAR DATOS - CRUD
+// ============================================
+async function cargarZonas() {
+    try {
+        const zonas = await obtenerZonas();
+        const tbody = document.querySelector('#tablaZonas tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (zonas && zonas.length > 0) {
+            zonas.forEach(zona => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${zona.nombre}</td>
+                    <td>${zona.descripcion || '-'}</td>
+                    <td>
+                        <button onclick="editarZona(${zona.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarZona(${zona.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="3">Sin zonas registradas</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando zonas:', error);
+        const tbody = document.querySelector('#tablaZonas tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="3">Error cargando datos</td></tr>';
+    }
+}
+
+async function cargarDistritos() {
+    try {
+        const distritos = await obtenerDistritos();
+        const tbody = document.querySelector('#tablaDistritos tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (distritos && distritos.length > 0) {
+            distritos.forEach(dist => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dist.nombre}</td>
+                    <td>${dist.zonas?.nombre || 'Sin zona'}</td>
+                    <td>${dist.responsable || '-'}</td>
+                    <td>
+                        <button onclick="editarDistrito(${dist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarDistrito(${dist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4">Sin distritos registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando distritos:', error);
+        const tbody = document.querySelector('#tablaDistritos tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="4">Error cargando datos</td></tr>';
+    }
+}
+
+async function cargarIglesias() {
+    try {
+        const iglesias = await obtenerIglesias();
+        const tbody = document.querySelector('#tablaIglesias tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (iglesias && iglesias.length > 0) {
+            iglesias.forEach(iglesia => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${iglesia.nombre}</td>
+                    <td>${iglesia.zonas?.nombre || 'Sin zona'}</td>
+                    <td>${iglesia.distritos?.nombre || 'Sin distrito'}</td>
+                    <td>${iglesia.pastor || '-'}</td>
+                    <td>
+                        <button onclick="editarIglesia(${iglesia.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarIglesia(${iglesia.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5">Sin iglesias registradas</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando iglesias:', error);
+        const tbody = document.querySelector('#tablaIglesias tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5">Error cargando datos</td></tr>';
+    }
+}
+
+async function cargarConferencias() {
+    try {
+        const conferencias = await obtenerConferencias();
+        const tbody = document.querySelector('#tablaConferencias tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (conferencias && conferencias.length > 0) {
+            conferencias.forEach(conf => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${conf.nombre}</td>
+                    <td>${conf.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${formatearFechaParaTabla(conf.fecha_inicio)}</td>
+                    <td>${formatearFechaParaTabla(conf.fecha_fin)}</td>
+                    <td>${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</td>
+                    <td>${conf.conferenciante || '-'}</td>
+                    <td>
+                        <button onclick="editarConferencia(${conf.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarConferencia(${conf.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="7">Sin conferencias registradas</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando conferencias:', error);
+        const tbody = document.querySelector('#tablaConferencias tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7">Error cargando datos</td></tr>';
+    }
+}
+
+async function cargarAsistentes() {
+    try {
+        console.log('📥 Cargando asistentes...');
+        const asistentes = await obtenerAsistentes();
+        console.log('✅ Asistentes obtenidos:', asistentes.length);
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró el tbody de la tabla');
+            return;
+        }
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>
+                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando asistentes:', error);
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
+    }
+}
+
+// ============================================
+// ✅ FUNCIONES DE BÚSQUEDA - ASISTENTES
+// ============================================
+
+// Variable global para almacenar todos los asistentes (sin filtrar)
+window.todosLosAsistentes = [];
+
+// Modificar cargarAsistentes para guardar todos los datos
+async function cargarAsistentes() {
+    try {
+        console.log('📥 Cargando asistentes...');
+        const asistentes = await obtenerAsistentes();
+        window.todosLosAsistentes = asistentes; // ✅ Guardar copia completa
+        console.log('✅ Asistentes obtenidos:', asistentes.length);
+        
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró el tbody de la tabla');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>
+                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando asistentes:', error);
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
+    }
+}
+
+// ============================================
+// ✅ FUNCIONES DE BÚSQUEDA - AGREGAR AL FINAL
+// ============================================
+
+function filtrarAsistentes() {
+    const buscador = document.getElementById('buscadorAsistentes');
+    if (!buscador) return;
+    
+    const textoBusqueda = buscador.value.toLowerCase().trim();
+    const tbody = document.querySelector('#tablaAsistentes tbody');
+    if (!tbody) return;
+    
+    const filas = tbody.querySelectorAll('tr');
+    let resultadosEncontrados = 0;
+    
+    filas.forEach(fila => {
+        const celdas = fila.querySelectorAll('td');
+        if (celdas.length < 6) return;
+        
+        const nombre = celdas[0]?.textContent?.toLowerCase() || '';
+        const telefono = celdas[1]?.textContent?.toLowerCase() || '';
+        const iglesia = celdas[2]?.textContent?.toLowerCase() || '';
+        const conferencia = celdas[3]?.textContent?.toLowerCase() || '';
+        
+        const coincide = nombre.includes(textoBusqueda) || 
+                        telefono.includes(textoBusqueda) || 
+                        iglesia.includes(textoBusqueda) || 
+                        conferencia.includes(textoBusqueda);
+        
+        if (coincide) {
+            fila.style.display = '';
+            if (textoBusqueda.length > 0) {
+                fila.classList.add('tr-highlight');
+            } else {
+                fila.classList.remove('tr-highlight');
+            }
+            resultadosEncontrados++;
+        } else {
+            fila.style.display = 'none';
+            fila.classList.remove('tr-highlight');
+        }
+    });
+    
+    // Mostrar mensaje si no hay resultados
+    if (resultadosEncontrados === 0 && textoBusqueda.length > 0) {
+        tbody.innerHTML = '<tr><td colspan="6">🔍 No se encontraron registros que coincidan con "' + textoBusqueda + '"</td></tr>';
+    }
+}
+
+function limpiarBuscadorAsistentes() {
+    const buscador = document.getElementById('buscadorAsistentes');
+    if (buscador) {
+        buscador.value = '';
+        filtrarAsistentes();
+    }
+}
+
+// ✅ Limpiar búsqueda al cambiar de sección
+function limpiarBuscadorAsistentes() {
+    const buscador = document.getElementById('buscadorAsistentes');
+    if (buscador) {
+        buscador.value = '';
+        filtrarAsistentes();
+    }
+}
+
+async function cargarUsuarios() {
+    try {
+        const usuarios = await obtenerUsuarios();
+        const tbody = document.querySelector('#tablaUsuarios tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (usuarios && usuarios.length > 0) {
+            usuarios.forEach(usuario => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${usuario.nombre_completo}</td>
+                    <td>${usuario.email}</td>
+                    <td>${usuario.rol}</td>
+                    <td><span class="badge-estado ${usuario.estado}">${usuario.estado}</span></td>
+                    <td>
+                        <button onclick="editarUsuario(${usuario.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarUsuario(${usuario.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5">Sin usuarios registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando usuarios:', error);
+        const tbody = document.querySelector('#tablaUsuarios tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5">Error cargando datos</td></tr>';
+    }
+}
+
+async function cargarEstadisticas() {
+    try {
+        const stats = await obtenerEstadisticas();
+        const elZonas = document.getElementById('statZonas');
+        const elDistritos = document.getElementById('statDistritos');
+        const elIglesias = document.getElementById('statIglesias');
+        const elConferencias = document.getElementById('statConferencias');
+        const elAsistentes = document.getElementById('statAsistentes');
+        
+        if (elZonas) elZonas.textContent = stats.total_zonas || 0;
+        if (elDistritos) elDistritos.textContent = stats.total_distritos || 0;
+        if (elIglesias) elIglesias.textContent = stats.total_iglesias || 0;
+        if (elConferencias) elConferencias.textContent = stats.total_conferencias || 0;
+        if (elAsistentes) elAsistentes.textContent = stats.total_asistentes || 0;
+    } catch (error) {
+        console.error('❌ Error cargando estadísticas:', error);
+    }
+}
+
+// ============================================
+// FUNCIONES DE EDICIÓN Y GUARDADO - ZONAS
+// ============================================
+async function editarZona(id) {
+    try {
+        const zonas = await obtenerZonas();
+        const zona = zonas.find(z => z.id == id);
+        if (!zona) return;
+        
+        window.editMode = { tipo: 'zona', id: id, data: zona };
+        
+        document.getElementById('zonaNombre').value = zona.nombre;
+        document.getElementById('zonaDescripcion').value = zona.descripcion || '';
+        document.getElementById('tituloModalZona').textContent = '📍 Editar Zona';
+        document.getElementById('formZona').onsubmit = guardarZonaEditada;
+        
+        abrirModal('modalNuevaZona');
+    } catch (error) {
+        console.error('❌ Error editando zona:', error);
+        mostrarMensaje('Error al cargar datos de la zona', 'error');
+    }
+}
+
+async function guardarZona(e) {
+    e.preventDefault();
+    try {
+        const nombre = document.getElementById('zonaNombre').value.trim();
+        const descripcion = document.getElementById('zonaDescripcion').value.trim();
+        
+        if (!nombre) {
+            mostrarMensaje('El nombre es requerido', 'error');
+            return;
+        }
+        
+        await crearZona(nombre, descripcion);
+        mostrarMensaje('✅ Zona creada exitosamente', 'success');
+        cerrarModal('modalNuevaZona');
+        await cargarZonas();
+        await cargarEstadisticas();
+    } catch (error) {
+        console.error('❌ Error guardando zona:', error);
+        mostrarMensaje('Error al guardar zona', 'error');
+    }
+}
+
+async function guardarZonaEditada(e) {
+    e.preventDefault();
+    try {
+        const nombre = document.getElementById('zonaNombre').value.trim();
+        const descripcion = document.getElementById('zonaDescripcion').value.trim();
+        
+        if (!nombre) {
+            mostrarMensaje('El nombre es requerido', 'error');
+            return;
+        }
+        
+        await actualizarZona(window.editMode.id, nombre, descripcion);
+        mostrarMensaje('✅ Zona actualizada exitosamente', 'success');
+        cerrarModal('modalNuevaZona');
+        await cargarZonas();
+    } catch (error) {
+        console.error('❌ Error actualizando zona:', error);
+        mostrarMensaje('Error al actualizar zona', 'error');
+    }
+}
+
+async function confirmarEliminarZona(id) {
+    if (confirm('⚠️ ¿Está seguro de eliminar esta zona?')) {
+        try {
+            await eliminarZona(id);
+            mostrarMensaje('✅ Zona eliminada exitosamente', 'success');
+            await cargarZonas();
+            await cargarEstadisticas();
+        } catch (error) {
+            console.error('❌ Error eliminando zona:', error);
+            mostrarMensaje('Error al eliminar zona', 'error');
+        }
+    }
+}
+
+// ============================================
+// FUNCIONES DE EDICIÓN Y GUARDADO - DISTRITOS
+// ============================================
+async function editarDistrito(id) {
+    try {
+        const distritos = await obtenerDistritos();
+        const dist = distritos.find(d => d.id == id);
+        if (!dist) return;
+        
+        window.editMode = { tipo: 'distrito', id: id, data: dist };
+        
+        await cargarZonasEnSelect('distritoZona');
+        document.getElementById('distritoZona').value = dist.zona_id;
+        document.getElementById('distritoNombre').value = dist.nombre;
+        document.getElementById('distritoResponsable').value = dist.responsable || '';
+        document.getElementById('distritoTelefono').value = dist.telefono || '';
+        document.getElementById('tituloModalDistrito').textContent = '🏛️ Editar Distrito';
+        document.getElementById('formDistrito').onsubmit = guardarDistritoEditado;
+        
+        abrirModal('modalNuevoDistrito');
+    } catch (error) {
+        console.error('❌ Error editando distrito:', error);
+        mostrarMensaje('Error al cargar datos del distrito', 'error');
+    }
+}
+
+async function guardarDistrito(e) {
+    e.preventDefault();
+    try {
+        const zona_id = document.getElementById('distritoZona').value;
+        const nombre = document.getElementById('distritoNombre').value.trim();
+        const responsable = document.getElementById('distritoResponsable').value.trim();
+        const telefono = document.getElementById('distritoTelefono').value.trim();
+        
+        if (!zona_id || !nombre) {
+            mostrarMensaje('Zona y nombre son requeridos', 'error');
+            return;
+        }
+        
+        await crearDistrito(zona_id, nombre, responsable, telefono);
+        mostrarMensaje('✅ Distrito creado exitosamente', 'success');
+        cerrarModal('modalNuevoDistrito');
+        await cargarDistritos();
+        await cargarEstadisticas();
+    } catch (error) {
+        console.error('❌ Error guardando distrito:', error);
+        mostrarMensaje('Error al guardar distrito', 'error');
+    }
+}
+
+async function guardarDistritoEditado(e) {
+    e.preventDefault();
+    try {
+        const zona_id = document.getElementById('distritoZona').value;
+        const nombre = document.getElementById('distritoNombre').value.trim();
+        const responsable = document.getElementById('distritoResponsable').value.trim();
+        const telefono = document.getElementById('distritoTelefono').value.trim();
+        
+        if (!zona_id || !nombre) {
+            mostrarMensaje('Zona y nombre son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarDistrito(window.editMode.id, zona_id, nombre, responsable, telefono);
+        mostrarMensaje('✅ Distrito actualizado exitosamente', 'success');
+        cerrarModal('modalNuevoDistrito');
+        await cargarDistritos();
+    } catch (error) {
+        console.error('❌ Error actualizando distrito:', error);
+        mostrarMensaje('Error al actualizar distrito', 'error');
+    }
+}
+
+async function confirmarEliminarDistrito(id) {
+    if (confirm('⚠️ ¿Está seguro de eliminar este distrito?')) {
+        try {
+            await eliminarDistrito(id);
+            mostrarMensaje('✅ Distrito eliminado exitosamente', 'success');
+            await cargarDistritos();
+            await cargarEstadisticas();
+        } catch (error) {
+            console.error('❌ Error eliminando distrito:', error);
+            mostrarMensaje('Error al eliminar distrito', 'error');
+        }
+    }
+}
+
+// ============================================
+// FUNCIONES DE EDICIÓN Y GUARDADO - IGLESIAS
+// ============================================
+async function editarIglesia(id) {
+    try {
+        const iglesias = await obtenerIglesias();
+        const iglesia = iglesias.find(i => i.id == id);
+        if (!iglesia) return;
+        
+        window.editMode = { tipo: 'iglesia', id: id, data: iglesia };
+        
+        await cargarZonasEnSelect('iglesiaZona');
+        document.getElementById('iglesiaZona').value = iglesia.zona_id;
+        await cargarDistritosPorZona(iglesia.zona_id);
+        document.getElementById('iglesiaDistrito').value = iglesia.distrito_id || '';
+        document.getElementById('iglesiaNombre').value = iglesia.nombre;
+        document.getElementById('iglesiaPastor').value = iglesia.pastor || '';
+        document.getElementById('iglesiaTelefono').value = iglesia.telefono || '';
+        document.getElementById('iglesiaDireccion').value = iglesia.direccion || '';
+        document.getElementById('tituloModalIglesia').textContent = '⛪ Editar Iglesia';
+        document.getElementById('formIglesia').onsubmit = guardarIglesiaEditada;
+        
+        abrirModal('modalNuevaIglesia');
+    } catch (error) {
+        console.error('❌ Error editando iglesia:', error);
+        mostrarMensaje('Error al cargar datos de la iglesia', 'error');
+    }
+}
+
+async function guardarIglesia(e) {
+    e.preventDefault();
+    try {
+        const zona_id = document.getElementById('iglesiaZona').value;
+        const distrito_id = document.getElementById('iglesiaDistrito').value;
+        const nombre = document.getElementById('iglesiaNombre').value.trim();
+        const pastor = document.getElementById('iglesiaPastor').value.trim();
+        const telefono = document.getElementById('iglesiaTelefono').value.trim();
+        const direccion = document.getElementById('iglesiaDireccion').value.trim();
+        
+        if (!zona_id || !nombre) {
+            mostrarMensaje('Zona y nombre son requeridos', 'error');
+            return;
+        }
+        
+        await crearIglesia(zona_id, distrito_id, nombre, pastor, direccion, telefono);
+        mostrarMensaje('✅ Iglesia creada exitosamente', 'success');
+        cerrarModal('modalNuevaIglesia');
+        await cargarIglesias();
+        await cargarEstadisticas();
+    } catch (error) {
+        console.error('❌ Error guardando iglesia:', error);
+        mostrarMensaje('Error al guardar iglesia', 'error');
+    }
+}
+
+async function guardarIglesiaEditada(e) {
+    e.preventDefault();
+    try {
+        const zona_id = document.getElementById('iglesiaZona').value;
+        const distrito_id = document.getElementById('iglesiaDistrito').value;
+        const nombre = document.getElementById('iglesiaNombre').value.trim();
+        const pastor = document.getElementById('iglesiaPastor').value.trim();
+        const telefono = document.getElementById('iglesiaTelefono').value.trim();
+        const direccion = document.getElementById('iglesiaDireccion').value.trim();
+        
+        if (!zona_id || !nombre) {
+            mostrarMensaje('Zona y nombre son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarIglesia(window.editMode.id, zona_id, distrito_id, nombre, pastor, direccion, telefono);
+        mostrarMensaje('✅ Iglesia actualizada exitosamente', 'success');
+        cerrarModal('modalNuevaIglesia');
+        await cargarIglesias();
+    } catch (error) {
+        console.error('❌ Error actualizando iglesia:', error);
+        mostrarMensaje('Error al actualizar iglesia', 'error');
+    }
+}
+
+async function confirmarEliminarIglesia(id) {
+    if (confirm('⚠️ ¿Está seguro de eliminar esta iglesia?')) {
+        try {
+            await eliminarIglesia(id);
+            mostrarMensaje('✅ Iglesia eliminada exitosamente', 'success');
+            await cargarIglesias();
+            await cargarEstadisticas();
+        } catch (error) {
+            console.error('❌ Error eliminando iglesia:', error);
+            mostrarMensaje('Error al eliminar iglesia', 'error');
+        }
+    }
+}
+
+// ============================================
+// FUNCIONES DE EDICIÓN Y GUARDADO - CONFERENCIAS
+// ============================================
+async function editarConferencia(id) {
+    try {
+        const conferencias = await obtenerConferencias();
+        const conf = conferencias.find(c => c.id == id);
+        if (!conf) return;
+        
+        window.editMode = { tipo: 'conferencia', id: id, data: conf };
+        
+        await cargarIglesiasEnSelect('confIglesia');
+        document.getElementById('confIglesia').value = conf.iglesia_id;
+        document.getElementById('confNombre').value = conf.nombre;
+        document.getElementById('confFechaInicio').value = fechaISOaLocal(conf.fecha_inicio);
+        document.getElementById('confFechaFin').value = fechaISOaLocal(conf.fecha_fin);
+        document.getElementById('confConferenciante').value = conf.conferenciante || '';
+        document.getElementById('tituloModalConferencia').textContent = '📅 Editar Conferencia';
+        document.getElementById('formConferencia').onsubmit = guardarConferenciaEditada;
+        
+        actualizarDuracionConferencia();
+        abrirModal('modalNuevaConferencia');
+    } catch (error) {
+        console.error('❌ Error editando conferencia:', error);
+        mostrarMensaje('Error al cargar datos de la conferencia', 'error');
+    }
+}
+
+async function guardarConferencia(e) {
+    e.preventDefault();
+    try {
+        const iglesia_id = document.getElementById('confIglesia').value;
+        const nombre = document.getElementById('confNombre').value.trim();
+        const fecha_inicio = document.getElementById('confFechaInicio').value;
+        const fecha_fin = document.getElementById('confFechaFin').value;
+        const conferenciante = document.getElementById('confConferenciante').value.trim();
+        
+        if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
+            mostrarMensaje('Todos los campos son requeridos', 'error');
+            return;
+        }
+        
+        await crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
+        mostrarMensaje('✅ Conferencia creada exitosamente', 'success');
+        cerrarModal('modalNuevaConferencia');
+        await cargarConferencias();
+        await cargarEstadisticas();
+    } catch (error) {
+        console.error('❌ Error guardando conferencia:', error);
+        mostrarMensaje('Error al guardar conferencia', 'error');
+    }
+}
+
+async function guardarConferenciaEditada(e) {
+    e.preventDefault();
+    try {
+        const iglesia_id = document.getElementById('confIglesia').value;
+        const nombre = document.getElementById('confNombre').value.trim();
+        const fecha_inicio = document.getElementById('confFechaInicio').value;
+        const fecha_fin = document.getElementById('confFechaFin').value;
+        const conferenciante = document.getElementById('confConferenciante').value.trim();
+        
+        if (!iglesia_id || !nombre || !fecha_inicio || !fecha_fin) {
+            mostrarMensaje('Todos los campos son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarConferencia(window.editMode.id, iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante);
+        mostrarMensaje('✅ Conferencia actualizada exitosamente', 'success');
+        cerrarModal('modalNuevaConferencia');
+        await cargarConferencias();
+    } catch (error) {
+        console.error('❌ Error actualizando conferencia:', error);
+        mostrarMensaje('Error al actualizar conferencia', 'error');
+    }
+}
+
+async function confirmarEliminarConferencia(id) {
+    if (confirm('⚠️ ¿Está seguro de eliminar esta conferencia?')) {
+        try {
+            await eliminarConferencia(id);
+            mostrarMensaje('✅ Conferencia eliminada exitosamente', 'success');
+            await cargarConferencias();
+            await cargarEstadisticas();
+        } catch (error) {
+            console.error('❌ Error eliminando conferencia:', error);
+            mostrarMensaje('Error al eliminar conferencia', 'error');
+        }
+    }
+}
+
+// ============================================
+// FUNCIONES DE EDICIÓN Y GUARDADO - ASISTENTES
+// ============================================
+async function editarAsistente(id) {
+    try {
+        const asistentes = await obtenerAsistentes();
+        const asist = asistentes.find(a => a.id == id);
+        if (!asist) return;
+        
+        window.editMode = { tipo: 'asistente', id: id, data: asist };
+        
+        document.getElementById('asistNombre').value = asist.nombre_completo;
+        document.getElementById('asistTelefono').value = asist.telefono || '';
+        document.getElementById('asistInvitado').value = asist.invitado_por || '';
+        document.getElementById('asistDireccion').value = asist.direccion || '';
+        
+        await cargarIglesiasEnSelect('asistIglesia');
+        document.getElementById('asistIglesia').value = asist.iglesia_id || '';
+        
+        await cargarConferenciasEnSelect('asistConferencia');
+        document.getElementById('asistConferencia').value = asist.conferencia_id || '';
+        
+        document.getElementById('tituloModalAsistente').textContent = '👥 Editar Asistente';
+        document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
+        
+        await cargarFechasConferencia(asist.conferencia_id);
+        abrirModal('modalNuevoAsistente');
+    } catch (error) {
+        console.error('❌ Error editando asistente:', error);
+        mostrarMensaje('Error al cargar datos del asistente', 'error');
+    }
+}
+
+async function guardarAsistente(e) {
+    e.preventDefault();
+    try {
+        const nombre_completo = document.getElementById('asistNombre').value.trim();
+        const telefono = document.getElementById('asistTelefono').value.trim();
+        const invitado_por = document.getElementById('asistInvitado').value.trim();
+        const direccion = document.getElementById('asistDireccion').value.trim();
+        const iglesia_id = document.getElementById('asistIglesia').value;
+        const conferencia_id = document.getElementById('asistConferencia').value;
+        const fechas_asistencia = obtenerFechasSeleccionadas();
+        
+        if (!nombre_completo || !conferencia_id) {
+            mostrarMensaje('Nombre y conferencia son requeridos', 'error');
+            return;
+        }
+        
+        await crearAsistente({
+            nombre_completo,
+            telefono,
+            invitado_por,
+            direccion,
+            iglesia_id,
+            conferencia_id,
+            fechas_asistencia: JSON.stringify(fechas_asistencia)
+        });
+        
+        mostrarMensaje('✅ Asistente registrado exitosamente', 'success');
+        cerrarModal('modalNuevoAsistente');
+        await cargarAsistentes();
+        await cargarEstadisticas();
+    } catch (error) {
+        console.error('❌ Error guardando asistente:', error);
+        mostrarMensaje('Error al guardar asistente', 'error');
+    }
+}
+
+async function guardarAsistenteEditado(e) {
+    e.preventDefault();
+    try {
+        const nombre_completo = document.getElementById('asistNombre').value.trim();
+        const telefono = document.getElementById('asistTelefono').value.trim();
+        const invitado_por = document.getElementById('asistInvitado').value.trim();
+        const direccion = document.getElementById('asistDireccion').value.trim();
+        const iglesia_id = document.getElementById('asistIglesia').value;
+        const conferencia_id = document.getElementById('asistConferencia').value;
+        const fechas_asistencia = obtenerFechasSeleccionadas();
+        
+        if (!nombre_completo || !conferencia_id) {
+            mostrarMensaje('Nombre y conferencia son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarAsistente(window.editMode.id, {
+            nombre_completo,
+            telefono,
+            invitado_por,
+            direccion,
+            iglesia_id,
+            conferencia_id,
+            fechas_asistencia: JSON.stringify(fechas_asistencia)
+        });
+        
+        mostrarMensaje('✅ Asistente actualizado exitosamente', 'success');
+        cerrarModal('modalNuevoAsistente');
+        await cargarAsistentes();
+    } catch (error) {
+        console.error('❌ Error actualizando asistente:', error);
+        mostrarMensaje('Error al actualizar asistente', 'error');
+    }
+}
+
+async function confirmarEliminarAsistente(id) {
+    if (confirm('⚠️ ¿Está seguro de eliminar este asistente?')) {
+        try {
+            await eliminarAsistente(id);
+            mostrarMensaje('✅ Asistente eliminado exitosamente', 'success');
+            await cargarAsistentes();
+            await cargarEstadisticas();
+        } catch (error) {
+            console.error('❌ Error eliminando asistente:', error);
+            mostrarMensaje('Error al eliminar asistente', 'error');
+        }
+    }
+}
+
+// ============================================
+// FUNCIONES DE EDICIÓN Y GUARDADO - USUARIOS
+// ============================================
+async function editarUsuario(id) {
+    try {
+        const usuarios = await obtenerUsuarios();
+        const usuario = usuarios.find(u => u.id == id);
+        if (!usuario) return;
+        
+        window.editMode = { tipo: 'usuario', id: id, data: usuario };
+        
+        document.getElementById('usuarioNombre').value = usuario.nombre_completo;
+        document.getElementById('usuarioEmail').value = usuario.email;
+        document.getElementById('usuarioPassword').value = '';
+        document.getElementById('usuarioRol').value = usuario.rol;
+        document.getElementById('usuarioEstado').value = usuario.estado || 'activo';
+        
+        // ✅ Parsear permisos de forma segura
+        let permisosUsuario = [];
+        try {
+            if (usuario.permisos) {
+                if (typeof usuario.permisos === 'string') {
+                    // Si es string con comillas escapadas
+                    if (usuario.permisos.startsWith('"[')) {
+                        const cleanPermisos = usuario.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
+                        permisosUsuario = JSON.parse(cleanPermisos);
+                    } else {
+                        permisosUsuario = JSON.parse(usuario.permisos);
+                    }
+                } else {
+                    permisosUsuario = usuario.permisos;
+                }
+            }
+        } catch (e) {
+            console.error('❌ Error parseando permisos del usuario:', e);
+            // Si falla, intentar con split por comas
+            if (typeof usuario.permisos === 'string') {
+                permisosUsuario = usuario.permisos.split(',').map(p => p.trim()).filter(p => p);
+            }
+        }
+        
+        // Marcar permisos
+        document.querySelectorAll('.permiso-checkbox').forEach(cb => {
+            cb.checked = permisosUsuario.includes(cb.value) || usuario.rol === 'admin' || usuario.rol === 'administrador';
+        });
+        
+        document.getElementById('tituloModalUsuario').textContent = '👤 Editar Usuario';
+        document.getElementById('formUsuario').onsubmit = guardarUsuarioEditado;
+        
+        abrirModal('modalNuevoUsuario');
+    } catch (error) {
+        console.error('❌ Error editando usuario:', error);
+        mostrarMensaje('Error al cargar datos del usuario: ' + error.message, 'error');
+    }
+}
+
+async function guardarUsuario(e) {
+    e.preventDefault();
+    
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
+        return;
+    }
+    
+    try {
+        const nombre_completo = document.getElementById('usuarioNombre').value.trim();
+        const email = document.getElementById('usuarioEmail').value.trim();
+        const password = document.getElementById('usuarioPassword').value;
+        const rol = document.getElementById('usuarioRol').value;
+        const estado = document.getElementById('usuarioEstado').value;
+        
+        const permisos = [];
+        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+            permisos.push(cb.value);
+        });
+        
+        if (!nombre_completo || !email || !password) {
+            mostrarMensaje('Nombre, correo y contraseña son requeridos', 'error');
+            return;
+        }
+        
+        await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
+        mostrarMensaje('✅ Usuario creado exitosamente', 'success');
+        cerrarModal('modalNuevoUsuario');
+        await cargarUsuarios();
+    } catch (error) {
+        console.error('❌ Error guardando usuario:', error);
+        mostrarMensaje('Error al guardar usuario: ' + error.message, 'error');
+    }
+}
+
+async function guardarUsuarioEditado(e) {
+    e.preventDefault();
+    
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden editar usuarios', 'error');
+        return;
+    }
+    
+    try {
+        const nombre_completo = document.getElementById('usuarioNombre').value.trim();
+        const email = document.getElementById('usuarioEmail').value.trim();
+        const password = document.getElementById('usuarioPassword').value;
+        const rol = document.getElementById('usuarioRol').value;
+        const estado = document.getElementById('usuarioEstado').value;
+        
+        const permisos = [];
+        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+            permisos.push(cb.value);
+        });
+        
+        if (!nombre_completo || !email) {
+            mostrarMensaje('Nombre y correo son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
+        mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
+        cerrarModal('modalNuevoUsuario');
+        await cargarUsuarios();
+    } catch (error) {
+        console.error('❌ Error actualizando usuario:', error);
+        mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
+    }
+}
+
+async function guardarUsuarioEditado(e) {
+    e.preventDefault();
+    try {
+        const nombre_completo = document.getElementById('usuarioNombre').value.trim();
+        const email = document.getElementById('usuarioEmail').value.trim();
+        const password = document.getElementById('usuarioPassword').value;
+        const rol = document.getElementById('usuarioRol').value;
+        const estado = document.getElementById('usuarioEstado').value;
+        
+        const permisos = [];
+        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+            permisos.push(cb.value);
+        });
+        
+        if (!nombre_completo || !email) {
+            mostrarMensaje('Nombre y correo son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
+        mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
+        cerrarModal('modalNuevoUsuario');
+        await cargarUsuarios();
+    } catch (error) {
+        console.error('❌ Error actualizando usuario:', error);
+        mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
+    }
+}
+
+async function confirmarEliminarUsuario(id) {
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
+        return;
+    }
+    
+    if (confirm('⚠️ ¿Está seguro de eliminar este usuario?')) {
+        try {
+            await eliminarUsuario(id);
+            mostrarMensaje('✅ Usuario eliminado exitosamente', 'success');
+            await cargarUsuarios();
+        } catch (error) {
+            console.error('❌ Error eliminando usuario:', error);
+            mostrarMensaje('Error al eliminar usuario', 'error');
+        }
+    }
+}
+// ============================================
+// FUNCIONES DE ASISTENCIA
+// ============================================
+function generarBotonesFechas(fechaInicio, fechaFin) {
+    const container = document.getElementById('fechasAsistenciaContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const inicio = new Date(fechaInicio + 'T00:00:00');
+    const fin = new Date(fechaFin + 'T00:00:00');
+    const fechas = [];
+    let actual = new Date(inicio);
+    
+    while (actual <= fin) {
+        fechas.push(new Date(actual));
+        actual.setDate(actual.getDate() + 1);
+    }
+
+    const diasSemana = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+    const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+    fechas.forEach(fecha => {
+        const diaSemana = diasSemana[fecha.getDay()];
+        const dia = fecha.getDate();
+        const mes = meses[fecha.getMonth()];
+        const año = fecha.getFullYear();
+        const fechaISO = fecha.toISOString().split('T')[0];
+        
+        const boton = document.createElement('button');
+        boton.type = 'button';
+        boton.className = 'fecha-asistencia';
+        boton.dataset.fecha = fechaISO;
+        boton.textContent = `${diaSemana}, ${dia} ${mes} ${año}`;
+        
+        boton.addEventListener('click', function() {
+            toggleFechaAsistencia(this);
+        });
+        
+        container.appendChild(boton);
+    });
+
+    actualizarContadorAsistencia();
+}
+
+function toggleFechaAsistencia(boton) {
+    boton.classList.toggle('seleccionada');
+    actualizarContadorAsistencia();
+}
+
+function actualizarContadorAsistencia() {
+    const botonesSeleccionados = document.querySelectorAll('.fecha-asistencia.seleccionada');
+    const totalDias = document.querySelectorAll('.fecha-asistencia').length;
+    const diasAsistidos = botonesSeleccionados.length;
+    const contadorElement = document.querySelector('.contador-asistencia');
+    
+    if (contadorElement) {
+        contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> días asistidos de <strong>${totalDias}</strong> totales`;
+        if (diasAsistidos === 0) {
+            contadorElement.style.background = '#fee2e2';
+            contadorElement.style.color = '#dc2626';
+        } else if (diasAsistidos === totalDias) {
+            contadorElement.style.background = '#d1fae5';
+            contadorElement.style.color = '#059669';
+        } else {
+            contadorElement.style.background = '#fef3c7';
+            contadorElement.style.color = '#d97706';
+        }
+    }
+}
+
+function obtenerFechasSeleccionadas() {
+    const seleccionadas = document.querySelectorAll('.fecha-asistencia.seleccionada');
+    return Array.from(seleccionadas).map(boton => boton.dataset.fecha);
+}
+
+function marcarFechasGuardadas(fechasGuardadas) {
+    if (!fechasGuardadas || fechasGuardadas.length === 0) return;
+    const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
+    
+    fechas.forEach(fechaISO => {
+        const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
+        if (boton) {
+            boton.classList.add('seleccionada');
+        }
+    });
+    actualizarContadorAsistencia();
+}
+
+async function cargarFechasConferencia(conferenciaId) {
+    console.log('📅 Cargando fechas para conferencia:', conferenciaId);
+    const container = document.getElementById('fechasAsistenciaContainer');
+    if (container) container.innerHTML = '';
+    actualizarContadorAsistencia();
+    
+    if (!conferenciaId) return;
+
+    try {
+        const conferencias = await obtenerConferencias();
+        const conferencia = conferencias.find(c => c.id == conferenciaId);
+        
+        if (conferencia) {
+            generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
+            
+            if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
+                setTimeout(() => {
+                    marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
+                }, 150);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error cargando fechas:', error);
+        mostrarMensaje('Error al cargar fechas de la conferencia', 'error');
+    }
+}
+
+function actualizarDuracionConferencia() {
+    const inicio = document.getElementById('confFechaInicio')?.value;
+    const fin = document.getElementById('confFechaFin')?.value;
+    const duracionElement = document.querySelector('#modalNuevaConferencia .duracion-conferencia');
+    
+    if (inicio && fin && duracionElement) {
+        const dias = calcularDias(inicio, fin);
+        duracionElement.textContent = `📅 Duración: ${dias} días`;
+    }
+}
+
+// ============================================
+// REPORTES
+// ============================================
+async function cargarReportes() {
+    console.log('📊 Cargando sección de Reportes');
+    await cargarConferenciasEnSelect('reporteConferencia');
+    await cargarIglesiasEnSelect('reporteIglesia');
+    await filtrarReporte();
+}
+
+async function filtrarReporte() {
+    try {
+        const conferenciaId = document.getElementById('reporteConferencia')?.value;
+        const iglesiaId = document.getElementById('reporteIglesia')?.value;
+        
+        let asistentes = await obtenerAsistentes();
+        
+        if (conferenciaId) {
+            asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
+        }
+        
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        const tbody = document.querySelector('#tablaReporte tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>${asist.invitado_por || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
+            const totalDias = asistentes.reduce((sum, a) => {
+                const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+                return sum + fechas.length;
+            }, 0);
+            
+            const elTotalAsistentes = document.getElementById('reporteTotalAsistentes');
+            const elTotalDias = document.getElementById('reporteTotalDias');
+            const elTotalIglesias = document.getElementById('reporteTotalIglesias');
+            
+            if (elTotalAsistentes) elTotalAsistentes.textContent = asistentes.length;
+            if (elTotalDias) elTotalDias.textContent = totalDias;
+            if (elTotalIglesias) elTotalIglesias.textContent = iglesiasUnicas.size;
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">No hay registros con los filtros seleccionados</td></tr>';
+            const elTotalAsistentes = document.getElementById('reporteTotalAsistentes');
+            const elTotalDias = document.getElementById('reporteTotalDias');
+            const elTotalIglesias = document.getElementById('reporteTotalIglesias');
+            if (elTotalAsistentes) elTotalAsistentes.textContent = '0';
+            if (elTotalDias) elTotalDias.textContent = '0';
+            if (elTotalIglesias) elTotalIglesias.textContent = '0';
+        }
+    } catch (error) {
+        console.error('❌ Error filtrando reporte:', error);
+        mostrarMensaje('Error al filtrar reporte', 'error');
+    }
+}
+
+function limpiarFiltrosReporte() {
+    const confSelect = document.getElementById('reporteConferencia');
+    const iglSelect = document.getElementById('reporteIglesia');
+    if (confSelect) confSelect.value = '';
+    if (iglSelect) iglSelect.value = '';
+    filtrarReporte();
+}
+
+async function generarReportePDF() {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const conferenciaId = document.getElementById('reporteConferencia')?.value;
+        const iglesiaId = document.getElementById('reporteIglesia')?.value;
+        
+        let asistentes = await obtenerAsistentes();
+        
+        if (conferenciaId) {
+            asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
+        }
+        
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        const conferencias = await obtenerConferencias();
+        const iglesias = await obtenerIglesias();
+        const conferenciaFiltro = conferenciaId ? conferencias.find(c => c.id == conferenciaId)?.nombre : 'Todas';
+        const iglesiaFiltro = iglesiaId ? iglesias.find(i => i.id == iglesiaId)?.nombre : 'Todas';
+        
+        doc.setFillColor(26, 26, 46);
+        doc.rect(0, 0, 210, 40, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text('MinistryLion', 105, 20, { align: 'center' });
+        
+        doc.setFontSize(14);
+        doc.text('Reporte de Asistencia a Conferencias', 105, 30, { align: 'center' });
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(11);
+        doc.text(`Fecha de Generación: ${new Date().toLocaleDateString('es-ES')}`, 14, 50);
+        doc.text(`Conferencia: ${conferenciaFiltro}`, 14, 58);
+        doc.text(`Iglesia: ${iglesiaFiltro}`, 14, 66);
+        
+        const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
+        const totalDias = asistentes.reduce((sum, a) => {
+            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+            return sum + fechas.length;
+        }, 0);
+        
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, 75, 182, 20, 'F');
+        doc.setFontSize(10);
+        doc.text(`Total Asistentes: ${asistentes.length}`, 20, 85);
+        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85); 
+        doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 85);
+        
+        const tableData = asistentes.map(asist => {
+            const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+            return [
+                asist.nombre_completo,
+                asist.telefono || '-',
+                asist.iglesias?.nombre || 'Sin iglesia',
+                asist.conferencias?.nombre || 'Sin conferencia',
+                fechasAsistencia.length.toString(),
+                asist.invitado_por || '-'
+            ];
+        });
+        
+        doc.autoTable({
+            startY: 105,
+            head: [['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [102, 126, 234] },
+            styles: { fontSize: 9 }
+        });
+        
+        const finalY = doc.lastAutoTable.finalY || 105;
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text('© 2026 MinistryLion - Sistema de Gestión de Conferencias', 105, finalY + 15, { align: 'center' });
+        
+        const nombreArchivo = `reporte_asistencia_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(nombreArchivo);
+        
+        mostrarMensaje('✅ Reporte PDF generado exitosamente', 'success');
+    } catch (error) {
+        console.error('❌ Error generando PDF:', error);
+        mostrarMensaje('❌ Error al generar PDF: ' + error.message, 'error');
+    }
+}
+
+// ============================================
+// INICIALIZACIÓN
+// ============================================
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 DOMContentLoaded - Iniciando aplicación...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (!window.db) {
+        console.error('❌ window.db no existe');
+        mostrarMensaje('Error de conexión con la base de datos', 'error');
+        return;
+    }
+
+    console.log('✅ window.db disponible:', !!window.db);
+
+    const user = checkAuth();
+
+    if (user) {
+        console.log('👤 Usuario autenticado:', user.nombre);
+        mostrarDashboard(user);
+        
+        const confInicio = document.getElementById('confFechaInicio');
+        const confFin = document.getElementById('confFechaFin');
+        if (confInicio && confFin) {
+            confInicio.addEventListener('change', actualizarDuracionConferencia);
+            confFin.addEventListener('change', actualizarDuracionConferencia);
+        }
+
+        await cargarZonas();
+        await cargarDistritos();
+        await cargarIglesias();
+        await cargarConferencias();
+        await cargarAsistentes();
+        await cargarUsuarios();
+        await cargarEstadisticas();
+        
+        navegarSeccion('dashboard');
+        
+        console.log('✅ Aplicación inicializada correctamente');
+    } else {
+        console.log('🔐 No hay usuario autenticado');
+        mostrarLogin();
+        configurarFormularioLogin();
+    }
+});
+
+function mostrarLogin() {
+    const loginPage = document.getElementById('loginPage');
+    const dashboardPage = document.getElementById('dashboardPage');
+    if (loginPage) loginPage.style.display = 'flex';
+    if (dashboardPage) dashboardPage.style.display = 'none';
+}
+
+function mostrarDashboard(user) {
+    const loginPage = document.getElementById('loginPage');
+    const dashboardPage = document.getElementById('dashboardPage');
+    if (loginPage) loginPage.style.display = 'none';
+    if (dashboardPage) dashboardPage.style.display = 'flex';
+    
+    const userName = document.getElementById('userName');
+    const userRole = document.getElementById('userRole');
+    const userAvatar = document.getElementById('userAvatar');
+
+    if (userName) userName.textContent = user.nombre;
+    if (userRole) userRole.textContent = user.rol === 'admin' ? 'Administrador' : 'Usuario';
+    if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
+    
+    // ✅ OCULTAR MENÚ USUARIOS SI NO ES ADMIN
+    const menuUsuarios = document.getElementById('nav-usuarios');
+    if (menuUsuarios) {
+        if (user.rol !== 'admin') {
+            menuUsuarios.parentElement.style.display = 'none';
+        } else {
+            menuUsuarios.parentElement.style.display = 'block';
+        }
+    }
+}
+function configurarFormularioLogin() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                mostrarAlertaLogin('❌ Complete todos los campos', 'error');
+                return;
+            }
+            
+            const btnLogin = loginForm.querySelector('.btn-login');
+            const originalText = btnLogin.innerHTML;
+            btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
+            btnLogin.disabled = true;
+            
+            try {
+                const resultado = await iniciarSesion(email, password);
+                
+                if (resultado.success) {
+                    mostrarAlertaLogin('✅ Inicio de sesión exitoso', 'success');
+                    setTimeout(() => {
+                        mostrarDashboard(resultado.user);
+                        
+                        const confInicio = document.getElementById('confFechaInicio');
+                        const confFin = document.getElementById('confFechaFin');
+                        if (confInicio && confFin) {
+                            confInicio.addEventListener('change', actualizarDuracionConferencia);
+                            confFin.addEventListener('change', actualizarDuracionConferencia);
+                        }
+
+                        cargarZonas();
+                        cargarDistritos();
+                        cargarIglesias();
+                        cargarConferencias();
+                        cargarAsistentes();
+                        cargarUsuarios();
+                        cargarEstadisticas();
+                        
+                        navegarSeccion('dashboard');
+                    }, 1000);
+                } else {
+                    mostrarAlertaLogin(resultado.message || '❌ Error al iniciar sesión', 'error');
+                    btnLogin.innerHTML = originalText;
+                    btnLogin.disabled = false;
+                }
+            } catch (error) {
+                console.error('❌ Error en login:', error);
+                mostrarAlertaLogin('❌ Error de conexión', 'error');
+                btnLogin.innerHTML = originalText;
+                btnLogin.disabled = false;
+            }
+        });
+    }
+}
+
+function mostrarAlertaLogin(mensaje, tipo) {
+    const alertDiv = document.getElementById('loginAlert');
+    if (alertDiv) {
+        alertDiv.textContent = mensaje;
+        alertDiv.className = 'login-alert ' + tipo;
+        alertDiv.style.display = 'flex';
+        
+        if (tipo === 'success') {
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 2000);
+        }
+    }
+}
+
+function togglePassword() {
+    const passwordInput = document.getElementById('loginPassword');
+    const toggleBtn = document.querySelector('.toggle-password i');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.classList.remove('fa-eye');
+        toggleBtn.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.classList.remove('fa-eye-slash');
+        toggleBtn.classList.add('fa-eye');
+    }
+}
+
+function cerrarSesion() {
+    if (confirm('⚠️ ¿Está seguro de cerrar sesión?')) {
+        localStorage.removeItem('user');
+        window.location.reload();
+    }
+}
+
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES
+// ============================================
+window.navegarSeccion = navegarSeccion;
+window.prepararModalZona = prepararModalZona;
+window.prepararModalDistrito = prepararModalDistrito;
+window.prepararModalIglesia = prepararModalIglesia;
+window.prepararModalConferencia = prepararModalConferencia;
+window.prepararModalAsistente = prepararModalAsistente;
+window.prepararModalUsuario = prepararModalUsuario;
+window.editarZona = editarZona;
+window.guardarZonaEditada = guardarZonaEditada;
+window.confirmarEliminarZona = confirmarEliminarZona;
+window.guardarZona = guardarZona;
+window.cargarZonas = cargarZonas;
+window.editarDistrito = editarDistrito;
+window.guardarDistritoEditado = guardarDistritoEditado;
+window.confirmarEliminarDistrito = confirmarEliminarDistrito;
+window.guardarDistrito = guardarDistrito;
+window.cargarDistritos = cargarDistritos;
+window.editarIglesia = editarIglesia;
+window.guardarIglesiaEditada = guardarIglesiaEditada;
+window.confirmarEliminarIglesia = confirmarEliminarIglesia;
+window.guardarIglesia = guardarIglesia;
+window.cargarIglesias = cargarIglesias;
+window.editarConferencia = editarConferencia;
+window.guardarConferenciaEditada = guardarConferenciaEditada;
+window.confirmarEliminarConferencia = confirmarEliminarConferencia;
+window.cargarConferencias = cargarConferencias;
+window.guardarConferencia = guardarConferencia;
+window.editarAsistente = editarAsistente;
+window.guardarAsistenteEditado = guardarAsistenteEditado;
+window.confirmarEliminarAsistente = confirmarEliminarAsistente;
+window.cargarAsistentes = cargarAsistentes;
+window.guardarAsistente = guardarAsistente;
+window.editarUsuario = editarUsuario;
+window.guardarUsuarioEditado = guardarUsuarioEditado;
+window.confirmarEliminarUsuario = confirmarEliminarUsuario;
+window.cargarUsuarios = cargarUsuarios;
+window.guardarUsuario = guardarUsuario;
+window.fechaISOaLocal = fechaISOaLocal;
+window.formatearFechaParaTabla = formatearFechaParaTabla;
+window.calcularDias = calcularDias;
+window.generarBotonesFechas = generarBotonesFechas;
+window.toggleFechaAsistencia = toggleFechaAsistencia;
+window.actualizarContadorAsistencia = actualizarContadorAsistencia;
+window.obtenerFechasSeleccionadas = obtenerFechasSeleccionadas;
+window.marcarFechasGuardadas = marcarFechasGuardadas;
+window.actualizarDuracionConferencia = actualizarDuracionConferencia;
+window.abrirModal = abrirModal;
+window.cerrarModal = cerrarModal;
+window.cargarEstadisticas = cargarEstadisticas;
+window.cargarZonasEnSelect = cargarZonasEnSelect;
+window.cargarDistritosEnSelect = cargarDistritosEnSelect;
+window.cargarIglesiasEnSelect = cargarIglesiasEnSelect;
+window.cargarConferenciasEnSelect = cargarConferenciasEnSelect;
+window.cargarDistritosPorZona = cargarDistritosPorZona;
+window.cargarFechasConferencia = cargarFechasConferencia;
+window.cargarReportes = cargarReportes;
+window.filtrarReporte = filtrarReporte;
+window.limpiarFiltrosReporte = limpiarFiltrosReporte;
+window.generarReportePDF = generarReportePDF;
+window.mostrarMensaje = mostrarMensaje;
+window.cerrarSesion = cerrarSesion;
+window.togglePassword = togglePassword;
+
+window.filtrarAsistentes = filtrarAsistentes;
+window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
+// ... resto de exports ...
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES
+// ============================================
+// ... funciones existentes ...
+window.filtrarAsistentes = filtrarAsistentes;
+window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
+// ... resto de exports ...
+
+
+console.log('✅ main.js cargado correctamente con todas las funciones');
+
+
+

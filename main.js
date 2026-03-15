@@ -1045,6 +1045,14 @@ async function guardarAsistenteEditado(e) {
             return;
         }
         
+        // ✅ CALCULAR DÍAS FALTANTES
+        const todasLasFechas = document.querySelectorAll('.fecha-asistencia');
+        const diasTotales = todasLasFechas.length;
+        const diasAsistidos = fechas_asistencia.length;
+        const diasFaltantes = diasTotales - diasAsistidos;
+        
+        console.log(`📊 Asistencia: ${diasAsistidos}/${diasTotales} días (Faltó: ${diasFaltantes})`);
+        
         await actualizarAsistente(window.editMode.id, {
             nombre_completo,
             telefono,
@@ -1055,7 +1063,7 @@ async function guardarAsistenteEditado(e) {
             fechas_asistencia: JSON.stringify(fechas_asistencia)
         });
         
-        mostrarMensaje('✅ Asistente actualizado exitosamente', 'success');
+        mostrarMensaje(`✅ Asistente actualizado. Asistió ${diasAsistidos} de ${diasTotales} días`, 'success');
         cerrarModal('modalNuevoAsistente');
         await cargarAsistentes();
     } catch (error) {

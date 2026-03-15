@@ -1405,3 +1405,29 @@ table {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
 }
+    .fecha-asistencia {
+    padding: 8px 12px;
+    margin: 4px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.fecha-asistencia.seleccionada {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.fecha-asistencia:hover {
+    border-color: #10b981;
+}
+
+.contador-asistencia {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-weight: 500;
+}

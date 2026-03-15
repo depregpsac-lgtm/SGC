@@ -1498,27 +1498,44 @@ table {
 }
     /* Agregar en tu archivo CSS */
 .fecha-asistencia {
-    background: #fee2e2; /* Rojo claro - no asistió */
+    padding: 8px 12px;
+    margin: 5px;
+    border: 2px solid #dc2626;
+    border-radius: 8px;
+    background: #fee2e2;
     color: #dc2626;
-    border: 1px solid #dc2626;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .fecha-asistencia.seleccionada {
-    background: #d1fae5; /* Verde - asistió */
+    background: #d1fae5;
     color: #059669;
-    border: 1px solid #059669;
+    border-color: #059669;
 }
 
 .fecha-asistencia:hover {
     opacity: 0.8;
-    cursor: pointer;
+    transform: scale(1.05);
 }
 
 .contador-asistencia {
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-weight: 600;
+    text-align: center;
+}
+
+#fechasAsistenciaContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 15px;
     padding: 10px;
-    border-radius: 5px;
-    margin-top: 10px;
-    font-weight: bold;
+    background: #f9fafb;
+    border-radius: 8px;
 }
     
 }

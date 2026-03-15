@@ -1,6 +1,7 @@
 // main.js - Control de la aplicación MinistryLion
 console.log('🔍 main.js cargado');
 console.log('🔍 window.db existe:', !!window.db);
+
 window.editMode = {
     tipo: null,
     id: null,
@@ -44,11 +45,27 @@ function calcularDias(fechaInicio, fechaFin) {
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
     
+    
+   function navegarSeccion(seccionId) {
+    console.log('📍 Navegando a:', seccionId);
+    
     // ✅ Limpiar buscador al salir de registros
     if (seccionId !== 'registros') {
         limpiarBuscadorAsistentes();
     }
-
+    
+    // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
+    if (seccionId === 'usuarios') {
+        const user = checkAuth();
+        if (!user || user.rol !== 'admin') {
+            mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden ver esta sección', 'error');
+            seccionId = 'dashboard';
+        }
+    }
+    
+    // ... resto del código existente ...
+}
+    
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
@@ -74,11 +91,12 @@ function navegarSeccion(seccionId) {
             cargarIglesias(); 
             break;
         case 'usuarios': 
-            cargarUsuarios(); 
+            if (esAdmin()) {
+                cargarUsuarios(); 
+            }
             break;
     }
 }
-
 // ============================================
 // MODALES
 // ============================================
@@ -139,7 +157,7 @@ async function prepararModalIglesia() {
     const titulo = document.getElementById('tituloModalIglesia');
     if (titulo) titulo.textContent = '⛪ Registrar Iglesia';
     await cargarZonasEnSelect('iglesiaZona');
-    document.getElementById('iglesiaDistrito').innerHTML = '-- Sin distrito --';
+    document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
     abrirModal('modalNuevaIglesia');
 }
 
@@ -159,16 +177,8 @@ async function prepararModalAsistente() {
     document.getElementById('formAsistente').onsubmit = guardarAsistente;
     const titulo = document.getElementById('tituloModalAsistente');
     if (titulo) titulo.textContent = '👥 Nuevo Registro de Asistente';
-    
-    // ✅ Limpiar contenedor de fechas
     const container = document.getElementById('fechasAsistenciaContainer');
-    if (container) container.innerHTML = '<p style="color: var(--gray);">Seleccione una conferencia primero</p>';
-    
-    // ✅ Resetear información de conferencia
-    document.getElementById('confInfoInicio').textContent = '-';
-    document.getElementById('confInfoFin').textContent = '-';
-    document.getElementById('confInfoDias').textContent = '-';
-    
+    if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
     await cargarIglesiasEnSelect('asistIglesia');
     await cargarConferenciasEnSelect('asistConferencia');
@@ -193,7 +203,7 @@ async function cargarZonasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const zonas = await obtenerZonas();
-        select.innerHTML = '-- Seleccione Zona --' +
+        select.innerHTML = '<option value="">-- Seleccione Zona --</option>' +
             zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando zonas:', error);
@@ -208,7 +218,7 @@ async function cargarDistritosEnSelect(selectId, zonaId = null) {
         if (zonaId) {
             distritos = distritos.filter(d => d.zona_id == zonaId);
         }
-        select.innerHTML = '-- Seleccione Distrito --' +
+        select.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
             distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando distritos:', error);
@@ -220,7 +230,7 @@ async function cargarIglesiasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const iglesias = await obtenerIglesias();
-        select.innerHTML = '-- Seleccione Iglesia --' +
+        select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>' +
             iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando iglesias:', error);
@@ -232,7 +242,7 @@ async function cargarConferenciasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const conferencias = await obtenerConferencias();
-        select.innerHTML = '-- Seleccione Conferencia --' +
+        select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
             conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando conferencias:', error);
@@ -373,40 +383,21 @@ async function cargarConferencias() {
     }
 }
 
-// ============================================
-// ✅ CARGAR ASISTENTES CON FECHAS PERSISTENTES
-// ============================================
-window.todosLosAsistentes = [];
-
 async function cargarAsistentes() {
     try {
         console.log('📥 Cargando asistentes...');
         const asistentes = await obtenerAsistentes();
-        window.todosLosAsistentes = asistentes;
         console.log('✅ Asistentes obtenidos:', asistentes.length);
-        
         const tbody = document.querySelector('#tablaAsistentes tbody');
         if (!tbody) {
             console.error('❌ No se encontró el tbody de la tabla');
             return;
         }
-        
         tbody.innerHTML = '';
         
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
-                // ✅ Parsear fechas_asistencia correctamente
-                let fechasAsistencia = [];
-                if (asist.fechas_asistencia) {
-                    try {
-                        fechasAsistencia = typeof asist.fechas_asistencia === 'string' 
-                            ? JSON.parse(asist.fechas_asistencia) 
-                            : asist.fechas_asistencia;
-                    } catch (e) {
-                        console.error('❌ Error parseando fechas_asistencia:', e);
-                        fechasAsistencia = [];
-                    }
-                }
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
                 
                 const tr = document.createElement('tr');
@@ -434,18 +425,72 @@ async function cargarAsistentes() {
 }
 
 // ============================================
-// ✅ FUNCIONES DE BÚSQUEDA
+// ✅ FUNCIONES DE BÚSQUEDA - ASISTENTES
 // ============================================
+
+// Variable global para almacenar todos los asistentes (sin filtrar)
+window.todosLosAsistentes = [];
+
+// Modificar cargarAsistentes para guardar todos los datos
+async function cargarAsistentes() {
+    try {
+        console.log('📥 Cargando asistentes...');
+        const asistentes = await obtenerAsistentes();
+        window.todosLosAsistentes = asistentes; // ✅ Guardar copia completa
+        console.log('✅ Asistentes obtenidos:', asistentes.length);
+        
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (!tbody) {
+            console.error('❌ No se encontró el tbody de la tabla');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>
+                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+        }
+    } catch (error) {
+        console.error('❌ Error cargando asistentes:', error);
+        const tbody = document.querySelector('#tablaAsistentes tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
+    }
+}
+
+// ============================================
+// ✅ FUNCIONES DE BÚSQUEDA - AGREGAR AL FINAL
+// ============================================
+
 function filtrarAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (!buscador) return;
+    
     const textoBusqueda = buscador.value.toLowerCase().trim();
     const tbody = document.querySelector('#tablaAsistentes tbody');
     if (!tbody) return;
-
+    
     const filas = tbody.querySelectorAll('tr');
     let resultadosEncontrados = 0;
-
+    
     filas.forEach(fila => {
         const celdas = fila.querySelectorAll('td');
         if (celdas.length < 6) return;
@@ -456,9 +501,9 @@ function filtrarAsistentes() {
         const conferencia = celdas[3]?.textContent?.toLowerCase() || '';
         
         const coincide = nombre.includes(textoBusqueda) || 
-                         telefono.includes(textoBusqueda) || 
-                         iglesia.includes(textoBusqueda) || 
-                         conferencia.includes(textoBusqueda);
+                        telefono.includes(textoBusqueda) || 
+                        iglesia.includes(textoBusqueda) || 
+                        conferencia.includes(textoBusqueda);
         
         if (coincide) {
             fila.style.display = '';
@@ -473,12 +518,22 @@ function filtrarAsistentes() {
             fila.classList.remove('tr-highlight');
         }
     });
-
+    
+    // Mostrar mensaje si no hay resultados
     if (resultadosEncontrados === 0 && textoBusqueda.length > 0) {
         tbody.innerHTML = '<tr><td colspan="6">🔍 No se encontraron registros que coincidan con "' + textoBusqueda + '"</td></tr>';
     }
 }
 
+function limpiarBuscadorAsistentes() {
+    const buscador = document.getElementById('buscadorAsistentes');
+    if (buscador) {
+        buscador.value = '';
+        filtrarAsistentes();
+    }
+}
+
+// ✅ Limpiar búsqueda al cambiar de sección
 function limpiarBuscadorAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (buscador) {
@@ -891,7 +946,7 @@ async function confirmarEliminarConferencia(id) {
 }
 
 // ============================================
-// ✅ FUNCIONES DE EDICIÓN Y GUARDADO - ASISTENTES
+// FUNCIONES DE EDICIÓN Y GUARDADO - ASISTENTES
 // ============================================
 async function editarAsistente(id) {
     try {
@@ -915,9 +970,7 @@ async function editarAsistente(id) {
         document.getElementById('tituloModalAsistente').textContent = '👥 Editar Asistente';
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
-        // ✅ Cargar fechas de la conferencia Y MARCAR las guardadas
         await cargarFechasConferencia(asist.conferencia_id);
-        
         abrirModal('modalNuevoAsistente');
     } catch (error) {
         console.error('❌ Error editando asistente:', error);
@@ -1027,6 +1080,35 @@ async function editarUsuario(id) {
         document.getElementById('usuarioRol').value = usuario.rol;
         document.getElementById('usuarioEstado').value = usuario.estado || 'activo';
         
+        // ✅ Parsear permisos de forma segura
+        let permisosUsuario = [];
+        try {
+            if (usuario.permisos) {
+                if (typeof usuario.permisos === 'string') {
+                    // Si es string con comillas escapadas
+                    if (usuario.permisos.startsWith('"[')) {
+                        const cleanPermisos = usuario.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
+                        permisosUsuario = JSON.parse(cleanPermisos);
+                    } else {
+                        permisosUsuario = JSON.parse(usuario.permisos);
+                    }
+                } else {
+                    permisosUsuario = usuario.permisos;
+                }
+            }
+        } catch (e) {
+            console.error('❌ Error parseando permisos del usuario:', e);
+            // Si falla, intentar con split por comas
+            if (typeof usuario.permisos === 'string') {
+                permisosUsuario = usuario.permisos.split(',').map(p => p.trim()).filter(p => p);
+            }
+        }
+        
+        // Marcar permisos
+        document.querySelectorAll('.permiso-checkbox').forEach(cb => {
+            cb.checked = permisosUsuario.includes(cb.value) || usuario.rol === 'admin' || usuario.rol === 'administrador';
+        });
+        
         document.getElementById('tituloModalUsuario').textContent = '👤 Editar Usuario';
         document.getElementById('formUsuario').onsubmit = guardarUsuarioEditado;
         
@@ -1039,19 +1121,31 @@ async function editarUsuario(id) {
 
 async function guardarUsuario(e) {
     e.preventDefault();
+    
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
+        return;
+    }
+    
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
         const password = document.getElementById('usuarioPassword').value;
         const rol = document.getElementById('usuarioRol').value;
-        const estado = document.getElementById('usuarioEstado')?.value || 'activo';
+        const estado = document.getElementById('usuarioEstado').value;
+        
+        const permisos = [];
+        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+            permisos.push(cb.value);
+        });
         
         if (!nombre_completo || !email || !password) {
             mostrarMensaje('Nombre, correo y contraseña son requeridos', 'error');
             return;
         }
         
-        await crearUsuario(nombre_completo, email, password, rol, estado);
+        await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario creado exitosamente', 'success');
         cerrarModal('modalNuevoUsuario');
         await cargarUsuarios();
@@ -1063,19 +1157,60 @@ async function guardarUsuario(e) {
 
 async function guardarUsuarioEditado(e) {
     e.preventDefault();
+    
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden editar usuarios', 'error');
+        return;
+    }
+    
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
         const password = document.getElementById('usuarioPassword').value;
         const rol = document.getElementById('usuarioRol').value;
-        const estado = document.getElementById('usuarioEstado')?.value || 'activo';
+        const estado = document.getElementById('usuarioEstado').value;
+        
+        const permisos = [];
+        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+            permisos.push(cb.value);
+        });
         
         if (!nombre_completo || !email) {
             mostrarMensaje('Nombre y correo son requeridos', 'error');
             return;
         }
         
-        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, estado);
+        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
+        mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
+        cerrarModal('modalNuevoUsuario');
+        await cargarUsuarios();
+    } catch (error) {
+        console.error('❌ Error actualizando usuario:', error);
+        mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
+    }
+}
+
+async function guardarUsuarioEditado(e) {
+    e.preventDefault();
+    try {
+        const nombre_completo = document.getElementById('usuarioNombre').value.trim();
+        const email = document.getElementById('usuarioEmail').value.trim();
+        const password = document.getElementById('usuarioPassword').value;
+        const rol = document.getElementById('usuarioRol').value;
+        const estado = document.getElementById('usuarioEstado').value;
+        
+        const permisos = [];
+        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+            permisos.push(cb.value);
+        });
+        
+        if (!nombre_completo || !email) {
+            mostrarMensaje('Nombre y correo son requeridos', 'error');
+            return;
+        }
+        
+        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
         cerrarModal('modalNuevoUsuario');
         await cargarUsuarios();
@@ -1086,6 +1221,12 @@ async function guardarUsuarioEditado(e) {
 }
 
 async function confirmarEliminarUsuario(id) {
+    // ✅ VERIFICAR QUE SEA ADMIN
+    if (!esAdmin()) {
+        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
+        return;
+    }
+    
     if (confirm('⚠️ ¿Está seguro de eliminar este usuario?')) {
         try {
             await eliminarUsuario(id);
@@ -1097,9 +1238,8 @@ async function confirmarEliminarUsuario(id) {
         }
     }
 }
-
 // ============================================
-// ✅ FUNCIONES DE ASISTENCIA - FECHAS PERSISTENTES
+// FUNCIONES DE ASISTENCIA
 // ============================================
 function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
@@ -1110,7 +1250,7 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
     const fin = new Date(fechaFin + 'T00:00:00');
     const fechas = [];
     let actual = new Date(inicio);
-
+    
     while (actual <= fin) {
         fechas.push(new Date(actual));
         actual.setDate(actual.getDate() + 1);
@@ -1173,72 +1313,43 @@ function obtenerFechasSeleccionadas() {
     return Array.from(seleccionadas).map(boton => boton.dataset.fecha);
 }
 
-// ✅ FUNCIÓN CLAVE: Marcar fechas guardadas persistentemente
 function marcarFechasGuardadas(fechasGuardadas) {
-    if (!fechasGuardadas || fechasGuardadas.length === 0) {
-        console.log('⚠️ No hay fechas guardadas para marcar');
-        return;
-    }
-    
+    if (!fechasGuardadas || fechasGuardadas.length === 0) return;
     const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
-    console.log('📅 Marcando fechas guardadas:', fechas);
     
     fechas.forEach(fechaISO => {
         const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
         if (boton) {
             boton.classList.add('seleccionada');
-            console.log('✅ Marcada fecha:', fechaISO);
-        } else {
-            console.log('⚠️ Fecha no encontrada en botones:', fechaISO);
         }
     });
-    
     actualizarContadorAsistencia();
 }
 
-// ✅ FUNCIÓN MEJORADA: Cargar fechas con persistencia
 async function cargarFechasConferencia(conferenciaId) {
     console.log('📅 Cargando fechas para conferencia:', conferenciaId);
-    
     const container = document.getElementById('fechasAsistenciaContainer');
-    if (container) container.innerHTML = '<p style="color: var(--gray);">Cargando fechas...</p>';
-    
+    if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
     
-    if (!conferenciaId) {
-        if (container) container.innerHTML = '<p style="color: var(--gray);">Seleccione una conferencia primero</p>';
-        return;
-    }
+    if (!conferenciaId) return;
 
     try {
         const conferencias = await obtenerConferencias();
         const conferencia = conferencias.find(c => c.id == conferenciaId);
         
         if (conferencia) {
-            // ✅ Mostrar información de la conferencia
-            document.getElementById('confInfoInicio').textContent = formatearFechaParaTabla(conferencia.fecha_inicio);
-            document.getElementById('confInfoFin').textContent = formatearFechaParaTabla(conferencia.fecha_fin);
-            document.getElementById('confInfoDias').textContent = calcularDias(conferencia.fecha_inicio, conferencia.fecha_fin);
-            
-            // ✅ Generar botones de fechas
             generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
             
-            // ✅ SI ESTAMOS EDITANDO, MARCAR LAS FECHAS GUARDADAS
-            if (window.editMode.tipo === 'asistente' && window.editMode.data && window.editMode.data.fechas_asistencia) {
-                console.log('📝 Modo edición - Marcando fechas guardadas');
+            if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
                 setTimeout(() => {
                     marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
-                }, 100);
-            } else {
-                console.log('📝 Modo nuevo registro - Sin fechas previas');
+                }, 150);
             }
-        } else {
-            if (container) container.innerHTML = '<p style="color: var(--gray);">Conferencia no encontrada</p>';
         }
     } catch (error) {
         console.error('❌ Error cargando fechas:', error);
         mostrarMensaje('Error al cargar fechas de la conferencia', 'error');
-        if (container) container.innerHTML = '<p style="color: var(--gray);">Error al cargar fechas</p>';
     }
 }
 
@@ -1246,6 +1357,7 @@ function actualizarDuracionConferencia() {
     const inicio = document.getElementById('confFechaInicio')?.value;
     const fin = document.getElementById('confFechaFin')?.value;
     const duracionElement = document.querySelector('#modalNuevaConferencia .duracion-conferencia');
+    
     if (inicio && fin && duracionElement) {
         const dias = calcularDias(inicio, fin);
         duracionElement.textContent = `📅 Duración: ${dias} días`;
@@ -1283,9 +1395,7 @@ async function filtrarReporte() {
         
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
-                const fechasAsistencia = asist.fechas_asistencia ? 
-                    (typeof asist.fechas_asistencia === 'string' ? JSON.parse(asist.fechas_asistencia) : asist.fechas_asistencia) 
-                    : [];
+                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
                 
                 const tr = document.createElement('tr');
@@ -1302,9 +1412,7 @@ async function filtrarReporte() {
             
             const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
             const totalDias = asistentes.reduce((sum, a) => {
-                const fechas = a.fechas_asistencia ? 
-                    (typeof a.fechas_asistencia === 'string' ? JSON.parse(a.fechas_asistencia) : a.fechas_asistencia) 
-                    : [];
+                const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
                 return sum + fechas.length;
             }, 0);
             
@@ -1379,9 +1487,7 @@ async function generarReportePDF() {
         
         const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
         const totalDias = asistentes.reduce((sum, a) => {
-            const fechas = a.fechas_asistencia ? 
-                (typeof a.fechas_asistencia === 'string' ? JSON.parse(a.fechas_asistencia) : a.fechas_asistencia) 
-                : [];
+            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
             return sum + fechas.length;
         }, 0);
         
@@ -1389,13 +1495,11 @@ async function generarReportePDF() {
         doc.rect(14, 75, 182, 20, 'F');
         doc.setFontSize(10);
         doc.text(`Total Asistentes: ${asistentes.length}`, 20, 85);
-        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85);  
+        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85); 
         doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 85);
         
         const tableData = asistentes.map(asist => {
-            const fechasAsistencia = asist.fechas_asistencia ? 
-                (typeof asist.fechas_asistencia === 'string' ? JSON.parse(asist.fechas_asistencia) : asist.fechas_asistencia) 
-                : [];
+            const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
             return [
                 asist.nombre_completo,
                 asist.telefono || '-',
@@ -1436,7 +1540,7 @@ async function generarReportePDF() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOMContentLoaded - Iniciando aplicación...');
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     if (!window.db) {
         console.error('❌ window.db no existe');
         mostrarMensaje('Error de conexión con la base de datos', 'error');
@@ -1494,21 +1598,25 @@ function mostrarDashboard(user) {
     const userAvatar = document.getElementById('userAvatar');
 
     if (userName) userName.textContent = user.nombre;
-    if (userRole) userRole.textContent = (user.rol === 'admin' || user.rol === 'administrador') ? 'Administrador' : 'Usuario';
+    if (userRole) userRole.textContent = user.rol === 'admin' ? 'Administrador' : 'Usuario';
     if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
-
-    // ✅ MOSTRAR TODOS LOS MENÚS PARA TODOS LOS USUARIOS
+    
+    // ✅ OCULTAR MENÚ USUARIOS SI NO ES ADMIN
     const menuUsuarios = document.getElementById('nav-usuarios');
     if (menuUsuarios) {
-        menuUsuarios.closest('a').style.display = 'flex';
+        if (user.rol !== 'admin') {
+            menuUsuarios.parentElement.style.display = 'none';
+        } else {
+            menuUsuarios.parentElement.style.display = 'block';
+        }
     }
 }
-
 function configurarFormularioLogin() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             
@@ -1568,6 +1676,7 @@ function mostrarAlertaLogin(mensaje, tipo) {
         alertDiv.textContent = mensaje;
         alertDiv.className = 'login-alert ' + tipo;
         alertDiv.style.display = 'flex';
+        
         if (tipo === 'success') {
             setTimeout(() => {
                 alertDiv.style.display = 'none';
@@ -1662,7 +1771,19 @@ window.generarReportePDF = generarReportePDF;
 window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
+
 window.filtrarAsistentes = filtrarAsistentes;
 window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
+// ... resto de exports ...
+// ============================================
+// EXPORTAR FUNCIONES GLOBALES
+// ============================================
+// ... funciones existentes ...
+window.filtrarAsistentes = filtrarAsistentes;
+window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
+// ... resto de exports ...
+
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
+

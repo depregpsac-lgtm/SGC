@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
+    <!-- ✅ Supabase CDN - DEBE CARGAR PRIMERO -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -1331,9 +1333,47 @@
         </div>
     </div>
 
-    <!-- Database Connection -->
+    <!-- ============================================ -->
+    <!-- ✅ SCRIPTS EN ORDEN CORRECTO -->
+    <!-- ============================================ -->
+    
+    <!-- 1. Configuración de Supabase -->
+    <script>
+        // ✅ CONFIGURACIÓN DE SUPABASE DIRECTAMENTE EN EL HTML
+        const SUPABASE_CONFIG = {
+            url: 'https://qalzqyjuyptemtrhwsbz.supabase.co',
+            key: 'sb_publishable_6qbyMCMlswqUm_kuCPJtyA_B7m4xFvr'
+        };
+        
+        // Inicializar Supabase
+        function initSupabase() {
+            if (typeof supabase === 'undefined') {
+                console.error('❌ La librería de Supabase no se ha cargado.');
+                return false;
+            }
+            try {
+                window.db = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+                console.log('✅ Supabase inicializado correctamente');
+                console.log('📡 URL:', SUPABASE_CONFIG.url);
+                return true;
+            } catch (error) {
+                console.error('❌ Error al inicializar Supabase:', error);
+                return false;
+            }
+        }
+        
+        // Intentar inicializar inmediatamente
+        console.log('🔍 Iniciando conexión con Supabase...');
+        initSupabase();
+    </script>
+    
+    <!-- 2. Database Operations -->
     <script src="db.js"></script>
+    
+    <!-- 3. Authentication -->
     <script src="auth.js"></script>
+    
+    <!-- 4. Main Application Logic -->
     <script src="main (1).js"></script>
     
     <script>

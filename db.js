@@ -1,10 +1,126 @@
-// db.js - Funciones de Base de Datos
+// db.js - Configuración de Base de Datos Supabase
 console.log('🗄️ db.js cargado');
 
-// ZONAS
+// ============================================
+// ⚙️ CONFIGURACIÓN DE SUPABASE
+// ============================================
+// 🔴 IMPORTANTE: Reemplaza estos valores con los de tu proyecto en Supabase
+const SUPABASE_URL = 'https://qalzqyjuyptemtrhwsbz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6qbyMCMlswqUm_kuCPJtyA_B7m4xFvr';
+
+// Inicializar cliente de Supabase
+if (typeof window.supabase !== 'undefined') {
+    window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Conectado a Supabase:', SUPABASE_URL);
+} else {
+    console.error('❌ La librería de Supabase no está cargada. Verifica que el script esté incluido en el HTML.');
+}
+
+// ============================================
+// 🔐 FUNCIONES DE AUTENTICACIÓN
+// ============================================
+
+// Iniciar sesión
+async function iniciarSesion(email, password) {
+    try {
+        console.log('🔐 Intentando iniciar sesión con:', email);
+        
+        // Buscar usuario en la tabla usuarios_sistema
+        const { data: usuario, error: fetchError } = await window.db
+            .from('usuarios_sistema')
+            .select('*')
+            .eq('email', email)
+            .eq('estado', 'activo')
+            .single();
+        
+        if (fetchError || !usuario) {
+            console.error('❌ Usuario no encontrado o inactivo');
+            return {
+                success: false,
+                message: '❌ Correo o contraseña incorrectos'
+            };
+        }
+        
+        // Verificar contraseña (en producción deberías usar hash)
+        if (usuario.password_hash !== password) {
+            console.error('❌ Contraseña incorrecta');
+            return {
+                success: false,
+                message: '❌ Correo o contraseña incorrectos'
+            };
+        }
+        
+        // Guardar sesión en localStorage
+        const userSession = {
+            id: usuario.id,
+            nombre: usuario.nombre_completo,
+            email: usuario.email,
+            rol: usuario.rol,
+            permisos: usuario.permisos,
+            estado: usuario.estado
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userSession));
+        console.log('✅ Sesión iniciada exitosamente:', userSession.nombre);
+        
+        return {
+            success: true,
+            user: userSession,
+            message: '✅ Inicio de sesión exitoso'
+        };
+    } catch (error) {
+        console.error('❌ Error en iniciarSesion:', error);
+        return {
+            success: false,
+            message: '❌ Error de conexión: ' + error.message
+        };
+    }
+}
+
+// Verificar si hay sesión activa
+function checkAuth() {
+    try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            console.log('🔐 No hay sesión activa');
+            return null;
+        }
+        
+        const user = JSON.parse(userStr);
+        console.log('✅ Sesión verificada:', user.nombre);
+        return user;
+    } catch (error) {
+        console.error('❌ Error verificando sesión:', error);
+        localStorage.removeItem('user');
+        return null;
+    }
+}
+
+// Cerrar sesión
+function cerrarSesion() {
+    localStorage.removeItem('user');
+    console.log('🚪 Sesión cerrada');
+    window.location.reload();
+}
+
+// Verificar si es administrador
+function esAdmin() {
+    const user = checkAuth();
+    return user && (user.rol === 'admin' || user.rol === 'administrador');
+}
+
+// ============================================
+// 📍 ZONAS
+// ============================================
 async function obtenerZonas() {
-    const { data, error } = await window.db.from('zonas').select('*').order('nombre');
-    return error ? [] : (data || []);
+    try {
+        const { data, error } = await window.db.from('zonas').select('*').order('nombre');
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Error obteniendo zonas:', error);
+        return [];
+    }
 }
 
 async function crearZona(nombre, descripcion) {
@@ -25,10 +141,18 @@ async function eliminarZona(id) {
     return true;
 }
 
-// DISTRITOS
+// ============================================
+// 🏛️ DISTRITOS
+// ============================================
 async function obtenerDistritos() {
-    const { data, error } = await window.db.from('distritos').select('*, zonas(nombre)').order('nombre');
-    return error ? [] : (data || []);
+    try {
+        const { data, error } = await window.db.from('distritos').select('*, zonas(nombre)').order('nombre');
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Error obteniendo distritos:', error);
+        return [];
+    }
 }
 
 async function crearDistrito(zona_id, nombre, responsable, telefono) {
@@ -49,10 +173,18 @@ async function eliminarDistrito(id) {
     return true;
 }
 
-// IGLESIAS
+// ============================================
+// ⛪ IGLESIAS
+// ============================================
 async function obtenerIglesias() {
-    const { data, error } = await window.db.from('iglesias').select('*, zonas(nombre), distritos(nombre)').order('nombre');
-    return error ? [] : (data || []);
+    try {
+        const { data, error } = await window.db.from('iglesias').select('*, zonas(nombre), distritos(nombre)').order('nombre');
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Error obteniendo iglesias:', error);
+        return [];
+    }
 }
 
 async function crearIglesia(zona_id, distrito_id, nombre, pastor, direccion, telefono) {
@@ -73,10 +205,18 @@ async function eliminarIglesia(id) {
     return true;
 }
 
-// CONFERENCIAS
+// ============================================
+// 📅 CONFERENCIAS
+// ============================================
 async function obtenerConferencias() {
-    const { data, error } = await window.db.from('conferencias').select('*, iglesias(nombre)').order('fecha_inicio', { ascending: false });
-    return error ? [] : (data || []);
+    try {
+        const { data, error } = await window.db.from('conferencias').select('*, iglesias(nombre)').order('fecha_inicio', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Error obteniendo conferencias:', error);
+        return [];
+    }
 }
 
 async function crearConferencia(iglesia_id, nombre, fecha_inicio, fecha_fin, conferenciante) {
@@ -92,16 +232,25 @@ async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha
 }
 
 async function eliminarConferencia(id) {
+    // Primero eliminar asistentes relacionados
     await window.db.from('asistentes').delete().eq('conferencia_id', id);
     const { error } = await window.db.from('conferencias').delete().eq('id', id);
     if (error) throw error;
     return true;
 }
 
-// ASISTENTES
+// ============================================
+// 👥 ASISTENTES
+// ============================================
 async function obtenerAsistentes() {
-    const { data, error } = await window.db.from('asistentes').select('*, iglesias(nombre), conferencias(nombre)').order('nombre_completo');
-    return error ? [] : (data || []);
+    try {
+        const { data, error } = await window.db.from('asistentes').select('*, iglesias(nombre), conferencias(nombre)').order('nombre_completo');
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Error obteniendo asistentes:', error);
+        return [];
+    }
 }
 
 async function crearAsistente(datos) {
@@ -122,24 +271,30 @@ async function eliminarAsistente(id) {
     return true;
 }
 
-// USUARIOS
-// USUARIOS
-// USUARIOS
+// ============================================
+// 👤 USUARIOS DEL SISTEMA
+// ============================================
 async function obtenerUsuarios() {
-    const { data, error } = await window.db.from('usuarios_sistema').select('*').order('nombre_completo');
-    return error ? [] : (data || []);
+    try {
+        const { data, error } = await window.db.from('usuarios_sistema').select('*').order('nombre_completo');
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Error obteniendo usuarios:', error);
+        return [];
+    }
 }
 
 async function crearUsuario(nombre_completo, email, password, rol, permisos, estado) {
     const { data, error } = await window.db
         .from('usuarios_sistema')
-        .insert([{ 
-            nombre_completo, 
-            email, 
-            password_hash: password,  // ✅ Cambiado a password_hash
-            rol, 
-            permisos, 
-            estado 
+        .insert([{
+            nombre_completo,
+            email,
+            password_hash: password,
+            rol,
+            permisos,
+            estado
         }])
         .select();
     if (error) throw error;
@@ -149,7 +304,7 @@ async function crearUsuario(nombre_completo, email, password, rol, permisos, est
 async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado) {
     const updateData = { nombre_completo, email, rol, permisos, estado };
     if (password && password.trim() !== '') {
-        updateData.password_hash = password;  // ✅ Cambiado a password_hash
+        updateData.password_hash = password;
     }
     const { data, error } = await window.db
         .from('usuarios_sistema')
@@ -165,50 +320,78 @@ async function eliminarUsuario(id) {
     if (error) throw error;
     return true;
 }
-// ESTADÍSTICAS
+
+// ============================================
+// 📊 ESTADÍSTICAS
+// ============================================
 async function obtenerEstadisticas() {
-    const [zonas, distritos, iglesias, conferencias, asistentes] = await Promise.all([
-        window.db.from('zonas').select('id', { count: 'exact', head: true }),
-        window.db.from('distritos').select('id', { count: 'exact', head: true }),
-        window.db.from('iglesias').select('id', { count: 'exact', head: true }),
-        window.db.from('conferencias').select('id', { count: 'exact', head: true }),
-        window.db.from('asistentes').select('id', { count: 'exact', head: true })
-    ]);
-    
-    return {
-        total_zonas: zonas.count || 0,
-        total_distritos: distritos.count || 0,
-        total_iglesias: iglesias.count || 0,
-        total_conferencias: conferencias.count || 0,
-        total_asistentes: asistentes.count || 0
-    };
+    try {
+        const [zonas, distritos, iglesias, conferencias, asistentes] = await Promise.all([
+            window.db.from('zonas').select('id', { count: 'exact', head: true }),
+            window.db.from('distritos').select('id', { count: 'exact', head: true }),
+            window.db.from('iglesias').select('id', { count: 'exact', head: true }),
+            window.db.from('conferencias').select('id', { count: 'exact', head: true }),
+            window.db.from('asistentes').select('id', { count: 'exact', head: true })
+        ]);
+        
+        return {
+            total_zonas: zonas.count || 0,
+            total_distritos: distritos.count || 0,
+            total_iglesias: iglesias.count || 0,
+            total_conferencias: conferencias.count || 0,
+            total_asistentes: asistentes.count || 0
+        };
+    } catch (error) {
+        console.error('❌ Error obteniendo estadísticas:', error);
+        return {
+            total_zonas: 0,
+            total_distritos: 0,
+            total_iglesias: 0,
+            total_conferencias: 0,
+            total_asistentes: 0
+        };
+    }
 }
 
-// Exportar funciones globales
+// ============================================
+// 📤 EXPORTAR FUNCIONES GLOBALES
+// ============================================
+window.iniciarSesion = iniciarSesion;
+window.checkAuth = checkAuth;
+window.cerrarSesion = cerrarSesion;
+window.esAdmin = esAdmin;
+
 window.obtenerZonas = obtenerZonas;
 window.crearZona = crearZona;
 window.actualizarZona = actualizarZona;
 window.eliminarZona = eliminarZona;
+
 window.obtenerDistritos = obtenerDistritos;
 window.crearDistrito = crearDistrito;
 window.actualizarDistrito = actualizarDistrito;
 window.eliminarDistrito = eliminarDistrito;
+
 window.obtenerIglesias = obtenerIglesias;
 window.crearIglesia = crearIglesia;
 window.actualizarIglesia = actualizarIglesia;
 window.eliminarIglesia = eliminarIglesia;
+
 window.obtenerConferencias = obtenerConferencias;
 window.crearConferencia = crearConferencia;
 window.actualizarConferencia = actualizarConferencia;
 window.eliminarConferencia = eliminarConferencia;
+
 window.obtenerAsistentes = obtenerAsistentes;
 window.crearAsistente = crearAsistente;
 window.actualizarAsistente = actualizarAsistente;
 window.eliminarAsistente = eliminarAsistente;
+
 window.obtenerUsuarios = obtenerUsuarios;
 window.crearUsuario = crearUsuario;
 window.actualizarUsuario = actualizarUsuario;
 window.eliminarUsuario = eliminarUsuario;
+
 window.obtenerEstadisticas = obtenerEstadisticas;
-console.log('✅ db.js inicializado con todas las funciones CRUD');
+
+console.log('✅ db.js inicializado con todas las funciones CRUD y autenticación');
 

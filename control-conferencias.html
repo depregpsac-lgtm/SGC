@@ -568,7 +568,6 @@
                             <button class="btn btn-primary me-2" onclick="abrirModalRegistro()">
                                 <i class="fas fa-plus"></i> Nuevo Registro
                             </button>
-                            <!-- BOTÓN DE ACTUALIZAR MEJORADO -->
                             <button class="btn btn-secondary" onclick="actualizarRegistros()" title="Actualizar lista" id="btnActualizarRegistros">
                                 <i class="fas fa-sync-alt"></i> Actualizar
                             </button>
@@ -1040,7 +1039,6 @@
             const statusEl = document.getElementById('connectionStatus');
             
             try {
-                // Esperar a que config.js y db.js se carguen
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
                 if (typeof window.db !== 'undefined' && window.db) {
@@ -1049,7 +1047,6 @@
                     statusEl.classList.remove('error');
                     console.log('✅ Base de datos conectada');
                 } else {
-                    // Intentar inicializar manualmente
                     if (typeof initSupabase === 'function') {
                         const success = initSupabase();
                         if (success) {
@@ -1094,7 +1091,6 @@
             statusEl.innerHTML = '<div class="spinner"></div><p>Conectando...</p>';
 
             try {
-                // Verificar usuario en la base de datos
                 if (dbInitialized && typeof obtenerUsuarios === 'function') {
                     const usuarios = await obtenerUsuarios();
                     const usuarioEncontrado = usuarios.find(u => 
@@ -1109,7 +1105,6 @@
                             role: usuarioEncontrado.rol
                         };
                     } else {
-                        // Login demo para desarrollo
                         currentUser = {
                             id: 1,
                             email: email,
@@ -1118,7 +1113,6 @@
                         };
                     }
                 } else {
-                    // Login demo sin base de datos
                     currentUser = {
                         id: 1,
                         email: email,
@@ -1143,7 +1137,6 @@
             document.getElementById('userEmail').textContent = currentUser.email;
             document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
 
-            // Cargar datos iniciales
             cargarDashboard();
             navigateTo('dashboard');
         }
@@ -1159,18 +1152,14 @@
         // NAVEGACIÓN
         // ============================================
         function navigateTo(section) {
-            // Ocultar todas las secciones
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
 
-            // Mostrar sección seleccionada
             document.getElementById(section).classList.add('active');
             
-            // Actualizar menú activo
             const menuLink = document.querySelector(`.sidebar-menu a[onclick="navigateTo('${section}')"]`);
             if (menuLink) menuLink.classList.add('active');
 
-            // Actualizar título
             const titles = {
                 'dashboard': 'Dashboard',
                 'conferencias': 'Conferencias',
@@ -1181,7 +1170,6 @@
             };
             document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
 
-            // Cargar datos según la sección
             switch(section) {
                 case 'dashboard':
                     cargarDashboard();
@@ -1217,7 +1205,6 @@
                     document.getElementById('totalConferencias').textContent = stats.total_conferencias;
                     document.getElementById('totalAsistentes').textContent = stats.total_asistentes;
                 } else {
-                    // Valores demo
                     document.getElementById('totalZonas').textContent = '0';
                     document.getElementById('totalDistritos').textContent = '0';
                     document.getElementById('totalIglesias').textContent = '0';
@@ -1324,7 +1311,7 @@
         }
 
         // ============================================
-        // CARGA DE DATOS - REGISTROS (CON FUNCIÓN DE ACTUALIZAR)
+        // CARGA DE DATOS - REGISTROS
         // ============================================
         async function cargarRegistros() {
             const tbody = document.querySelector('#tablaRegistros tbody');
@@ -1369,27 +1356,22 @@
         }
 
         // ============================================
-        // FUNCIÓN DE ACTUALIZAR REGISTROS (MEJORADA)
+        // FUNCIÓN DE ACTUALIZAR REGISTROS
         // ============================================
         async function actualizarRegistros() {
             const btn = document.getElementById('btnActualizarRegistros');
             const originalContent = btn.innerHTML;
             
-            // Mostrar estado de carga
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
             btn.disabled = true;
 
             try {
-                // Recargar los datos de registros desde la base de datos
                 await cargarRegistros();
-                
-                // Mostrar notificación de éxito
                 mostrarNotificacion('✅ Registros actualizados correctamente', 'success');
             } catch (error) {
                 console.error('Error al actualizar registros:', error);
                 mostrarNotificacion('❌ Error al actualizar registros', 'danger');
             } finally {
-                // Restaurar botón
                 setTimeout(() => {
                     btn.innerHTML = originalContent;
                     btn.disabled = false;
@@ -1409,7 +1391,6 @@
                 iglesiaSelect.innerHTML = '<option value="">-- Todas --</option>';
 
                 if (dbInitialized) {
-                    // Cargar conferencias
                     if (typeof obtenerConferencias === 'function') {
                         const conferencias = await obtenerConferencias();
                         conferencias.forEach(conf => {
@@ -1417,7 +1398,6 @@
                         });
                     }
 
-                    // Cargar iglesias
                     if (typeof obtenerIglesias === 'function') {
                         const iglesias = await obtenerIglesias();
                         iglesias.forEach(iglesia => {
@@ -1441,7 +1421,6 @@
                     asistentes = await obtenerAsistentes();
                 }
 
-                // Aplicar filtros
                 const confId = document.getElementById('filtroConferencia').value;
                 const iglesiaId = document.getElementById('filtroIglesia').value;
 
@@ -1464,7 +1443,6 @@
                         </tr>
                     `).join('');
 
-                    // Actualizar estadísticas
                     document.getElementById('reporteTotalAsistentes').textContent = asistentes.length;
                     const totalDias = asistentes.reduce((sum, a) => sum + (parseInt(a.dias_asistidos) || 0), 0);
                     document.getElementById('reporteDiasTotales').textContent = totalDias;
@@ -1489,7 +1467,6 @@
 
         function descargarPDF() {
             mostrarNotificacion('📄 Generando PDF...', 'info');
-            // Implementar generación de PDF con librería como jsPDF
         }
 
         // ============================================
@@ -1747,7 +1724,6 @@
 
         function cerrarModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
-            // Limpiar formularios
             const form = document.querySelector(`#${modalId} form`);
             if (form) form.reset();
         }
@@ -1849,7 +1825,6 @@
                             <p><strong>Total de días:</strong> ${diasTotales}</p>
                         `;
 
-                        // Generar checkboxes para días
                         diasContainer.innerHTML = '';
                         for (let i = 1; i <= diasTotales; i++) {
                             diasContainer.innerHTML += `
@@ -1882,43 +1857,36 @@
         // EVENT LISTENERS
         // ============================================
         function setupEventListeners() {
-            // Form Zona
             document.getElementById('formZona').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await guardarZona();
             });
 
-            // Form Distrito
             document.getElementById('formDistrito').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await guardarDistrito();
             });
 
-            // Form Iglesia
             document.getElementById('formIglesia').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await guardarIglesia();
             });
 
-            // Form Conferencia
             document.getElementById('formConferencia').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await guardarConferencia();
             });
 
-            // Form Registro
             document.getElementById('formRegistro').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await guardarRegistro();
             });
 
-            // Form Usuario
             document.getElementById('formUsuario').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await guardarUsuario();
             });
 
-            // Cerrar modales al hacer clic fuera
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.addEventListener('click', function(e) {
                     if (e.target === this) {
@@ -1927,7 +1895,6 @@
                 });
             });
 
-            // Cerrar modales con tecla Escape
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     document.querySelectorAll('.modal.active').forEach(modal => {
@@ -2210,7 +2177,7 @@
         }
 
         // ============================================
-        // EDITAR DATOS (Funciones placeholder)
+        // EDITAR DATOS
         // ============================================
         function editarZona(id) {
             mostrarNotificacion('⚠️ Función de edición en desarrollo', 'warning');

@@ -170,27 +170,43 @@ async function prepararModalConferencia() {
     await cargarIglesiasEnSelect('confIglesia');
     abrirModal('modalNuevaConferencia');
 }
+// asing funcion preparar modal ASISTENCTE
 
 async function prepararModalAsistente() {
     window.editMode = { tipo: null, id: null, data: null };
     document.getElementById('formAsistente').reset();
     document.getElementById('formAsistente').onsubmit = guardarAsistente;
+    
     const titulo = document.getElementById('tituloModalAsistente');
     if (titulo) titulo.textContent = '👥 Nuevo Registro de Asistente';
+    
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
+    
     await cargarIglesiasEnSelect('asistIglesia');
     await cargarConferenciasEnSelect('asistConferencia');
     
-    // ✅ AGREGAR LISTENER PARA CARGAR FECAS AL CAMBIAR CONFERENCIA
+    // ✅ AGREGAR LISTENER PARA CAMBIO DE CONFERENCIA
     const confSelect = document.getElementById('asistConferencia');
     if (confSelect) {
-        confSelect.addEventListener('change', async (e) => {
+        // ✅ Remover listeners previos para evitar duplicados
+        confSelect.replaceWith(confSelect.cloneNode(true));
+        const nuevoSelect = document.getElementById('asistConferencia');
+        
+        nuevoSelect.addEventListener('change', async (e) => {
+            console.log('🔄 Conferencia cambiada:', e.target.value);
+            
+            // ✅ Limpiar fechas anteriores
             const container = document.getElementById('fechasAsistenciaContainer');
             if (container) container.innerHTML = '';
             actualizarContadorAsistencia();
-            await cargarFechasConferencia(e.target.value);
+            
+            // ✅ Resetear editMode para no marcar fechas de otro asistente
+            if (e.target.value) {
+                window.editMode.data.fechas_asistencia = null;
+                await cargarFechasConferencia(e.target.value);
+            }
         });
     }
     
@@ -961,9 +977,18 @@ async function confirmarEliminarConferencia(id) {
 // ============================================
 async function editarAsistente(id) {
     try {
+        console.log('✏️ Editando asistente ID:', id);
+        
         const asistentes = await obtenerAsistentes();
         const asist = asistentes.find(a => a.id == id);
-        if (!asist) return;
+        
+        if (!asist) {
+            console.error('❌ Asistente no encontrado');
+            return;
+        }
+        
+        console.log('✅ Datos del asistente:', asist);
+        console.log('📅 Fechas asistencia:', asist.fechas_asistencia);
         
         window.editMode = { tipo: 'asistente', id: id, data: asist };
         
@@ -981,12 +1006,13 @@ async function editarAsistente(id) {
         document.getElementById('tituloModalAsistente').textContent = '👥 Editar Asistente';
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
-        // ✅ CARGAR FECAS DESPUÉS DE SELECCIONAR CONFERENCIA
+        // ✅ CARGAR FECHAS DESPUÉS DE SETEAR LA CONFERENCIA
         if (asist.conferencia_id) {
             await cargarFechasConferencia(asist.conferencia_id);
         }
         
         abrirModal('modalNuevoAsistente');
+        
     } catch (error) {
         console.error('❌ Error editando asistente:', error);
         mostrarMensaje('Error al cargar datos del asistente', 'error');
@@ -1337,59 +1363,101 @@ function obtenerFechasSeleccionadas() {
 }
 //FUNCION MARCAR FECHA GUARDADAS//
 function marcarFechasGuardadas(fechasGuardadas) {
-    if (!fechasGuardadas || fechasGuardadas.length === 0) return;
+    console.log('🔍 Marcando fechas guardadas:', fechasGuardadas);
     
-    // ✅ Manejar tanto string como array
-    let fechas = fechasGuardadas;
+    if (!fechasGuardadas) {
+        console.log('⚠️ No hay fechas guardadas');
+        return;
+    }
+    
+    let fechas = [];
+    
+    // ✅ Manejar diferentes formatos
     if (typeof fechasGuardadas === 'string') {
         try {
             fechas = JSON.parse(fechasGuardadas);
+            console.log('✅ Fechas parseadas:', fechas);
         } catch (e) {
             console.error('❌ Error parseando fechas:', e);
             return;
         }
+    } else if (Array.isArray(fechasGuardadas)) {
+        fechas = fechasGuardadas;
+    } else {
+        console.error('❌ Formato de fechas no válido:', fechasGuardadas);
+        return;
     }
     
-    // ✅ Marcar cada fecha guardada
+    if (fechas.length === 0) {
+        console.log('⚠️ Array de fechas vacío');
+        return;
+    }
+    
+    // ✅ Marcar cada fecha con retry
+    let marcadas = 0;
     fechas.forEach(fechaISO => {
         const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
         if (boton) {
             boton.classList.add('seleccionada');
+            marcadas++;
             console.log('✅ Fecha marcada:', fechaISO);
         } else {
-            console.log('⚠️ Fecha no encontrada en botones:', fechaISO);
+            console.log('⚠️ Fecha no encontrada en DOM:', fechaISO);
         }
     });
     
+    console.log(`📊 ${marcadas}/${fechas.length} fechas marcadas`);
     actualizarContadorAsistencia();
 }
 
+//ASING FUNCION CARGAR FECHAS CONFERENCIA
+
 async function cargarFechasConferencia(conferenciaId) {
     console.log('📅 Cargando fechas para conferencia:', conferenciaId);
+    
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
-    if (!conferenciaId) return;
+    
+    if (!conferenciaId) {
+        console.log('⚠️ No hay conferencia seleccionada');
+        return;
+    }
 
     try {
         const conferencias = await obtenerConferencias();
         const conferencia = conferencias.find(c => c.id == conferenciaId);
         
         if (conferencia) {
+            console.log('📅 Conferencia encontrada:', conferencia.nombre);
             generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
             
-            // ✅ MARCAR FECAS GUARDADAS SI ESTAMOS EDITANDO
+            // ✅ VERIFICAR SI ESTAMOS EDITANDO Y HAY FECHAS GUARDADAS
             if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
+                console.log('🔍 Hay fechas guardadas para este asistente');
+                
+                // ✅ Usar setTimeout más largo y verificar que los botones existan
                 setTimeout(() => {
-                    marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
-                }, 200); // ⚠️ Aumentado el tiempo para asegurar que los botones se generen
+                    const botonesExistentes = document.querySelectorAll('.fecha-asistencia').length;
+                    console.log(`🔍 Botones generados: ${botonesExistentes}`);
+                    
+                    if (botonesExistentes > 0) {
+                        marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
+                    } else {
+                        console.error('❌ No se generaron botones de fecha');
+                    }
+                }, 300); // ⚠️ Aumentado a 300ms
             }
+        } else {
+            console.log('⚠️ Conferencia no encontrada');
         }
     } catch (error) {
         console.error('❌ Error cargando fechas:', error);
         mostrarMensaje('Error al cargar fechas de la conferencia', 'error');
     }
 }
+
+// FUNCION ACTUALIZAR DURACION CONFERENCIA
 function actualizarDuracionConferencia() {
     const inicio = document.getElementById('confFechaInicio')?.value;
     const fin = document.getElementById('confFechaFin')?.value;

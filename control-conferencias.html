@@ -443,47 +443,80 @@
             </div>
 
             <!-- REPORTS SECTION -->
-            <div id="reports" class="view-section">
-                <h4 class="mb-4">📊 Reportes y Estadísticas</h4>
-                <div class="table-container mb-4">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Conferencia</label>
-                            <select class="form-select" id="report-conference"><option value="">-- Todas --</option></select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Iglesia</label>
-                            <select class="form-select" id="report-church"><option value="">-- Todas --</option></select>
-                        </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-primary w-100" onclick="applyReportFilters()">
-                                <i class="bi bi-funnel"></i> Aplicar Filtros
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-md-4"><div class="stat-card"><h5 id="report-total-asistentes">0</h5><small class="text-muted">Total Asistentes</small></div></div>
-                    <div class="col-md-4"><div class="stat-card"><h5 id="report-total-dias">0</h5><small class="text-muted">Días Totales</small></div></div>
-                    <div class="col-md-4"><div class="stat-card"><h5 id="report-total-iglesias">0</h5><small class="text-muted">Iglesias</small></div></div>
-                </div>
-                <div class="table-container">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="m-0">📋 Detalle del Reporte</h5>
-                        <button class="btn btn-danger" onclick="exportToPDF()">
-                            <i class="bi bi-file-pdf"></i> Descargar PDF
-                        </button>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="reports-table-element">
-                            <thead><tr><th>Nombre</th><th>Teléfono</th><th>Iglesia</th><th>Conferencia</th><th>Días</th><th>Invitado Por</th></tr></thead>
-                            <tbody id="reports-table">
-                                <tr><td colspan="6" class="text-center py-4">Seleccione filtros para ver el reporte</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <!-- Sección Reportes y Estadísticas -->
+<div class="card" id="section-reportes">
+    <div class="card-header">
+        <h3>📊 Reportes y Estadísticas</h3>
+    </div>
+    <div class="card-body">
+        <!-- Filtros -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label>Conferencia</label>
+                <select id="filtroConferencia" class="form-control">
+                    <option value="">-- Todas --</option>
+                    <!-- Las opciones se cargan dinámicamente -->
+                </select>
             </div>
+            <div class="col-md-3">
+                <label>Iglesia</label>
+                <select id="filtroIglesia" class="form-control">
+                    <option value="">-- Todas --</option>
+                    <!-- Las opciones se cargan dinámicamente -->
+                </select>
+            </div>
+            <!-- NUEVO CAMPO: FILTRO POR FECHA -->
+            <div class="col-md-3">
+                <label>Fecha Específica</label>
+                <input type="date" id="filtroFecha" class="form-control">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button onclick="aplicarFiltrosReporte()" class="btn btn-primary w-100">
+                    Aplicar Filtros
+                </button>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="row text-center mb-3">
+            <div class="col-md-4">
+                <h5>0</h5>
+                <small>Total Asistentes</small>
+            </div>
+            <div class="col-md-4">
+                <h5>0</h5>
+                <small>Días Totales</small>
+            </div>
+            <div class="col-md-4">
+                <h5>0</h5>
+                <small>Iglesias</small>
+            </div>
+        </div>
+
+        <!-- Tabla de Detalle -->
+        <h5>📋 Detalle del Reporte</h5>
+        <button class="btn btn-sm btn-secondary mb-2">Descargar PDF</button>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Iglesia</th>
+                        <th>Conferencia</th>
+                        <th>Días</th>
+                        <th>Invitado Por</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaReporteBody">
+                    <tr>
+                        <td colspan="6" class="text-center">Seleccione filtros para ver el reporte</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
             <!-- SETTINGS SECTION -->
             <div id="settings" class="view-section">

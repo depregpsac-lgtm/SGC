@@ -970,7 +970,11 @@ async function editarAsistente(id) {
         document.getElementById('tituloModalAsistente').textContent = '👥 Editar Asistente';
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
-        await cargarFechasConferencia(asist.conferencia_id);
+        // ✅ CARGAR FECAS DESPUÉS DE SELECCIONAR CONFERENCIA
+        if (asist.conferencia_id) {
+            await cargarFechasConferencia(asist.conferencia_id);
+        }
+        
         abrirModal('modalNuevoAsistente');
     } catch (error) {
         console.error('❌ Error editando asistente:', error);
@@ -1312,17 +1316,32 @@ function obtenerFechasSeleccionadas() {
     const seleccionadas = document.querySelectorAll('.fecha-asistencia.seleccionada');
     return Array.from(seleccionadas).map(boton => boton.dataset.fecha);
 }
-
+//FUNCION MARCAR FECHA GUARDADAS//
 function marcarFechasGuardadas(fechasGuardadas) {
     if (!fechasGuardadas || fechasGuardadas.length === 0) return;
-    const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
     
+    // ✅ Manejar tanto string como array
+    let fechas = fechasGuardadas;
+    if (typeof fechasGuardadas === 'string') {
+        try {
+            fechas = JSON.parse(fechasGuardadas);
+        } catch (e) {
+            console.error('❌ Error parseando fechas:', e);
+            return;
+        }
+    }
+    
+    // ✅ Marcar cada fecha guardada
     fechas.forEach(fechaISO => {
         const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
         if (boton) {
             boton.classList.add('seleccionada');
+            console.log('✅ Fecha marcada:', fechaISO);
+        } else {
+            console.log('⚠️ Fecha no encontrada en botones:', fechaISO);
         }
     });
+    
     actualizarContadorAsistencia();
 }
 
@@ -1331,7 +1350,6 @@ async function cargarFechasConferencia(conferenciaId) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
-    
     if (!conferenciaId) return;
 
     try {
@@ -1341,10 +1359,11 @@ async function cargarFechasConferencia(conferenciaId) {
         if (conferencia) {
             generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
             
+            // ✅ MARCAR FECAS GUARDADAS SI ESTAMOS EDITANDO
             if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
                 setTimeout(() => {
                     marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
-                }, 150);
+                }, 200); // ⚠️ Aumentado el tiempo para asegurar que los botones se generen
             }
         }
     } catch (error) {
@@ -1352,7 +1371,6 @@ async function cargarFechasConferencia(conferenciaId) {
         mostrarMensaje('Error al cargar fechas de la conferencia', 'error');
     }
 }
-
 function actualizarDuracionConferencia() {
     const inicio = document.getElementById('confFechaInicio')?.value;
     const fin = document.getElementById('confFechaFin')?.value;

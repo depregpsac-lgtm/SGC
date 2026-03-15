@@ -1,7 +1,6 @@
 // main.js - Control de la aplicación MinistryLion
 console.log('🔍 main.js cargado');
 console.log('🔍 window.db existe:', !!window.db);
-
 window.editMode = {
     tipo: null,
     id: null,
@@ -50,15 +49,6 @@ function navegarSeccion(seccionId) {
         limpiarBuscadorAsistentes();
     }
 
-    // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
-    if (seccionId === 'usuarios') {
-        const user = checkAuth();
-        if (!user || user.rol !== 'admin') {
-            mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden ver esta sección', 'error');
-            seccionId = 'dashboard';
-        }
-    }
-
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
@@ -84,9 +74,7 @@ function navegarSeccion(seccionId) {
             cargarIglesias(); 
             break;
         case 'usuarios': 
-            if (esAdmin()) {
-                cargarUsuarios(); 
-            }
+            cargarUsuarios(); 
             break;
     }
 }
@@ -151,7 +139,7 @@ async function prepararModalIglesia() {
     const titulo = document.getElementById('tituloModalIglesia');
     if (titulo) titulo.textContent = '⛪ Registrar Iglesia';
     await cargarZonasEnSelect('iglesiaZona');
-    document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
+    document.getElementById('iglesiaDistrito').innerHTML = '-- Sin distrito --';
     abrirModal('modalNuevaIglesia');
 }
 
@@ -205,7 +193,7 @@ async function cargarZonasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const zonas = await obtenerZonas();
-        select.innerHTML = '<option value="">-- Seleccione Zona --</option>' +
+        select.innerHTML = '-- Seleccione Zona --' +
             zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando zonas:', error);
@@ -220,7 +208,7 @@ async function cargarDistritosEnSelect(selectId, zonaId = null) {
         if (zonaId) {
             distritos = distritos.filter(d => d.zona_id == zonaId);
         }
-        select.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
+        select.innerHTML = '-- Seleccione Distrito --' +
             distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando distritos:', error);
@@ -232,7 +220,7 @@ async function cargarIglesiasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const iglesias = await obtenerIglesias();
-        select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>' +
+        select.innerHTML = '-- Seleccione Iglesia --' +
             iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando iglesias:', error);
@@ -244,7 +232,7 @@ async function cargarConferenciasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const conferencias = await obtenerConferencias();
-        select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
+        select.innerHTML = '-- Seleccione Conferencia --' +
             conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando conferencias:', error);
@@ -707,7 +695,7 @@ async function confirmarEliminarDistrito(id) {
     if (confirm('⚠️ ¿Está seguro de eliminar este distrito?')) {
         try {
             await eliminarDistrito(id);
-            mostrarMensaje('✅ Distrito eliminada exitosamente', 'success');
+            mostrarMensaje('✅ Distrito eliminado exitosamente', 'success');
             await cargarDistritos();
             await cargarEstadisticas();
         } catch (error) {
@@ -1051,17 +1039,12 @@ async function editarUsuario(id) {
 
 async function guardarUsuario(e) {
     e.preventDefault();
-    if (!esAdmin()) {
-        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
-        return;
-    }
-
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
         const password = document.getElementById('usuarioPassword').value;
         const rol = document.getElementById('usuarioRol').value;
-        const estado = document.getElementById('usuarioEstado').value;
+        const estado = document.getElementById('usuarioEstado')?.value || 'activo';
         
         if (!nombre_completo || !email || !password) {
             mostrarMensaje('Nombre, correo y contraseña son requeridos', 'error');
@@ -1080,17 +1063,12 @@ async function guardarUsuario(e) {
 
 async function guardarUsuarioEditado(e) {
     e.preventDefault();
-    if (!esAdmin()) {
-        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden editar usuarios', 'error');
-        return;
-    }
-
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
         const password = document.getElementById('usuarioPassword').value;
         const rol = document.getElementById('usuarioRol').value;
-        const estado = document.getElementById('usuarioEstado').value;
+        const estado = document.getElementById('usuarioEstado')?.value || 'activo';
         
         if (!nombre_completo || !email) {
             mostrarMensaje('Nombre y correo son requeridos', 'error');
@@ -1108,10 +1086,6 @@ async function guardarUsuarioEditado(e) {
 }
 
 async function confirmarEliminarUsuario(id) {
-    if (!esAdmin()) {
-        mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
-        return;
-    }
     if (confirm('⚠️ ¿Está seguro de eliminar este usuario?')) {
         try {
             await eliminarUsuario(id);
@@ -1523,14 +1497,10 @@ function mostrarDashboard(user) {
     if (userRole) userRole.textContent = (user.rol === 'admin' || user.rol === 'administrador') ? 'Administrador' : 'Usuario';
     if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
 
-    // ✅ MOSTRAR/OCULTAR SOLO MENÚ USUARIOS
+    // ✅ MOSTRAR TODOS LOS MENÚS PARA TODOS LOS USUARIOS
     const menuUsuarios = document.getElementById('nav-usuarios');
     if (menuUsuarios) {
-        if (user.rol !== 'admin' && user.rol !== 'administrador') {
-            menuUsuarios.closest('a').style.display = 'none';
-        } else {
-            menuUsuarios.closest('a').style.display = 'flex';
-        }
+        menuUsuarios.closest('a').style.display = 'flex';
     }
 }
 
@@ -1625,12 +1595,6 @@ function cerrarSesion() {
         localStorage.removeItem('user');
         window.location.reload();
     }
-}
-
-function esAdmin() {
-    const user = checkAuth();
-    console.log('🔍 Verificando admin. Rol:', user?.rol);
-    return user && (user.rol === 'admin' || user.rol === 'administrador');
 }
 
 // ============================================

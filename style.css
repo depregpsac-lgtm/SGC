@@ -1486,4 +1486,15 @@ table {
     background: #fee2e2;
     color: #dc2626;
 }
+
+            .table-container {
+    width: 100%;
+    max-width: 100%;
+}
+
+        table {
+    width: 100%;
+    border-collapse: collapse;
+}
+    
 }

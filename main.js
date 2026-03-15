@@ -1,7 +1,6 @@
 // main.js - Control de la aplicación MinistryLion
 console.log('🔍 main.js cargado');
 console.log('🔍 window.db existe:', !!window.db);
-
 window.editMode = {
     tipo: null,
     id: null,
@@ -45,15 +44,11 @@ function calcularDias(fechaInicio, fechaFin) {
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
     
-    
-   function navegarSeccion(seccionId) {
-    console.log('📍 Navegando a:', seccionId);
-    
     // ✅ Limpiar buscador al salir de registros
     if (seccionId !== 'registros') {
         limpiarBuscadorAsistentes();
     }
-    
+
     // ✅ PROTEGER SECCIÓN USUARIOS - SOLO ADMIN
     if (seccionId === 'usuarios') {
         const user = checkAuth();
@@ -62,10 +57,7 @@ function navegarSeccion(seccionId) {
             seccionId = 'dashboard';
         }
     }
-    
-    // ... resto del código existente ...
-}
-    
+
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
@@ -97,6 +89,7 @@ function navegarSeccion(seccionId) {
             break;
     }
 }
+
 // ============================================
 // MODALES
 // ============================================
@@ -387,6 +380,7 @@ async function cargarAsistentes() {
     try {
         console.log('📥 Cargando asistentes...');
         const asistentes = await obtenerAsistentes();
+        window.todosLosAsistentes = asistentes;
         console.log('✅ Asistentes obtenidos:', asistentes.length);
         const tbody = document.querySelector('#tablaAsistentes tbody');
         if (!tbody) {
@@ -397,7 +391,7 @@ async function cargarAsistentes() {
         
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
-                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
                 
                 const tr = document.createElement('tr');
@@ -424,73 +418,41 @@ async function cargarAsistentes() {
     }
 }
 
-// ============================================
-// ✅ FUNCIONES DE BÚSQUEDA - ASISTENTES
-// ============================================
-
-// Variable global para almacenar todos los asistentes (sin filtrar)
-window.todosLosAsistentes = [];
-
-// Modificar cargarAsistentes para guardar todos los datos
-async function cargarAsistentes() {
+// ✅ Función auxiliar para parsear fechas de asistencia
+function parsearFechasAsistencia(fechasData) {
+    if (!fechasData) return [];
+    
     try {
-        console.log('📥 Cargando asistentes...');
-        const asistentes = await obtenerAsistentes();
-        window.todosLosAsistentes = asistentes; // ✅ Guardar copia completa
-        console.log('✅ Asistentes obtenidos:', asistentes.length);
-        
-        const tbody = document.querySelector('#tablaAsistentes tbody');
-        if (!tbody) {
-            console.error('❌ No se encontró el tbody de la tabla');
-            return;
+        if (typeof fechasData === 'string') {
+            // Limpiar comillas escapadas si existen
+            let cleanData = fechasData;
+            if (cleanData.startsWith('\\"[') || cleanData.startsWith('"[')) {
+                cleanData = cleanData.replace(/^\\"|\\"$/g, '').replace(/^"|"$/g, '');
+            }
+            return JSON.parse(cleanData);
         }
-        
-        tbody.innerHTML = '';
-        
-        if (asistentes && asistentes.length > 0) {
-            asistentes.forEach(asist => {
-                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
-                const diasAsistidos = fechasAsistencia.length;
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${asist.nombre_completo}</td>
-                    <td>${asist.telefono || '-'}</td>
-                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
-                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
-                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
-                    <td>
-                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
-                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
-        }
-    } catch (error) {
-        console.error('❌ Error cargando asistentes:', error);
-        const tbody = document.querySelector('#tablaAsistentes tbody');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
+        return Array.isArray(fechasData) ? fechasData : [];
+    } catch (e) {
+        console.error('❌ Error parseando fechas:', e);
+        return [];
     }
 }
 
 // ============================================
-// ✅ FUNCIONES DE BÚSQUEDA - AGREGAR AL FINAL
+// FUNCIONES DE BÚSQUEDA - ASISTENTES
 // ============================================
+window.todosLosAsistentes = [];
 
 function filtrarAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (!buscador) return;
-    
     const textoBusqueda = buscador.value.toLowerCase().trim();
     const tbody = document.querySelector('#tablaAsistentes tbody');
     if (!tbody) return;
-    
+
     const filas = tbody.querySelectorAll('tr');
     let resultadosEncontrados = 0;
-    
+
     filas.forEach(fila => {
         const celdas = fila.querySelectorAll('td');
         if (celdas.length < 6) return;
@@ -501,9 +463,9 @@ function filtrarAsistentes() {
         const conferencia = celdas[3]?.textContent?.toLowerCase() || '';
         
         const coincide = nombre.includes(textoBusqueda) || 
-                        telefono.includes(textoBusqueda) || 
-                        iglesia.includes(textoBusqueda) || 
-                        conferencia.includes(textoBusqueda);
+                         telefono.includes(textoBusqueda) || 
+                         iglesia.includes(textoBusqueda) || 
+                         conferencia.includes(textoBusqueda);
         
         if (coincide) {
             fila.style.display = '';
@@ -518,22 +480,12 @@ function filtrarAsistentes() {
             fila.classList.remove('tr-highlight');
         }
     });
-    
-    // Mostrar mensaje si no hay resultados
+
     if (resultadosEncontrados === 0 && textoBusqueda.length > 0) {
         tbody.innerHTML = '<tr><td colspan="6">🔍 No se encontraron registros que coincidan con "' + textoBusqueda + '"</td></tr>';
     }
 }
 
-function limpiarBuscadorAsistentes() {
-    const buscador = document.getElementById('buscadorAsistentes');
-    if (buscador) {
-        buscador.value = '';
-        filtrarAsistentes();
-    }
-}
-
-// ✅ Limpiar búsqueda al cambiar de sección
 function limpiarBuscadorAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (buscador) {
@@ -750,7 +702,7 @@ async function confirmarEliminarDistrito(id) {
     if (confirm('⚠️ ¿Está seguro de eliminar este distrito?')) {
         try {
             await eliminarDistrito(id);
-            mostrarMensaje('✅ Distrito eliminado exitosamente', 'success');
+            mostrarMensaje('✅ Distrito eliminada exitosamente', 'success');
             await cargarDistritos();
             await cargarEstadisticas();
         } catch (error) {
@@ -970,7 +922,9 @@ async function editarAsistente(id) {
         document.getElementById('tituloModalAsistente').textContent = '👥 Editar Asistente';
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
+        // ✅ Cargar fechas DESPUÉS de establecer el editMode
         await cargarFechasConferencia(asist.conferencia_id);
+        
         abrirModal('modalNuevoAsistente');
     } catch (error) {
         console.error('❌ Error editando asistente:', error);
@@ -1085,20 +1039,18 @@ async function editarUsuario(id) {
         try {
             if (usuario.permisos) {
                 if (typeof usuario.permisos === 'string') {
-                    // Si es string con comillas escapadas
-                    if (usuario.permisos.startsWith('"[')) {
-                        const cleanPermisos = usuario.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
+                    if (usuario.permisos.startsWith('\\"[')) {
+                        const cleanPermisos = usuario.permisos.replace(/^\\"|\\"$/g, '').replace(/^"|"$/g, '');
                         permisosUsuario = JSON.parse(cleanPermisos);
                     } else {
                         permisosUsuario = JSON.parse(usuario.permisos);
-                    }
+                    } 
                 } else {
                     permisosUsuario = usuario.permisos;
                 }
             }
         } catch (e) {
             console.error('❌ Error parseando permisos del usuario:', e);
-            // Si falla, intentar con split por comas
             if (typeof usuario.permisos === 'string') {
                 permisosUsuario = usuario.permisos.split(',').map(p => p.trim()).filter(p => p);
             }
@@ -1121,13 +1073,11 @@ async function editarUsuario(id) {
 
 async function guardarUsuario(e) {
     e.preventDefault();
-    
-    // ✅ VERIFICAR QUE SEA ADMIN
     if (!esAdmin()) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
         return;
     }
-    
+
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1157,42 +1107,11 @@ async function guardarUsuario(e) {
 
 async function guardarUsuarioEditado(e) {
     e.preventDefault();
-    
-    // ✅ VERIFICAR QUE SEA ADMIN
     if (!esAdmin()) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden editar usuarios', 'error');
         return;
     }
-    
-    try {
-        const nombre_completo = document.getElementById('usuarioNombre').value.trim();
-        const email = document.getElementById('usuarioEmail').value.trim();
-        const password = document.getElementById('usuarioPassword').value;
-        const rol = document.getElementById('usuarioRol').value;
-        const estado = document.getElementById('usuarioEstado').value;
-        
-        const permisos = [];
-        document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
-            permisos.push(cb.value);
-        });
-        
-        if (!nombre_completo || !email) {
-            mostrarMensaje('Nombre y correo son requeridos', 'error');
-            return;
-        }
-        
-        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
-        mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
-        cerrarModal('modalNuevoUsuario');
-        await cargarUsuarios();
-    } catch (error) {
-        console.error('❌ Error actualizando usuario:', error);
-        mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
-    }
-}
 
-async function guardarUsuarioEditado(e) {
-    e.preventDefault();
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1221,12 +1140,10 @@ async function guardarUsuarioEditado(e) {
 }
 
 async function confirmarEliminarUsuario(id) {
-    // ✅ VERIFICAR QUE SEA ADMIN
     if (!esAdmin()) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
         return;
     }
-    
     if (confirm('⚠️ ¿Está seguro de eliminar este usuario?')) {
         try {
             await eliminarUsuario(id);
@@ -1238,19 +1155,20 @@ async function confirmarEliminarUsuario(id) {
         }
     }
 }
+
 // ============================================
-// FUNCIONES DE ASISTENCIA
+// ✅ FUNCIONES DE ASISTENCIA - CORREGIDAS
 // ============================================
 function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (!container) return;
-    container.innerHTML = '';
     
+    container.innerHTML = '';
     const inicio = new Date(fechaInicio + 'T00:00:00');
     const fin = new Date(fechaFin + 'T00:00:00');
     const fechas = [];
     let actual = new Date(inicio);
-    
+
     while (actual <= fin) {
         fechas.push(new Date(actual));
         actual.setDate(actual.getDate() + 1);
@@ -1272,6 +1190,7 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
         boton.dataset.fecha = fechaISO;
         boton.textContent = `${diaSemana}, ${dia} ${mes} ${año}`;
         
+        // ✅ Event listener para toggle
         boton.addEventListener('click', function() {
             toggleFechaAsistencia(this);
         });
@@ -1283,6 +1202,7 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
 }
 
 function toggleFechaAsistencia(boton) {
+    // ✅ Solo cambiar el estado cuando el usuario hace click
     boton.classList.toggle('seleccionada');
     actualizarContadorAsistencia();
 }
@@ -1314,16 +1234,26 @@ function obtenerFechasSeleccionadas() {
 }
 
 function marcarFechasGuardadas(fechasGuardadas) {
-    if (!fechasGuardadas || fechasGuardadas.length === 0) return;
-    const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
+    if (!fechasGuardadas) return;
     
-    fechas.forEach(fechaISO => {
-        const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
-        if (boton) {
-            boton.classList.add('seleccionada');
-        }
-    });
-    actualizarContadorAsistencia();
+    // ✅ Parsear correctamente las fechas guardadas
+    let fechas = parsearFechasAsistencia(fechasGuardadas);
+    
+    if (fechas.length === 0) return;
+    
+    console.log('📅 Marcando fechas guardadas:', fechas);
+    
+    // ✅ Esperar a que los botones existan
+    setTimeout(() => {
+        fechas.forEach(fechaISO => {
+            const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
+            if (boton) {
+                boton.classList.add('seleccionada');
+                console.log('✅ Fecha marcada:', fechaISO);
+            }
+        });
+        actualizarContadorAsistencia();
+    }, 100);
 }
 
 async function cargarFechasConferencia(conferenciaId) {
@@ -1339,12 +1269,12 @@ async function cargarFechasConferencia(conferenciaId) {
         const conferencia = conferencias.find(c => c.id == conferenciaId);
         
         if (conferencia) {
+            // ✅ Primero generar los botones
             generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
             
+            // ✅ Luego marcar las fechas guardadas (si estamos editando)
             if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
-                setTimeout(() => {
-                    marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
-                }, 150);
+                marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
             }
         }
     } catch (error) {
@@ -1357,7 +1287,6 @@ function actualizarDuracionConferencia() {
     const inicio = document.getElementById('confFechaInicio')?.value;
     const fin = document.getElementById('confFechaFin')?.value;
     const duracionElement = document.querySelector('#modalNuevaConferencia .duracion-conferencia');
-    
     if (inicio && fin && duracionElement) {
         const dias = calcularDias(inicio, fin);
         duracionElement.textContent = `📅 Duración: ${dias} días`;
@@ -1395,7 +1324,7 @@ async function filtrarReporte() {
         
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
-                const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+                const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
                 
                 const tr = document.createElement('tr');
@@ -1412,7 +1341,7 @@ async function filtrarReporte() {
             
             const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
             const totalDias = asistentes.reduce((sum, a) => {
-                const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+                const fechas = a.fechas_asistencia ? parsearFechasAsistencia(a.fechas_asistencia) : [];
                 return sum + fechas.length;
             }, 0);
             
@@ -1487,7 +1416,7 @@ async function generarReportePDF() {
         
         const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
         const totalDias = asistentes.reduce((sum, a) => {
-            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
+            const fechas = a.fechas_asistencia ? parsearFechasAsistencia(a.fechas_asistencia) : [];
             return sum + fechas.length;
         }, 0);
         
@@ -1495,11 +1424,11 @@ async function generarReportePDF() {
         doc.rect(14, 75, 182, 20, 'F');
         doc.setFontSize(10);
         doc.text(`Total Asistentes: ${asistentes.length}`, 20, 85);
-        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85); 
+        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85);  
         doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 85);
         
         const tableData = asistentes.map(asist => {
-            const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
+            const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
             return [
                 asist.nombre_completo,
                 asist.telefono || '-',
@@ -1540,7 +1469,7 @@ async function generarReportePDF() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOMContentLoaded - Iniciando aplicación...');
     await new Promise(resolve => setTimeout(resolve, 500));
-
+    
     if (!window.db) {
         console.error('❌ window.db no existe');
         mostrarMensaje('Error de conexión con la base de datos', 'error');
@@ -1600,7 +1529,7 @@ function mostrarDashboard(user) {
     if (userName) userName.textContent = user.nombre;
     if (userRole) userRole.textContent = user.rol === 'admin' ? 'Administrador' : 'Usuario';
     if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
-    
+
     // ✅ OCULTAR MENÚ USUARIOS SI NO ES ADMIN
     const menuUsuarios = document.getElementById('nav-usuarios');
     if (menuUsuarios) {
@@ -1611,12 +1540,12 @@ function mostrarDashboard(user) {
         }
     }
 }
+
 function configurarFormularioLogin() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             
@@ -1676,7 +1605,6 @@ function mostrarAlertaLogin(mensaje, tipo) {
         alertDiv.textContent = mensaje;
         alertDiv.className = 'login-alert ' + tipo;
         alertDiv.style.display = 'flex';
-        
         if (tipo === 'success') {
             setTimeout(() => {
                 alertDiv.style.display = 'none';
@@ -1771,21 +1699,11 @@ window.generarReportePDF = generarReportePDF;
 window.mostrarMensaje = mostrarMensaje;
 window.cerrarSesion = cerrarSesion;
 window.togglePassword = togglePassword;
-
 window.filtrarAsistentes = filtrarAsistentes;
 window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
-// ... resto de exports ...
-// ============================================
-// EXPORTAR FUNCIONES GLOBALES
-// ============================================
-// ... funciones existentes ...
-window.filtrarAsistentes = filtrarAsistentes;
-window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
-// ... resto de exports ...
-
+window.parsearFechasAsistencia = parsearFechasAsistencia;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
-
 
 
 

@@ -1125,6 +1125,31 @@
             document.getElementById('days-attended-count').textContent = checked;
         }
 
+
+        // ============================================
+        // FUNCIÓN DE ACTUALIZAR REGISTROS
+        // ============================================
+        async function actualizarRegistros() {
+            const btn = document.getElementById('btnActualizarRegistros');
+            const originalContent = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+            btn.disabled = true;
+
+            try {
+                await cargarRegistros();
+                mostrarNotificacion('✅ Registros actualizados correctamente', 'success');
+            } catch (error) {
+                console.error('Error al actualizar registros:', error);
+                mostrarNotificacion('❌ Error al actualizar registros', 'danger');
+            } finally {
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }, 500);
+            }
+        }
+
         // ============================================
         // PDF EXPORT FUNCTION ✅
         // ============================================

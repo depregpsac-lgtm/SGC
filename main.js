@@ -1520,15 +1520,16 @@ function mostrarDashboard(user) {
     const userAvatar = document.getElementById('userAvatar');
 
     if (userName) userName.textContent = user.nombre;
-    if (userRole) userRole.textContent = user.rol === 'admin' ? 'Administrador' : 'Usuario';
+    if (userRole) userRole.textContent = (user.rol === 'admin' || user.rol === 'administrador') ? 'Administrador' : 'Usuario';
     if (userAvatar) userAvatar.textContent = user.nombre.charAt(0).toUpperCase();
 
+    // ✅ MOSTRAR/OCULTAR SOLO MENÚ USUARIOS
     const menuUsuarios = document.getElementById('nav-usuarios');
     if (menuUsuarios) {
-        if (user.rol !== 'admin') {
-            menuUsuarios.parentElement.style.display = 'none';
+        if (user.rol !== 'admin' && user.rol !== 'administrador') {
+            menuUsuarios.closest('a').style.display = 'none';
         } else {
-            menuUsuarios.parentElement.style.display = 'block';
+            menuUsuarios.closest('a').style.display = 'flex';
         }
     }
 }
@@ -1624,6 +1625,12 @@ function cerrarSesion() {
         localStorage.removeItem('user');
         window.location.reload();
     }
+}
+
+function esAdmin() {
+    const user = checkAuth();
+    console.log('🔍 Verificando admin. Rol:', user?.rol);
+    return user && (user.rol === 'admin' || user.rol === 'administrador');
 }
 
 // ============================================

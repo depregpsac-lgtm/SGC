@@ -441,83 +441,86 @@
                     </div>
                 </div>
             </div>
-
-            <!-- REPORTS SECTION -->
-            <!-- Sección Reportes y Estadísticas -->
-<div class="card" id="section-reportes">
-    <div class="card-header">
-        <h3>📊 Reportes y Estadísticas</h3>
+<!-- Sección Reportes - CORREGIDA -->
+<section id="reportes" class="content-section">
+    <div class="section-header">
+        <h2>📊 Reportes y Estadísticas</h2>
     </div>
-    <div class="card-body">
-        <!-- Filtros -->
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <label>Conferencia</label>
-                <select id="filtroConferencia" class="form-control">
-                    <option value="">-- Todas --</option>
-                    <!-- Las opciones se cargan dinámicamente -->
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label>Iglesia</label>
-                <select id="filtroIglesia" class="form-control">
-                    <option value="">-- Todas --</option>
-                    <!-- Las opciones se cargan dinámicamente -->
-                </select>
-            </div>
-            <!-- NUEVO CAMPO: FILTRO POR FECHA -->
-            <div class="col-md-3">
-                <label>Fecha Específica</label>
-                <input type="date" id="filtroFecha" class="form-control">
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button onclick="aplicarFiltrosReporte()" class="btn btn-primary w-100">
-                    Aplicar Filtros
-                </button>
-            </div>
+    
+    <div class="filters-container">
+        <div class="filter-group">
+            <label>Conferencia</label>
+            <select id="reporteConferencia">
+                <option value="">-- Todas --</option>
+            </select>
         </div>
-
-        <!-- Estadísticas -->
-        <div class="row text-center mb-3">
-            <div class="col-md-4">
-                <h5>0</h5>
-                <small>Total Asistentes</small>
-            </div>
-            <div class="col-md-4">
-                <h5>0</h5>
-                <small>Días Totales</small>
-            </div>
-            <div class="col-md-4">
-                <h5>0</h5>
-                <small>Iglesias</small>
-            </div>
+        
+        <div class="filter-group">
+            <label>Iglesia</label>
+            <select id="reporteIglesia">
+                <option value="">-- Todas --</option>
+            </select>
         </div>
-
-        <!-- Tabla de Detalle -->
-        <h5>📋 Detalle del Reporte</h5>
-        <button class="btn btn-sm btn-secondary mb-2">Descargar PDF</button>
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Iglesia</th>
-                        <th>Conferencia</th>
-                        <th>Días</th>
-                        <th>Invitado Por</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaReporteBody">
-                    <tr>
-                        <td colspan="6" class="text-center">Seleccione filtros para ver el reporte</td>
-                    </tr>
-                </tbody>
-            </table>
+        
+        <div class="filter-group">
+            <label>Fecha Inicio</label>
+            <input type="date" id="fechaInicioReporte">
+        </div>
+        
+        <div class="filter-group">
+            <label>Fecha Fin</label>
+            <input type="date" id="fechaFinReporte">
+        </div>
+        
+        <div class="filter-actions">
+            <button onclick="filtrarReporte()" class="btn-primary">
+                <i class="fas fa-filter"></i> Aplicar Filtros
+            </button>
+            <button onclick="limpiarFiltrosReporte()" class="btn-secondary">
+                <i class="fas fa-eraser"></i> Limpiar
+            </button>
+            <button onclick="generarReportePDF()" class="btn-success">
+                <i class="fas fa-file-pdf"></i> Descargar PDF
+            </button>
         </div>
     </div>
-</div>
-
+    
+    <div class="stats-cards">
+        <div class="stat-card">
+            <h3 id="reporteTotalAsistentes">0</h3>
+            <p>Total Asistentes</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="reporteTotalDias">0</h3>
+            <p>Días Totales</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="reporteTotalIglesias">0</h3>
+            <p>Iglesias</p>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <h3>📋 Detalle del Reporte</h3>
+        <table id="tablaReporte">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Iglesia</th>
+                    <th>Conferencia</th>
+                    <th>Días</th>
+                    <th>Invitado Por</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6">Seleccione filtros para ver el reporte</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
             <!-- SETTINGS SECTION -->
             <div id="settings" class="view-section">
                 <h4 class="mb-4">⚙️ Configuración del Sistema</h4>

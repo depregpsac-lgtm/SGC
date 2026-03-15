@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - MinistryLion</title>
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -334,6 +336,23 @@
             font-size: 0.9rem;
         }
 
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-disconnected {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -508,7 +527,7 @@
                 </table>
             </section>
 
-            <!-- Reportes Section (ACTUALIZADA) -->
+            <!-- Reportes Section -->
             <section id="reportes" class="section">
                 <div class="section-header">
                     <h3>📊 Reportes y Estadísticas</h3>
@@ -528,7 +547,7 @@
                             <option value="todas">-- Todas --</option>
                         </select>
                     </div>
-                    <!-- NUEVO FILTRO DE FECHA -->
+                    <!-- FILTRO DE FECHA -->
                     <div class="campo-filtro">
                         <label>Fecha Registro:</label>
                         <input type="date" id="filtroFecha">
@@ -555,7 +574,7 @@
 
                 <div class="section-header">
                     <h4>📋 Detalle del Reporte</h4>
-                    <button class="btn btn-success" style="width: auto;">Descargar PDF</button>
+                    <button class="btn btn-success" style="width: auto;" onclick="descargarReportePDF()">Descargar PDF</button>
                 </div>
                 <table>
                     <thead>
@@ -662,7 +681,9 @@
 
             <footer class="footer">
                 <p>© Elaborado por: Natanael León Veras, edición 2026.</p>
-                <p style="margin-top: 0.5rem; color: var(--success);">🔌 Conectado a Supabase</p>
+                <p style="margin-top: 0.5rem;" id="conexionStatus">
+                    <span class="status-badge status-disconnected">🔌 Conectando a Supabase...</span>
+                </p>
             </footer>
         </main>
     </div>
@@ -678,11 +699,11 @@
             <form id="formZona">
                 <div class="form-group">
                     <label>Nombre *</label>
-                    <input type="text" required>
+                    <input type="text" id="zonaNombre" required>
                 </div>
                 <div class="form-group">
                     <label>Descripción</label>
-                    <input type="text">
+                    <input type="text" id="zonaDescripcion">
                 </div>
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-danger" onclick="closeModal('modalZona')">Cancelar</button>
@@ -702,21 +723,21 @@
             <form id="formDistrito">
                 <div class="form-group">
                     <label>Zona *</label>
-                    <select required>
+                    <select id="distritoZona" required>
                         <option value="">Seleccionar zona</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Nombre *</label>
-                    <input type="text" required>
+                    <input type="text" id="distritoNombre" required>
                 </div>
                 <div class="form-group">
                     <label>Responsable</label>
-                    <input type="text">
+                    <input type="text" id="distritoResponsable">
                 </div>
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="tel">
+                    <input type="tel" id="distritoTelefono">
                 </div>
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-danger" onclick="closeModal('modalDistrito')">Cancelar</button>
@@ -737,32 +758,32 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Zona *</label>
-                        <select required>
+                        <select id="iglesiaZona" required onchange="cargarDistritosPorZona()">
                             <option value="">Seleccionar zona</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Distrito</label>
-                        <select>
+                        <select id="iglesiaDistrito">
                             <option value="">-- Sin distrito --</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Nombre Iglesia *</label>
-                    <input type="text" required>
+                    <input type="text" id="iglesiaNombre" required>
                 </div>
                 <div class="form-group">
                     <label>Pastor</label>
-                    <input type="text">
+                    <input type="text" id="iglesiaPastor">
                 </div>
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="tel">
+                    <input type="tel" id="iglesiaTelefono">
                 </div>
                 <div class="form-group">
                     <label>Dirección</label>
-                    <input type="text">
+                    <input type="text" id="iglesiaDireccion">
                 </div>
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-danger" onclick="closeModal('modalIglesia')">Cancelar</button>
@@ -782,27 +803,27 @@
             <form id="formConferencia">
                 <div class="form-group">
                     <label>Nombre *</label>
-                    <input type="text" required>
+                    <input type="text" id="confNombre" required>
                 </div>
                 <div class="form-group">
                     <label>Iglesia Sede *</label>
-                    <select required>
+                    <select id="confIglesia" required>
                         <option value="">Seleccionar iglesia</option>
                     </select>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Fecha Inicio *</label>
-                        <input type="date" required id="confInicio">
+                        <input type="date" id="confInicio" required onchange="calcularDuracion()">
                     </div>
                     <div class="form-group">
                         <label>Fecha Fin *</label>
-                        <input type="date" required id="confFin">
+                        <input type="date" id="confFin" required onchange="calcularDuracion()">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Conferenciante</label>
-                    <input type="text">
+                    <input type="text" id="confConferenciante">
                 </div>
                 <div class="form-group">
                     <label>Duración: <span id="duracionDias">0</span> días</label>
@@ -825,21 +846,21 @@
             <form id="formRegistro">
                 <div class="form-group">
                     <label>Nombre Completo *</label>
-                    <input type="text" required>
+                    <input type="text" id="registroNombre" required>
                 </div>
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="tel">
+                    <input type="tel" id="registroTelefono">
                 </div>
                 <div class="form-group">
                     <label>Iglesia</label>
-                    <select>
+                    <select id="registroIglesia">
                         <option value="">Seleccionar iglesia</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Conferencia *</label>
-                    <select required id="registroConferencia" onchange="actualizarInfoConferencia()">
+                    <select id="registroConferencia" required onchange="actualizarInfoConferencia()">
                         <option value="">Seleccionar conferencia</option>
                     </select>
                 </div>
@@ -879,19 +900,19 @@
             <form id="formUsuario">
                 <div class="form-group">
                     <label>Nombre Completo *</label>
-                    <input type="text" required>
+                    <input type="text" id="usuarioNombre" required>
                 </div>
                 <div class="form-group">
                     <label>Email *</label>
-                    <input type="email" required>
+                    <input type="email" id="usuarioEmail" required>
                 </div>
                 <div class="form-group">
                     <label>Contraseña</label>
-                    <input type="password">
+                    <input type="password" id="usuarioPassword">
                 </div>
                 <div class="form-group">
                     <label>Rol</label>
-                    <select>
+                    <select id="usuarioRol">
                         <option value="usuario">Usuario</option>
                         <option value="admin">Administrador</option>
                     </select>
@@ -905,7 +926,52 @@
     </div>
 
     <script>
-        // === SISTEMA DE NAVEGACIÓN ===
+        // ============================================
+        // CONFIGURACIÓN DE SUPABASE
+        // ============================================
+        // ⚠️ REEMPLAZA ESTOS VALORES CON TUS CREDENCIALES REALES
+        const SUPABASE_URL = 'https://TU-PROYECTO.supabase.co';
+        const SUPABASE_KEY = 'TU-ANON-KEY';
+        
+        // Inicializar cliente de Supabase
+        let supabase;
+        let isConnected = false;
+
+        function inicializarSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                verificarConexion();
+            } catch (error) {
+                console.error('Error inicializando Supabase:', error);
+                actualizarEstadoConexion(false);
+            }
+        }
+
+        async function verificarConexion() {
+            try {
+                const { data, error } = await supabase.from('zonas').select('count');
+                if (error) throw error;
+                isConnected = true;
+                actualizarEstadoConexion(true);
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                isConnected = false;
+                actualizarEstadoConexion(false);
+            }
+        }
+
+        function actualizarEstadoConexion(conectado) {
+            const statusElement = document.getElementById('conexionStatus');
+            if (conectado) {
+                statusElement.innerHTML = '<span class="status-badge status-connected">🔌 Conectado a Supabase</span>';
+            } else {
+                statusElement.innerHTML = '<span class="status-badge status-disconnected">🔌 Error de conexión a Supabase</span>';
+            }
+        }
+
+        // ============================================
+        // SISTEMA DE NAVEGACIÓN
+        // ============================================
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.sidebar-menu li').forEach(l => l.classList.remove('active'));
@@ -922,10 +988,23 @@
                 'usuarios': 'Usuarios'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId];
+            
+            // Cargar datos según la sección
+            if (sectionId === 'reportes') {
+                cargarFiltrosReportes();
+            }
         }
 
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
+            // Cargar selects cuando se abre un modal
+            if (modalId === 'modalConferencia' || modalId === 'modalRegistro') {
+                cargarIglesiasEnSelect();
+                cargarConferenciasEnSelect();
+            }
+            if (modalId === 'modalDistrito' || modalId === 'modalIglesia') {
+                cargarZonasEnSelect();
+            }
         }
 
         function closeModal(modalId) {
@@ -937,22 +1016,35 @@
             document.getElementById('loginSection').style.display = 'flex';
         }
 
-        // === LÓGICA DE LOGIN ===
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // ============================================
+        // LÓGICA DE LOGIN
+        // ============================================
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
             document.getElementById('loginStatus').textContent = 'Autenticando...';
             
-            setTimeout(() => {
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboardSection').style.display = 'block';
-                cargarDatos();
-            }, 1000);
+                cargarTodosLosDatos();
+            } catch (error) {
+                document.getElementById('loginStatus').textContent = 'Error: ' + error.message;
+            }
         });
 
-        // === CÁLCULO DE DURACIÓN DE CONFERENCIA ===
-        document.getElementById('confInicio')?.addEventListener('change', calcularDuracion);
-        document.getElementById('confFin')?.addEventListener('change', calcularDuracion);
-
+        // ============================================
+        // CÁLCULO DE DURACIÓN DE CONFERENCIA
+        // ============================================
         function calcularDuracion() {
             const inicio = new Date(document.getElementById('confInicio').value);
             const fin = new Date(document.getElementById('confFin').value);
@@ -964,23 +1056,44 @@
             }
         }
 
-        // === ACTUALIZAR INFO DE CONFERENCIA EN REGISTRO ===
-        function actualizarInfoConferencia() {
+        // ============================================
+        // ACTUALIZAR INFO DE CONFERENCIA EN REGISTRO
+        // ============================================
+        async function actualizarInfoConferencia() {
             const confSelect = document.getElementById('registroConferencia');
             const infoDiv = document.getElementById('infoConferencia');
             
             if (confSelect.value) {
                 infoDiv.style.display = 'block';
-                document.getElementById('infoInicio').textContent = '2024-01-15';
-                document.getElementById('infoFin').textContent = '2024-01-17';
-                document.getElementById('infoDias').textContent = '3';
-                document.getElementById('infoConferenciante').textContent = 'Pr. Juan Pérez';
-                document.getElementById('infoDireccion').textContent = 'Calle Principal #123';
                 
-                generarCheckboxesDias(3);
+                // Obtener datos de la conferencia desde Supabase
+                const { data, error } = await supabase
+                    .from('conferencias')
+                    .select('*, iglesias(nombre, direccion)')
+                    .eq('id', confSelect.value)
+                    .single();
+                
+                if (data && !error) {
+                    document.getElementById('infoInicio').textContent = data.fecha_inicio;
+                    document.getElementById('infoFin').textContent = data.fecha_fin;
+                    
+                    const diasTotales = calcularDiasEntreFechas(data.fecha_inicio, data.fecha_fin);
+                    document.getElementById('infoDias').textContent = diasTotales;
+                    document.getElementById('infoConferenciante').textContent = data.conferenciante || 'N/A';
+                    document.getElementById('infoDireccion').textContent = data.iglesias?.direccion || 'N/A';
+                    
+                    generarCheckboxesDias(diasTotales);
+                }
             } else {
                 infoDiv.style.display = 'none';
             }
+        }
+
+        function calcularDiasEntreFechas(inicio, fin) {
+            const startDate = new Date(inicio);
+            const endDate = new Date(fin);
+            const diffTime = Math.abs(endDate - startDate);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
         }
 
         function generarCheckboxesDias(cantidad) {
@@ -1005,63 +1118,607 @@
             document.getElementById('diasSeleccionadosCount').textContent = checked;
         }
 
-        // === FILTROS DE REPORTES (ACTUALIZADO CON FECHA) ===
-        function aplicarFiltrosReportes() {
+        // ============================================
+        // CARGA DE DATOS DESDE SUPABASE
+        // ============================================
+        async function cargarTodosLosDatos() {
+            await cargarZonas();
+            await cargarDistritos();
+            await cargarIglesias();
+            await cargarConferencias();
+            await cargarRegistros();
+            await cargarUsuarios();
+            await cargarEstadisticasDashboard();
+        }
+
+        // Cargar Zonas
+        async function cargarZonas() {
+            try {
+                const { data, error } = await supabase.from('zonas').select('*');
+                if (error) throw error;
+                
+                const tbody = document.getElementById('tablaZonas');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3">No hay zonas registradas</td></tr>';
+                    return;
+                }
+                
+                data.forEach(zona => {
+                    const row = `
+                        <tr>
+                            <td>${zona.nombre}</td>
+                            <td>${zona.descripcion || 'N/A'}</td>
+                            <td>
+                                <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Editar</button>
+                                <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                
+                // Actualizar contador
+                document.getElementById('totalZonas').textContent = data.length;
+                
+                // Llenar selects
+                llenarSelect('zonaNombre', data);
+            } catch (error) {
+                console.error('Error cargando zonas:', error);
+            }
+        }
+
+        // Cargar Distritos
+        async function cargarDistritos() {
+            try {
+                const { data, error } = await supabase.from('distritos').select('*, zonas(nombre)');
+                if (error) throw error;
+                
+                const tbody = document.getElementById('tablaDistritos');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">No hay distritos registrados</td></tr>';
+                    return;
+                }
+                
+                data.forEach(distrito => {
+                    const row = `
+                        <tr>
+                            <td>${distrito.nombre}</td>
+                            <td>${distrito.zonas?.nombre || 'N/A'}</td>
+                            <td>${distrito.responsable || 'N/A'}</td>
+                            <td>
+                                <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Editar</button>
+                                <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                
+                document.getElementById('totalDistritos').textContent = data.length;
+            } catch (error) {
+                console.error('Error cargando distritos:', error);
+            }
+        }
+
+        // Cargar Iglesias
+        async function cargarIglesias() {
+            try {
+                const { data, error } = await supabase.from('iglesias').select('*, zonas(nombre), distritos(nombre)');
+                if (error) throw error;
+                
+                const tbody = document.getElementById('tablaIglesias');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5">No hay iglesias registradas</td></tr>';
+                    return;
+                }
+                
+                data.forEach(iglesia => {
+                    const row = `
+                        <tr>
+                            <td>${iglesia.nombre}</td>
+                            <td>${iglesia.zonas?.nombre || 'N/A'}</td>
+                            <td>${iglesia.distritos?.nombre || 'N/A'}</td>
+                            <td>${iglesia.pastor || 'N/A'}</td>
+                            <td>
+                                <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Editar</button>
+                                <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                
+                document.getElementById('totalIglesias').textContent = data.length;
+            } catch (error) {
+                console.error('Error cargando iglesias:', error);
+            }
+        }
+
+        // Cargar Conferencias
+        async function cargarConferencias() {
+            try {
+                const { data, error } = await supabase.from('conferencias').select('*, iglesias(nombre)');
+                if (error) throw error;
+                
+                // Tabla dashboard
+                const tbodyDashboard = document.getElementById('tablaConferenciasDashboard');
+                tbodyDashboard.innerHTML = '';
+                
+                // Tabla conferencias
+                const tbody = document.getElementById('tablaConferencias');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbodyDashboard.innerHTML = '<tr><td colspan="6">No hay conferencias registradas</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7">No hay conferencias registradas</td></tr>';
+                    return;
+                }
+                
+                data.forEach(conf => {
+                    const dias = calcularDiasEntreFechas(conf.fecha_inicio, conf.fecha_fin);
+                    const row = `
+                        <tr>
+                            <td>${conf.nombre}</td>
+                            <td>${conf.iglesias?.nombre || 'N/A'}</td>
+                            <td>${conf.fecha_inicio}</td>
+                            <td>${conf.fecha_fin}</td>
+                            <td>${dias}</td>
+                            <td>${conf.conferenciante || 'N/A'}</td>
+                            <td>
+                                <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Editar</button>
+                                <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                    
+                    // Dashboard (solo últimas 5)
+                    if (tbodyDashboard.querySelectorAll('tr').length < 5) {
+                        const rowDashboard = `
+                            <tr>
+                                <td>${conf.nombre}</td>
+                                <td>${conf.iglesias?.nombre || 'N/A'}</td>
+                                <td>${conf.fecha_inicio}</td>
+                                <td>${conf.fecha_fin}</td>
+                                <td>${conf.conferenciante || 'N/A'}</td>
+                                <td>
+                                    <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Ver</button>
+                                </td>
+                            </tr>
+                        `;
+                        tbodyDashboard.innerHTML += rowDashboard;
+                    }
+                });
+                
+                document.getElementById('totalConferencias').textContent = data.length;
+            } catch (error) {
+                console.error('Error cargando conferencias:', error);
+            }
+        }
+
+        // Cargar Registros
+        async function cargarRegistros() {
+            try {
+                const { data, error } = await supabase.from('registros').select('*, iglesias(nombre), conferencias(nombre)');
+                if (error) throw error;
+                
+                const tbody = document.getElementById('tablaRegistros');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6">No hay registros de asistentes</td></tr>';
+                    return;
+                }
+                
+                data.forEach(registro => {
+                    const row = `
+                        <tr>
+                            <td>${registro.nombre}</td>
+                            <td>${registro.telefono || 'N/A'}</td>
+                            <td>${registro.iglesias?.nombre || 'N/A'}</td>
+                            <td>${registro.conferencias?.nombre || 'N/A'}</td>
+                            <td>${registro.dias_asistidos || 0}</td>
+                            <td>
+                                <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Editar</button>
+                                <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                
+                document.getElementById('totalAsistentes').textContent = data.length;
+            } catch (error) {
+                console.error('Error cargando registros:', error);
+            }
+        }
+
+        // Cargar Usuarios
+        async function cargarUsuarios() {
+            try {
+                const { data, error } = await supabase.from('usuarios').select('*');
+                if (error) throw error;
+                
+                const tbody = document.getElementById('tablaUsuarios');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">No hay usuarios registrados</td></tr>';
+                    return;
+                }
+                
+                data.forEach(usuario => {
+                    const row = `
+                        <tr>
+                            <td>${usuario.nombre}</td>
+                            <td>${usuario.email}</td>
+                            <td>${usuario.rol}</td>
+                            <td>
+                                <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Editar</button>
+                                <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+            }
+        }
+
+        // Cargar Estadísticas del Dashboard
+        async function cargarEstadisticasDashboard() {
+            try {
+                // Contar registros de cada tabla
+                const [zonas, distritos, iglesias, conferencias, registros] = await Promise.all([
+                    supabase.from('zonas').select('*', { count: 'exact', head: true }),
+                    supabase.from('distritos').select('*', { count: 'exact', head: true }),
+                    supabase.from('iglesias').select('*', { count: 'exact', head: true }),
+                    supabase.from('conferencias').select('*', { count: 'exact', head: true }),
+                    supabase.from('registros').select('*', { count: 'exact', head: true })
+                ]);
+                
+                document.getElementById('totalZonas').textContent = zonas.count || 0;
+                document.getElementById('totalDistritos').textContent = distritos.count || 0;
+                document.getElementById('totalIglesias').textContent = iglesias.count || 0;
+                document.getElementById('totalConferencias').textContent = conferencias.count || 0;
+                document.getElementById('totalAsistentes').textContent = registros.count || 0;
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+        // ============================================
+        // CARGAR SELECTS PARA FORMULARIOS
+        // ============================================
+        async function cargarZonasEnSelect() {
+            try {
+                const { data, error } = await supabase.from('zonas').select('id, nombre');
+                if (error) throw error;
+                
+                const selects = ['distritoZona', 'iglesiaZona'];
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        select.innerHTML = '<option value="">Seleccionar zona</option>';
+                        data.forEach(zona => {
+                            select.innerHTML += `<option value="${zona.id}">${zona.nombre}</option>`;
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando zonas en select:', error);
+            }
+        }
+
+        async function cargarDistritosPorZona() {
+            try {
+                const zonaId = document.getElementById('iglesiaZona').value;
+                const { data, error } = await supabase.from('distritos').select('id, nombre').eq('zona_id', zonaId);
+                if (error) throw error;
+                
+                const select = document.getElementById('iglesiaDistrito');
+                select.innerHTML = '<option value="">-- Sin distrito --</option>';
+                data.forEach(distrito => {
+                    select.innerHTML += `<option value="${distrito.id}">${distrito.nombre}</option>`;
+                });
+            } catch (error) {
+                console.error('Error cargando distritos:', error);
+            }
+        }
+
+        async function cargarIglesiasEnSelect() {
+            try {
+                const { data, error } = await supabase.from('iglesias').select('id, nombre');
+                if (error) throw error;
+                
+                const selects = ['confIglesia', 'registroIglesia'];
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        select.innerHTML = '<option value="">Seleccionar iglesia</option>';
+                        data.forEach(iglesia => {
+                            select.innerHTML += `<option value="${iglesia.id}">${iglesia.nombre}</option>`;
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando iglesias en select:', error);
+            }
+        }
+
+        async function cargarConferenciasEnSelect() {
+            try {
+                const { data, error } = await supabase.from('conferencias').select('id, nombre');
+                if (error) throw error;
+                
+                const select = document.getElementById('registroConferencia');
+                if (select) {
+                    select.innerHTML = '<option value="">Seleccionar conferencia</option>';
+                    data.forEach(conf => {
+                        select.innerHTML += `<option value="${conf.id}">${conf.nombre}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error cargando conferencias en select:', error);
+            }
+        }
+
+        // ============================================
+        // FILTROS DE REPORTES (CON FECHA Y SUPABASE)
+        // ============================================
+        async function cargarFiltrosReportes() {
+            try {
+                // Cargar conferencias en el select
+                const { data: conferencias, error: errorConf } = await supabase.from('conferencias').select('id, nombre');
+                if (!errorConf && conferencias) {
+                    const select = document.getElementById('filtroConferencia');
+                    select.innerHTML = '<option value="todas">-- Todas --</option>';
+                    conferencias.forEach(conf => {
+                        select.innerHTML += `<option value="${conf.id}">${conf.nombre}</option>`;
+                    });
+                }
+                
+                // Cargar iglesias en el select
+                const { data: iglesias, error: errorIgl } = await supabase.from('iglesias').select('id, nombre');
+                if (!errorIgl && iglesias) {
+                    const select = document.getElementById('filtroIglesia');
+                    select.innerHTML = '<option value="todas">-- Todas --</option>';
+                    iglesias.forEach(iglesia => {
+                        select.innerHTML += `<option value="${iglesia.id}">${iglesia.nombre}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error cargando filtros:', error);
+            }
+        }
+
+        async function aplicarFiltrosReportes() {
             const conferencia = document.getElementById('filtroConferencia').value;
             const iglesia = document.getElementById('filtroIglesia').value;
-            const fecha = document.getElementById('filtroFecha').value; // NUEVO: Captura la fecha
+            const fecha = document.getElementById('filtroFecha').value;
             
-            console.log("Filtros aplicados:", { conferencia, iglesia, fecha });
-            
-            // Simulación de filtrado
             const tbody = document.getElementById('tablaResultadosReporte');
+            tbody.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
             
-            if (!conferencia && !iglesia && !fecha) {
-                tbody.innerHTML = '<tr><td colspan="6">Seleccione al menos un filtro para ver el reporte</td></tr>';
-                return;
+            try {
+                let query = supabase.from('registros').select('*, iglesias(nombre), conferencias(nombre, conferenciante)');
+                
+                // Aplicar filtros
+                if (conferencia !== 'todas') {
+                    query = query.eq('conferencia_id', conferencia);
+                }
+                if (iglesia !== 'todas') {
+                    query = query.eq('iglesia_id', iglesia);
+                }
+                // FILTRO POR FECHA
+                if (fecha) {
+                    query = query.gte('fecha_registro', fecha).lte('fecha_registro', fecha + 'T23:59:59');
+                }
+                
+                const { data, error } = await query;
+                
+                if (error) throw error;
+                
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6">No se encontraron registros con los filtros seleccionados</td></tr>';
+                    document.getElementById('reporteTotalAsistentes').textContent = '0';
+                    document.getElementById('reporteDiasTotales').textContent = '0';
+                    document.getElementById('reporteIglesias').textContent = '0';
+                    return;
+                }
+                
+                let totalDias = 0;
+                const iglesiasUnicas = new Set();
+                
+                data.forEach(registro => {
+                    const row = `
+                        <tr>
+                            <td>${registro.nombre}</td>
+                            <td>${registro.telefono || 'N/A'}</td>
+                            <td>${registro.iglesias?.nombre || 'N/A'}</td>
+                            <td>${registro.conferencias?.nombre || 'N/A'}</td>
+                            <td>${registro.dias_asistidos || 0}</td>
+                            <td>${registro.conferencias?.conferenciante || 'N/A'}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                    
+                    totalDias += parseInt(registro.dias_asistidos) || 0;
+                    if (registro.iglesias?.nombre) {
+                        iglesiasUnicas.add(registro.iglesias.nombre);
+                    }
+                });
+                
+                // Actualizar estadísticas del reporte
+                document.getElementById('reporteTotalAsistentes').textContent = data.length;
+                document.getElementById('reporteDiasTotales').textContent = totalDias;
+                document.getElementById('reporteIglesias').textContent = iglesiasUnicas.size;
+                
+            } catch (error) {
+                console.error('Error aplicando filtros:', error);
+                tbody.innerHTML = '<tr><td colspan="6">Error al cargar los datos: ' + error.message + '</td></tr>';
             }
-            
-            // Aquí iría la lógica real de Supabase
-            // Ejemplo de consulta con fecha:
-            /*
-            let query = supabase.from('registros').select('*');
-            if (fecha) {
-                query = query.gte('fecha_registro', fecha).lte('fecha_registro', fecha + 'T23:59:59');
-            }
-            */
-            
-            tbody.innerHTML = `
-                <tr>
-                    <td>Juan Pérez</td>
-                    <td>809-555-1234</td>
-                    <td>Iglesia Betel</td>
-                    <td>Conferencia Juventud</td>
-                    <td>3</td>
-                    <td>Pr. Manuel</td>
-                </tr>
-            `;
-            
-            document.getElementById('reporteTotalAsistentes').textContent = '1';
-            document.getElementById('reporteDiasTotales').textContent = '3';
-            document.getElementById('reporteIglesias').textContent = '1';
         }
 
-        // === CARGA DE DATOS GENERALES ===
-        function cargarDatos() {
-            // Simulación de carga de datos
-            document.getElementById('totalZonas').textContent = '5';
-            document.getElementById('totalDistritos').textContent = '12';
-            document.getElementById('totalIglesias').textContent = '45';
-            document.getElementById('totalConferencias').textContent = '8';
-            document.getElementById('totalAsistentes').textContent = '350';
+        // ============================================
+        // DESCARGAR REPORTE PDF
+        // ============================================
+        function descargarReportePDF() {
+            alert('Funcionalidad de exportación a PDF - En desarrollo');
+            // Aquí puedes integrar librerías como jsPDF o html2pdf
         }
 
+        // ============================================
+        // GUARDAR DATOS EN SUPABASE
+        // ============================================
+        // Guardar Zona
+        document.getElementById('formZona').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const { data, error } = await supabase.from('zonas').insert([{
+                nombre: document.getElementById('zonaNombre').value,
+                descripcion: document.getElementById('zonaDescripcion').value
+            }]);
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('Zona guardada exitosamente');
+                closeModal('modalZona');
+                cargarZonas();
+            }
+        });
+
+        // Guardar Distrito
+        document.getElementById('formDistrito').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const { data, error } = await supabase.from('distritos').insert([{
+                zona_id: document.getElementById('distritoZona').value,
+                nombre: document.getElementById('distritoNombre').value,
+                responsable: document.getElementById('distritoResponsable').value,
+                telefono: document.getElementById('distritoTelefono').value
+            }]);
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('Distrito guardado exitosamente');
+                closeModal('modalDistrito');
+                cargarDistritos();
+            }
+        });
+
+        // Guardar Iglesia
+        document.getElementById('formIglesia').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const { data, error } = await supabase.from('iglesias').insert([{
+                zona_id: document.getElementById('iglesiaZona').value,
+                distrito_id: document.getElementById('iglesiaDistrito').value || null,
+                nombre: document.getElementById('iglesiaNombre').value,
+                pastor: document.getElementById('iglesiaPastor').value,
+                telefono: document.getElementById('iglesiaTelefono').value,
+                direccion: document.getElementById('iglesiaDireccion').value
+            }]);
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('Iglesia guardada exitosamente');
+                closeModal('modalIglesia');
+                cargarIglesias();
+            }
+        });
+
+        // Guardar Conferencia
+        document.getElementById('formConferencia').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const { data, error } = await supabase.from('conferencias').insert([{
+                nombre: document.getElementById('confNombre').value,
+                iglesia_id: document.getElementById('confIglesia').value,
+                fecha_inicio: document.getElementById('confInicio').value,
+                fecha_fin: document.getElementById('confFin').value,
+                conferenciante: document.getElementById('confConferenciante').value
+            }]);
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('Conferencia guardada exitosamente');
+                closeModal('modalConferencia');
+                cargarConferencias();
+            }
+        });
+
+        // Guardar Registro
+        document.getElementById('formRegistro').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const diasAsistidos = document.querySelectorAll('#diasAsistidosCheckboxes input:checked').length;
+            
+            const { data, error } = await supabase.from('registros').insert([{
+                nombre: document.getElementById('registroNombre').value,
+                telefono: document.getElementById('registroTelefono').value,
+                iglesia_id: document.getElementById('registroIglesia').value || null,
+                conferencia_id: document.getElementById('registroConferencia').value,
+                dias_asistidos: diasAsistidos,
+                fecha_registro: new Date().toISOString()
+            }]);
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('Registro guardado exitosamente');
+                closeModal('modalRegistro');
+                cargarRegistros();
+            }
+        });
+
+        // Guardar Usuario
+        document.getElementById('formUsuario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const { data, error } = await supabase.from('usuarios').insert([{
+                nombre: document.getElementById('usuarioNombre').value,
+                email: document.getElementById('usuarioEmail').value,
+                password: document.getElementById('usuarioPassword').value,
+                rol: document.getElementById('usuarioRol').value
+            }]);
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('Usuario guardado exitosamente');
+                closeModal('modalUsuario');
+                cargarUsuarios();
+            }
+        });
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
         // Cerrar modales al hacer clic fuera
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }
         }
+
+        // Inicializar Supabase cuando carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarSupabase();
+        });
     </script>
 </body>
 </html>

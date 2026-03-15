@@ -511,8 +511,8 @@ async function cargarAsistentes() {
 function aplicarFiltrosReporte() {
     const conferencia = document.getElementById('filtroConferenciaReporte').value;
     const iglesia = document.getElementById('filtroIglesiaReporte').value;
-    const fechaInicio = document.getElementById('fechaInicioReporte').value;
-    const fechaFin = document.getElementById('fechaFinReporte').value;
+    const fecha = document.getElementById('filtroFecha').value; 
+    
     
     // Validar que fecha fin no sea menor que fecha inicio
     if (fechaInicio && fechaFin && fechaInicio > fechaFin) {

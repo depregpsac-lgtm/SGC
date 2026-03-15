@@ -507,6 +507,75 @@ async function cargarAsistentes() {
 // ✅ FUNCIONES DE BÚSQUEDA - AGREGAR AL FINAL
 // ============================================
 
+// Función para aplicar filtros incluyendo fecha
+function aplicarFiltrosReporte() {
+    const conferencia = document.getElementById('filtroConferenciaReporte').value;
+    const iglesia = document.getElementById('filtroIglesiaReporte').value;
+    const fechaInicio = document.getElementById('fechaInicioReporte').value;
+    const fechaFin = document.getElementById('fechaFinReporte').value;
+    
+    // Validar que fecha fin no sea menor que fecha inicio
+    if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
+        alert('⚠️ La fecha de inicio no puede ser mayor que la fecha de fin');
+        return;
+    }
+    
+    // Construir query para Supabase
+    let query = supabase
+        .from('asistentes')
+        .select('*');
+    
+    if (conferencia) {
+        query = query.eq('conferencia_id', conferencia);
+    }
+    
+    if (iglesia) {
+        query = query.eq('iglesia_id', iglesia);
+    }
+    
+    if (fechaInicio) {
+        query = query.gte('fecha_registro', fechaInicio);
+    }
+    
+    if (fechaFin) {
+        query = query.lte('fecha_registro', fechaFin);
+    }
+    
+    // Ejecutar consulta
+    query.then(({ data, error }) => {
+        if (error) {
+            console.error('Error:', error);
+            return;
+        }
+        actualizarTablaReporte(data);
+        actualizarEstadisticas(data);
+    });
+}
+
+// Función para limpiar filtros
+function limpiarFiltrosReporte() {
+    document.getElementById('filtroConferenciaReporte').value = '';
+    document.getElementById('filtroIglesiaReporte').value = '';
+    document.getElementById('fechaInicioReporte').value = '';
+    document.getElementById('fechaFinReporte').value = '';
+    aplicarFiltrosReporte();
+}
+
+// Función para actualizar estadísticas
+function actualizarEstadisticas(data) {
+    const totalAsistentes = data.length;
+    const totalDias = data.reduce((sum, item) => sum + (item.dias_asistidos || 0), 0);
+    const iglesiasUnicas = new Set(data.map(item => item.iglesia_id)).size;
+    
+    // Actualizar DOM
+    document.querySelector('.stat-card:nth-child(1) h3').textContent = totalAsistentes;
+    document.querySelector('.stat-card:nth-child(2) h3').textContent = totalDias;
+    document.querySelector('.stat-card:nth-child(3) h3').textContent = iglesiasUnicas;
+}
+
+
+
+// FUNCION FILTRAR ASISTENCIA
 function filtrarAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (!buscador) return;

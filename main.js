@@ -170,48 +170,21 @@ async function prepararModalConferencia() {
     await cargarIglesiasEnSelect('confIglesia');
     abrirModal('modalNuevaConferencia');
 }
-// asing funcion preparar modal ASISTENCTE
 
 async function prepararModalAsistente() {
     window.editMode = { tipo: null, id: null, data: null };
     document.getElementById('formAsistente').reset();
     document.getElementById('formAsistente').onsubmit = guardarAsistente;
-    
     const titulo = document.getElementById('tituloModalAsistente');
     if (titulo) titulo.textContent = '👥 Nuevo Registro de Asistente';
-    
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
-    
     await cargarIglesiasEnSelect('asistIglesia');
     await cargarConferenciasEnSelect('asistConferencia');
-    
-    // ✅ AGREGAR LISTENER PARA CAMBIO DE CONFERENCIA
-    const confSelect = document.getElementById('asistConferencia');
-    if (confSelect) {
-        // ✅ Remover listeners previos para evitar duplicados
-        confSelect.replaceWith(confSelect.cloneNode(true));
-        const nuevoSelect = document.getElementById('asistConferencia');
-        
-        nuevoSelect.addEventListener('change', async (e) => {
-            console.log('🔄 Conferencia cambiada:', e.target.value);
-            
-            // ✅ Limpiar fechas anteriores
-            const container = document.getElementById('fechasAsistenciaContainer');
-            if (container) container.innerHTML = '';
-            actualizarContadorAsistencia();
-            
-            // ✅ Resetear editMode para no marcar fechas de otro asistente
-            if (e.target.value) {
-                window.editMode.data.fechas_asistencia = null;
-                await cargarFechasConferencia(e.target.value);
-            }
-        });
-    }
-    
     abrirModal('modalNuevoAsistente');
 }
+
 async function prepararModalUsuario() {
     window.editMode = { tipo: null, id: null, data: null };
     window.tempPassword = '';
@@ -507,75 +480,6 @@ async function cargarAsistentes() {
 // ✅ FUNCIONES DE BÚSQUEDA - AGREGAR AL FINAL
 // ============================================
 
-// Función para aplicar filtros incluyendo fecha
-function aplicarFiltrosReporte() {
-    const conferencia = document.getElementById('filtroConferenciaReporte').value;
-    const iglesia = document.getElementById('filtroIglesiaReporte').value;
-    const fecha = document.getElementById('filtroFecha').value; 
-    
-    
-    // Validar que fecha fin no sea menor que fecha inicio
-    if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
-        alert('⚠️ La fecha de inicio no puede ser mayor que la fecha de fin');
-        return;
-    }
-    
-    // Construir query para Supabase
-    let query = supabase
-        .from('asistentes')
-        .select('*');
-    
-    if (conferencia) {
-        query = query.eq('conferencia_id', conferencia);
-    }
-    
-    if (iglesia) {
-        query = query.eq('iglesia_id', iglesia);
-    }
-    
-    if (fechaInicio) {
-        query = query.gte('fecha_registro', fechaInicio);
-    }
-    
-    if (fechaFin) {
-        query = query.lte('fecha_registro', fechaFin);
-    }
-    
-    // Ejecutar consulta
-    query.then(({ data, error }) => {
-        if (error) {
-            console.error('Error:', error);
-            return;
-        }
-        actualizarTablaReporte(data);
-        actualizarEstadisticas(data);
-    });
-}
-
-// Función para limpiar filtros
-function limpiarFiltrosReporte() {
-    document.getElementById('filtroConferenciaReporte').value = '';
-    document.getElementById('filtroIglesiaReporte').value = '';
-    document.getElementById('fechaInicioReporte').value = '';
-    document.getElementById('fechaFinReporte').value = '';
-    aplicarFiltrosReporte();
-}
-
-// Función para actualizar estadísticas
-function actualizarEstadisticas(data) {
-    const totalAsistentes = data.length;
-    const totalDias = data.reduce((sum, item) => sum + (item.dias_asistidos || 0), 0);
-    const iglesiasUnicas = new Set(data.map(item => item.iglesia_id)).size;
-    
-    // Actualizar DOM
-    document.querySelector('.stat-card:nth-child(1) h3').textContent = totalAsistentes;
-    document.querySelector('.stat-card:nth-child(2) h3').textContent = totalDias;
-    document.querySelector('.stat-card:nth-child(3) h3').textContent = iglesiasUnicas;
-}
-
-
-
-// FUNCION FILTRAR ASISTENCIA
 function filtrarAsistentes() {
     const buscador = document.getElementById('buscadorAsistentes');
     if (!buscador) return;
@@ -1046,18 +950,9 @@ async function confirmarEliminarConferencia(id) {
 // ============================================
 async function editarAsistente(id) {
     try {
-        console.log('✏️ Editando asistente ID:', id);
-        
         const asistentes = await obtenerAsistentes();
         const asist = asistentes.find(a => a.id == id);
-        
-        if (!asist) {
-            console.error('❌ Asistente no encontrado');
-            return;
-        }
-        
-        console.log('✅ Datos del asistente:', asist);
-        console.log('📅 Fechas asistencia:', asist.fechas_asistencia);
+        if (!asist) return;
         
         window.editMode = { tipo: 'asistente', id: id, data: asist };
         
@@ -1075,13 +970,8 @@ async function editarAsistente(id) {
         document.getElementById('tituloModalAsistente').textContent = '👥 Editar Asistente';
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
-        // ✅ CARGAR FECHAS DESPUÉS DE SETEAR LA CONFERENCIA
-        if (asist.conferencia_id) {
-            await cargarFechasConferencia(asist.conferencia_id);
-        }
-        
+        await cargarFechasConferencia(asist.conferencia_id);
         abrirModal('modalNuevoAsistente');
-        
     } catch (error) {
         console.error('❌ Error editando asistente:', error);
         mostrarMensaje('Error al cargar datos del asistente', 'error');
@@ -1140,14 +1030,6 @@ async function guardarAsistenteEditado(e) {
             return;
         }
         
-        // ✅ CALCULAR DÍAS FALTANTES
-        const todasLasFechas = document.querySelectorAll('.fecha-asistencia');
-        const diasTotales = todasLasFechas.length;
-        const diasAsistidos = fechas_asistencia.length;
-        const diasFaltantes = diasTotales - diasAsistidos;
-        
-        console.log(`📊 Asistencia: ${diasAsistidos}/${diasTotales} días (Faltó: ${diasFaltantes})`);
-        
         await actualizarAsistente(window.editMode.id, {
             nombre_completo,
             telefono,
@@ -1158,7 +1040,7 @@ async function guardarAsistenteEditado(e) {
             fechas_asistencia: JSON.stringify(fechas_asistencia)
         });
         
-        mostrarMensaje(`✅ Asistente actualizado. Asistió ${diasAsistidos} de ${diasTotales} días`, 'success');
+        mostrarMensaje('✅ Asistente actualizado exitosamente', 'success');
         cerrarModal('modalNuevoAsistente');
         await cargarAsistentes();
     } catch (error) {
@@ -1430,95 +1312,40 @@ function obtenerFechasSeleccionadas() {
     const seleccionadas = document.querySelectorAll('.fecha-asistencia.seleccionada');
     return Array.from(seleccionadas).map(boton => boton.dataset.fecha);
 }
-//FUNCION MARCAR FECHA GUARDADAS//
+
 function marcarFechasGuardadas(fechasGuardadas) {
-    console.log('🔍 Marcando fechas guardadas:', fechasGuardadas);
+    if (!fechasGuardadas || fechasGuardadas.length === 0) return;
+    const fechas = typeof fechasGuardadas === 'string' ? JSON.parse(fechasGuardadas) : fechasGuardadas;
     
-    if (!fechasGuardadas) {
-        console.log('⚠️ No hay fechas guardadas');
-        return;
-    }
-    
-    let fechas = [];
-    
-    // ✅ Manejar diferentes formatos
-    if (typeof fechasGuardadas === 'string') {
-        try {
-            fechas = JSON.parse(fechasGuardadas);
-            console.log('✅ Fechas parseadas:', fechas);
-        } catch (e) {
-            console.error('❌ Error parseando fechas:', e);
-            return;
-        }
-    } else if (Array.isArray(fechasGuardadas)) {
-        fechas = fechasGuardadas;
-    } else {
-        console.error('❌ Formato de fechas no válido:', fechasGuardadas);
-        return;
-    }
-    
-    if (fechas.length === 0) {
-        console.log('⚠️ Array de fechas vacío');
-        return;
-    }
-    
-    // ✅ Marcar cada fecha con retry
-    let marcadas = 0;
     fechas.forEach(fechaISO => {
         const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
         if (boton) {
             boton.classList.add('seleccionada');
-            marcadas++;
-            console.log('✅ Fecha marcada:', fechaISO);
-        } else {
-            console.log('⚠️ Fecha no encontrada en DOM:', fechaISO);
         }
     });
-    
-    console.log(`📊 ${marcadas}/${fechas.length} fechas marcadas`);
     actualizarContadorAsistencia();
 }
 
-//ASING FUNCION CARGAR FECHAS CONFERENCIA
-
 async function cargarFechasConferencia(conferenciaId) {
     console.log('📅 Cargando fechas para conferencia:', conferenciaId);
-    
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
     
-    if (!conferenciaId) {
-        console.log('⚠️ No hay conferencia seleccionada');
-        return;
-    }
+    if (!conferenciaId) return;
 
     try {
         const conferencias = await obtenerConferencias();
         const conferencia = conferencias.find(c => c.id == conferenciaId);
         
         if (conferencia) {
-            console.log('📅 Conferencia encontrada:', conferencia.nombre);
             generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
             
-            // ✅ VERIFICAR SI ESTAMOS EDITANDO Y HAY FECHAS GUARDADAS
             if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
-                console.log('🔍 Hay fechas guardadas para este asistente');
-                
-                // ✅ Usar setTimeout más largo y verificar que los botones existan
                 setTimeout(() => {
-                    const botonesExistentes = document.querySelectorAll('.fecha-asistencia').length;
-                    console.log(`🔍 Botones generados: ${botonesExistentes}`);
-                    
-                    if (botonesExistentes > 0) {
-                        marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
-                    } else {
-                        console.error('❌ No se generaron botones de fecha');
-                    }
-                }, 300); // ⚠️ Aumentado a 300ms
+                    marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
+                }, 150);
             }
-        } else {
-            console.log('⚠️ Conferencia no encontrada');
         }
     } catch (error) {
         console.error('❌ Error cargando fechas:', error);
@@ -1526,7 +1353,6 @@ async function cargarFechasConferencia(conferenciaId) {
     }
 }
 
-// FUNCION ACTUALIZAR DURACION CONFERENCIA
 function actualizarDuracionConferencia() {
     const inicio = document.getElementById('confFechaInicio')?.value;
     const fin = document.getElementById('confFechaFin')?.value;
@@ -1541,12 +1367,6 @@ function actualizarDuracionConferencia() {
 // ============================================
 // REPORTES
 // ============================================
-// ============================================
-// REPORTES - FUNCIONES CORREGIDAS
-// ============================================
-// ============================================
-// REPORTES - FUNCIONES CORREGIDAS
-// ============================================
 async function cargarReportes() {
     console.log('📊 Cargando sección de Reportes');
     await cargarConferenciasEnSelect('reporteConferencia');
@@ -1558,35 +1378,15 @@ async function filtrarReporte() {
     try {
         const conferenciaId = document.getElementById('reporteConferencia')?.value;
         const iglesiaId = document.getElementById('reporteIglesia')?.value;
-        const fechaInicio = document.getElementById('fechaInicioReporte')?.value;
-        const fechaFin = document.getElementById('fechaFinReporte')?.value;
-        
-        // ✅ Validar fechas
-        if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
-            mostrarMensaje('⚠️ La fecha de inicio no puede ser mayor que la fecha de fin', 'error');
-            return;
-        }
         
         let asistentes = await obtenerAsistentes();
         
-        // ✅ Filtrar por conferencia
         if (conferenciaId) {
             asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
         }
         
-        // ✅ Filtrar por iglesia
         if (iglesiaId) {
             asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
-        }
-        
-        // ✅ Filtrar por fecha de registro
-        if (fechaInicio || fechaFin) {
-            asistentes = asistentes.filter(a => {
-                const fechaRegistro = a.fecha_registro ? a.fecha_registro.split('T')[0] : '';
-                if (fechaInicio && fechaRegistro < fechaInicio) return false;
-                if (fechaFin && fechaRegistro > fechaFin) return false;
-                return true;
-            });
         }
         
         const tbody = document.querySelector('#tablaReporte tbody');
@@ -1597,7 +1397,7 @@ async function filtrarReporte() {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length;
-                 
+                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${asist.nombre_completo}</td>
@@ -1610,7 +1410,6 @@ async function filtrarReporte() {
                 tbody.appendChild(tr);
             });
             
-            // ✅ Calcular estadísticas
             const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
             const totalDias = asistentes.reduce((sum, a) => {
                 const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
@@ -1642,14 +1441,8 @@ async function filtrarReporte() {
 function limpiarFiltrosReporte() {
     const confSelect = document.getElementById('reporteConferencia');
     const iglSelect = document.getElementById('reporteIglesia');
-    const fechaInicio = document.getElementById('fechaInicioReporte');
-    const fechaFin = document.getElementById('fechaFinReporte');
-    
     if (confSelect) confSelect.value = '';
     if (iglSelect) iglSelect.value = '';
-    if (fechaInicio) fechaInicio.value = '';
-    if (fechaFin) fechaFin.value = '';
-    
     filtrarReporte();
 }
 
@@ -1660,12 +1453,9 @@ async function generarReportePDF() {
         
         const conferenciaId = document.getElementById('reporteConferencia')?.value;
         const iglesiaId = document.getElementById('reporteIglesia')?.value;
-        const fechaInicio = document.getElementById('fechaInicioReporte')?.value;
-        const fechaFin = document.getElementById('fechaFinReporte')?.value;
         
         let asistentes = await obtenerAsistentes();
         
-        // ✅ Aplicar mismos filtros que filtrarReporte()
         if (conferenciaId) {
             asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
         }
@@ -1674,21 +1464,11 @@ async function generarReportePDF() {
             asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
         }
         
-        if (fechaInicio || fechaFin) {
-            asistentes = asistentes.filter(a => {
-                const fechaRegistro = a.fecha_registro ? a.fecha_registro.split('T')[0] : '';
-                if (fechaInicio && fechaRegistro < fechaInicio) return false;
-                if (fechaFin && fechaRegistro > fechaFin) return false;
-                return true;
-            });
-        }
-        
         const conferencias = await obtenerConferencias();
         const iglesias = await obtenerIglesias();
         const conferenciaFiltro = conferenciaId ? conferencias.find(c => c.id == conferenciaId)?.nombre : 'Todas';
         const iglesiaFiltro = iglesiaId ? iglesias.find(i => i.id == iglesiaId)?.nombre : 'Todas';
         
-        // ✅ Header del PDF
         doc.setFillColor(26, 26, 46);
         doc.rect(0, 0, 210, 40, 'F');
         
@@ -1705,9 +1485,6 @@ async function generarReportePDF() {
         doc.text(`Conferencia: ${conferenciaFiltro}`, 14, 58);
         doc.text(`Iglesia: ${iglesiaFiltro}`, 14, 66);
         
-        if (fechaInicio) doc.text(`Fecha Inicio: ${fechaInicio}`, 14, 74);
-        if (fechaFin) doc.text(`Fecha Fin: ${fechaFin}`, 14, 82);
-        
         const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
         const totalDias = asistentes.reduce((sum, a) => {
             const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
@@ -1715,11 +1492,11 @@ async function generarReportePDF() {
         }, 0);
         
         doc.setFillColor(240, 240, 240);
-        doc.rect(14, 90, 182, 20, 'F');
+        doc.rect(14, 75, 182, 20, 'F');
         doc.setFontSize(10);
-        doc.text(`Total Asistentes: ${asistentes.length}`, 20, 100);
-        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 100);  
-        doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 100);
+        doc.text(`Total Asistentes: ${asistentes.length}`, 20, 85);
+        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 85); 
+        doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 85);
         
         const tableData = asistentes.map(asist => {
             const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
@@ -1734,7 +1511,7 @@ async function generarReportePDF() {
         });
         
         doc.autoTable({
-            startY: 120,
+            startY: 105,
             head: [['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
             body: tableData,
             theme: 'striped',
@@ -1742,7 +1519,7 @@ async function generarReportePDF() {
             styles: { fontSize: 9 }
         });
         
-        const finalY = doc.lastAutoTable.finalY || 120;
+        const finalY = doc.lastAutoTable.finalY || 105;
         doc.setFontSize(9);
         doc.setTextColor(100, 100, 100);
         doc.text('© 2026 MinistryLion - Sistema de Gestión de Conferencias', 105, finalY + 15, { align: 'center' });
@@ -1756,125 +1533,6 @@ async function generarReportePDF() {
         mostrarMensaje('❌ Error al generar PDF: ' + error.message, 'error');
     }
 }
-
-function limpiarFiltrosReporte() {
-    const confSelect = document.getElementById('reporteConferencia');
-    const iglSelect = document.getElementById('reporteIglesia');
-    const fechaInicio = document.getElementById('fechaInicioReporte');
-    const fechaFin = document.getElementById('fechaFinReporte');
-    
-    if (confSelect) confSelect.value = '';
-    if (iglSelect) iglSelect.value = '';
-    if (fechaInicio) fechaInicio.value = '';
-    if (fechaFin) fechaFin.value = '';
-    
-    filtrarReporte();
-}
-
-async function generarReportePDF() {
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        const conferenciaId = document.getElementById('reporteConferencia')?.value;
-        const iglesiaId = document.getElementById('reporteIglesia')?.value;
-        const fechaInicio = document.getElementById('fechaInicioReporte')?.value;
-        const fechaFin = document.getElementById('fechaFinReporte')?.value;
-        
-        let asistentes = await obtenerAsistentes();
-        
-        // ✅ Aplicar mismos filtros que filtrarReporte()
-        if (conferenciaId) {
-            asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
-        }
-        
-        if (iglesiaId) {
-            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
-        }
-        
-        if (fechaInicio || fechaFin) {
-            asistentes = asistentes.filter(a => {
-                const fechaRegistro = a.fecha_registro ? a.fecha_registro.split('T')[0] : '';
-                if (fechaInicio && fechaRegistro < fechaInicio) return false;
-                if (fechaFin && fechaRegistro > fechaFin) return false;
-                return true;
-            });
-        }
-        
-        const conferencias = await obtenerConferencias();
-        const iglesias = await obtenerIglesias();
-        const conferenciaFiltro = conferenciaId ? conferencias.find(c => c.id == conferenciaId)?.nombre : 'Todas';
-        const iglesiaFiltro = iglesiaId ? iglesias.find(i => i.id == iglesiaId)?.nombre : 'Todas';
-        
-        // ✅ Header del PDF
-        doc.setFillColor(26, 26, 46);
-        doc.rect(0, 0, 210, 40, 'F');
-        
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(24);
-        doc.text('MinistryLion', 105, 20, { align: 'center' });
-        
-        doc.setFontSize(14);
-        doc.text('Reporte de Asistencia a Conferencias', 105, 30, { align: 'center' });
-        
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(11);
-        doc.text(`Fecha de Generación: ${new Date().toLocaleDateString('es-ES')}`, 14, 50);
-        doc.text(`Conferencia: ${conferenciaFiltro}`, 14, 58);
-        doc.text(`Iglesia: ${iglesiaFiltro}`, 14, 66);
-        
-        if (fechaInicio) doc.text(`Fecha Inicio: ${fechaInicio}`, 14, 74);
-        if (fechaFin) doc.text(`Fecha Fin: ${fechaFin}`, 14, 82);
-        
-        const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
-        const totalDias = asistentes.reduce((sum, a) => {
-            const fechas = a.fechas_asistencia ? JSON.parse(a.fechas_asistencia) : [];
-            return sum + fechas.length;
-        }, 0);
-        
-        doc.setFillColor(240, 240, 240);
-        doc.rect(14, 90, 182, 20, 'F');
-        doc.setFontSize(10);
-        doc.text(`Total Asistentes: ${asistentes.length}`, 20, 100);
-        doc.text(`Total Días Asistidos: ${totalDias}`, 70, 100);  
-        doc.text(`Iglesias Participantes: ${iglesiasUnicas.size}`, 130, 100);
-        
-        const tableData = asistentes.map(asist => {
-            const fechasAsistencia = asist.fechas_asistencia ? JSON.parse(asist.fechas_asistencia) : [];
-            return [
-                asist.nombre_completo,
-                asist.telefono || '-',
-                asist.iglesias?.nombre || 'Sin iglesia',
-                asist.conferencias?.nombre || 'Sin conferencia',
-                fechasAsistencia.length.toString(),
-                asist.invitado_por || '-'
-            ];
-        });
-        
-        doc.autoTable({
-            startY: 120,
-            head: [['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [102, 126, 234] },
-            styles: { fontSize: 9 }
-        });
-        
-        const finalY = doc.lastAutoTable.finalY || 120;
-        doc.setFontSize(9);
-        doc.setTextColor(100, 100, 100);
-        doc.text('© 2026 MinistryLion - Sistema de Gestión de Conferencias', 105, finalY + 15, { align: 'center' });
-        
-        const nombreArchivo = `reporte_asistencia_${new Date().toISOString().split('T')[0]}.pdf`;
-        doc.save(nombreArchivo);
-        
-        mostrarMensaje('✅ Reporte PDF generado exitosamente', 'success');
-    } catch (error) {
-        console.error('❌ Error generando PDF:', error);
-        mostrarMensaje('❌ Error al generar PDF: ' + error.message, 'error');
-    }
-}
-
 
 // ============================================
 // INICIALIZACIÓN
@@ -2127,5 +1785,7 @@ window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
 
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
+
 
 

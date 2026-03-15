@@ -1405,7 +1405,7 @@ table {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
 }
-    /* Contenedor de Filtros */
+/* Contenedor de Filtros */
 .filters-container {
     background: white;
     padding: 20px;
@@ -1517,4 +1517,3 @@ table {
     margin: 10px 0 0 0;
     font-size: 14px;
 }
-

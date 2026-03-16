@@ -592,6 +592,7 @@
                 </div>
             </section>
 
+            <!-- SECCIÓN REPORTES CON NUMERACIÓN AGREGADA -->
             <section id="reportes" class="section">
                 <div class="table-container">
                     <h4>📊 Reportes y Estadísticas</h4>
@@ -670,9 +671,11 @@
                         </div>
                     </div>
                     <div class="table-responsive">
+                        <!-- TABLA DE REPORTES CON COLUMNA N° AGREGADA -->
                         <table id="tablaReporte">
                             <thead>
                                 <tr>
+                                    <th style="width: 50px;">N°</th>
                                     <th>Nombre</th>
                                     <th>Teléfono</th>
                                     <th>Iglesia</th>
@@ -682,7 +685,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td colspan="6" class="loading">Seleccione filtros para ver el reporte</td></tr>
+                                <tr><td colspan="7" class="loading">Seleccione filtros para ver el reporte</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1454,11 +1457,11 @@
         }
 
         // ============================================
-        // FILTRO DE DÍA DE CONFERENCIA CORREGIDO
+        // FUNCIÓN APLICAR FILTROS CON NUMERACIÓN AGREGADA
         // ============================================
         async function aplicarFiltros() {
             const tbody = document.querySelector('#tablaReporte tbody');
-            tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando reporte...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando reporte...</td></tr>';
 
             try {
                 let asistentes = [];
@@ -1472,34 +1475,24 @@
                 const diaConferencia = document.getElementById('filtroDiaConferencia').value;
                 const diasAsistidosFiltro = document.getElementById('filtroDiasAsistidos').value;
 
-                // Filtrar por conferencia
                 if (confId) {
                     asistentes = asistentes.filter(a => a.conferencia_id == confId);
                 }
 
-                // Filtrar por iglesia
                 if (iglesiaId) {
                     asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
                 }
 
-                // ============================================
-                // FILTRO POR DÍA DE CONFERENCIA ESPECÍFICO
-                // Muestra personas que asistieron ESE DÍA específico
-                // Si asistió 5 días, asistió Día 1, 2, 3, 4, 5
-                // ============================================
                 if (diaConferencia) {
                     const diaSeleccionado = parseInt(diaConferencia);
                     asistentes = asistentes.filter(a => {
                         const diasAsistidos = parseInt(a.dias_asistidos) || 0;
-                        // Mostrar solo si asistió AL MENOS hasta ese día
-                        // Ej: Si filtro Día 3, mostrar quienes asistieron 3, 4, 5, 6, 7... días
                         return diasAsistidos >= diaSeleccionado;
                     });
                     
                     console.log(`📅 Filtrando por Día ${diaSeleccionado}: ${asistentes.length} asistentes`);
                 }
 
-                // Filtrar por cantidad de días asistidos
                 if (diasAsistidosFiltro) {
                     if (diasAsistidosFiltro === 'completo') {
                         if (confId && conferenciasCache.length > 0) {
@@ -1521,8 +1514,10 @@
                 reporteActual = asistentes;
 
                 if (asistentes.length > 0) {
-                    tbody.innerHTML = asistentes.map(asist => `
+                    // ✅ AGREGADA NUMERACIÓN CON INDEX
+                    tbody.innerHTML = asistentes.map((asist, index) => `
                         <tr>
+                            <td class="numero-fila">${index + 1}</td>
                             <td>${asist.nombre_completo}</td>
                             <td>${asist.telefono || 'N/A'}</td>
                             <td>${asist.iglesias?.nombre || 'N/A'}</td>
@@ -1542,7 +1537,7 @@
                 } else {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No hay datos para mostrar con los filtros seleccionados</td>
+                            <td colspan="7" class="text-center text-muted">No hay datos para mostrar con los filtros seleccionados</td>
                         </tr>
                     `;
 
@@ -1553,7 +1548,7 @@
                 }
             } catch (error) {
                 console.error('Error aplicando filtros:', error);
-                tbody.innerHTML = '<tr><td colspan="6" class="text-danger">Error al cargar reporte</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-danger">Error al cargar reporte</td></tr>';
             }
         }
 
@@ -1624,7 +1619,9 @@
                 doc.text(`Total Iglesias: ${document.getElementById('reporteIglesias').textContent}`, 120, 45);
                 doc.text(`Promedio Días: ${document.getElementById('reportePromedioDias').textContent}`, 160, 45);
 
-                const tableData = reporteActual.map(asist => [
+                // ✅ AGREGAR COLUMNA N° AL PDF
+                const tableData = reporteActual.map((asist, index) => [
+                    index + 1,
                     asist.nombre_completo,
                     asist.telefono || 'N/A',
                     asist.iglesias?.nombre || 'N/A',
@@ -1635,18 +1632,19 @@
 
                 doc.autoTable({
                     startY: 52,
-                    head: [['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
+                    head: [['N°', 'Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
                     body: tableData,
                     theme: 'striped',
                     headStyles: { fillColor: [52, 152, 219] },
                     styles: { fontSize: 8 },
                     columnStyles: {
-                        0: { cellWidth: 45 },
-                        1: { cellWidth: 25 },
-                        2: { cellWidth: 35 },
+                        0: { cellWidth: 10, halign: 'center' },
+                        1: { cellWidth: 40 },
+                        2: { cellWidth: 25 },
                         3: { cellWidth: 35 },
-                        4: { cellWidth: 15 },
-                        5: { cellWidth: 35 }
+                        4: { cellWidth: 35 },
+                        5: { cellWidth: 15 },
+                        6: { cellWidth: 35 }
                     }
                 });
 
@@ -1683,10 +1681,11 @@
                 mostrarNotificacion('📊 Exportando a Excel...', 'info');
 
                 let csvContent = "text/csv;charset=utf-8,";
-                csvContent += "Nombre,Teléfono,Iglesia,Conferencia,Días Asistidos,Invitado Por\n";
+                csvContent += "N°,Nombre,Teléfono,Iglesia,Conferencia,Días Asistidos,Invitado Por\n";
 
-                reporteActual.forEach(asist => {
+                reporteActual.forEach((asist, index) => {
                     const row = [
+                        index + 1,
                         asist.nombre_completo,
                         asist.telefono || 'N/A',
                         asist.iglesias?.nombre || 'N/A',

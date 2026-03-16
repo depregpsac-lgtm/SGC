@@ -380,6 +380,12 @@
             margin-bottom: 0.5rem;
         }
 
+        .numero-fila {
+            font-weight: bold;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -542,7 +548,7 @@
                 </div>
             </section>
 
-            <!-- SECCIÓN REGISTROS CON BARRA DE BÚSQUEDA POR NOMBRE -->
+            <!-- SECCIÓN REGISTROS CON NUMERACIÓN ASCENDENTE -->
             <section id="registros" class="section">
                 <div class="table-container">
                     <div class="table-header">
@@ -571,6 +577,7 @@
                         <table id="tablaRegistros">
                             <thead>
                                 <tr>
+                                    <th style="width: 50px;">N°</th>
                                     <th>Nombre</th>
                                     <th>Teléfono</th>
                                     <th>Iglesia</th>
@@ -580,14 +587,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando...</td></tr>
+                                <tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- SECCIÓN REPORTES CON FILTRO POR DÍA DE CONFERENCIA -->
+            <!-- SECCIÓN REPORTES -->
             <section id="reportes" class="section">
                 <div class="table-container">
                     <h4>📊 Reportes y Estadísticas</h4>
@@ -1320,7 +1327,7 @@
         }
 
         // ============================================
-        // CARGA DE REGISTROS CON BÚSQUEDA POR NOMBRE
+        // CARGA DE REGISTROS CON NUMERACIÓN ASCENDENTE
         // ============================================
         async function actualizarRegistros() {
             const btn = document.getElementById('btnActualizarRegistros');
@@ -1345,7 +1352,7 @@
 
         async function cargarRegistros() {
             const tbody = document.querySelector('#tablaRegistros tbody');
-            tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando...</td></tr>';
 
             try {
                 let asistentes = [];
@@ -1367,8 +1374,9 @@
                 }
 
                 if (asistentes.length > 0) {
-                    tbody.innerHTML = asistentes.map(asist => `
+                    tbody.innerHTML = asistentes.map((asist, index) => `
                         <tr>
+                            <td class="numero-fila">${index + 1}</td>
                             <td>${asist.nombre_completo}</td>
                             <td>${asist.telefono || 'N/A'}</td>
                             <td>${asist.iglesias?.nombre || 'N/A'}</td>
@@ -1387,18 +1395,18 @@
                 } else {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No hay registros de asistentes</td>
+                            <td colspan="7" class="text-center text-muted">No hay registros de asistentes</td>
                         </tr>
                     `;
                 }
             } catch (error) {
                 console.error('Error cargando registros:', error);
-                tbody.innerHTML = '<tr><td colspan="6" class="text-danger">Error al cargar datos</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-danger">Error al cargar datos</td></tr>';
             }
         }
 
         // ============================================
-        // FILTROS DE REPORTES - ACTUALIZADO CON DÍA DE CONFERENCIA
+        // FILTROS DE REPORTES
         // ============================================
         async function cargarFiltrosReporte() {
             try {
@@ -1429,15 +1437,11 @@
             }
         }
 
-        // Función para actualizar los días disponibles según la conferencia seleccionada
         function actualizarDiasConferencia() {
             const confId = document.getElementById('filtroConferencia').value;
             const diaSelect = document.getElementById('filtroDiaConferencia');
             
-            // Guardar selección actual
             const seleccionActual = diaSelect.value;
-            
-            // Resetear opciones
             diaSelect.innerHTML = '<option value="">-- Todos --</option>';
             
             if (confId && conferenciasCache.length > 0) {
@@ -1445,19 +1449,16 @@
                 if (conferencia) {
                     const diasTotales = calcularDiasEntreFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
                     
-                    // Agregar opciones dinámicas según los días de la conferencia
                     for (let i = 1; i <= diasTotales; i++) {
                         diaSelect.innerHTML += `<option value="${i}">Día ${i}</option>`;
                     }
                 }
             } else {
-                // Si no hay conferencia seleccionada, mostrar días genéricos
                 for (let i = 1; i <= 7; i++) {
                     diaSelect.innerHTML += `<option value="${i}">Día ${i}</option>`;
                 }
             }
             
-            // Restaurar selección si es válida
             if (seleccionActual && diaSelect.querySelector(`option[value="${seleccionActual}"]`)) {
                 diaSelect.value = seleccionActual;
             }
@@ -1479,29 +1480,23 @@
                 const diaConferencia = document.getElementById('filtroDiaConferencia').value;
                 const diasAsistidosFiltro = document.getElementById('filtroDiasAsistidos').value;
 
-                // Aplicar filtro por conferencia
                 if (confId) {
                     asistentes = asistentes.filter(a => a.conferencia_id == confId);
                 }
 
-                // Aplicar filtro por iglesia
                 if (iglesiaId) {
                     asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
                 }
 
-                // Aplicar filtro por DÍA DE CONFERENCIA específico
                 if (diaConferencia) {
                     asistentes = asistentes.filter(a => {
                         const diasAsistidos = parseInt(a.dias_asistidos) || 0;
-                        // Filtrar asistentes que asistieron al menos hasta ese día
                         return diasAsistidos >= parseInt(diaConferencia);
                     });
                 }
 
-                // Aplicar filtro por cantidad de días asistidos
                 if (diasAsistidosFiltro) {
                     if (diasAsistidosFiltro === 'completo') {
-                        // Asistencia completa a la conferencia seleccionada
                         if (confId && conferenciasCache.length > 0) {
                             const conferencia = conferenciasCache.find(c => c.id == confId);
                             if (conferencia) {
@@ -1565,9 +1560,6 @@
             return 'secondary';
         }
 
-        // ============================================
-        // GENERAR PDF - ACTUALIZADO CON DÍA DE CONFERENCIA
-        // ============================================
         async function descargarPDF() {
             if (reporteActual.length === 0) {
                 mostrarNotificacion('⚠️ No hay datos para generar el PDF', 'warning');
@@ -1676,9 +1668,6 @@
             }
         }
 
-        // ============================================
-        // EXPORTAR EXCEL
-        // ============================================
         function exportarExcel() {
             if (reporteActual.length === 0) {
                 mostrarNotificacion('⚠️ No hay datos para exportar', 'warning');
@@ -1918,9 +1907,6 @@
             }
         }
 
-        // ============================================
-        // FUNCIONES DE EDICIÓN
-        // ============================================
         async function editarZona(id) {
             try {
                 const zonas = await obtenerZonas();
@@ -2070,9 +2056,6 @@
             }
         }
 
-        // ============================================
-        // FUNCIONES DE MODALES
-        // ============================================
         function abrirModalZona() {
             document.getElementById('zonaId').value = '';
             document.getElementById('formZona').reset();
@@ -2252,7 +2235,6 @@
         }
 
         function setupEventListeners() {
-            // Búsqueda en tiempo real en Registros
             const filtroNombreRegistros = document.getElementById('filtroNombreRegistros');
             if (filtroNombreRegistros) {
                 filtroNombreRegistros.addEventListener('input', () => {

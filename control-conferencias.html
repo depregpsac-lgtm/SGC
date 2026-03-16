@@ -578,18 +578,38 @@
             <section id="reportes" class="section">
                 <div class="table-container">
                     <h4>📊 Reportes y Estadísticas</h4>
+                    
+                    <!-- FILTROS MEJORADOS CON DÍAS DE ASISTENCIA -->
                     <div class="row mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label small">Conferencia</label>
                             <select id="filtroConferencia" class="form-select">
                                 <option value="">-- Todas --</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label small">Iglesia</label>
                             <select id="filtroIglesia" class="form-select">
                                 <option value="">-- Todas --</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label small">Días Asistidos</label>
+                            <select id="filtroDiasAsistidos" class="form-select">
+                                <option value="">-- Todos --</option>
+                                <option value="1">1 día</option>
+                                <option value="2">2 días</option>
+                                <option value="3">3 días</option>
+                                <option value="4">4 días</option>
+                                <option value="5">5 días</option>
+                                <option value="6">6 días</option>
+                                <option value="7">7 días</option>
+                                <option value="min3">3 o más días</option>
+                                <option value="min5">5 o más días</option>
+                                <option value="todos">Todos los días</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
                             <button class="btn btn-primary w-100" onclick="aplicarFiltros()">
                                 <i class="fas fa-filter"></i> Aplicar Filtros
                             </button>
@@ -608,6 +628,10 @@
                         <div class="stat-card">
                             <h3 id="reporteIglesias">0</h3>
                             <p>Iglesias</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="reportePromedioDias">0</h3>
+                            <p>Promedio Días</p>
                         </div>
                     </div>
 
@@ -1362,6 +1386,9 @@
             }
         }
 
+        // ============================================
+        // FUNCIÓN APLICAR FILTROS - ACTUALIZADA CON DÍAS
+        // ============================================
         async function aplicarFiltros() {
             const tbody = document.querySelector('#tablaReporte tbody');
             tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando reporte...</td></tr>';
@@ -1375,12 +1402,38 @@
 
                 const confId = document.getElementById('filtroConferencia').value;
                 const iglesiaId = document.getElementById('filtroIglesia').value;
+                const diasFiltro = document.getElementById('filtroDiasAsistidos').value;
 
+                // Aplicar filtro por conferencia
                 if (confId) {
                     asistentes = asistentes.filter(a => a.conferencia_id == confId);
                 }
+
+                // Aplicar filtro por iglesia
                 if (iglesiaId) {
                     asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+                }
+
+                // Aplicar filtro por días asistidos
+                if (diasFiltro) {
+                    if (diasFiltro === 'todos') {
+                        // Mostrar solo los que asistieron todos los días de su conferencia
+                        const conferencias = await obtenerConferencias();
+                        asistentes = asistentes.filter(a => {
+                            const conf = conferencias.find(c => c.id == a.conferencia_id);
+                            if (conf) {
+                                const diasTotales = calcularDiasEntreFechas(conf.fecha_inicio, conf.fecha_fin);
+                                return parseInt(a.dias_asistidos) >= diasTotales;
+                            }
+                            return false;
+                        });
+                    } else if (diasFiltro === 'min3') {
+                        asistentes = asistentes.filter(a => parseInt(a.dias_asistidos) >= 3);
+                    } else if (diasFiltro === 'min5') {
+                        asistentes = asistentes.filter(a => parseInt(a.dias_asistidos) >= 5);
+                    } else {
+                        asistentes = asistentes.filter(a => parseInt(a.dias_asistidos) == parseInt(diasFiltro));
+                    }
                 }
 
                 reporteActual = asistentes;
@@ -1392,16 +1445,19 @@
                             <td>${asist.telefono || 'N/A'}</td>
                             <td>${asist.iglesias?.nombre || 'N/A'}</td>
                             <td>${asist.conferencias?.nombre || 'N/A'}</td>
-                            <td>${asist.dias_asistidos || 0}</td>
+                            <td><span class="badge bg-${getDiasBadgeColor(asist.dias_asistidos)}">${asist.dias_asistidos || 0}</span></td>
                             <td>${asist.invitado_por || 'N/A'}</td>
                         </tr>
                     `).join('');
 
+                    // Actualizar estadísticas
                     document.getElementById('reporteTotalAsistentes').textContent = asistentes.length;
                     const totalDias = asistentes.reduce((sum, a) => sum + (parseInt(a.dias_asistidos) || 0), 0);
                     document.getElementById('reporteDiasTotales').textContent = totalDias;
                     const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id)).size;
                     document.getElementById('reporteIglesias').textContent = iglesiasUnicas;
+                    const promedioDias = asistentes.length > 0 ? (totalDias / asistentes.length).toFixed(1) : 0;
+                    document.getElementById('reportePromedioDias').textContent = promedioDias;
                 } else {
                     tbody.innerHTML = `
                         <tr>
@@ -1412,6 +1468,7 @@
                     document.getElementById('reporteTotalAsistentes').textContent = '0';
                     document.getElementById('reporteDiasTotales').textContent = '0';
                     document.getElementById('reporteIglesias').textContent = '0';
+                    document.getElementById('reportePromedioDias').textContent = '0';
                 }
             } catch (error) {
                 console.error('Error aplicando filtros:', error);
@@ -1419,8 +1476,17 @@
             }
         }
 
+        // Función para obtener color del badge según días
+        function getDiasBadgeColor(dias) {
+            const d = parseInt(dias) || 0;
+            if (d >= 5) return 'success';
+            if (d >= 3) return 'primary';
+            if (d >= 2) return 'warning';
+            return 'secondary';
+        }
+
         // ============================================
-        // FUNCIÓN PARA GENERAR PDF - IMPLEMENTADA
+        // FUNCIÓN PARA GENERAR PDF - ACTUALIZADA
         // ============================================
         async function descargarPDF() {
             if (reporteActual.length === 0) {
@@ -1456,6 +1522,7 @@
                 // Filtros aplicados
                 const confFilter = document.getElementById('filtroConferencia');
                 const iglesiaFilter = document.getElementById('filtroIglesia');
+                const diasFilter = document.getElementById('filtroDiasAsistidos');
                 const filtrosAplicados = [];
                 
                 if (confFilter.value) {
@@ -1463,6 +1530,10 @@
                 }
                 if (iglesiaFilter.value) {
                     filtrosAplicados.push(`Iglesia: ${iglesiaFilter.options[iglesiaFilter.selectedIndex].text}`);
+                }
+                if (diasFilter.value) {
+                    const diasText = diasFilter.options[diasFilter.selectedIndex].text;
+                    filtrosAplicados.push(`Días: ${diasText}`);
                 }
 
                 if (filtrosAplicados.length > 0) {
@@ -1472,8 +1543,9 @@
                 // Estadísticas
                 doc.setFontSize(11);
                 doc.text(`Total Asistentes: ${document.getElementById('reporteTotalAsistentes').textContent}`, 14, 45);
-                doc.text(`Total Días: ${document.getElementById('reporteDiasTotales').textContent}`, 80, 45);
-                doc.text(`Total Iglesias: ${document.getElementById('reporteIglesias').textContent}`, 140, 45);
+                doc.text(`Total Días: ${document.getElementById('reporteDiasTotales').textContent}`, 70, 45);
+                doc.text(`Total Iglesias: ${document.getElementById('reporteIglesias').textContent}`, 120, 45);
+                doc.text(`Promedio Días: ${document.getElementById('reportePromedioDias').textContent}`, 160, 45);
 
                 // Tabla de datos
                 const tableData = reporteActual.map(asist => [
@@ -1493,10 +1565,10 @@
                     headStyles: { fillColor: [52, 152, 219] },
                     styles: { fontSize: 8 },
                     columnStyles: {
-                        0: { cellWidth: 50 },
-                        1: { cellWidth: 30 },
-                        2: { cellWidth: 40 },
-                        3: { cellWidth: 40 },
+                        0: { cellWidth: 45 },
+                        1: { cellWidth: 25 },
+                        2: { cellWidth: 35 },
+                        3: { cellWidth: 35 },
                         4: { cellWidth: 15 },
                         5: { cellWidth: 35 }
                     }
@@ -1539,7 +1611,7 @@
             try {
                 mostrarNotificacion('📊 Exportando a Excel...', 'info');
 
-                let csvContent = "data:text/csv;charset=utf-8,";
+                let csvContent = "text/csv;charset=utf-8,";
                 csvContent += "Nombre,Teléfono,Iglesia,Conferencia,Días Asistidos,Invitado Por\n";
 
                 reporteActual.forEach(asist => {

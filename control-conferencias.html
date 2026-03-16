@@ -579,21 +579,25 @@
                 <div class="table-container">
                     <h4>📊 Reportes y Estadísticas</h4>
                     
-                    <!-- FILTROS MEJORADOS CON DÍAS DE ASISTENCIA -->
+                    <!-- FILTROS MEJORADOS CON BARRA DE BÚSQUEDA POR NOMBRE -->
                     <div class="row mb-3">
                         <div class="col-md-3">
+                            <label class="form-label small">🔍 Buscar por Nombre</label>
+                            <input type="text" id="filtroNombre" class="form-control" placeholder="Nombre del asistente...">
+                        </div>
+                        <div class="col-md-2">
                             <label class="form-label small">Conferencia</label>
                             <select id="filtroConferencia" class="form-select">
                                 <option value="">-- Todas --</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label small">Iglesia</label>
                             <select id="filtroIglesia" class="form-select">
                                 <option value="">-- Todas --</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label small">Días Asistidos</label>
                             <select id="filtroDiasAsistidos" class="form-select">
                                 <option value="">-- Todos --</option>
@@ -1387,7 +1391,7 @@
         }
 
         // ============================================
-        // FUNCIÓN APLICAR FILTROS - ACTUALIZADA CON DÍAS
+        // FUNCIÓN APLICAR FILTROS - ACTUALIZADA CON BÚSQUEDA POR NOMBRE
         // ============================================
         async function aplicarFiltros() {
             const tbody = document.querySelector('#tablaReporte tbody');
@@ -1400,9 +1404,17 @@
                     asistentes = await obtenerAsistentes();
                 }
 
+                const nombreBusqueda = document.getElementById('filtroNombre').value.toLowerCase().trim();
                 const confId = document.getElementById('filtroConferencia').value;
                 const iglesiaId = document.getElementById('filtroIglesia').value;
                 const diasFiltro = document.getElementById('filtroDiasAsistidos').value;
+
+                // Aplicar filtro por nombre (búsqueda parcial)
+                if (nombreBusqueda) {
+                    asistentes = asistentes.filter(a => 
+                        a.nombre_completo.toLowerCase().includes(nombreBusqueda)
+                    );
+                }
 
                 // Aplicar filtro por conferencia
                 if (confId) {
@@ -1520,11 +1532,15 @@
                 doc.text(`Fecha del Reporte: ${fechaReporte}`, 14, 30);
 
                 // Filtros aplicados
+                const nombreFilter = document.getElementById('filtroNombre').value;
                 const confFilter = document.getElementById('filtroConferencia');
                 const iglesiaFilter = document.getElementById('filtroIglesia');
                 const diasFilter = document.getElementById('filtroDiasAsistidos');
                 const filtrosAplicados = [];
                 
+                if (nombreFilter) {
+                    filtrosAplicados.push(`Búsqueda: "${nombreFilter}"`);
+                }
                 if (confFilter.value) {
                     filtrosAplicados.push(`Conferencia: ${confFilter.options[confFilter.selectedIndex].text}`);
                 }

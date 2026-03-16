@@ -2028,19 +2028,22 @@
                     document.getElementById('registroDireccion').value = asistente.direccion || '';
                     document.getElementById('registroDiasAsistidos').value = asistente.dias_asistidos || 0;
                     
+                    // ✅ Cargar información de la conferencia PRIMERO
                     await cargarInfoConferencia();
                     
+                    // ✅ ESPERAR a que se generen los checkboxes
                     setTimeout(() => {
                         const checkboxes = document.querySelectorAll('.dia-asistido');
                         const diasAsistidos = parseInt(asistente.dias_asistidos) || 0;
-                        // Marcar los primeros N días según el total
+                        
+                        // ✅ Marcar los primeros N días según el total guardado
                         checkboxes.forEach((cb, index) => {
                             if (index < diasAsistidos) {
                                 cb.checked = true;
                             }
                         });
                         actualizarContadorDias();
-                    }, 500);
+                    }, 600); // ✅ Aumentado el timeout para asegurar que se carguen los checkboxes
                     
                     document.getElementById('modalRegistroTitle').textContent = '👥 Editar Registro de Asistente';
                     document.getElementById('modalRegistro').classList.add('active');
@@ -2185,15 +2188,26 @@
             }
         }
 
+        // ✅ FUNCIÓN CORREGIDA PARA CALCULAR DÍAS CORRECTAMENTE
         function calcularDiasEntreFechas(fechaInicio, fechaFin) {
             if (!fechaInicio || !fechaFin) return 0;
-            const start = new Date(fechaInicio);
-            const end = new Date(fechaFin);
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            
+            // ✅ Crear fechas sin hora para evitar problemas de timezone
+            const start = new Date(fechaInicio + 'T00:00:00');
+            const end = new Date(fechaFin + 'T00:00:00');
+            
+            // ✅ Calcular diferencia en milisegundos
+            const diffTime = end - start;
+            
+            // ✅ Convertir a días y agregar 1 para incluir ambos extremos
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            
+            console.log(`📅 Calculando días: ${fechaInicio} a ${fechaFin} = ${diffDays} días`);
+            
             return diffDays;
         }
 
+        // ✅ FUNCIÓN CORREGIDA PARA CARGAR INFO DE CONFERENCIA
         async function cargarInfoConferencia() {
             const conferenciaId = document.getElementById('registroConferencia').value;
             const infoDiv = document.getElementById('infoConferencia');
@@ -2213,7 +2227,13 @@
                     const conferencia = conferencias.find(c => c.id == conferenciaId);
                     
                     if (conferencia) {
+                        // ✅ Usar la función corregida para calcular días
                         const diasTotales = calcularDiasEntreFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
+                        
+                        console.log(`✅ Conferencia: ${conferencia.nombre}`);
+                        console.log(`✅ Fecha inicio: ${conferencia.fecha_inicio}`);
+                        console.log(`✅ Fecha fin: ${conferencia.fecha_fin}`);
+                        console.log(`✅ Total días calculados: ${diasTotales}`);
                         
                         infoDiv.innerHTML = `
                             <p><strong>Inicio:</strong> ${formatFecha(conferencia.fecha_inicio)}</p>
@@ -2221,11 +2241,16 @@
                             <p><strong>Total de días:</strong> ${diasTotales}</p>
                         `;
 
+                        // ✅ Crear checkboxes para CADA día de la conferencia
                         diasContainer.innerHTML = '';
                         for (let i = 1; i <= diasTotales; i++) {
                             diasContainer.innerHTML += `
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input dia-asistido" type="checkbox" value="${i}" id="dia_${i}" onchange="actualizarContadorDias()">
+                                    <input class="form-check-input dia-asistido" 
+                                           type="checkbox" 
+                                           value="${i}" 
+                                           id="dia_${i}" 
+                                           onchange="actualizarContadorDias()">
                                     <label class="form-check-label" for="dia_${i}">Día ${i}</label>
                                 </div>
                             `;
@@ -2616,7 +2641,7 @@
 
         function formatFecha(fecha) {
             if (!fecha) return 'N/A';
-            const d = new Date(fecha);
+            const d = new Date(fecha + 'T00:00:00');
             return d.toLocaleDateString('es-ES', { 
                 year: 'numeric', 
                 month: 'short', 

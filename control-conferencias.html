@@ -7,6 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -611,9 +613,14 @@
 
                     <div class="table-header">
                         <h5>📋 Detalle del Reporte</h5>
-                        <button class="btn btn-success" onclick="descargarPDF()">
-                            <i class="fas fa-file-pdf"></i> Descargar PDF
-                        </button>
+                        <div>
+                            <button class="btn btn-success me-2" onclick="descargarPDF()">
+                                <i class="fas fa-file-pdf"></i> Descargar PDF
+                            </button>
+                            <button class="btn btn-info" onclick="exportarExcel()">
+                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            </button>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table id="tablaReporte">
@@ -991,6 +998,7 @@
     <script>
         let currentUser = null;
         let dbInitialized = false;
+        let reporteActual = [];
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Iniciando aplicación...');
@@ -1375,6 +1383,8 @@
                     asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
                 }
 
+                reporteActual = asistentes;
+
                 if (asistentes.length > 0) {
                     tbody.innerHTML = asistentes.map(asist => `
                         <tr>
@@ -1409,8 +1419,154 @@
             }
         }
 
-        function descargarPDF() {
-            mostrarNotificacion('📄 Generando PDF...', 'info');
+        // ============================================
+        // FUNCIÓN PARA GENERAR PDF - IMPLEMENTADA
+        // ============================================
+        async function descargarPDF() {
+            if (reporteActual.length === 0) {
+                mostrarNotificacion('⚠️ No hay datos para generar el PDF', 'warning');
+                return;
+            }
+
+            try {
+                mostrarNotificacion('📄 Generando PDF...', 'info');
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Encabezado
+                doc.setFillColor(44, 62, 80);
+                doc.rect(0, 0, 210, 20, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(16);
+                doc.text('MinistryLion - Reporte de Asistentes', 105, 13, { align: 'center' });
+
+                // Información del reporte
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(10);
+                const fechaReporte = new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                doc.text(`Fecha del Reporte: ${fechaReporte}`, 14, 30);
+
+                // Filtros aplicados
+                const confFilter = document.getElementById('filtroConferencia');
+                const iglesiaFilter = document.getElementById('filtroIglesia');
+                const filtrosAplicados = [];
+                
+                if (confFilter.value) {
+                    filtrosAplicados.push(`Conferencia: ${confFilter.options[confFilter.selectedIndex].text}`);
+                }
+                if (iglesiaFilter.value) {
+                    filtrosAplicados.push(`Iglesia: ${iglesiaFilter.options[iglesiaFilter.selectedIndex].text}`);
+                }
+
+                if (filtrosAplicados.length > 0) {
+                    doc.text(`Filtros: ${filtrosAplicados.join(' | ')}`, 14, 36);
+                }
+
+                // Estadísticas
+                doc.setFontSize(11);
+                doc.text(`Total Asistentes: ${document.getElementById('reporteTotalAsistentes').textContent}`, 14, 45);
+                doc.text(`Total Días: ${document.getElementById('reporteDiasTotales').textContent}`, 80, 45);
+                doc.text(`Total Iglesias: ${document.getElementById('reporteIglesias').textContent}`, 140, 45);
+
+                // Tabla de datos
+                const tableData = reporteActual.map(asist => [
+                    asist.nombre_completo,
+                    asist.telefono || 'N/A',
+                    asist.iglesias?.nombre || 'N/A',
+                    asist.conferencias?.nombre || 'N/A',
+                    asist.dias_asistidos || 0,
+                    asist.invitado_por || 'N/A'
+                ]);
+
+                doc.autoTable({
+                    startY: 52,
+                    head: [['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
+                    body: tableData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [52, 152, 219] },
+                    styles: { fontSize: 8 },
+                    columnStyles: {
+                        0: { cellWidth: 50 },
+                        1: { cellWidth: 30 },
+                        2: { cellWidth: 40 },
+                        3: { cellWidth: 40 },
+                        4: { cellWidth: 15 },
+                        5: { cellWidth: 35 }
+                    }
+                });
+
+                // Pie de página
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(150);
+                    doc.text(
+                        `© Elaborado por: Natanael León Veras, edición 2026 - Página ${i} de ${pageCount}`,
+                        105,
+                        doc.internal.pageSize.height - 10,
+                        { align: 'center' }
+                    );
+                }
+
+                // Guardar PDF
+                const nombreArchivo = `reporte_asistentes_${new Date().toISOString().slice(0, 10)}.pdf`;
+                doc.save(nombreArchivo);
+
+                mostrarNotificacion('✅ PDF generado exitosamente', 'success');
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                mostrarNotificacion('❌ Error al generar PDF', 'danger');
+            }
+        }
+
+        // ============================================
+        // FUNCIÓN PARA EXPORTAR EXCEL
+        // ============================================
+        function exportarExcel() {
+            if (reporteActual.length === 0) {
+                mostrarNotificacion('⚠️ No hay datos para exportar', 'warning');
+                return;
+            }
+
+            try {
+                mostrarNotificacion('📊 Exportando a Excel...', 'info');
+
+                let csvContent = "data:text/csv;charset=utf-8,";
+                csvContent += "Nombre,Teléfono,Iglesia,Conferencia,Días Asistidos,Invitado Por\n";
+
+                reporteActual.forEach(asist => {
+                    const row = [
+                        asist.nombre_completo,
+                        asist.telefono || 'N/A',
+                        asist.iglesias?.nombre || 'N/A',
+                        asist.conferencias?.nombre || 'N/A',
+                        asist.dias_asistidos || 0,
+                        asist.invitado_por || 'N/A'
+                    ].map(field => `"${field}"`).join(",");
+                    csvContent += row + "\n";
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `reporte_asistentes_${new Date().toISOString().slice(0, 10)}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                mostrarNotificacion('✅ Excel exportado exitosamente', 'success');
+            } catch (error) {
+                console.error('Error exportando Excel:', error);
+                mostrarNotificacion('❌ Error al exportar Excel', 'danger');
+            }
         }
 
         function showConfigTab(tab) {
@@ -1613,11 +1769,6 @@
             }
         }
 
-        // ============================================
-        // FUNCIONES DE EDICIÓN - IMPLEMENTADAS
-        // ============================================
-        
-        // EDITAR ZONA
         async function editarZona(id) {
             try {
                 const zonas = await obtenerZonas();
@@ -1636,7 +1787,6 @@
             }
         }
 
-        // EDITAR DISTRITO
         async function editarDistrito(id) {
             try {
                 await cargarZonasEnSelect('distritoZona');
@@ -1658,7 +1808,6 @@
             }
         }
 
-        // EDITAR IGLESIA
         async function editarIglesia(id) {
             try {
                 await cargarZonasEnSelect('iglesiaZona');
@@ -1683,7 +1832,6 @@
             }
         }
 
-        // EDITAR CONFERENCIA
         async function editarConferencia(id) {
             try {
                 await cargarIglesiasEnSelect('conferenciaIglesia');
@@ -1710,7 +1858,6 @@
             }
         }
 
-        // EDITAR REGISTRO
         async function editarRegistro(id) {
             try {
                 await cargarIglesiasEnSelect('registroIglesia');
@@ -1729,10 +1876,8 @@
                     document.getElementById('registroDireccion').value = asistente.direccion || '';
                     document.getElementById('registroDiasAsistidos').value = asistente.dias_asistidos || 0;
                     
-                    // Cargar información de la conferencia
                     await cargarInfoConferencia();
                     
-                    // Marcar checkboxes de días asistidos
                     setTimeout(() => {
                         const checkboxes = document.querySelectorAll('.dia-asistido');
                         const diasAsistidos = parseInt(asistente.dias_asistidos) || 0;
@@ -1753,7 +1898,6 @@
             }
         }
 
-        // EDITAR USUARIO
         async function editarUsuario(id) {
             try {
                 const usuarios = await obtenerUsuarios();
@@ -1774,9 +1918,6 @@
             }
         }
 
-        // ============================================
-        // FUNCIONES DE MODALES
-        // ============================================
         function abrirModalZona() {
             document.getElementById('zonaId').value = '';
             document.getElementById('formZona').reset();

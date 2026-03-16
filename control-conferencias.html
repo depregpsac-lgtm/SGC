@@ -755,10 +755,11 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Modal Zona -->
     <div id="modalZona" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h4>📍 Registrar Zona</h4>
+                <h4 id="modalZonaTitle">📍 Registrar Zona</h4>
                 <button class="modal-close" onclick="cerrarModal('modalZona')">&times;</button>
             </div>
             <form id="formZona">
@@ -779,10 +780,11 @@
         </div>
     </div>
 
+    <!-- Modal Distrito -->
     <div id="modalDistrito" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h4>🏛️ Registrar Distrito</h4>
+                <h4 id="modalDistritoTitle">🏛️ Registrar Distrito</h4>
                 <button class="modal-close" onclick="cerrarModal('modalDistrito')">&times;</button>
             </div>
             <form id="formDistrito">
@@ -811,10 +813,11 @@
         </div>
     </div>
 
+    <!-- Modal Iglesia -->
     <div id="modalIglesia" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h4>⛪ Registrar Iglesia</h4>
+                <h4 id="modalIglesiaTitle">⛪ Registrar Iglesia</h4>
                 <button class="modal-close" onclick="cerrarModal('modalIglesia')">&times;</button>
             </div>
             <form id="formIglesia">
@@ -853,10 +856,11 @@
         </div>
     </div>
 
+    <!-- Modal Conferencia -->
     <div id="modalConferencia" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h4>📅 Nueva Conferencia</h4>
+                <h4 id="modalConferenciaTitle">📅 Nueva Conferencia</h4>
                 <button class="modal-close" onclick="cerrarModal('modalConferencia')">&times;</button>
             </div>
             <form id="formConferencia">
@@ -892,10 +896,11 @@
         </div>
     </div>
 
+    <!-- Modal Registro -->
     <div id="modalRegistro" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h4>👥 Nuevo Registro de Asistente</h4>
+                <h4 id="modalRegistroTitle">👥 Nuevo Registro de Asistente</h4>
                 <button class="modal-close" onclick="cerrarModal('modalRegistro')">&times;</button>
             </div>
             <form id="formRegistro">
@@ -944,10 +949,11 @@
         </div>
     </div>
 
+    <!-- Modal Usuario -->
     <div id="modalUsuario" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h4>👤 Nuevo Usuario</h4>
+                <h4 id="modalUsuarioTitle">👤 Nuevo Usuario</h4>
                 <button class="modal-close" onclick="cerrarModal('modalUsuario')">&times;</button>
             </div>
             <form id="formUsuario">
@@ -962,7 +968,7 @@
                 </div>
                 <div class="form-group">
                     <label>Contraseña</label>
-                    <input type="password" id="usuarioPassword">
+                    <input type="password" id="usuarioPassword" placeholder="Dejar vacío para mantener la actual">
                 </div>
                 <div class="form-group">
                     <label>Rol</label>
@@ -1188,10 +1194,10 @@
                             <td>${formatFecha(conf.fecha_fin)}</td>
                             <td>${conf.conferenciante || 'N/A'}</td>
                             <td>
-                                <button class="btn btn-sm btn-warning" onclick="editarConferencia(${conf.id})">
+                                <button class="btn btn-sm btn-warning" onclick="editarConferencia(${conf.id})" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarConferencia(${conf.id})">
+                                <button class="btn btn-sm btn-danger" onclick="eliminarConferencia(${conf.id})" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1233,10 +1239,10 @@
                                 <td>${dias}</td>
                                 <td>${conf.conferenciante || 'N/A'}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-warning" onclick="editarConferencia(${conf.id})">
+                                    <button class="btn btn-sm btn-warning" onclick="editarConferencia(${conf.id})" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger" onclick="eliminarConferencia(${conf.id})">
+                                    <button class="btn btn-sm btn-danger" onclick="eliminarConferencia(${conf.id})" title="Eliminar">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
@@ -1256,7 +1262,6 @@
             }
         }
 
-        // ✅ FUNCIÓN DE ACTUALIZAR REGISTROS - VERIFICADA Y CORREGIDA
         async function actualizarRegistros() {
             const btn = document.getElementById('btnActualizarRegistros');
             const originalContent = btn.innerHTML;
@@ -1449,10 +1454,10 @@
                             <td>${zona.nombre}</td>
                             <td>${zona.descripcion || 'N/A'}</td>
                             <td>
-                                <button class="btn btn-sm btn-warning" onclick="editarZona(${zona.id})">
+                                <button class="btn btn-sm btn-warning" onclick="editarZona(${zona.id})" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarZona(${zona.id})">
+                                <button class="btn btn-sm btn-danger" onclick="eliminarZona(${zona.id})" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1489,10 +1494,10 @@
                             <td>${dist.zonas?.nombre || 'N/A'}</td>
                             <td>${dist.responsable || 'N/A'}</td>
                             <td>
-                                <button class="btn btn-sm btn-warning" onclick="editarDistrito(${dist.id})">
+                                <button class="btn btn-sm btn-warning" onclick="editarDistrito(${dist.id})" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarDistrito(${dist.id})">
+                                <button class="btn btn-sm btn-danger" onclick="eliminarDistrito(${dist.id})" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1530,10 +1535,10 @@
                             <td>${iglesia.distritos?.nombre || 'N/A'}</td>
                             <td>${iglesia.pastor || 'N/A'}</td>
                             <td>
-                                <button class="btn btn-sm btn-warning" onclick="editarIglesia(${iglesia.id})">
+                                <button class="btn btn-sm btn-warning" onclick="editarIglesia(${iglesia.id})" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarIglesia(${iglesia.id})">
+                                <button class="btn btn-sm btn-danger" onclick="eliminarIglesia(${iglesia.id})" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1586,10 +1591,10 @@
                             <td>${usuario.email}</td>
                             <td><span class="badge bg-${usuario.rol === 'administrador' ? 'danger' : 'primary'}">${usuario.rol}</span></td>
                             <td>
-                                <button class="btn btn-sm btn-warning" onclick="editarUsuario(${usuario.id})">
+                                <button class="btn btn-sm btn-warning" onclick="editarUsuario(${usuario.id})" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${usuario.id})">
+                                <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${usuario.id})" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1608,9 +1613,174 @@
             }
         }
 
+        // ============================================
+        // FUNCIONES DE EDICIÓN - IMPLEMENTADAS
+        // ============================================
+        
+        // EDITAR ZONA
+        async function editarZona(id) {
+            try {
+                const zonas = await obtenerZonas();
+                const zona = zonas.find(z => z.id == id);
+                
+                if (zona) {
+                    document.getElementById('zonaId').value = zona.id;
+                    document.getElementById('zonaNombre').value = zona.nombre;
+                    document.getElementById('zonaDescripcion').value = zona.descripcion || '';
+                    document.getElementById('modalZonaTitle').textContent = '📍 Editar Zona';
+                    document.getElementById('modalZona').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error cargando zona:', error);
+                mostrarNotificacion('❌ Error al cargar zona', 'danger');
+            }
+        }
+
+        // EDITAR DISTRITO
+        async function editarDistrito(id) {
+            try {
+                await cargarZonasEnSelect('distritoZona');
+                const distritos = await obtenerDistritos();
+                const distrito = distritos.find(d => d.id == id);
+                
+                if (distrito) {
+                    document.getElementById('distritoId').value = distrito.id;
+                    document.getElementById('distritoZona').value = distrito.zona_id;
+                    document.getElementById('distritoNombre').value = distrito.nombre;
+                    document.getElementById('distritoResponsable').value = distrito.responsable || '';
+                    document.getElementById('distritoTelefono').value = distrito.telefono || '';
+                    document.getElementById('modalDistritoTitle').textContent = '🏛️ Editar Distrito';
+                    document.getElementById('modalDistrito').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error cargando distrito:', error);
+                mostrarNotificacion('❌ Error al cargar distrito', 'danger');
+            }
+        }
+
+        // EDITAR IGLESIA
+        async function editarIglesia(id) {
+            try {
+                await cargarZonasEnSelect('iglesiaZona');
+                const iglesias = await obtenerIglesias();
+                const iglesia = iglesias.find(i => i.id == id);
+                
+                if (iglesia) {
+                    document.getElementById('iglesiaId').value = iglesia.id;
+                    document.getElementById('iglesiaZona').value = iglesia.zona_id;
+                    await cargarDistritosPorZona();
+                    document.getElementById('iglesiaDistrito').value = iglesia.distrito_id || '';
+                    document.getElementById('iglesiaNombre').value = iglesia.nombre;
+                    document.getElementById('iglesiaPastor').value = iglesia.pastor || '';
+                    document.getElementById('iglesiaTelefono').value = iglesia.telefono || '';
+                    document.getElementById('iglesiaDireccion').value = iglesia.direccion || '';
+                    document.getElementById('modalIglesiaTitle').textContent = '⛪ Editar Iglesia';
+                    document.getElementById('modalIglesia').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error cargando iglesia:', error);
+                mostrarNotificacion('❌ Error al cargar iglesia', 'danger');
+            }
+        }
+
+        // EDITAR CONFERENCIA
+        async function editarConferencia(id) {
+            try {
+                await cargarIglesiasEnSelect('conferenciaIglesia');
+                const conferencias = await obtenerConferencias();
+                const conferencia = conferencias.find(c => c.id == id);
+                
+                if (conferencia) {
+                    document.getElementById('conferenciaId').value = conferencia.id;
+                    document.getElementById('conferenciaIglesia').value = conferencia.iglesia_id;
+                    document.getElementById('conferenciaNombre').value = conferencia.nombre;
+                    document.getElementById('conferenciaInicio').value = conferencia.fecha_inicio;
+                    document.getElementById('conferenciaFin').value = conferencia.fecha_fin;
+                    document.getElementById('conferenciaConferenciante').value = conferencia.conferenciante || '';
+                    
+                    const dias = calcularDiasEntreFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
+                    document.getElementById('duracionDias').textContent = dias;
+                    
+                    document.getElementById('modalConferenciaTitle').textContent = '📅 Editar Conferencia';
+                    document.getElementById('modalConferencia').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error cargando conferencia:', error);
+                mostrarNotificacion('❌ Error al cargar conferencia', 'danger');
+            }
+        }
+
+        // EDITAR REGISTRO
+        async function editarRegistro(id) {
+            try {
+                await cargarIglesiasEnSelect('registroIglesia');
+                await cargarConferenciasEnSelect('registroConferencia');
+                
+                const asistentes = await obtenerAsistentes();
+                const asistente = asistentes.find(a => a.id == id);
+                
+                if (asistente) {
+                    document.getElementById('registroId').value = asistente.id;
+                    document.getElementById('registroNombre').value = asistente.nombre_completo;
+                    document.getElementById('registroTelefono').value = asistente.telefono || '';
+                    document.getElementById('registroIglesia').value = asistente.iglesia_id || '';
+                    document.getElementById('registroConferencia').value = asistente.conferencia_id;
+                    document.getElementById('registroInvitadoPor').value = asistente.invitado_por || '';
+                    document.getElementById('registroDireccion').value = asistente.direccion || '';
+                    document.getElementById('registroDiasAsistidos').value = asistente.dias_asistidos || 0;
+                    
+                    // Cargar información de la conferencia
+                    await cargarInfoConferencia();
+                    
+                    // Marcar checkboxes de días asistidos
+                    setTimeout(() => {
+                        const checkboxes = document.querySelectorAll('.dia-asistido');
+                        const diasAsistidos = parseInt(asistente.dias_asistidos) || 0;
+                        checkboxes.forEach((cb, index) => {
+                            if (index < diasAsistidos) {
+                                cb.checked = true;
+                            }
+                        });
+                        actualizarContadorDias();
+                    }, 500);
+                    
+                    document.getElementById('modalRegistroTitle').textContent = '👥 Editar Registro de Asistente';
+                    document.getElementById('modalRegistro').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error cargando registro:', error);
+                mostrarNotificacion('❌ Error al cargar registro', 'danger');
+            }
+        }
+
+        // EDITAR USUARIO
+        async function editarUsuario(id) {
+            try {
+                const usuarios = await obtenerUsuarios();
+                const usuario = usuarios.find(u => u.id == id);
+                
+                if (usuario) {
+                    document.getElementById('usuarioId').value = usuario.id;
+                    document.getElementById('usuarioNombre').value = usuario.nombre_completo;
+                    document.getElementById('usuarioEmail').value = usuario.email;
+                    document.getElementById('usuarioPassword').value = '';
+                    document.getElementById('usuarioRol').value = usuario.rol;
+                    document.getElementById('modalUsuarioTitle').textContent = '👤 Editar Usuario';
+                    document.getElementById('modalUsuario').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error cargando usuario:', error);
+                mostrarNotificacion('❌ Error al cargar usuario', 'danger');
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE MODALES
+        // ============================================
         function abrirModalZona() {
             document.getElementById('zonaId').value = '';
             document.getElementById('formZona').reset();
+            document.getElementById('modalZonaTitle').textContent = '📍 Registrar Zona';
             document.getElementById('modalZona').classList.add('active');
         }
 
@@ -1618,6 +1788,7 @@
             document.getElementById('distritoId').value = '';
             document.getElementById('formDistrito').reset();
             cargarZonasEnSelect('distritoZona');
+            document.getElementById('modalDistritoTitle').textContent = '🏛️ Registrar Distrito';
             document.getElementById('modalDistrito').classList.add('active');
         }
 
@@ -1625,6 +1796,7 @@
             document.getElementById('iglesiaId').value = '';
             document.getElementById('formIglesia').reset();
             cargarZonasEnSelect('iglesiaZona');
+            document.getElementById('modalIglesiaTitle').textContent = '⛪ Registrar Iglesia';
             document.getElementById('modalIglesia').classList.add('active');
         }
 
@@ -1633,6 +1805,7 @@
             document.getElementById('formConferencia').reset();
             document.getElementById('duracionDias').textContent = '0';
             cargarIglesiasEnSelect('conferenciaIglesia');
+            document.getElementById('modalConferenciaTitle').textContent = '📅 Nueva Conferencia';
             document.getElementById('modalConferencia').classList.add('active');
         }
 
@@ -1643,12 +1816,14 @@
             document.getElementById('diasContador').textContent = '0 de 0 días';
             cargarIglesiasEnSelect('registroIglesia');
             cargarConferenciasEnSelect('registroConferencia');
+            document.getElementById('modalRegistroTitle').textContent = '👥 Nuevo Registro de Asistente';
             document.getElementById('modalRegistro').classList.add('active');
         }
 
         function abrirModalUsuario() {
             document.getElementById('usuarioId').value = '';
             document.getElementById('formUsuario').reset();
+            document.getElementById('modalUsuarioTitle').textContent = '👤 Nuevo Usuario';
             document.getElementById('modalUsuario').classList.add('active');
         }
 
@@ -2094,30 +2269,6 @@
                 console.error('Error eliminando usuario:', error);
                 mostrarNotificacion('❌ Error al eliminar usuario', 'danger');
             }
-        }
-
-        function editarZona(id) {
-            mostrarNotificacion('⚠️ Función de edición en desarrollo', 'warning');
-        }
-
-        function editarDistrito(id) {
-            mostrarNotificacion('⚠️ Función de edición en desarrollo', 'warning');
-        }
-
-        function editarIglesia(id) {
-            mostrarNotificacion('⚠️ Función de edición en desarrollo', 'warning');
-        }
-
-        function editarConferencia(id) {
-            mostrarNotificacion('⚠️ Función de edición en desarrollo', 'warning');
-        }
-
-        function editarRegistro(id) {
-            mostrarNotificacion('⚠️ Función de edición en desarrollo', 'warning');
-        }
-
-        function editarUsuario(id) {
-            mostrarNotificacion('⚠️ Función de edición en desarrollo', 'warning');
         }
 
         function mostrarNotificacion(mensaje, tipo = 'info') {

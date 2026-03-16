@@ -548,7 +548,6 @@
                 </div>
             </section>
 
-            <!-- SECCIÓN REGISTROS CON NUMERACIÓN ASCENDENTE -->
             <section id="registros" class="section">
                 <div class="table-container">
                     <div class="table-header">
@@ -563,7 +562,6 @@
                         </div>
                     </div>
                     
-                    <!-- BARRA DE BÚSQUEDA POR NOMBRE -->
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <div class="input-group">
@@ -594,12 +592,10 @@
                 </div>
             </section>
 
-            <!-- SECCIÓN REPORTES -->
             <section id="reportes" class="section">
                 <div class="table-container">
                     <h4>📊 Reportes y Estadísticas</h4>
                     
-                    <!-- FILTROS DE REPORTES -->
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label class="form-label small">Conferencia</label>
@@ -1326,9 +1322,6 @@
             }
         }
 
-        // ============================================
-        // CARGA DE REGISTROS CON NUMERACIÓN ASCENDENTE
-        // ============================================
         async function actualizarRegistros() {
             const btn = document.getElementById('btnActualizarRegistros');
             const originalContent = btn.innerHTML;
@@ -1364,7 +1357,6 @@
 
                 registrosActuales = asistentes;
 
-                // Aplicar filtro de búsqueda por nombre si existe
                 const nombreBusqueda = document.getElementById('filtroNombreRegistros')?.value.toLowerCase().trim() || '';
                 
                 if (nombreBusqueda) {
@@ -1405,9 +1397,6 @@
             }
         }
 
-        // ============================================
-        // FILTROS DE REPORTES
-        // ============================================
         async function cargarFiltrosReporte() {
             try {
                 const conferenciaSelect = document.getElementById('filtroConferencia');
@@ -1464,6 +1453,9 @@
             }
         }
 
+        // ============================================
+        // FILTRO DE DÍA DE CONFERENCIA CORREGIDO
+        // ============================================
         async function aplicarFiltros() {
             const tbody = document.querySelector('#tablaReporte tbody');
             tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando reporte...</td></tr>';
@@ -1480,21 +1472,34 @@
                 const diaConferencia = document.getElementById('filtroDiaConferencia').value;
                 const diasAsistidosFiltro = document.getElementById('filtroDiasAsistidos').value;
 
+                // Filtrar por conferencia
                 if (confId) {
                     asistentes = asistentes.filter(a => a.conferencia_id == confId);
                 }
 
+                // Filtrar por iglesia
                 if (iglesiaId) {
                     asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
                 }
 
+                // ============================================
+                // FILTRO POR DÍA DE CONFERENCIA ESPECÍFICO
+                // Muestra personas que asistieron ESE DÍA específico
+                // Si asistió 5 días, asistió Día 1, 2, 3, 4, 5
+                // ============================================
                 if (diaConferencia) {
+                    const diaSeleccionado = parseInt(diaConferencia);
                     asistentes = asistentes.filter(a => {
                         const diasAsistidos = parseInt(a.dias_asistidos) || 0;
-                        return diasAsistidos >= parseInt(diaConferencia);
+                        // Mostrar solo si asistió AL MENOS hasta ese día
+                        // Ej: Si filtro Día 3, mostrar quienes asistieron 3, 4, 5, 6, 7... días
+                        return diasAsistidos >= diaSeleccionado;
                     });
+                    
+                    console.log(`📅 Filtrando por Día ${diaSeleccionado}: ${asistentes.length} asistentes`);
                 }
 
+                // Filtrar por cantidad de días asistidos
                 if (diasAsistidosFiltro) {
                     if (diasAsistidosFiltro === 'completo') {
                         if (confId && conferenciasCache.length > 0) {

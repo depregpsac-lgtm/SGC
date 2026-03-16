@@ -2424,16 +2424,24 @@
                     document.getElementById('registroDireccion').value = asistente.direccion || '';
                     document.getElementById('registroDiasAsistidos').value = asistente.dias_asistidos || 0;
                     
+                    // ✅ Cargar información de la conferencia primero
                     await cargarInfoConferencia();
                     
+                    // ✅ ESPERAR a que se generen los checkboxes y luego marcar los días guardados
                     setTimeout(() => {
                         const checkboxes = document.querySelectorAll('.dia-asistido');
                         const diasEspecificosGuardados = asistente.dias_especificos || '';
                         const diasArray = diasEspecificosGuardados.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d));
                         
+                        console.log('📋 Editando registro:', asistente.nombre_completo);
+                        console.log('📋 Días específicos guardados:', diasEspecificosGuardados);
+                        console.log('📋 Array de días:', diasArray);
+                        
+                        // ✅ Marcar SOLO los días que están en el array
                         checkboxes.forEach(cb => {
                             const diaNumero = parseInt(cb.value);
                             cb.checked = diasArray.includes(diaNumero);
+                            console.log(`Día ${diaNumero}: ${cb.checked ? '✅ marcado' : '❌ desmarcado'}`);
                         });
                         
                         actualizarContadorDias();
@@ -2621,6 +2629,7 @@
                             <p><strong>Total de días:</strong> ${diasTotales}</p>
                         `;
 
+                        // ✅ Generar checkboxes para cada día
                         diasContainer.innerHTML = '';
                         for (let i = 1; i <= diasTotales; i++) {
                             diasContainer.innerHTML += `

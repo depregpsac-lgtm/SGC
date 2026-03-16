@@ -2010,7 +2010,7 @@
             }
         }
 
-        // ✅ FUNCIÓN EDITAR REGISTRO CORREGIDA PARA DÍAS IRREGULARES
+        // ✅ FUNCIÓN CORREGIDA PARA EDITAR REGISTRO - LEE DÍAS ESPECÍFICOS
         async function editarRegistro(id) {
             try {
                 await cargarIglesiasEnSelect('registroIglesia');
@@ -2029,27 +2029,26 @@
                     document.getElementById('registroDireccion').value = asistente.direccion || '';
                     document.getElementById('registroDiasAsistidos').value = asistente.dias_asistidos || 0;
                     
-                    // ✅ PRIMERO cargar la información de la conferencia para generar los checkboxes
+                    // ✅ PRIMERO cargar la conferencia para generar checkboxes
                     await cargarInfoConferencia();
                     
-                    // ✅ ESPERAR a que se generen los checkboxes (aumentado a 800ms)
+                    // ✅ ESPERAR y luego marcar los días ESPECÍFICOS guardados
                     setTimeout(() => {
                         const checkboxes = document.querySelectorAll('.dia-asistido');
-                        const diasAsistidos = parseInt(asistente.dias_asistidos) || 0;
+                        
+                        // ✅ Obtener días específicos guardados (ej: "2,3,5")
+                        const diasEspecificosGuardados = asistente.dias_especificos || '';
+                        const diasArray = diasEspecificosGuardados.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d));
                         
                         console.log('📋 Editando registro:', asistente.nombre_completo);
-                        console.log('📋 Días asistidos guardados:', diasAsistidos);
-                        console.log('📋 Checkboxes encontrados:', checkboxes.length);
+                        console.log('📋 Días específicos guardados:', diasEspecificosGuardados);
+                        console.log('📋 Array de días:', diasArray);
                         
-                        // ✅ Marcar CUALQUIER combinación de días según el total
-                        // NOTA: La base de datos solo guarda el TOTAL, no los días específicos
-                        // Por eso marcamos los primeros N días
-                        // Para guardar días específicos, necesitarías agregar una columna 'dias_especificos' en la BD
-                        checkboxes.forEach((cb, index) => {
-                            if (index < diasAsistidos) {
-                                cb.checked = true;
-                                console.log(`✅ Marcado día ${index + 1}`);
-                            }
+                        // ✅ Marcar SOLO los días que están en el array
+                        checkboxes.forEach(cb => {
+                            const diaNumero = parseInt(cb.value);
+                            cb.checked = diasArray.includes(diaNumero);
+                            console.log(`Día ${diaNumero}: ${cb.checked ? '✅ marcado' : '❌ desmarcado'}`);
                         });
                         
                         actualizarContadorDias();
@@ -2270,7 +2269,6 @@
             }
         }
 
-        // ✅ FUNCIÓN ACTUALIZAR CONTADOR - SIN RESTRICCIONES
         function actualizarContadorDias() {
             const checkboxes = document.querySelectorAll('.dia-asistido:checked');
             const totalDias = document.querySelectorAll('.dia-asistido').length;
@@ -2467,7 +2465,8 @@
                 conferencia_id: document.getElementById('registroConferencia').value,
                 invitado_por: document.getElementById('registroInvitadoPor').value,
                 direccion: document.getElementById('registroDireccion').value,
-                dias_asistidos: document.getElementById('registroDiasAsistidos').value
+                dias_asistidos: document.getElementById('registroDiasAsistidos').value,
+                dias_especificos: document.getElementById('registroDiasEspecificos').value
             };
 
             try {

@@ -386,6 +386,22 @@
             text-align: center;
         }
 
+        .dia-asistido-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .dia-asistido-container .form-check {
+            margin: 0;
+        }
+
+        .dia-asistido-container .form-check-input:checked {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -592,7 +608,6 @@
                 </div>
             </section>
 
-            <!-- SECCIÓN REPORTES CON NUMERACIÓN AGREGADA -->
             <section id="reportes" class="section">
                 <div class="table-container">
                     <h4>📊 Reportes y Estadísticas</h4>
@@ -671,7 +686,6 @@
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <!-- TABLA DE REPORTES CON COLUMNA N° AGREGADA -->
                         <table id="tablaReporte">
                             <thead>
                                 <tr>
@@ -993,11 +1007,12 @@
                     <textarea id="registroDireccion" rows="2"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>✅ Días que asistió:</label>
-                    <div id="diasAsistidosContainer"></div>
+                    <label>✅ Días que asistió (puede marcar cualquier día):</label>
+                    <div id="diasAsistidosContainer" class="dia-asistido-container"></div>
                     <input type="hidden" id="registroDiasAsistidos" value="0">
                     <input type="hidden" id="registroDiasEspecificos" value="">
-                    <small id="diasContador">0 de 0 días</small>
+                    <small id="diasContador" class="text-muted">0 de 0 días seleccionados</small>
+                    <small class="text-info d-block mt-1">💡 Puede marcar días irregulares (ej: Día 1, 3, 5 sin marcar 2 y 4)</small>
                 </div>
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalRegistro')">Cancelar</button>
@@ -1456,9 +1471,6 @@
             }
         }
 
-        // ============================================
-        // FUNCIÓN APLICAR FILTROS CON NUMERACIÓN AGREGADA
-        // ============================================
         async function aplicarFiltros() {
             const tbody = document.querySelector('#tablaReporte tbody');
             tbody.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando reporte...</td></tr>';
@@ -1514,7 +1526,6 @@
                 reporteActual = asistentes;
 
                 if (asistentes.length > 0) {
-                    // ✅ AGREGADA NUMERACIÓN CON INDEX
                     tbody.innerHTML = asistentes.map((asist, index) => `
                         <tr>
                             <td class="numero-fila">${index + 1}</td>
@@ -1619,7 +1630,6 @@
                 doc.text(`Total Iglesias: ${document.getElementById('reporteIglesias').textContent}`, 120, 45);
                 doc.text(`Promedio Días: ${document.getElementById('reportePromedioDias').textContent}`, 160, 45);
 
-                // ✅ AGREGAR COLUMNA N° AL PDF
                 const tableData = reporteActual.map((asist, index) => [
                     index + 1,
                     asist.nombre_completo,
@@ -2023,6 +2033,8 @@
                     setTimeout(() => {
                         const checkboxes = document.querySelectorAll('.dia-asistido');
                         const diasAsistidos = parseInt(asistente.dias_asistidos) || 0;
+                        // Marcar los primeros N días según el total
+                        // NOTA: Para días irregulares reales, necesitarías guardar qué días específicos
                         checkboxes.forEach((cb, index) => {
                             if (index < diasAsistidos) {
                                 cb.checked = true;
@@ -2096,7 +2108,7 @@
             document.getElementById('registroId').value = '';
             document.getElementById('formRegistro').reset();
             document.getElementById('diasAsistidosContainer').innerHTML = '';
-            document.getElementById('diasContador').textContent = '0 de 0 días';
+            document.getElementById('diasContador').textContent = '0 de 0 días seleccionados';
             cargarIglesiasEnSelect('registroIglesia');
             cargarConferenciasEnSelect('registroConferencia');
             document.getElementById('modalRegistroTitle').textContent = '👥 Nuevo Registro de Asistente';
@@ -2183,6 +2195,9 @@
             return diffDays;
         }
 
+        // ============================================
+        // FUNCIÓN CARGAR INFO CONFERENCIA - DÍAS IRREGULARES
+        // ============================================
         async function cargarInfoConferencia() {
             const conferenciaId = document.getElementById('registroConferencia').value;
             const infoDiv = document.getElementById('infoConferencia');
@@ -2210,17 +2225,18 @@
                             <p><strong>Total de días:</strong> ${diasTotales}</p>
                         `;
 
+                        // ✅ CREAR CHECKBOXES INDEPENDIENTES PARA CADA DÍA
                         diasContainer.innerHTML = '';
                         for (let i = 1; i <= diasTotales; i++) {
                             diasContainer.innerHTML += `
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input dia-asistido" type="checkbox" value="${i}" onchange="actualizarContadorDias()">
-                                    <label class="form-check-label">Día ${i}</label>
+                                    <input class="form-check-input dia-asistido" type="checkbox" value="${i}" id="dia_${i}" onchange="actualizarContadorDias()">
+                                    <label class="form-check-label" for="dia_${i}">Día ${i}</label>
                                 </div>
                             `;
                         }
                         
-                        document.getElementById('diasContador').textContent = `0 de ${diasTotales} días`;
+                        document.getElementById('diasContador').textContent = `0 de ${diasTotales} días seleccionados`;
                     } else {
                         infoDiv.innerHTML = '<p class="text-danger">Conferencia no encontrada</p>';
                     }
@@ -2231,11 +2247,25 @@
             }
         }
 
+        // ============================================
+        // ACTUALIZAR CONTADOR DE DÍAS - SIN RESTRICCIONES
+        // ============================================
         function actualizarContadorDias() {
             const checkboxes = document.querySelectorAll('.dia-asistido:checked');
             const totalDias = document.querySelectorAll('.dia-asistido').length;
+            
+            // Guardar el conteo total de días marcados
             document.getElementById('registroDiasAsistidos').value = checkboxes.length;
-            document.getElementById('diasContador').textContent = `${checkboxes.length} de ${totalDias} días`;
+            
+            // Guardar los días específicos marcados (ej: "1,3,5")
+            const diasEspecificos = Array.from(checkboxes).map(cb => cb.value).join(',');
+            document.getElementById('registroDiasEspecificos').value = diasEspecificos;
+            
+            // Actualizar el contador visual
+            document.getElementById('diasContador').textContent = `${checkboxes.length} de ${totalDias} días seleccionados`;
+            
+            console.log('✅ Días seleccionados:', diasEspecificos);
+            console.log('✅ Total días:', checkboxes.length);
         }
 
         function setupEventListeners() {

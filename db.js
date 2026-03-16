@@ -254,13 +254,27 @@ async function obtenerAsistentes() {
 }
 
 async function crearAsistente(datos) {
-    const { data, error } = await window.db.from('asistentes').insert([datos]).select();
+    // Obtener los días específicos del formulario
+    const diasEspecificos = document.getElementById('registroDiasEspecificos')?.value || '';
+    
+    const { data, error } = await window.db.from('asistentes').insert([{
+        ...datos,
+        dias_especificos: diasEspecificos  // ✅ Agregar días específicos
+    }]).select();
+    
     if (error) throw error;
     return data[0];
 }
 
 async function actualizarAsistente(id, datos) {
-    const { data, error } = await window.db.from('asistentes').update(datos).eq('id', id).select();
+    // Obtener los días específicos del formulario
+    const diasEspecificos = document.getElementById('registroDiasEspecificos')?.value || '';
+    
+    const { data, error } = await window.db.from('asistentes').update({
+        ...datos,
+        dias_especificos: diasEspecificos  // ✅ Actualizar días específicos
+    }).eq('id', id).select();
+    
     if (error) throw error;
     return data[0];
 }

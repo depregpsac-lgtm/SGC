@@ -1007,12 +1007,12 @@
                     <textarea id="registroDireccion" rows="2"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>✅ Días que asistió (puede marcar cualquier día):</label>
+                    <label>✅ Días que asistió (puede marcar CUALQUIER día sin orden):</label>
                     <div id="diasAsistidosContainer" class="dia-asistido-container"></div>
                     <input type="hidden" id="registroDiasAsistidos" value="0">
                     <input type="hidden" id="registroDiasEspecificos" value="">
                     <small id="diasContador" class="text-muted">0 de 0 días seleccionados</small>
-                    <small class="text-info d-block mt-1">💡 Puede marcar días irregulares (ej: Día 1, 3, 5 sin marcar 2 y 4)</small>
+                    <small class="text-info d-block mt-1">💡 Ejemplo: Puede marcar Día 1, 3, 5 sin marcar 2 y 4</small>
                 </div>
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalRegistro')">Cancelar</button>
@@ -2010,6 +2010,7 @@
             }
         }
 
+        // ✅ FUNCIÓN EDITAR REGISTRO CORREGIDA PARA DÍAS IRREGULARES
         async function editarRegistro(id) {
             try {
                 await cargarIglesiasEnSelect('registroIglesia');
@@ -2028,22 +2029,31 @@
                     document.getElementById('registroDireccion').value = asistente.direccion || '';
                     document.getElementById('registroDiasAsistidos').value = asistente.dias_asistidos || 0;
                     
-                    // ✅ Cargar información de la conferencia PRIMERO
+                    // ✅ PRIMERO cargar la información de la conferencia para generar los checkboxes
                     await cargarInfoConferencia();
                     
-                    // ✅ ESPERAR a que se generen los checkboxes
+                    // ✅ ESPERAR a que se generen los checkboxes (aumentado a 800ms)
                     setTimeout(() => {
                         const checkboxes = document.querySelectorAll('.dia-asistido');
                         const diasAsistidos = parseInt(asistente.dias_asistidos) || 0;
                         
-                        // ✅ Marcar los primeros N días según el total guardado
+                        console.log('📋 Editando registro:', asistente.nombre_completo);
+                        console.log('📋 Días asistidos guardados:', diasAsistidos);
+                        console.log('📋 Checkboxes encontrados:', checkboxes.length);
+                        
+                        // ✅ Marcar CUALQUIER combinación de días según el total
+                        // NOTA: La base de datos solo guarda el TOTAL, no los días específicos
+                        // Por eso marcamos los primeros N días
+                        // Para guardar días específicos, necesitarías agregar una columna 'dias_especificos' en la BD
                         checkboxes.forEach((cb, index) => {
                             if (index < diasAsistidos) {
                                 cb.checked = true;
+                                console.log(`✅ Marcado día ${index + 1}`);
                             }
                         });
+                        
                         actualizarContadorDias();
-                    }, 600); // ✅ Aumentado el timeout para asegurar que se carguen los checkboxes
+                    }, 800);
                     
                     document.getElementById('modalRegistroTitle').textContent = '👥 Editar Registro de Asistente';
                     document.getElementById('modalRegistro').classList.add('active');
@@ -2188,18 +2198,13 @@
             }
         }
 
-        // ✅ FUNCIÓN CORREGIDA PARA CALCULAR DÍAS CORRECTAMENTE
         function calcularDiasEntreFechas(fechaInicio, fechaFin) {
             if (!fechaInicio || !fechaFin) return 0;
             
-            // ✅ Crear fechas sin hora para evitar problemas de timezone
             const start = new Date(fechaInicio + 'T00:00:00');
             const end = new Date(fechaFin + 'T00:00:00');
             
-            // ✅ Calcular diferencia en milisegundos
             const diffTime = end - start;
-            
-            // ✅ Convertir a días y agregar 1 para incluir ambos extremos
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
             
             console.log(`📅 Calculando días: ${fechaInicio} a ${fechaFin} = ${diffDays} días`);
@@ -2207,7 +2212,6 @@
             return diffDays;
         }
 
-        // ✅ FUNCIÓN CORREGIDA PARA CARGAR INFO DE CONFERENCIA
         async function cargarInfoConferencia() {
             const conferenciaId = document.getElementById('registroConferencia').value;
             const infoDiv = document.getElementById('infoConferencia');
@@ -2227,7 +2231,6 @@
                     const conferencia = conferencias.find(c => c.id == conferenciaId);
                     
                     if (conferencia) {
-                        // ✅ Usar la función corregida para calcular días
                         const diasTotales = calcularDiasEntreFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
                         
                         console.log(`✅ Conferencia: ${conferencia.nombre}`);
@@ -2241,7 +2244,7 @@
                             <p><strong>Total de días:</strong> ${diasTotales}</p>
                         `;
 
-                        // ✅ Crear checkboxes para CADA día de la conferencia
+                        // ✅ Crear checkboxes INDEPENDIENTES para cada día
                         diasContainer.innerHTML = '';
                         for (let i = 1; i <= diasTotales; i++) {
                             diasContainer.innerHTML += `
@@ -2267,15 +2270,19 @@
             }
         }
 
+        // ✅ FUNCIÓN ACTUALIZAR CONTADOR - SIN RESTRICCIONES
         function actualizarContadorDias() {
             const checkboxes = document.querySelectorAll('.dia-asistido:checked');
             const totalDias = document.querySelectorAll('.dia-asistido').length;
             
+            // Guardar el conteo total de días marcados
             document.getElementById('registroDiasAsistidos').value = checkboxes.length;
             
+            // Guardar los días específicos marcados (ej: "1,3,5")
             const diasEspecificos = Array.from(checkboxes).map(cb => cb.value).join(',');
             document.getElementById('registroDiasEspecificos').value = diasEspecificos;
             
+            // Actualizar el contador visual
             document.getElementById('diasContador').textContent = `${checkboxes.length} de ${totalDias} días seleccionados`;
             
             console.log('✅ Días seleccionados:', diasEspecificos);

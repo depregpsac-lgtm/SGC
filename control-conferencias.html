@@ -2034,7 +2034,6 @@
                         const checkboxes = document.querySelectorAll('.dia-asistido');
                         const diasAsistidos = parseInt(asistente.dias_asistidos) || 0;
                         // Marcar los primeros N días según el total
-                        // NOTA: Para días irregulares reales, necesitarías guardar qué días específicos
                         checkboxes.forEach((cb, index) => {
                             if (index < diasAsistidos) {
                                 cb.checked = true;
@@ -2195,9 +2194,6 @@
             return diffDays;
         }
 
-        // ============================================
-        // FUNCIÓN CARGAR INFO CONFERENCIA - DÍAS IRREGULARES
-        // ============================================
         async function cargarInfoConferencia() {
             const conferenciaId = document.getElementById('registroConferencia').value;
             const infoDiv = document.getElementById('infoConferencia');
@@ -2225,7 +2221,6 @@
                             <p><strong>Total de días:</strong> ${diasTotales}</p>
                         `;
 
-                        // ✅ CREAR CHECKBOXES INDEPENDIENTES PARA CADA DÍA
                         diasContainer.innerHTML = '';
                         for (let i = 1; i <= diasTotales; i++) {
                             diasContainer.innerHTML += `
@@ -2247,21 +2242,15 @@
             }
         }
 
-        // ============================================
-        // ACTUALIZAR CONTADOR DE DÍAS - SIN RESTRICCIONES
-        // ============================================
         function actualizarContadorDias() {
             const checkboxes = document.querySelectorAll('.dia-asistido:checked');
             const totalDias = document.querySelectorAll('.dia-asistido').length;
             
-            // Guardar el conteo total de días marcados
             document.getElementById('registroDiasAsistidos').value = checkboxes.length;
             
-            // Guardar los días específicos marcados (ej: "1,3,5")
             const diasEspecificos = Array.from(checkboxes).map(cb => cb.value).join(',');
             document.getElementById('registroDiasEspecificos').value = diasEspecificos;
             
-            // Actualizar el contador visual
             document.getElementById('diasContador').textContent = `${checkboxes.length} de ${totalDias} días seleccionados`;
             
             console.log('✅ Días seleccionados:', diasEspecificos);

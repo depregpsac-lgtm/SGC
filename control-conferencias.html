@@ -637,6 +637,16 @@
                         </div>
                     </div>
                     
+                    <!-- ✅ BARRA DE BÚSQUEDA POR NOMBRE AGREGADA -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" id="filtroNombreInteresados" class="form-control" placeholder="🔍 Buscar interesado por nombre...">
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Filtro por Conferencia -->
                     <div class="row mb-3">
                         <div class="col-md-4">
@@ -1587,6 +1597,15 @@
                 }
 
                 interesadosActuales = asistentes;
+
+                // ✅ Aplicar filtro de búsqueda por nombre
+                const nombreBusqueda = document.getElementById('filtroNombreInteresados')?.value.toLowerCase().trim() || '';
+                
+                if (nombreBusqueda) {
+                    asistentes = asistentes.filter(a => 
+                        a.nombre_completo.toLowerCase().includes(nombreBusqueda)
+                    );
+                }
 
                 // Aplicar filtros
                 const confId = document.getElementById('filtroConferenciaInteresados').value;
@@ -2668,10 +2687,19 @@
         }
 
         function setupEventListeners() {
+            // ✅ Event listener para búsqueda en Registros
             const filtroNombreRegistros = document.getElementById('filtroNombreRegistros');
             if (filtroNombreRegistros) {
                 filtroNombreRegistros.addEventListener('input', () => {
                     cargarRegistros();
+                });
+            }
+
+            // ✅ Event listener para búsqueda en Interesados
+            const filtroNombreInteresados = document.getElementById('filtroNombreInteresados');
+            if (filtroNombreInteresados) {
+                filtroNombreInteresados.addEventListener('input', () => {
+                    cargarInteresados();
                 });
             }
 

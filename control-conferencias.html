@@ -542,6 +542,7 @@
                 </div>
             </section>
 
+            <!-- SECCIÓN REGISTROS CON BARRA DE BÚSQUEDA POR NOMBRE -->
             <section id="registros" class="section">
                 <div class="table-container">
                     <div class="table-header">
@@ -555,6 +556,17 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- BARRA DE BÚSQUEDA POR NOMBRE -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" id="filtroNombreRegistros" class="form-control" placeholder="🔍 Buscar asistente por nombre...">
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="table-responsive">
                         <table id="tablaRegistros">
                             <thead>
@@ -575,29 +587,26 @@
                 </div>
             </section>
 
+            <!-- SECCIÓN REPORTES SIN BARRA DE BÚSQUEDA (SOLO FILTROS) -->
             <section id="reportes" class="section">
                 <div class="table-container">
                     <h4>📊 Reportes y Estadísticas</h4>
                     
-                    <!-- FILTROS MEJORADOS CON BARRA DE BÚSQUEDA POR NOMBRE -->
+                    <!-- FILTROS DE REPORTES (SIN BÚSQUEDA POR NOMBRE) -->
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <label class="form-label small">🔍 Buscar por Nombre</label>
-                            <input type="text" id="filtroNombre" class="form-control" placeholder="Nombre del asistente...">
-                        </div>
-                        <div class="col-md-2">
                             <label class="form-label small">Conferencia</label>
                             <select id="filtroConferencia" class="form-select">
                                 <option value="">-- Todas --</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label small">Iglesia</label>
                             <select id="filtroIglesia" class="form-select">
                                 <option value="">-- Todas --</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label small">Días Asistidos</label>
                             <select id="filtroDiasAsistidos" class="form-select">
                                 <option value="">-- Todos --</option>
@@ -1027,6 +1036,7 @@
         let currentUser = null;
         let dbInitialized = false;
         let reporteActual = [];
+        let registrosActuales = [];
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Iniciando aplicación...');
@@ -1298,6 +1308,9 @@
             }
         }
 
+        // ============================================
+        // CARGA DE REGISTROS CON BÚSQUEDA POR NOMBRE
+        // ============================================
         async function actualizarRegistros() {
             const btn = document.getElementById('btnActualizarRegistros');
             const originalContent = btn.innerHTML;
@@ -1331,6 +1344,17 @@
                     console.log('📋 Registros cargados:', asistentes.length);
                 }
 
+                registrosActuales = asistentes;
+
+                // Aplicar filtro de búsqueda por nombre si existe
+                const nombreBusqueda = document.getElementById('filtroNombreRegistros')?.value.toLowerCase().trim() || '';
+                
+                if (nombreBusqueda) {
+                    asistentes = asistentes.filter(a => 
+                        a.nombre_completo.toLowerCase().includes(nombreBusqueda)
+                    );
+                }
+
                 if (asistentes.length > 0) {
                     tbody.innerHTML = asistentes.map(asist => `
                         <tr>
@@ -1362,6 +1386,9 @@
             }
         }
 
+        // ============================================
+        // FILTROS DE REPORTES (SIN BÚSQUEDA POR NOMBRE)
+        // ============================================
         async function cargarFiltrosReporte() {
             try {
                 const conferenciaSelect = document.getElementById('filtroConferencia');
@@ -1390,9 +1417,6 @@
             }
         }
 
-        // ============================================
-        // FUNCIÓN APLICAR FILTROS - ACTUALIZADA CON BÚSQUEDA POR NOMBRE
-        // ============================================
         async function aplicarFiltros() {
             const tbody = document.querySelector('#tablaReporte tbody');
             tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando reporte...</td></tr>';
@@ -1404,17 +1428,9 @@
                     asistentes = await obtenerAsistentes();
                 }
 
-                const nombreBusqueda = document.getElementById('filtroNombre').value.toLowerCase().trim();
                 const confId = document.getElementById('filtroConferencia').value;
                 const iglesiaId = document.getElementById('filtroIglesia').value;
                 const diasFiltro = document.getElementById('filtroDiasAsistidos').value;
-
-                // Aplicar filtro por nombre (búsqueda parcial)
-                if (nombreBusqueda) {
-                    asistentes = asistentes.filter(a => 
-                        a.nombre_completo.toLowerCase().includes(nombreBusqueda)
-                    );
-                }
 
                 // Aplicar filtro por conferencia
                 if (confId) {
@@ -1429,7 +1445,6 @@
                 // Aplicar filtro por días asistidos
                 if (diasFiltro) {
                     if (diasFiltro === 'todos') {
-                        // Mostrar solo los que asistieron todos los días de su conferencia
                         const conferencias = await obtenerConferencias();
                         asistentes = asistentes.filter(a => {
                             const conf = conferencias.find(c => c.id == a.conferencia_id);
@@ -1462,7 +1477,6 @@
                         </tr>
                     `).join('');
 
-                    // Actualizar estadísticas
                     document.getElementById('reporteTotalAsistentes').textContent = asistentes.length;
                     const totalDias = asistentes.reduce((sum, a) => sum + (parseInt(a.dias_asistidos) || 0), 0);
                     document.getElementById('reporteDiasTotales').textContent = totalDias;
@@ -1488,7 +1502,6 @@
             }
         }
 
-        // Función para obtener color del badge según días
         function getDiasBadgeColor(dias) {
             const d = parseInt(dias) || 0;
             if (d >= 5) return 'success';
@@ -1498,7 +1511,7 @@
         }
 
         // ============================================
-        // FUNCIÓN PARA GENERAR PDF - ACTUALIZADA
+        // GENERAR PDF
         // ============================================
         async function descargarPDF() {
             if (reporteActual.length === 0) {
@@ -1512,14 +1525,12 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
-                // Encabezado
                 doc.setFillColor(44, 62, 80);
                 doc.rect(0, 0, 210, 20, 'F');
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(16);
                 doc.text('MinistryLion - Reporte de Asistentes', 105, 13, { align: 'center' });
 
-                // Información del reporte
                 doc.setTextColor(0, 0, 0);
                 doc.setFontSize(10);
                 const fechaReporte = new Date().toLocaleDateString('es-ES', {
@@ -1531,16 +1542,11 @@
                 });
                 doc.text(`Fecha del Reporte: ${fechaReporte}`, 14, 30);
 
-                // Filtros aplicados
-                const nombreFilter = document.getElementById('filtroNombre').value;
                 const confFilter = document.getElementById('filtroConferencia');
                 const iglesiaFilter = document.getElementById('filtroIglesia');
                 const diasFilter = document.getElementById('filtroDiasAsistidos');
                 const filtrosAplicados = [];
                 
-                if (nombreFilter) {
-                    filtrosAplicados.push(`Búsqueda: "${nombreFilter}"`);
-                }
                 if (confFilter.value) {
                     filtrosAplicados.push(`Conferencia: ${confFilter.options[confFilter.selectedIndex].text}`);
                 }
@@ -1556,14 +1562,12 @@
                     doc.text(`Filtros: ${filtrosAplicados.join(' | ')}`, 14, 36);
                 }
 
-                // Estadísticas
                 doc.setFontSize(11);
                 doc.text(`Total Asistentes: ${document.getElementById('reporteTotalAsistentes').textContent}`, 14, 45);
                 doc.text(`Total Días: ${document.getElementById('reporteDiasTotales').textContent}`, 70, 45);
                 doc.text(`Total Iglesias: ${document.getElementById('reporteIglesias').textContent}`, 120, 45);
                 doc.text(`Promedio Días: ${document.getElementById('reportePromedioDias').textContent}`, 160, 45);
 
-                // Tabla de datos
                 const tableData = reporteActual.map(asist => [
                     asist.nombre_completo,
                     asist.telefono || 'N/A',
@@ -1590,7 +1594,6 @@
                     }
                 });
 
-                // Pie de página
                 const pageCount = doc.internal.getNumberOfPages();
                 for (let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
@@ -1604,7 +1607,6 @@
                     );
                 }
 
-                // Guardar PDF
                 const nombreArchivo = `reporte_asistentes_${new Date().toISOString().slice(0, 10)}.pdf`;
                 doc.save(nombreArchivo);
 
@@ -1616,7 +1618,7 @@
         }
 
         // ============================================
-        // FUNCIÓN PARA EXPORTAR EXCEL
+        // EXPORTAR EXCEL
         // ============================================
         function exportarExcel() {
             if (reporteActual.length === 0) {
@@ -1857,6 +1859,9 @@
             }
         }
 
+        // ============================================
+        // FUNCIONES DE EDICIÓN
+        // ============================================
         async function editarZona(id) {
             try {
                 const zonas = await obtenerZonas();
@@ -2006,6 +2011,9 @@
             }
         }
 
+        // ============================================
+        // FUNCIONES DE MODALES
+        // ============================================
         function abrirModalZona() {
             document.getElementById('zonaId').value = '';
             document.getElementById('formZona').reset();
@@ -2185,6 +2193,14 @@
         }
 
         function setupEventListeners() {
+            // Búsqueda en tiempo real en Registros
+            const filtroNombreRegistros = document.getElementById('filtroNombreRegistros');
+            if (filtroNombreRegistros) {
+                filtroNombreRegistros.addEventListener('input', () => {
+                    cargarRegistros();
+                });
+            }
+
             document.getElementById('formZona').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await guardarZona();

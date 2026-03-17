@@ -58,6 +58,18 @@ function navegarSeccion(seccionId) {
         }
     }
 
+     // ✅ PROTEGER CONFIGURACIÓN - SOLO ADMIN (NUEVO)
+    if (seccionId === 'configuracion') {
+        const user = checkAuth();
+        if (!user || user.rol !== 'admin') {
+            mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden configurar el sistema', 'error');
+            seccionId = 'dashboard';
+        }
+    }
+
+
+    
+
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });

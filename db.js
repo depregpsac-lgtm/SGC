@@ -57,6 +57,7 @@ async function iniciarSesion(email, password) {
             email: usuario.email,
             rol: usuario.rol,
             permisos: usuario.permisos,
+            conferencias_asignadas: usuario.conferencias_asignadas, // ✅ Nuevo campo
             estado: usuario.estado
         };
         
@@ -112,6 +113,7 @@ function esAdmin() {
 // ============================================
 // 📍 ZONAS
 // ============================================
+
 async function obtenerZonas() {
     try {
         const { data, error } = await window.db.from('zonas').select('*').order('nombre');
@@ -144,6 +146,7 @@ async function eliminarZona(id) {
 // ============================================
 // 🏛️ DISTRITOS
 // ============================================
+
 async function obtenerDistritos() {
     try {
         const { data, error } = await window.db.from('distritos').select('*, zonas(nombre)').order('nombre');
@@ -176,6 +179,7 @@ async function eliminarDistrito(id) {
 // ============================================
 // ⛪ IGLESIAS
 // ============================================
+
 async function obtenerIglesias() {
     try {
         const { data, error } = await window.db.from('iglesias').select('*, zonas(nombre), distritos(nombre)').order('nombre');
@@ -208,6 +212,7 @@ async function eliminarIglesia(id) {
 // ============================================
 // 📅 CONFERENCIAS
 // ============================================
+
 async function obtenerConferencias() {
     try {
         const { data, error } = await window.db.from('conferencias').select('*, iglesias(nombre)').order('fecha_inicio', { ascending: false });
@@ -242,6 +247,7 @@ async function eliminarConferencia(id) {
 // ============================================
 // 👥 ASISTENTES
 // ============================================
+
 async function obtenerAsistentes() {
     try {
         const { data, error } = await window.db.from('asistentes').select('*, iglesias(nombre), conferencias(nombre)').order('nombre_completo');
@@ -256,7 +262,6 @@ async function obtenerAsistentes() {
 async function crearAsistente(datos) {
     // Obtener los días específicos del formulario
     const diasEspecificos = document.getElementById('registroDiasEspecificos')?.value || '';
-    
     const { data, error } = await window.db.from('asistentes').insert([{
         ...datos,
         dias_especificos: diasEspecificos  // ✅ Agregar días específicos
@@ -269,7 +274,6 @@ async function crearAsistente(datos) {
 async function actualizarAsistente(id, datos) {
     // Obtener los días específicos del formulario
     const diasEspecificos = document.getElementById('registroDiasEspecificos')?.value || '';
-    
     const { data, error } = await window.db.from('asistentes').update({
         ...datos,
         dias_especificos: diasEspecificos  // ✅ Actualizar días específicos
@@ -286,8 +290,9 @@ async function eliminarAsistente(id) {
 }
 
 // ============================================
-// 👤 USUARIOS DEL SISTEMA
+// 👤 USUARIOS DEL SISTEMA - ✅ ACTUALIZADO
 // ============================================
+
 async function obtenerUsuarios() {
     try {
         const { data, error } = await window.db.from('usuarios_sistema').select('*').order('nombre_completo');
@@ -299,7 +304,8 @@ async function obtenerUsuarios() {
     }
 }
 
-async function crearUsuario(nombre_completo, email, password, rol, permisos, estado) {
+// ✅ FUNCIÓN ACTUALIZADA: crearUsuario con conferencias_asignadas
+async function crearUsuario(nombre_completo, email, password, rol, permisos, estado, conferencias_asignadas = '[]') {
     const { data, error } = await window.db
         .from('usuarios_sistema')
         .insert([{
@@ -308,23 +314,37 @@ async function crearUsuario(nombre_completo, email, password, rol, permisos, est
             password_hash: password,
             rol,
             permisos,
-            estado
+            estado,
+            conferencias_asignadas  // ✅ Nuevo campo: array JSON de IDs de conferencias
         }])
         .select();
+    
     if (error) throw error;
     return data[0];
 }
 
-async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado) {
-    const updateData = { nombre_completo, email, rol, permisos, estado };
+// ✅ FUNCIÓN ACTUALIZADA: actualizarUsuario con conferencias_asignadas
+async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado, conferencias_asignadas = '[]') {
+    const updateData = { 
+        nombre_completo, 
+        email, 
+        rol, 
+        permisos, 
+        estado,
+        conferencias_asignadas  // ✅ Nuevo campo
+    };
+    
+    // Solo actualizar contraseña si se proporciona una nueva
     if (password && password.trim() !== '') {
         updateData.password_hash = password;
     }
+    
     const { data, error } = await window.db
         .from('usuarios_sistema')
         .update(updateData)
         .eq('id', id)
         .select();
+    
     if (error) throw error;
     return data[0];
 }
@@ -338,6 +358,7 @@ async function eliminarUsuario(id) {
 // ============================================
 // 📊 ESTADÍSTICAS
 // ============================================
+
 async function obtenerEstadisticas() {
     try {
         const [zonas, distritos, iglesias, conferencias, asistentes] = await Promise.all([
@@ -374,38 +395,30 @@ window.iniciarSesion = iniciarSesion;
 window.checkAuth = checkAuth;
 window.cerrarSesion = cerrarSesion;
 window.esAdmin = esAdmin;
-
 window.obtenerZonas = obtenerZonas;
 window.crearZona = crearZona;
 window.actualizarZona = actualizarZona;
 window.eliminarZona = eliminarZona;
-
 window.obtenerDistritos = obtenerDistritos;
 window.crearDistrito = crearDistrito;
 window.actualizarDistrito = actualizarDistrito;
 window.eliminarDistrito = eliminarDistrito;
-
 window.obtenerIglesias = obtenerIglesias;
 window.crearIglesia = crearIglesia;
 window.actualizarIglesia = actualizarIglesia;
 window.eliminarIglesia = eliminarIglesia;
-
 window.obtenerConferencias = obtenerConferencias;
 window.crearConferencia = crearConferencia;
 window.actualizarConferencia = actualizarConferencia;
 window.eliminarConferencia = eliminarConferencia;
-
 window.obtenerAsistentes = obtenerAsistentes;
 window.crearAsistente = crearAsistente;
 window.actualizarAsistente = actualizarAsistente;
 window.eliminarAsistente = eliminarAsistente;
-
 window.obtenerUsuarios = obtenerUsuarios;
-window.crearUsuario = crearUsuario;
-window.actualizarUsuario = actualizarUsuario;
+window.crearUsuario = crearUsuario;           // ✅ Actualizada
+window.actualizarUsuario = actualizarUsuario; // ✅ Actualizada
 window.eliminarUsuario = eliminarUsuario;
-
 window.obtenerEstadisticas = obtenerEstadisticas;
 
 console.log('✅ db.js inicializado con todas las funciones CRUD y autenticación');
-

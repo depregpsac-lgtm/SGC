@@ -504,6 +504,79 @@ async function filtrarReporte() {
         mostrarMensaje('Error al filtrar reporte', 'error');
     }
 }
+// ============================================
+// ✅ FUNCIONES DE ACCESO POR CONFERENCIA
+// ============================================
+
+// Cargar conferencias en el select del modal de usuario
+async function cargarConferenciasEnSelectUsuario() {
+    try {
+        const select = document.getElementById('usuarioConferencias');
+        if (!select) return;
+        
+        const conferencias = await obtenerConferencias();
+        select.innerHTML = '<option value="">-- Todas las Conferencias (Admin) --</option>' +
+            conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('❌ Error cargando conferencias para usuario:', error);
+    }
+}
+
+// Obtener conferencias asignadas a un usuario
+function obtenerConferenciasUsuario() {
+    const select = document.getElementById('usuarioConferencias');
+    if (!select) return [];
+    
+    const seleccionadas = Array.from(select.selectedOptions).map(opt => opt.value);
+    return seleccionadas.filter(id => id !== '');
+}
+
+// Verificar si el usuario tiene acceso a una conferencia específica
+function tieneAccesoConferencia(usuario, conferenciaId) {
+    // Admin tiene acceso a todo
+    if (usuario.rol === 'admin' || usuario.rol === 'administrador') {
+        return true;
+    }
+    
+    // Si no tiene conferencias asignadas, no tiene acceso
+    if (!usuario.conferencias_asignadas || usuario.conferencias_asignadas.length === 0) {
+        return false;
+    }
+    
+    // Verificar si la conferencia está en la lista de acceso
+    return usuario.conferencias_asignadas.includes(conferenciaId.toString());
+}
+
+// Filtrar asistentes según acceso del usuario
+function filtrarAsistentesPorAcceso(asistentes, usuario) {
+    // Admin ve todo
+    if (usuario.rol === 'admin' || usuario.rol === 'administrador') {
+        return asistentes;
+    }
+    
+    // Filtrar por conferencias asignadas
+    return asistentes.filter(asist => {
+        return tieneAccesoConferencia(usuario, asist.conferencia_id);
+    });
+}
+
+// Filtrar conferencias según acceso del usuario
+function filtrarConferenciasPorAcceso(conferencias, usuario) {
+    // Admin ve todo
+    if (usuario.rol === 'admin' || usuario.rol === 'administrador') {
+        return conferencias;
+    }
+    
+    // Filtrar por conferencias asignadas
+    return conferencias.filter(conf => {
+        return tieneAccesoConferencia(usuario, conf.id);
+    });
+}
+
+
+
+
+
 
 
 

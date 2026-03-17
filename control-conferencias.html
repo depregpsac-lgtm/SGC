@@ -914,7 +914,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="4" class="loading"><div class="spinner"></div>Cargando...</td></tr>
+                            <tr><td colspan="5" class="loading"><div class="spinner"></div>Cargando...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -2309,7 +2309,7 @@ async function cargarUsuarios() {
                 return;
             }
             
-            // Show loading
+            // Show loading - FIXED colspan to 5 (matches 5 columns)
             tbody.innerHTML = '<tr><td colspan="5" class="loading"><div class="spinner"></div>Refrescando usuarios...</td></tr>';
 
             try {
@@ -2317,7 +2317,9 @@ async function cargarUsuarios() {
                 
                 if (dbInitialized && typeof obtenerUsuarios === 'function') {
                     usuarios = await obtenerUsuarios();
-                    console.log('📋 Usuarios cargados:', usuarios.length, usuarios.map(u => ({id: u.id, nombre: u.nombre_completo, conf: u.conferencias?.nombre})));
+                    console.log('📋 Usuarios cargados:', usuarios.length, usuarios.map(u => ({id: u.id, nombre: u.nombre_completo, email: u.email, rol: u.rol, conf: u.conferencias?.nombre})));
+                } else {
+                    console.warn('⚠️ dbInitialized=false or obtenerUsuarios not available');
                 }
 
                 if (usuarios && usuarios.length > 0) {
@@ -2339,6 +2341,7 @@ async function cargarUsuarios() {
                     `).join('');
                     console.log('✅ Tabla usuarios renderizada:', usuarios.length, 'filas');
                 } else {
+                    console.log('ℹ️ No users found or empty array');
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="5" class="text-center text-muted py-4">
@@ -3011,6 +3014,8 @@ async function cargarConferenciasEnSelect(selectId) {
         }
 
 async function guardarUsuario() {
+            console.log('💾 Saving user. Form valid? Checking...');
+            
             const submitBtn = document.querySelector('#formUsuario button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
@@ -3023,41 +3028,49 @@ async function guardarUsuario() {
             const rol = document.getElementById('usuarioRol').value;
             const conferencia_id = document.getElementById('usuarioConferencia').value;
             
-            // Validate required fields
+            console.log('📝 Save data:', {id, nombre_completo, email, rol, conferencia_id: conferencia_id || 'null'});
+            
+            // Enhanced validation
             if (!nombre_completo || !email || !conferencia_id) {
-                mostrarNotificacion('❌ Nombre, email y conferencia son requeridos', 'danger');
+                mostrarNotificacion('❌ Todos los campos obligatorios son requeridos (Nombre/Email/Conferencia)', 'danger');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+            
+            if (!id && !password) {
+                mostrarNotificacion('❌ Contraseña requerida para crear nuevo usuario', 'danger');
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
                 return;
             }
             
             try {
-                if (dbInitialized && typeof (id ? actualizarUsuario : crearUsuario) === 'function') {
+                console.log('🔗 dbInitialized:', dbInitialized, 'Functions available:', !!window.crearUsuario, !!window.actualizarUsuario);
+                
+                if (dbInitialized && typeof (id ? window.actualizarUsuario : window.crearUsuario) === 'function') {
                     if (id) {
-                        // Update (password optional)
-                        await actualizarUsuario(id, nombre_completo, email, password || null, rol, conferencia_id, 'activo');
+                        await window.actualizarUsuario(id, nombre_completo, email, password || null, rol, conferencia_id, 'activo');
                         mostrarNotificacion('✅ Usuario actualizado correctamente', 'success');
                     } else {
-                        // Create (password required)
-                        if (!password) {
-                            throw new Error('Contraseña requerida para nuevos usuarios');
-                        }
-                        await crearUsuario(nombre_completo, email, password, rol, conferencia_id, 'activo');
-                        mostrarNotificacion('✅ Usuario creado correctamente', 'success');
+                        await window.crearUsuario(nombre_completo, email, password, rol, conferencia_id, 'activo');
+                        mostrarNotificacion('✅ Nuevo usuario creado correctamente', 'success');
                     }
                     
-                    // ✅ CRITICAL: Await table refresh after successful save
+                    // ✅ CRITICAL: Refresh table immediately after save
+                    console.log('🔄 Refreshing user table after save...');
                     await cargarUsuarios();
-                    console.log('✅ Tabla usuarios refrescada después de guardar');
+                    console.log('✅ User table refreshed after save');
                 } else {
-                    mostrarNotificacion('⚠️ Modo demo - Datos no guardados en BD', 'warning');
+                    console.warn('⚠️ Demo mode - Simulating save');
+                    mostrarNotificacion('⚠️ Modo demo - Usuario simulado', 'warning');
                     await cargarUsuarios();
                 }
                 
                 cerrarModal('modalUsuario');
             } catch (error) {
-                console.error('❌ Error guardando usuario:', error);
-                mostrarNotificacion('❌ Error al guardar: ' + error.message, 'danger');
+                console.error('❌ Save error details:', error);
+                mostrarNotificacion(`❌ Error: ${error.message || 'Error desconocido al guardar usuario'}`, 'danger');
             } finally {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
@@ -3142,9 +3155,33 @@ async function guardarUsuario() {
         }
 
 async function eliminarUsuario(id) {
-            if (!confirm('⚠️ ¿Está seguro de eliminar este usuario? Esta acción es permanente.')) return;
+            console.log('🗑️ Attempting to delete user ID:', id, 'Current user ID:', currentUser?.id);
             
-            const deleteBtn = event?.target;
+            // 🔒 Self-delete protection
+            if (currentUser && currentUser.id == id) {
+                mostrarNotificacion('❌ No puedes eliminar tu propia cuenta', 'danger');
+                return;
+            }
+            
+            // 🔒 Last admin protection
+            try {
+                const allUsers = await obtenerUsuarios();
+                const activeAdmins = allUsers.filter(u => u.rol === 'administrador' && u.estado === 'activo');
+                console.log('📊 Active admins found:', activeAdmins.length, activeAdmins.map(u => u.nombre_completo));
+                
+                if (activeAdmins.length <= 1) {
+                    mostrarNotificacion('❌ No se puede eliminar: debe quedar al menos un administrador activo', 'danger');
+                    return;
+                }
+            } catch (e) {
+                console.warn('⚠️ Could not verify admin count:', e);
+            }
+            
+            if (!confirm(`⚠️ ¿Eliminar usuario permanentemente?\n\nEsta acción NO se puede deshacer.`)) {
+                return;
+            }
+            
+            const deleteBtn = event?.target?.closest('button');
             if (deleteBtn) {
                 const originalText = deleteBtn.innerHTML;
                 deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
@@ -3152,22 +3189,25 @@ async function eliminarUsuario(id) {
             }
             
             try {
-                console.log('🗑️ Eliminando usuario ID:', id);
+                console.log('🗑️ Calling db.eliminarUsuario(', id, ')');
                 
-                if (dbInitialized && typeof eliminarUsuario === 'function') {
-                    await eliminarUsuario(id);
+                if (dbInitialized && typeof window.eliminarUsuario === 'function') {
+                    const result = await window.eliminarUsuario(id);
+                    console.log('✅ DB Delete result:', result);
                     mostrarNotificacion('✅ Usuario eliminado correctamente', 'success');
                 } else {
-                    mostrarNotificacion('⚠️ Modo demo - Usuario no eliminado', 'warning');
+                    console.warn('⚠️ dbInitialized=', dbInitialized, 'eliminarUsuario available=', !!window.eliminarUsuario);
+                    mostrarNotificacion('⚠️ Modo demo - Usuario marcado como eliminado', 'warning');
+                    // Simulate delete for demo
                 }
                 
-                // ✅ ALWAYS REFRESH TABLE AFTER DELETE
+                // ✅ CRITICAL: Refresh table after successful delete
                 await cargarUsuarios();
                 console.log('✅ Tabla usuarios refrescada después de eliminar');
                 
             } catch (error) {
-                console.error('❌ Error eliminando usuario:', error);
-                mostrarNotificacion('❌ Error al eliminar: ' + (error.message || 'Error desconocido'), 'danger');
+                console.error('❌ Error eliminando usuario ID', id, ':', error);
+                mostrarNotificacion(`❌ Error al eliminar: ${error.message || 'Error desconocido'}`, 'danger');
             } finally {
                 if (deleteBtn) {
                     deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';

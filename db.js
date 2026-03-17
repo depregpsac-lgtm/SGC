@@ -307,23 +307,41 @@ async function obtenerUsuarios() {
     }
 }
 
+// ============================================
+// 👤 USUARIOS DEL SISTEMA (MODIFICADO)
+// ============================================
 async function crearUsuario(nombre_completo, email, password, rol, permisos, estado, conferencia_id = null) {
-    const { data, error } = await window.db
-        .from('usuarios_sistema')
-        .insert([{
-            nombre_completo,
-            email,
-            password_hash: password,
-            rol,
-            permisos,
-            estado,
-            conferencia_id
-        }])
-        .select();
-    if (error) throw error;
-    return data[0];
+const { data, error } = await window.db
+.from('usuarios_sistema')
+.insert([{
+    nombre_completo,
+    email,
+    password_hash: password,
+    rol,
+    permisos,
+    estado,
+    conferencia_id  // ✅ NUEVO
+}])
+.select();
+
+if (error) throw error;
+return data[0];
 }
 
+async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado, conferencia_id = null) {
+const updateData = { nombre_completo, email, rol, permisos, estado, conferencia_id };
+if (password && password.trim() !== '') {
+    updateData.password_hash = password;
+}
+const { data, error } = await window.db
+.from('usuarios_sistema')
+.update(updateData)
+.eq('id', id)
+.select();
+
+if (error) throw error;
+return data[0];
+}
 async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado, conferencia_id = null) {
     const updateData = { nombre_completo, email, rol, permisos, estado, conferencia_id };
     if (password && password.trim() !== '') {

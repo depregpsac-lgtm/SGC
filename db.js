@@ -4,6 +4,7 @@ console.log('🗄️ db.js cargado');
 // ============================================
 // ⚙️ CONFIGURACIÓN DE SUPABASE
 // ============================================
+// 🔴 IMPORTANTE: Reemplaza estos valores con los de tu proyecto en Supabase
 const SUPABASE_URL = 'https://qalzqyjuyptemtrhwsbz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_6qbyMCMlswqUm_kuCPJtyA_B7m4xFvr';
 
@@ -18,29 +19,11 @@ if (typeof window.supabase !== 'undefined') {
 // ============================================
 // 🔐 FUNCIONES DE AUTENTICACIÓN
 // ============================================
+
+// Iniciar sesión
 async function iniciarSesion(email, password) {
     try {
         console.log('🔐 Intentando iniciar sesión con:', email);
-        
-        // Usuario demo hardcodeado para pruebas
-        if (email === 'admin@ministrylion.com' && password === 'admin123') {
-            const userDemo = {
-                id: '1',
-                nombre: 'Administrador',
-                email: email,
-                rol: 'admin',
-                permisos: ['dashboard', 'conferencias', 'registros', 'configuracion', 'usuarios', 'reportes'],
-                conferencias_asignadas: [] // Admin ve todo
-            };
-            
-            localStorage.setItem('user', JSON.stringify(userDemo));
-            console.log('✅ Login demo exitoso');
-            return {
-                success: true,
-                user: userDemo,
-                message: '✅ Inicio de sesión exitoso'
-            };
-        }
         
         // Buscar usuario en la tabla usuarios_sistema
         const { data: usuario, error: fetchError } = await window.db
@@ -58,7 +41,7 @@ async function iniciarSesion(email, password) {
             };
         }
         
-        // Verificar contraseña
+        // Verificar contraseña (en producción deberías usar hash)
         if (usuario.password_hash !== password) {
             console.error('❌ Contraseña incorrecta');
             return {
@@ -67,60 +50,14 @@ async function iniciarSesion(email, password) {
             };
         }
         
-        // ✅ Obtener conferencias asignadas al usuario
-        let conferenciasAsignadas = [];
-        if (usuario.rol !== 'admin' && usuario.rol !== 'administrador') {
-            // Intentar obtener de la tabla usuario_conferencias
-            const { data: asignaciones, error: asignError } = await window.db
-                .from('usuario_conferencias')
-                .select('conferencia_id')
-                .eq('usuario_id', usuario.id);
-            
-            if (!asignError && asignaciones) {
-                conferenciasAsignadas = asignaciones.map(a => a.conferencia_id);
-            } else if (usuario.conferencias_asignadas) {
-                // Fallback a columna en usuarios_sistema
-                try {
-                    conferenciasAsignadas = typeof usuario.conferencias_asignadas === 'string' 
-                        ? JSON.parse(usuario.conferencias_asignadas) 
-                        : usuario.conferencias_asignadas;
-                } catch (e) {
-                    conferenciasAsignadas = [];
-                }
-            }
-        }
-        
-        // Parsear permisos
-        let permisosArray = [];
-        if (usuario.permisos) {
-            try {
-                if (typeof usuario.permisos === 'string') {
-                    if (usuario.permisos.startsWith('\\"[')) {
-                        const cleanPermisos = usuario.permisos.replace(/^\\"|\\"$/g, '').replace(/^"|"$/g, '');
-                        permisosArray = JSON.parse(cleanPermisos);
-                    } else {
-                        permisosArray = JSON.parse(usuario.permisos);
-                    }
-                } else {
-                    permisosArray = usuario.permisos;
-                }
-            } catch (e) {
-                console.error('❌ Error parseando permisos:', e);
-                if (typeof usuario.permisos === 'string') {
-                    permisosArray = usuario.permisos.split(',').map(p => p.trim()).filter(p => p);
-                }
-            }
-        }
-        
         // Guardar sesión en localStorage
         const userSession = {
             id: usuario.id,
             nombre: usuario.nombre_completo,
             email: usuario.email,
             rol: usuario.rol,
-            permisos: permisosArray,
-            estado: usuario.estado,
-            conferencias_asignadas: conferenciasAsignadas // ✅ NUEVO
+            permisos: usuario.permisos,
+            estado: usuario.estado
         };
         
         localStorage.setItem('user', JSON.stringify(userSession));
@@ -140,6 +77,7 @@ async function iniciarSesion(email, password) {
     }
 }
 
+// Verificar si hay sesión activa
 function checkAuth() {
     try {
         const userStr = localStorage.getItem('user');
@@ -158,47 +96,17 @@ function checkAuth() {
     }
 }
 
+// Cerrar sesión
 function cerrarSesion() {
     localStorage.removeItem('user');
     console.log('🚪 Sesión cerrada');
     window.location.reload();
 }
 
+// Verificar si es administrador
 function esAdmin() {
     const user = checkAuth();
     return user && (user.rol === 'admin' || user.rol === 'administrador');
-}
-
-// ✅ VERIFICAR SI TIENE ACCESO A CONFERENCIA
-function tieneAccesoConferencia(conferencia_id) {
-    const user = checkAuth();
-    if (!user) return false;
-    
-    // Admin tiene acceso a todo
-    if (user.rol === 'admin' || user.rol === 'administrador') {
-        return true;
-    }
-    
-    // Verificar si la conferencia está en las asignadas
-    if (user.conferencias_asignadas && user.conferencias_asignadas.length > 0) {
-        return user.conferencias_asignadas.includes(conferencia_id) || 
-               user.conferencias_asignadas.includes(String(conferencia_id));
-    }
-    
-    return false;
-}
-
-// ✅ OBTENER CONFERENCIAS PERMITIDAS PARA USUARIO
-function obtenerConferenciasPermitidas() {
-    const user = checkAuth();
-    if (!user) return [];
-    
-    // Admin puede ver todas
-    if (user.rol === 'admin' || user.rol === 'administrador') {
-        return 'all';
-    }
-    
-    return user.conferencias_asignadas || [];
 }
 
 // ============================================
@@ -324,6 +232,7 @@ async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha
 }
 
 async function eliminarConferencia(id) {
+    // Primero eliminar asistentes relacionados
     await window.db.from('asistentes').delete().eq('conferencia_id', id);
     const { error } = await window.db.from('conferencias').delete().eq('id', id);
     if (error) throw error;
@@ -345,13 +254,27 @@ async function obtenerAsistentes() {
 }
 
 async function crearAsistente(datos) {
-    const { data, error } = await window.db.from('asistentes').insert([datos]).select();
+    // Obtener los días específicos del formulario
+    const diasEspecificos = document.getElementById('registroDiasEspecificos')?.value || '';
+    
+    const { data, error } = await window.db.from('asistentes').insert([{
+        ...datos,
+        dias_especificos: diasEspecificos  // ✅ Agregar días específicos
+    }]).select();
+    
     if (error) throw error;
     return data[0];
 }
 
 async function actualizarAsistente(id, datos) {
-    const { data, error } = await window.db.from('asistentes').update(datos).eq('id', id).select();
+    // Obtener los días específicos del formulario
+    const diasEspecificos = document.getElementById('registroDiasEspecificos')?.value || '';
+    
+    const { data, error } = await window.db.from('asistentes').update({
+        ...datos,
+        dias_especificos: diasEspecificos  // ✅ Actualizar días específicos
+    }).eq('id', id).select();
+    
     if (error) throw error;
     return data[0];
 }
@@ -376,164 +299,40 @@ async function obtenerUsuarios() {
     }
 }
 
-async function crearUsuario(nombre_completo, email, password, rol, permisos, estado, conferencias_asignadas = null) {
-    const insertData = {
-        nombre_completo,
-        email,
-        password_hash: password,
-        rol,
-        permisos,
-        estado
-    };
-    
-    // ✅ Agregar conferencias asignadas si existen
-    if (conferencias_asignadas) {
-        insertData.conferencias_asignadas = conferencias_asignadas;
-    }
-    
+async function crearUsuario(nombre_completo, email, password, rol, permisos, estado) {
     const { data, error } = await window.db
         .from('usuarios_sistema')
-        .insert([insertData])
+        .insert([{
+            nombre_completo,
+            email,
+            password_hash: password,
+            rol,
+            permisos,
+            estado
+        }])
         .select();
     if (error) throw error;
-    
-    // ✅ Si hay conferencias asignadas, crear registros en usuario_conferencias
-    if (conferencias_asignadas && data[0]?.id) {
-        const usuario_id = data[0].id;
-        const conferenciasArray = typeof conferencias_asignadas === 'string' 
-            ? JSON.parse(conferencias_asignadas) 
-            : conferencias_asignadas;
-        
-        if (Array.isArray(conferenciasArray) && conferenciasArray.length > 0) {
-            const asignaciones = conferenciasArray.map(conf_id => ({
-                usuario_id,
-                conferencia_id: conf_id
-            }));
-            
-            await window.db
-                .from('usuario_conferencias')
-                .insert(asignaciones);
-        }
-    }
-    
     return data[0];
 }
 
-async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado, conferencias_asignadas = null) {
+async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado) {
     const updateData = { nombre_completo, email, rol, permisos, estado };
     if (password && password.trim() !== '') {
         updateData.password_hash = password;
     }
-    
-    // ✅ Agregar conferencias asignadas si existen
-    if (conferencias_asignadas !== null) {
-        updateData.conferencias_asignadas = conferencias_asignadas;
-    }
-    
     const { data, error } = await window.db
         .from('usuarios_sistema')
         .update(updateData)
         .eq('id', id)
         .select();
     if (error) throw error;
-    
-    // ✅ Actualizar registros en usuario_conferencias
-    if (conferencias_asignadas !== null) {
-        const conferenciasArray = typeof conferencias_asignadas === 'string' 
-            ? JSON.parse(conferencias_asignadas) 
-            : conferencias_asignadas;
-        
-        if (Array.isArray(conferenciasArray)) {
-            // Eliminar asignaciones anteriores
-            await window.db
-                .from('usuario_conferencias')
-                .delete()
-                .eq('usuario_id', id);
-            
-            // Crear nuevas asignaciones
-            if (conferenciasArray.length > 0) {
-                const asignaciones = conferenciasArray.map(conf_id => ({
-                    usuario_id: id,
-                    conferencia_id: conf_id
-                }));
-                
-                await window.db
-                    .from('usuario_conferencias')
-                    .insert(asignaciones);
-            }
-        }
-    }
-    
     return data[0];
 }
 
 async function eliminarUsuario(id) {
-    // Eliminar asignaciones de conferencias primero
-    await window.db.from('usuario_conferencias').delete().eq('usuario_id', id);
-    
     const { error } = await window.db.from('usuarios_sistema').delete().eq('id', id);
     if (error) throw error;
     return true;
-}
-
-// ============================================
-// 📊 ASIGNACIÓN DE CONFERENCIAS A USUARIOS
-// ============================================
-async function obtenerConferenciasUsuario(usuario_id) {
-    try {
-        const { data, error } = await window.db
-            .from('usuario_conferencias')
-            .select('conferencia_id, conferencias(nombre)')
-            .eq('usuario_id', usuario_id);
-        if (error) throw error;
-        return data || [];
-    } catch (error) {
-        console.error('❌ Error obteniendo conferencias del usuario:', error);
-        return [];
-    }
-}
-
-async function asignarConferenciaUsuario(usuario_id, conferencia_id) {
-    try {
-        const { data, error } = await window.db
-            .from('usuario_conferencias')
-            .insert([{ usuario_id, conferencia_id }])
-            .select();
-        if (error) throw error;
-        return data[0];
-    } catch (error) {
-        console.error('❌ Error asignando conferencia:', error);
-        return null;
-    }
-}
-
-async function eliminarConferenciaUsuario(usuario_id, conferencia_id) {
-    try {
-        const { error } = await window.db
-            .from('usuario_conferencias')
-            .delete()
-            .eq('usuario_id', usuario_id)
-            .eq('conferencia_id', conferencia_id);
-        if (error) throw error;
-        return true;
-    } catch (error) {
-        console.error('❌ Error eliminando asignación:', error);
-        return false;
-    }
-}
-
-async function obtenerAsignacionesUsuario(usuario_id) {
-    try {
-        const { data, error } = await window.db
-            .from('usuario_conferencias')
-            .select('*')
-            .eq('usuario_id', usuario_id);
-        if (error) throw error;
-        return data || [];
-    } catch (error) {
-        console.error('❌ Error obteniendo asignaciones:', error);
-        return [];
-    }
 }
 
 // ============================================
@@ -575,36 +374,38 @@ window.iniciarSesion = iniciarSesion;
 window.checkAuth = checkAuth;
 window.cerrarSesion = cerrarSesion;
 window.esAdmin = esAdmin;
-window.tieneAccesoConferencia = tieneAccesoConferencia;
-window.obtenerConferenciasPermitidas = obtenerConferenciasPermitidas;
+
 window.obtenerZonas = obtenerZonas;
 window.crearZona = crearZona;
 window.actualizarZona = actualizarZona;
 window.eliminarZona = eliminarZona;
+
 window.obtenerDistritos = obtenerDistritos;
 window.crearDistrito = crearDistrito;
 window.actualizarDistrito = actualizarDistrito;
 window.eliminarDistrito = eliminarDistrito;
+
 window.obtenerIglesias = obtenerIglesias;
 window.crearIglesia = crearIglesia;
 window.actualizarIglesia = actualizarIglesia;
 window.eliminarIglesia = eliminarIglesia;
+
 window.obtenerConferencias = obtenerConferencias;
 window.crearConferencia = crearConferencia;
 window.actualizarConferencia = actualizarConferencia;
 window.eliminarConferencia = eliminarConferencia;
+
 window.obtenerAsistentes = obtenerAsistentes;
 window.crearAsistente = crearAsistente;
 window.actualizarAsistente = actualizarAsistente;
 window.eliminarAsistente = eliminarAsistente;
+
 window.obtenerUsuarios = obtenerUsuarios;
 window.crearUsuario = crearUsuario;
 window.actualizarUsuario = actualizarUsuario;
 window.eliminarUsuario = eliminarUsuario;
-window.obtenerEstadisticas = obtenerEstadisticas;
-window.obtenerConferenciasUsuario = obtenerConferenciasUsuario;
-window.asignarConferenciaUsuario = asignarConferenciaUsuario;
-window.eliminarConferenciaUsuario = eliminarConferenciaUsuario;
-window.obtenerAsignacionesUsuario = obtenerAsignacionesUsuario;
 
-console.log('✅ db.js inicializado con todas las funciones CRUD, autenticación y asignación de conferencias');
+window.obtenerEstadisticas = obtenerEstadisticas;
+
+console.log('✅ db.js inicializado con todas las funciones CRUD y autenticación');
+

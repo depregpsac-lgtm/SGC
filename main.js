@@ -189,7 +189,8 @@ async function prepararModalAsistente() {
     await cargarConferenciasEnSelect('asistConferencia');
     abrirModal('modalNuevoAsistente');
 }
-
+// ============================================
+// ============================================
 async function prepararModalUsuario() {
     window.editMode = { tipo: null, id: null, data: null };
     window.tempPassword = '';
@@ -199,7 +200,18 @@ async function prepararModalUsuario() {
     if (titulo) titulo.textContent = '👤 Nuevo Usuario';
     
     // ✅ Cargar conferencias en el select
-    await cargarConferenciasEnSelect('usuarioConferencia');
+    await cargarConferenciasEnSelectUsuario();
+    
+    // ✅ Mostrar/ocultar según rol
+    const user = checkAuth();
+    const conferenciasGroup = document.getElementById('conferenciasAccesoGroup');
+    if (conferenciasGroup) {
+        if (user && user.rol === 'admin') {
+            conferenciasGroup.style.display = 'block';
+        } else {
+            conferenciasGroup.style.display = 'none';
+        }
+    }
     
     abrirModal('modalNuevoUsuario');
 }
@@ -361,12 +373,17 @@ async function cargarIglesias() {
 async function cargarConferencias() {
     try {
         const conferencias = await obtenerConferencias();
+        const usuario = checkAuth();
+        
+        // ✅ Filtrar por acceso del usuario
+        const conferenciasFiltradas = filtrarConferenciasPorAcceso(conferencias, usuario);
+        
         const tbody = document.querySelector('#tablaConferencias tbody');
         if (!tbody) return;
         tbody.innerHTML = '';
         
-        if (conferencias && conferencias.length > 0) {
-            conferencias.forEach(conf => {
+        if (conferenciasFiltradas && conferenciasFiltradas.length > 0) {
+            conferenciasFiltradas.forEach(conf => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${conf.nombre}</td>
@@ -396,75 +413,62 @@ async function cargarConferencias() {
 async function cargarAsistentes() {
     try {
         console.log('📥 Cargando asistentes...');
-        let asistentes = await obtenerAsistentes();
+        const asistentes = await obtenerAsistentes();
+        const usuario = checkAuth();
         
-        // ✅ FILTRO POR CONFERENCIA DE USUARIO
-        const user = checkAuth();
-        if (user && user.rol !== 'admin' && user.conferencia_id) {
-            asistentes = asistentes.filter(a => a.conferencia_id == user.conferencia_id);
-        }
-
-        window.todosLosAsistentes = asistentes;
-        console.log('✅ Asistentes obtenidos:', asistentes.length);
+        // ✅ Filtrar por acceso del usuario
+        const asistentesFiltrados = filtrarAsistentesPorAcceso(asistentes, usuario);
+        
+        window.todosLosAsistentes = asistentesFiltrados;
+        console.log('✅ Asistentes obtenidos:', asistentesFiltrados.length);
+        
         const tbody = document.querySelector('#tablaAsistentes tbody');
         if (!tbody) {
             console.error('❌ No se encontró el tbody de la tabla');
             return;
         }
         tbody.innerHTML = '';
-        if (asistentes && asistentes.length > 0) {
-            asistentes.forEach(asist => {
-                // ... (resto del código de renderizado igual) ...
+        
+        if (asistentesFiltrados && asistentesFiltrados.length > 0) {
+            asistentesFiltrados.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length; 
+                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                     <td >${asist.nombre_completo} </td >
-                     <td >${asist.telefono || '-'} </td >
-                     <td >${asist.iglesias?.nombre || 'Sin iglesia'} </td >
-                     <td >${asist.conferencias?.nombre || 'Sin conferencia'} </td >
-                     <td > <span class= "badge-asistencia " >${diasAsistidos} días </span > </td >
-                     <td >
-                         <button onclick= "editarAsistente(${asist.id}) " class= "btn-edit " >✏️ </button >
-                         <button onclick= "confirmarEliminarAsistente(${asist.id}) " class= "btn-delete " >🗑️ </button >
-                     </td >
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>
+                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
+                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
         } else {
-            tbody.innerHTML = ' <tr > <td colspan= "6 " >Sin asistentes registrados </td > </tr >';
+            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
         }
     } catch (error) {
         console.error('❌ Error cargando asistentes:', error);
         const tbody = document.querySelector('#tablaAsistentes tbody');
-        if (tbody) tbody.innerHTML = ' <tr > <td colspan= "6 " >Error: ' + error.message + ' </td > </tr >';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
     }
 }
-
 
 // --- En filtrarReporte (dentro de cargarReportes) ---
 async function filtrarReporte() {
     try {
-        let conferenciaId = document.getElementById('reporteConferencia')?.value;
+        const conferenciaId = document.getElementById('reporteConferencia')?.value;
         const iglesiaId = document.getElementById('reporteIglesia')?.value;
+        const usuario = checkAuth();
         
-        // ✅ FILTRO POR CONFERENCIA DE USUARIO EN REPORTES
-        const user = checkAuth();
-        if (user && user.rol !== 'admin' && user.conferencia_id) {
-            conferenciaId = user.conferencia_id;
-            // Opcional: Deshabilitar el select visualmente para que no lo cambien
-            const selectConf = document.getElementById('reporteConferencia');
-            if(selectConf) {
-                selectConf.value = conferenciaId;
-                selectConf.disabled = true;
-            }
-        } else if (user && user.rol === 'admin') {
-             // Habilitar de nuevo si es admin
-            const selectConf = document.getElementById('reporteConferencia');
-            if(selectConf) selectConf.disabled = false;
-        }
-
         let asistentes = await obtenerAsistentes();
+        
+        // ✅ Filtrar por acceso del usuario primero
+        asistentes = filtrarAsistentesPorAcceso(asistentes, usuario);
         
         if (conferenciaId) {
             asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
@@ -474,7 +478,6 @@ async function filtrarReporte() {
             asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
         }
         
-        // ... (resto del código de renderizado del reporte igual) ...
         const tbody = document.querySelector('#tablaReporte tbody');
         if (!tbody) return;
         tbody.innerHTML = '';
@@ -483,21 +486,40 @@ async function filtrarReporte() {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
                 const diasAsistidos = fechasAsistencia.length; 
+                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                     <td >${asist.nombre_completo} </td >
-                     <td >${asist.telefono || '-'} </td >
-                     <td >${asist.iglesias?.nombre || 'Sin iglesia'} </td >
-                     <td >${asist.conferencias?.nombre || 'Sin conferencia'} </td >
-                     <td > <span class= "badge-asistencia " >${diasAsistidos} días </span > </td >
-                     <td >${asist.invitado_por || '-'} </td >
+                    <td>${asist.nombre_completo}</td>
+                    <td>${asist.telefono || '-'}</td>
+                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
+                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
+                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
+                    <td>${asist.invitado_por || '-'}</td>
                 `;
                 tbody.appendChild(tr);
             });
-            // ... (cálculo de estadísticas del reporte igual) ...
+            
+            const iglesiasUnicas = new Set(asistentes.map(a => a.iglesia_id).filter(id => id));
+            const totalDias = asistentes.reduce((sum, a) => {
+                const fechas = a.fechas_asistencia ? parsearFechasAsistencia(a.fechas_asistencia) : [];
+                return sum + fechas.length;
+            }, 0);
+            
+            const elTotalAsistentes = document.getElementById('reporteTotalAsistentes');
+            const elTotalDias = document.getElementById('reporteTotalDias');
+            const elTotalIglesias = document.getElementById('reporteTotalIglesias');
+            
+            if (elTotalAsistentes) elTotalAsistentes.textContent = asistentes.length;
+            if (elTotalDias) elTotalDias.textContent = totalDias;
+            if (elTotalIglesias) elTotalIglesias.textContent = iglesiasUnicas.size;
         } else {
-            tbody.innerHTML = ' <tr > <td colspan= "6 " >No hay registros con los filtros seleccionados </td > </tr >';
-            // ... (resetear estadísticas a 0) ...
+            tbody.innerHTML = '<tr><td colspan="6">No hay registros con los filtros seleccionados</td></tr>';
+            const elTotalAsistentes = document.getElementById('reporteTotalAsistentes');
+            const elTotalDias = document.getElementById('reporteTotalDias');
+            const elTotalIglesias = document.getElementById('reporteTotalIglesias');
+            if (elTotalAsistentes) elTotalAsistentes.textContent = '0';
+            if (elTotalDias) elTotalDias.textContent = '0';
+            if (elTotalIglesias) elTotalIglesias.textContent = '0';
         }
     } catch (error) {
         console.error('❌ Error filtrando reporte:', error);
@@ -1183,39 +1205,80 @@ async function confirmarEliminarAsistente(id) {
 // ============================================
 // FUNCIONES DE EDICIÓN Y GUARDADO - USUARIOS
 // ============================================
-
-// --- En editarUsuario ---
 async function editarUsuario(id) {
     try {
         const usuarios = await obtenerUsuarios();
         const usuario = usuarios.find(u => u.id == id);
         if (!usuario) return;
+        
         window.editMode = { tipo: 'usuario', id: id, data: usuario };
-
+        
         document.getElementById('usuarioNombre').value = usuario.nombre_completo;
         document.getElementById('usuarioEmail').value = usuario.email;
         document.getElementById('usuarioPassword').value = '';
         document.getElementById('usuarioRol').value = usuario.rol;
         document.getElementById('usuarioEstado').value = usuario.estado || 'activo';
         
-        // ✅ Cargar y seleccionar la conferencia asignada
-        await cargarConferenciasEnSelect('usuarioConferencia');
-        if (usuario.conferencia_id) {
-            document.getElementById('usuarioConferencia').value = usuario.conferencia_id;
+        // ✅ Cargar conferencias y marcar las asignadas
+        await cargarConferenciasEnSelectUsuario();
+        const selectConferencias = document.getElementById('usuarioConferencias');
+        if (selectConferencias && usuario.conferencias_asignadas) {
+            let conferenciasAsignadas = [];
+            try {
+                if (typeof usuario.conferencias_asignadas === 'string') {
+                    conferenciasAsignadas = JSON.parse(usuario.conferencias_asignadas);
+                } else {
+                    conferenciasAsignadas = usuario.conferencias_asignadas;
+                }
+            } catch (e) {
+                console.error('❌ Error parseando conferencias:', e);
+                conferenciasAsignadas = [];
+            }
+            
+            // Marcar opciones seleccionadas
+            Array.from(selectConferencias.options).forEach(opt => {
+                if (conferenciasAsignadas.includes(opt.value)) {
+                    opt.selected = true;
+                }
+            });
         }
-
-        // ... (resto del código de permisos igual) ...
-
+        
+        // ✅ Parsear permisos de forma segura
+        let permisosUsuario = [];
+        try {
+            if (usuario.permisos) {
+                if (typeof usuario.permisos === 'string') {
+                    if (usuario.permisos.startsWith('\\"[')) {
+                        const cleanPermisos = usuario.permisos.replace(/^\\"|\\"$/g, '').replace(/^"|"$/g, '');
+                        permisosUsuario = JSON.parse(cleanPermisos);
+                    } else {
+                        permisosUsuario = JSON.parse(usuario.permisos);
+                    }
+                } else {
+                    permisosUsuario = usuario.permisos;
+                }
+            }
+        } catch (e) {
+            console.error('❌ Error parseando permisos del usuario:', e);
+            if (typeof usuario.permisos === 'string') {
+                permisosUsuario = usuario.permisos.split(',').map(p => p.trim()).filter(p => p);
+            }
+        }
+        
+        // Marcar permisos
+        document.querySelectorAll('.permiso-checkbox').forEach(cb => {
+            cb.checked = permisosUsuario.includes(cb.value) || usuario.rol === 'admin' || usuario.rol === 'administrador';
+        });
+        
         document.getElementById('tituloModalUsuario').textContent = '👤 Editar Usuario';
         document.getElementById('formUsuario').onsubmit = guardarUsuarioEditado;
-
+        
         abrirModal('modalNuevoUsuario');
     } catch (error) {
         console.error('❌ Error editando usuario:', error);
         mostrarMensaje('Error al cargar datos del usuario: ' + error.message, 'error');
     }
 }
-
 async function guardarUsuario(e) {
     e.preventDefault();
     if (!esAdmin()) {
@@ -1228,21 +1291,29 @@ async function guardarUsuario(e) {
         const password = document.getElementById('usuarioPassword').value;
         const rol = document.getElementById('usuarioRol').value;
         const estado = document.getElementById('usuarioEstado').value;
-        // ✅ Obtener conferencia asignada
-        const conferencia_id = document.getElementById('usuarioConferencia').value || null; 
-
+        
+        // ✅ Obtener conferencias asignadas
+        const conferencias_asignadas = obtenerConferenciasUsuario();
+        
         const permisos = [];
         document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
             permisos.push(cb.value);
         });
-
+        
         if (!nombre_completo || !email || !password) {
             mostrarMensaje('Nombre, correo y contraseña son requeridos', 'error');
             return;
         }
-
-        // ✅ Pasar conferencia_id a la función de creación (asegúrate que tu DB lo soporte)
-        await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado, conferencia_id);
+        
+        await crearUsuario(
+            nombre_completo, 
+            email, 
+            password, 
+            rol, 
+            JSON.stringify(permisos), 
+            estado,
+            JSON.stringify(conferencias_asignadas)  // ✅ Nuevo parámetro
+        );
         mostrarMensaje('✅ Usuario creado exitosamente', 'success');
         cerrarModal('modalNuevoUsuario');
         await cargarUsuarios();
@@ -1251,9 +1322,6 @@ async function guardarUsuario(e) {
         mostrarMensaje('Error al guardar usuario: ' + error.message, 'error');
     }
 }
-
-
-// --- En guardarUsuarioEditado ---
 async function guardarUsuarioEditado(e) {
     e.preventDefault();
     if (!esAdmin()) {
@@ -1266,21 +1334,30 @@ async function guardarUsuarioEditado(e) {
         const password = document.getElementById('usuarioPassword').value;
         const rol = document.getElementById('usuarioRol').value;
         const estado = document.getElementById('usuarioEstado').value;
-        // ✅ Obtener conferencia asignada
-        const conferencia_id = document.getElementById('usuarioConferencia').value || null;
-
+        
+        // ✅ Obtener conferencias asignadas
+        const conferencias_asignadas = obtenerConferenciasUsuario();
+        
         const permisos = [];
         document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
             permisos.push(cb.value);
         });
-
+        
         if (!nombre_completo || !email) {
             mostrarMensaje('Nombre y correo son requeridos', 'error');
             return;
         }
-
-        // ✅ Pasar conferencia_id a la función de actualización
-        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado, conferencia_id);
+        
+        await actualizarUsuario(
+            window.editMode.id, 
+            nombre_completo, 
+            email, 
+            password, 
+            rol, 
+            JSON.stringify(permisos), 
+            estado,
+            JSON.stringify(conferencias_asignadas)  // ✅ Nuevo parámetro
+        );
         mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
         cerrarModal('modalNuevoUsuario');
         await cargarUsuarios();
@@ -1289,7 +1366,6 @@ async function guardarUsuarioEditado(e) {
         mostrarMensaje('Error al actualizar usuario: ' + error.message, 'error');
     }
 }
-
 async function confirmarEliminarUsuario(id) {
     if (!esAdmin()) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden eliminar usuarios', 'error');
@@ -1449,7 +1525,18 @@ function actualizarDuracionConferencia() {
 // ============================================
 async function cargarReportes() {
     console.log('📊 Cargando sección de Reportes');
-    await cargarConferenciasEnSelect('reporteConferencia');
+    const usuario = checkAuth();
+    
+    // ✅ Cargar solo conferencias con acceso
+    const conferencias = await obtenerConferencias();
+    const conferenciasFiltradas = filtrarConferenciasPorAcceso(conferencias, usuario);
+    
+    const selectConf = document.getElementById('reporteConferencia');
+    if (selectConf) {
+        selectConf.innerHTML = '-- Seleccione Conferencia --' +
+            conferenciasFiltradas.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    }
+    
     await cargarIglesiasEnSelect('reporteIglesia');
     await filtrarReporte();
 }
@@ -1853,6 +1940,14 @@ window.togglePassword = togglePassword;
 window.filtrarAsistentes = filtrarAsistentes;
 window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
 window.parsearFechasAsistencia = parsearFechasAsistencia;
+
+
+// ✅ Funciones de acceso por conferencia
+window.cargarConferenciasEnSelectUsuario = cargarConferenciasEnSelectUsuario;
+window.obtenerConferenciasUsuario = obtenerConferenciasUsuario;
+window.tieneAccesoConferencia = tieneAccesoConferencia;
+window.filtrarAsistentesPorAcceso = filtrarAsistentesPorAcceso;
+window.filtrarConferenciasPorAcceso = filtrarConferenciasPorAcceso;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
 

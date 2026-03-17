@@ -2481,7 +2481,7 @@
             }
         }
 
-        async function editarUsuario(id) {
+async function editarUsuario(id) {
             try {
                 const usuarios = await obtenerUsuarios();
                 const usuario = usuarios.find(u => u.id == id);
@@ -2492,13 +2492,23 @@
                     document.getElementById('usuarioEmail').value = usuario.email;
                     document.getElementById('usuarioPassword').value = '';
                     document.getElementById('usuarioRol').value = usuario.rol;
-                    document.getElementById('usuarioConferencia').value = usuario.conferencia_id || '';
+                    
                     document.getElementById('modalUsuarioTitle').textContent = '👤 Editar Usuario';
                     document.getElementById('modalUsuario').classList.add('active');
+                    
+                    // ✅ Reload conferences for edit
+                    const loaded = await cargarConferenciasEnSelect('usuarioConferencia');
+                    if (loaded) {
+                        document.getElementById('usuarioConferencia').value = usuario.conferencia_id || '';
+                    } else {
+                        mostrarNotificacion('⚠️ No hay conferencias disponibles.', 'warning');
+                    }
+                } else {
+                    mostrarNotificacion('Usuario no encontrado', 'danger');
                 }
             } catch (error) {
                 console.error('Error cargando usuario:', error);
-                mostrarNotificacion('❌ Error al cargar usuario', 'danger');
+                mostrarNotificacion('❌ Error al cargar usuario: ' + error.message, 'danger');
             }
         }
 
@@ -2545,12 +2555,22 @@
             document.getElementById('modalRegistro').classList.add('active');
         }
 
-        async function abrirModalUsuario() {
-            document.getElementById('usuarioId').value = '';
-            document.getElementById('formUsuario').reset();
-            await cargarConferenciasEnSelect('usuarioConferencia');
-            document.getElementById('modalUsuarioTitle').textContent = '👤 Nuevo Usuario';
-            document.getElementById('modalUsuario').classList.add('active');
+async function abrirModalUsuario() {
+            try {
+                document.getElementById('usuarioId').value = '';
+                document.getElementById('formUsuario').reset();
+                document.getElementById('modalUsuarioTitle').textContent = '👤 Nuevo Usuario';
+                
+                const loaded = await cargarConferenciasEnSelect('usuarioConferencia');
+                if (!loaded) {
+                    mostrarNotificacion('⚠️ No hay conferencias disponibles. Cree una primero.', 'warning');
+                }
+                
+                document.getElementById('modalUsuario').classList.add('active');
+            } catch (error) {
+                console.error('Error abriendo modal usuario:', error);
+                mostrarNotificacion('Error abriendo modal: ' + error.message, 'danger');
+            }
         }
 
         function cerrarModal(modalId) {
@@ -2591,19 +2611,42 @@
             }
         }
 
-        async function cargarConferenciasEnSelect(selectId) {
+async function cargarConferenciasEnSelect(selectId) {
             const select = document.getElementById(selectId);
-            select.innerHTML = '<option value="">-- Seleccionar --</option>';
+            if (!select) {
+                console.error('❌ Select no encontrado:', selectId);
+                return false;
+            }
+            select.innerHTML = '<option value="">-- Cargando conferencias... --</option>';
             
             try {
+                console.log('🔄 Cargando conferencias para:', selectId);
                 if (dbInitialized && typeof obtenerConferencias === 'function') {
                     const conferencias = await obtenerConferencias();
-                    conferencias.forEach(conf => {
-                        select.innerHTML += `<option value="${conf.id}">${conf.nombre}</option>`;
-                    });
+                    console.log('📋 Conferencias encontradas:', conferencias?.length || 0);
+                    
+                    select.innerHTML = '<option value="">-- Seleccionar Conferencia --</option>';
+                    if (conferencias && conferencias.length > 0) {
+                        conferencias.forEach(conf => {
+                            select.innerHTML += `<option value="${conf.id}">${conf.nombre}</option>`;
+                        });
+                        console.log('✅ Conferencias cargadas correctamente');
+                        return true;
+                    } else {
+                        select.innerHTML += '<option value="">No hay conferencias disponibles</option>';
+                        console.warn('⚠️ No hay conferencias en la DB');
+                        return false;
+                    }
+                } else {
+                    console.error('❌ DB no inicializada o obtenerConferencias no disponible');
+                    select.innerHTML = '<option value="">Error de conexión</option>';
+                    return false;
                 }
             } catch (error) {
-                console.error('Error cargando conferencias:', error);
+                console.error('❌ Error cargando conferencias:', error);
+                select.innerHTML = '<option value="">Error al cargar</option>';
+                mostrarNotificacion('Error cargando conferencias: ' + error.message, 'danger');
+                return false;
             }
         }
 
@@ -3019,18 +3062,23 @@
             }
         }
 
-        async function eliminarUsuario(id) {
-            if (!confirm('¿Está seguro de eliminar este usuario?')) return;
+async function eliminarUsuario(id) {
+            if (!confirm('¿Está seguro de eliminar este usuario? Esta acción no se puede deshacer.')) return;
             
             try {
+                console.log('🗑️ Eliminando usuario:', id);
                 if (dbInitialized && typeof eliminarUsuario === 'function') {
                     await eliminarUsuario(id);
                     mostrarNotificacion('✅ Usuario eliminado correctamente', 'success');
-                    cargarUsuarios();
+                    // ✅ FIXED: Always refresh table
+                    await cargarUsuarios();
+                } else {
+                    mostrarNotificacion('⚠️ Modo demo - Usuario no eliminado', 'warning');
+                    await cargarUsuarios();
                 }
             } catch (error) {
-                console.error('Error eliminando usuario:', error);
-                mostrarNotificacion('❌ Error al eliminar usuario', 'danger');
+                console.error('❌ Error eliminando usuario:', error);
+                mostrarNotificacion('❌ Error al eliminar: ' + (error.message || error), 'danger');
             }
         }
 

@@ -31,7 +31,7 @@ function checkAuth() {
 }
 
 // ============================================
-// INICIAR SESIÓN
+// INICIAR SESIÓN (MODIFICADO CON CONFERENCIA)
 // ============================================
 async function iniciarSesion(email, password) {
     try {
@@ -44,6 +44,8 @@ async function iniciarSesion(email, password) {
                 nombre: 'Administrador',
                 email: email,
                 rol: 'admin',
+                conferencia_id: null,
+                conferencia_nombre: 'Todas las conferencias',
                 permisos: ['dashboard', 'conferencias', 'registros', 'configuracion', 'usuarios', 'reportes']
             };
             
@@ -59,7 +61,7 @@ async function iniciarSesion(email, password) {
         
         const { data, error } = await window.db
             .from('usuarios_sistema')
-            .select('*')
+            .select('*, conferencias(nombre)')
             .eq('email', email)
             .eq('password_hash', password)
             .eq('estado', 'activo')
@@ -70,35 +72,34 @@ async function iniciarSesion(email, password) {
             return { success: false, message: 'Correo o contraseña incorrectos' };
         }
         
-        // ✅ Parsear permisos de forma segura (maneja string o JSON)
+        // ✅ Parsear permisos de forma segura
         let permisosArray = [];
         if (data.permisos) {
             try {
-                // Si es string con comillas escapadas, removerlas primero
                 if (typeof data.permisos === 'string' && data.permisos.startsWith('"[')) {
-                    // Remover las comillas externas y escapar
                     const cleanPermisos = data.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
                     permisosArray = JSON.parse(cleanPermisos);
                 } else {
-                    // Intentar parsear como JSON normal
                     permisosArray = typeof data.permisos === 'string' 
                         ? JSON.parse(data.permisos) 
                         : data.permisos;
                 }
             } catch (e) {
                 console.error('❌ Error parseando permisos:', e);
-                // Si falla, usar array vacío o convertir string separado por comas
                 if (typeof data.permisos === 'string') {
                     permisosArray = data.permisos.split(',').map(p => p.trim()).filter(p => p);
                 }
             }
         }
         
+        // ✅ Crear objeto de usuario con información de conferencia
         const user = {
             id: data.id,
             nombre: data.nombre_completo,
             email: data.email,
             rol: data.rol,
+            conferencia_id: data.conferencia_id || null,
+            conferencia_nombre: data.conferencias?.nombre || null,
             permisos: permisosArray
         };
         
@@ -106,7 +107,7 @@ async function iniciarSesion(email, password) {
         console.log('✅ Login exitoso:', user);
         
         return { success: true, user: user };
-        
+         
     } catch (error) {
         console.error('❌ Error en login:', error);
         return { success: false, message: error.message };
@@ -123,12 +124,22 @@ function cerrarSesion() {
 }
 
 // ============================================
-// VERIFICAR PERMISOS
+// VERIFICAR PERMISOS (MODIFICADO)
 // ============================================
 function tienePermiso(permiso) {
     const user = checkAuth();
     if (!user) return false;
-    return user.permisos.includes(permiso) || user.rol === 'admin';
+    
+    // ✅ Admin tiene todos los permisos
+    if (user.rol === 'admin') return true;
+    
+    // ✅ Usuario con conferencia asignada tiene permisos limitados
+    if (user.conferencia_id) {
+        const permisosLimitados = ['registros', 'reportes', 'dashboard'];
+        return permisosLimitados.includes(permiso) || user.permisos.includes(permiso);
+    }
+    
+    return user.permisos.includes(permiso);
 }
 
 // ============================================
@@ -138,6 +149,16 @@ function esAdmin() {
     const user = checkAuth();
     if (!user) return false;
     return user.rol === 'admin' || user.rol === 'administrador';
+}
+
+// ============================================
+// VERIFICAR ACCESO A CONFERENCIA (NUEVO)
+// ============================================
+function validarAccesoConferencia(conferenciaId) {
+    const user = checkAuth();
+    if (!user) return false;
+    if (user.rol === 'admin') return true;
+    return user.conferencia_id == conferenciaId;
 }
 
 // ============================================
@@ -156,4 +177,6 @@ window.cerrarSesion = cerrarSesion;
 window.tienePermiso = tienePermiso;
 window.obtenerUsuarioActual = obtenerUsuarioActual;
 window.esAdmin = esAdmin;
+window.validarAccesoConferencia = validarAccesoConferencia;
+
 console.log('✅ auth.js inicializado correctamente');

@@ -1,7 +1,6 @@
 // main.js - Control de la aplicación MinistryLion
 console.log('🔍 main.js cargado');
 console.log('🔍 window.db existe:', !!window.db);
-
 window.editMode = {
     tipo: null,
     id: null,
@@ -45,6 +44,7 @@ function calcularDias(fechaInicio, fechaFin) {
 function navegarSeccion(seccionId) {
     console.log('📍 Navegando a:', seccionId);
     
+    // ✅ Limpiar buscador al salir de registros
     if (seccionId !== 'registros') {
         limpiarBuscadorAsistentes();
     }
@@ -150,7 +150,7 @@ async function prepararModalIglesia() {
     const titulo = document.getElementById('tituloModalIglesia');
     if (titulo) titulo.textContent = '⛪ Registrar Iglesia';
     await cargarZonasEnSelect('iglesiaZona');
-    document.getElementById('iglesiaDistrito').innerHTML = '-- Sin distrito --';
+    document.getElementById('iglesiaDistrito').innerHTML = '<option value="">-- Sin distrito --</option>';
     abrirModal('modalNuevaIglesia');
 }
 
@@ -178,7 +178,6 @@ async function prepararModalAsistente() {
     abrirModal('modalNuevoAsistente');
 }
 
-// ✅ PREPARAR MODAL USUARIO - CON CONFERENCIAS
 async function prepararModalUsuario() {
     window.editMode = { tipo: null, id: null, data: null };
     window.tempPassword = '';
@@ -186,10 +185,6 @@ async function prepararModalUsuario() {
     document.getElementById('formUsuario').onsubmit = guardarUsuario;
     const titulo = document.getElementById('tituloModalUsuario');
     if (titulo) titulo.textContent = '👤 Nuevo Usuario';
-    
-    // ✅ Cargar conferencias para asignar
-    await cargarConferenciasEnCheckbox();
-    
     abrirModal('modalNuevoUsuario');
 }
 
@@ -201,7 +196,7 @@ async function cargarZonasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const zonas = await obtenerZonas();
-        select.innerHTML = '-- Seleccione Zona --' +
+        select.innerHTML = '<option value="">-- Seleccione Zona --</option>' +
             zonas.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando zonas:', error);
@@ -216,7 +211,7 @@ async function cargarDistritosEnSelect(selectId, zonaId = null) {
         if (zonaId) {
             distritos = distritos.filter(d => d.zona_id == zonaId);
         }
-        select.innerHTML = '-- Seleccione Distrito --' +
+        select.innerHTML = '<option value="">-- Seleccione Distrito --</option>' +
             distritos.map(d => `<option value="${d.id}">${d.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando distritos:', error);
@@ -228,7 +223,7 @@ async function cargarIglesiasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const iglesias = await obtenerIglesias();
-        select.innerHTML = '-- Seleccione Iglesia --' +
+        select.innerHTML = '<option value="">-- Seleccione Iglesia --</option>' +
             iglesias.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando iglesias:', error);
@@ -240,41 +235,10 @@ async function cargarConferenciasEnSelect(selectId) {
         const select = document.getElementById(selectId);
         if (!select) return;
         const conferencias = await obtenerConferencias();
-        select.innerHTML = '-- Seleccione Conferencia --' +
+        select.innerHTML = '<option value="">-- Seleccione Conferencia --</option>' +
             conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
     } catch (error) {
         console.error('❌ Error cargando conferencias:', error);
-    }
-}
-
-// ✅ CARGAR CONFERENCIAS EN CHECKBOX PARA USUARIOS
-async function cargarConferenciasEnCheckbox(conferenciasAsignadas = []) {
-    try {
-        const container = document.getElementById('conferenciasCheckboxContainer');
-        if (!container) return;
-        
-        const conferencias = await obtenerConferencias();
-        
-        if (conferencias && conferencias.length > 0) {
-            container.innerHTML = conferencias.map(conf => {
-                const isChecked = conferenciasAsignadas.includes(conf.id) || 
-                                 conferenciasAsignadas.includes(String(conf.id)) ? 'checked' : '';
-                return `
-                    <label class="checkbox-label">
-                        <input type="checkbox" class="conferencia-checkbox" 
-                               value="${conf.id}" ${isChecked}>
-                        ${conf.nombre} (${formatearFechaParaTabla(conf.fecha_inicio)} - 
-                        ${formatearFechaParaTabla(conf.fecha_fin)})
-                    </label>
-                `;
-            }).join('');
-        } else {
-            container.innerHTML = '<p class="text-muted">No hay conferencias disponibles</p>';
-        }
-    } catch (error) {
-        console.error('❌ Error cargando conferencias:', error);
-        document.getElementById('conferenciasCheckboxContainer').innerHTML = 
-            '<p class="text-error">Error cargando conferencias</p>';
     }
 }
 
@@ -378,27 +342,11 @@ async function cargarIglesias() {
     }
 }
 
-// ✅ CARGAR CONFERENCIAS - CON FILTRO POR USUARIO
 async function cargarConferencias() {
     try {
-        const conferenciasPermitidas = obtenerConferenciasPermitidas();
-        console.log('📋 Conferencias permitidas:', conferenciasPermitidas);
-        
-        let conferencias = await obtenerConferencias();
-        
-        // ✅ Filtrar conferencias por asignación (si no es admin)
-        if (conferenciasPermitidas !== 'all' && conferenciasPermitidas.length > 0) {
-            conferencias = conferencias.filter(c => 
-                conferenciasPermitidas.includes(c.id) || 
-                conferenciasPermitidas.includes(String(c.id))
-            );
-        } else if (conferenciasPermitidas !== 'all') {
-            conferencias = [];
-        }
-        
+        const conferencias = await obtenerConferencias();
         const tbody = document.querySelector('#tablaConferencias tbody');
         if (!tbody) return;
-        
         tbody.innerHTML = '';
         
         if (conferencias && conferencias.length > 0) {
@@ -412,10 +360,8 @@ async function cargarConferencias() {
                     <td>${calcularDias(conf.fecha_inicio, conf.fecha_fin)} días</td>
                     <td>${conf.conferenciante || '-'}</td>
                     <td>
-                        ${esAdmin() ? `
                         <button onclick="editarConferencia(${conf.id})" class="btn-edit">✏️</button>
                         <button onclick="confirmarEliminarConferencia(${conf.id})" class="btn-delete">🗑️</button>
-                        ` : '<span class="badge-solo-lectura">👁️ Solo lectura</span>'}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -430,45 +376,23 @@ async function cargarConferencias() {
     }
 }
 
-// ✅ CARGAR ASISTENTES - CON FILTRO POR CONFERENCIA
 async function cargarAsistentes() {
     try {
         console.log('📥 Cargando asistentes...');
-        
-        // ✅ Verificar conferencias permitidas para este usuario
-        const conferenciasPermitidas = obtenerConferenciasPermitidas();
-        console.log('📋 Conferencias permitidas:', conferenciasPermitidas);
-        
-        let asistentes = await obtenerAsistentes();
-        
-        // ✅ Filtrar asistentes por conferencias asignadas (si no es admin)
-        if (conferenciasPermitidas !== 'all' && conferenciasPermitidas.length > 0) {
-            asistentes = asistentes.filter(a => 
-                conferenciasPermitidas.includes(a.conferencia_id) || 
-                conferenciasPermitidas.includes(String(a.conferencia_id))
-            );
-            console.log('📊 Asistentes filtrados:', asistentes.length);
-        } else if (conferenciasPermitidas !== 'all') {
-            // Usuario sin conferencias asignadas
-            asistentes = [];
-            console.log('⚠️ Usuario sin conferencias asignadas');
-        }
-        
+        const asistentes = await obtenerAsistentes();
         window.todosLosAsistentes = asistentes;
         console.log('✅ Asistentes obtenidos:', asistentes.length);
-        
         const tbody = document.querySelector('#tablaAsistentes tbody');
         if (!tbody) {
             console.error('❌ No se encontró el tbody de la tabla');
             return;
         }
-        
         tbody.innerHTML = '';
         
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
-                const diasAsistidos = fechasAsistencia.length; 
+                const diasAsistidos = fechasAsistencia.length;
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -497,8 +421,10 @@ async function cargarAsistentes() {
 // ✅ Función auxiliar para parsear fechas de asistencia
 function parsearFechasAsistencia(fechasData) {
     if (!fechasData) return [];
+    
     try {
         if (typeof fechasData === 'string') {
+            // Limpiar comillas escapadas si existen
             let cleanData = fechasData;
             if (cleanData.startsWith('\\"[') || cleanData.startsWith('"[')) {
                 cleanData = cleanData.replace(/^\\"|\\"$/g, '').replace(/^"|"$/g, '');
@@ -523,6 +449,7 @@ function filtrarAsistentes() {
     const textoBusqueda = buscador.value.toLowerCase().trim();
     const tbody = document.querySelector('#tablaAsistentes tbody');
     if (!tbody) return;
+
     const filas = tbody.querySelectorAll('tr');
     let resultadosEncontrados = 0;
 
@@ -536,11 +463,11 @@ function filtrarAsistentes() {
         const conferencia = celdas[3]?.textContent?.toLowerCase() || '';
         
         const coincide = nombre.includes(textoBusqueda) || 
-                          telefono.includes(textoBusqueda) || 
+                         telefono.includes(textoBusqueda) || 
                          iglesia.includes(textoBusqueda) || 
                          conferencia.includes(textoBusqueda);
         
-        if (coincide) { 
+        if (coincide) {
             fila.style.display = '';
             if (textoBusqueda.length > 0) {
                 fila.classList.add('tr-highlight');
@@ -549,7 +476,7 @@ function filtrarAsistentes() {
             }
             resultadosEncontrados++;
         } else {
-             fila.style.display = 'none';
+            fila.style.display = 'none';
             fila.classList.remove('tr-highlight');
         }
     });
@@ -995,6 +922,7 @@ async function editarAsistente(id) {
         document.getElementById('tituloModalAsistente').textContent = '👥 Editar Asistente';
         document.getElementById('formAsistente').onsubmit = guardarAsistenteEditado;
         
+        // ✅ Cargar fechas DESPUÉS de establecer el editMode
         await cargarFechasConferencia(asist.conferencia_id);
         
         abrirModal('modalNuevoAsistente');
@@ -1090,7 +1018,7 @@ async function confirmarEliminarAsistente(id) {
 }
 
 // ============================================
-// ✅ FUNCIONES DE EDICIÓN Y GUARDADO - USUARIOS
+// FUNCIONES DE EDICIÓN Y GUARDADO - USUARIOS
 // ============================================
 async function editarUsuario(id) {
     try {
@@ -1116,7 +1044,7 @@ async function editarUsuario(id) {
                         permisosUsuario = JSON.parse(cleanPermisos);
                     } else {
                         permisosUsuario = JSON.parse(usuario.permisos);
-                    }
+                    } 
                 } else {
                     permisosUsuario = usuario.permisos;
                 }
@@ -1132,20 +1060,6 @@ async function editarUsuario(id) {
         document.querySelectorAll('.permiso-checkbox').forEach(cb => {
             cb.checked = permisosUsuario.includes(cb.value) || usuario.rol === 'admin' || usuario.rol === 'administrador';
         });
-        
-        // ✅ Cargar conferencias asignadas
-        let conferenciasAsignadas = [];
-        if (usuario.conferencias_asignadas) {
-            try {
-                conferenciasAsignadas = typeof usuario.conferencias_asignadas === 'string' 
-                    ? JSON.parse(usuario.conferencias_asignadas) 
-                    : usuario.conferencias_asignadas;
-            } catch (e) {
-                conferenciasAsignadas = [];
-            }
-        }
-        
-        await cargarConferenciasEnCheckbox(conferenciasAsignadas);
         
         document.getElementById('tituloModalUsuario').textContent = '👤 Editar Usuario';
         document.getElementById('formUsuario').onsubmit = guardarUsuarioEditado;
@@ -1163,6 +1077,7 @@ async function guardarUsuario(e) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
         return;
     }
+
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1175,18 +1090,12 @@ async function guardarUsuario(e) {
             permisos.push(cb.value);
         });
         
-        // ✅ Obtener conferencias asignadas
-        const conferenciasAsignadas = [];
-        document.querySelectorAll('.conferencia-checkbox:checked').forEach(cb => {
-            conferenciasAsignadas.push(parseInt(cb.value));
-        });
-        
         if (!nombre_completo || !email || !password) {
             mostrarMensaje('Nombre, correo y contraseña son requeridos', 'error');
             return;
         }
         
-        await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado, JSON.stringify(conferenciasAsignadas));
+        await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario creado exitosamente', 'success');
         cerrarModal('modalNuevoUsuario');
         await cargarUsuarios();
@@ -1202,6 +1111,7 @@ async function guardarUsuarioEditado(e) {
         mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden editar usuarios', 'error');
         return;
     }
+
     try {
         const nombre_completo = document.getElementById('usuarioNombre').value.trim();
         const email = document.getElementById('usuarioEmail').value.trim();
@@ -1214,18 +1124,12 @@ async function guardarUsuarioEditado(e) {
             permisos.push(cb.value);
         });
         
-        // ✅ Obtener conferencias asignadas
-        const conferenciasAsignadas = [];
-        document.querySelectorAll('.conferencia-checkbox:checked').forEach(cb => {
-            conferenciasAsignadas.push(parseInt(cb.value));
-        });
-        
         if (!nombre_completo || !email) {
             mostrarMensaje('Nombre y correo son requeridos', 'error');
             return;
         }
         
-        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado, JSON.stringify(conferenciasAsignadas));
+        await actualizarUsuario(window.editMode.id, nombre_completo, email, password, rol, JSON.stringify(permisos), estado);
         mostrarMensaje('✅ Usuario actualizado exitosamente', 'success');
         cerrarModal('modalNuevoUsuario');
         await cargarUsuarios();
@@ -1253,11 +1157,12 @@ async function confirmarEliminarUsuario(id) {
 }
 
 // ============================================
-// ✅ FUNCIONES DE ASISTENCIA
+// ✅ FUNCIONES DE ASISTENCIA - CORREGIDAS
 // ============================================
 function generarBotonesFechas(fechaInicio, fechaFin) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (!container) return;
+    
     container.innerHTML = '';
     const inicio = new Date(fechaInicio + 'T00:00:00');
     const fin = new Date(fechaFin + 'T00:00:00');
@@ -1285,6 +1190,7 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
         boton.dataset.fecha = fechaISO;
         boton.textContent = `${diaSemana}, ${dia} ${mes} ${año}`;
         
+        // ✅ Event listener para toggle
         boton.addEventListener('click', function() {
             toggleFechaAsistencia(this);
         });
@@ -1296,6 +1202,7 @@ function generarBotonesFechas(fechaInicio, fechaFin) {
 }
 
 function toggleFechaAsistencia(boton) {
+    // ✅ Solo cambiar el estado cuando el usuario hace click
     boton.classList.toggle('seleccionada');
     actualizarContadorAsistencia();
 }
@@ -1305,6 +1212,7 @@ function actualizarContadorAsistencia() {
     const totalDias = document.querySelectorAll('.fecha-asistencia').length;
     const diasAsistidos = botonesSeleccionados.length;
     const contadorElement = document.querySelector('.contador-asistencia');
+    
     if (contadorElement) {
         contadorElement.innerHTML = `✅ <strong>${diasAsistidos}</strong> días asistidos de <strong>${totalDias}</strong> totales`;
         if (diasAsistidos === 0) {
@@ -1327,12 +1235,15 @@ function obtenerFechasSeleccionadas() {
 
 function marcarFechasGuardadas(fechasGuardadas) {
     if (!fechasGuardadas) return;
+    
+    // ✅ Parsear correctamente las fechas guardadas
     let fechas = parsearFechasAsistencia(fechasGuardadas);
-
+    
     if (fechas.length === 0) return;
-
+    
     console.log('📅 Marcando fechas guardadas:', fechas);
-
+    
+    // ✅ Esperar a que los botones existan
     setTimeout(() => {
         fechas.forEach(fechaISO => {
             const boton = document.querySelector(`.fecha-asistencia[data-fecha="${fechaISO}"]`);
@@ -1350,6 +1261,7 @@ async function cargarFechasConferencia(conferenciaId) {
     const container = document.getElementById('fechasAsistenciaContainer');
     if (container) container.innerHTML = '';
     actualizarContadorAsistencia();
+    
     if (!conferenciaId) return;
 
     try {
@@ -1357,8 +1269,10 @@ async function cargarFechasConferencia(conferenciaId) {
         const conferencia = conferencias.find(c => c.id == conferenciaId);
         
         if (conferencia) {
+            // ✅ Primero generar los botones
             generarBotonesFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
             
+            // ✅ Luego marcar las fechas guardadas (si estamos editando)
             if (window.editMode.tipo === 'asistente' && window.editMode.data?.fechas_asistencia) {
                 marcarFechasGuardadas(window.editMode.data.fechas_asistencia);
             }
@@ -1394,18 +1308,7 @@ async function filtrarReporte() {
         const conferenciaId = document.getElementById('reporteConferencia')?.value;
         const iglesiaId = document.getElementById('reporteIglesia')?.value;
         
-        // ✅ Filtrar por conferencias permitidas
-        const conferenciasPermitidas = obtenerConferenciasPermitidas();
-        
         let asistentes = await obtenerAsistentes();
-        
-        // ✅ Aplicar filtro de conferencias permitidas
-        if (conferenciasPermitidas !== 'all' && conferenciasPermitidas.length > 0) {
-            asistentes = asistentes.filter(a => 
-                conferenciasPermitidas.includes(a.conferencia_id) || 
-                conferenciasPermitidas.includes(String(a.conferencia_id))
-            );
-        }
         
         if (conferenciaId) {
             asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
@@ -1422,7 +1325,7 @@ async function filtrarReporte() {
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
                 const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
-                const diasAsistidos = fechasAsistencia.length; 
+                const diasAsistidos = fechasAsistencia.length;
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -1481,15 +1384,6 @@ async function generarReportePDF() {
         const iglesiaId = document.getElementById('reporteIglesia')?.value;
         
         let asistentes = await obtenerAsistentes();
-        
-        // ✅ Filtrar por conferencias permitidas
-        const conferenciasPermitidas = obtenerConferenciasPermitidas();
-        if (conferenciasPermitidas !== 'all' && conferenciasPermitidas.length > 0) {
-            asistentes = asistentes.filter(a => 
-                conferenciasPermitidas.includes(a.conferencia_id) || 
-                conferenciasPermitidas.includes(String(a.conferencia_id))
-            );
-        }
         
         if (conferenciaId) {
             asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
@@ -1808,8 +1702,8 @@ window.togglePassword = togglePassword;
 window.filtrarAsistentes = filtrarAsistentes;
 window.limpiarBuscadorAsistentes = limpiarBuscadorAsistentes;
 window.parsearFechasAsistencia = parsearFechasAsistencia;
-window.cargarConferenciasEnCheckbox = cargarConferenciasEnCheckbox;
 
 console.log('✅ main.js cargado correctamente con todas las funciones');
+
 
 

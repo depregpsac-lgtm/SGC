@@ -380,10 +380,18 @@ async function cargarConferencias() {
     }
 }
 
+// --- En cargarAsistentes ---
 async function cargarAsistentes() {
     try {
         console.log('📥 Cargando asistentes...');
-        const asistentes = await obtenerAsistentes();
+        let asistentes = await obtenerAsistentes();
+        
+        // ✅ FILTRO POR CONFERENCIA DE USUARIO
+        const user = checkAuth();
+        if (user && user.rol !== 'admin' && user.conferencia_id) {
+            asistentes = asistentes.filter(a => a.conferencia_id == user.conferencia_id);
+        }
+
         window.todosLosAsistentes = asistentes;
         console.log('✅ Asistentes obtenidos:', asistentes.length);
         const tbody = document.querySelector('#tablaAsistentes tbody');
@@ -392,35 +400,101 @@ async function cargarAsistentes() {
             return;
         }
         tbody.innerHTML = '';
-        
         if (asistentes && asistentes.length > 0) {
             asistentes.forEach(asist => {
+                // ... (resto del código de renderizado igual) ...
                 const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
-                const diasAsistidos = fechasAsistencia.length;
-                
+                const diasAsistidos = fechasAsistencia.length; 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${asist.nombre_completo}</td>
-                    <td>${asist.telefono || '-'}</td>
-                    <td>${asist.iglesias?.nombre || 'Sin iglesia'}</td>
-                    <td>${asist.conferencias?.nombre || 'Sin conferencia'}</td>
-                    <td><span class="badge-asistencia">${diasAsistidos} días</span></td>
-                    <td>
-                        <button onclick="editarAsistente(${asist.id})" class="btn-edit">✏️</button>
-                        <button onclick="confirmarEliminarAsistente(${asist.id})" class="btn-delete">🗑️</button>
-                    </td>
+                     <td >${asist.nombre_completo} </td >
+                     <td >${asist.telefono || '-'} </td >
+                     <td >${asist.iglesias?.nombre || 'Sin iglesia'} </td >
+                     <td >${asist.conferencias?.nombre || 'Sin conferencia'} </td >
+                     <td > <span class= "badge-asistencia " >${diasAsistidos} días </span > </td >
+                     <td >
+                         <button onclick= "editarAsistente(${asist.id}) " class= "btn-edit " >✏️ </button >
+                         <button onclick= "confirmarEliminarAsistente(${asist.id}) " class= "btn-delete " >🗑️ </button >
+                     </td >
                 `;
                 tbody.appendChild(tr);
             });
         } else {
-            tbody.innerHTML = '<tr><td colspan="6">Sin asistentes registrados</td></tr>';
+            tbody.innerHTML = ' <tr > <td colspan= "6 " >Sin asistentes registrados </td > </tr >';
         }
     } catch (error) {
         console.error('❌ Error cargando asistentes:', error);
         const tbody = document.querySelector('#tablaAsistentes tbody');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error: ' + error.message + '</td></tr>';
+        if (tbody) tbody.innerHTML = ' <tr > <td colspan= "6 " >Error: ' + error.message + ' </td > </tr >';
     }
 }
+
+
+// --- En filtrarReporte (dentro de cargarReportes) ---
+async function filtrarReporte() {
+    try {
+        let conferenciaId = document.getElementById('reporteConferencia')?.value;
+        const iglesiaId = document.getElementById('reporteIglesia')?.value;
+        
+        // ✅ FILTRO POR CONFERENCIA DE USUARIO EN REPORTES
+        const user = checkAuth();
+        if (user && user.rol !== 'admin' && user.conferencia_id) {
+            conferenciaId = user.conferencia_id;
+            // Opcional: Deshabilitar el select visualmente para que no lo cambien
+            const selectConf = document.getElementById('reporteConferencia');
+            if(selectConf) {
+                selectConf.value = conferenciaId;
+                selectConf.disabled = true;
+            }
+        } else if (user && user.rol === 'admin') {
+             // Habilitar de nuevo si es admin
+            const selectConf = document.getElementById('reporteConferencia');
+            if(selectConf) selectConf.disabled = false;
+        }
+
+        let asistentes = await obtenerAsistentes();
+        
+        if (conferenciaId) {
+            asistentes = asistentes.filter(a => a.conferencia_id == conferenciaId);
+        }
+        
+        if (iglesiaId) {
+            asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
+        }
+        
+        // ... (resto del código de renderizado del reporte igual) ...
+        const tbody = document.querySelector('#tablaReporte tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (asistentes && asistentes.length > 0) {
+            asistentes.forEach(asist => {
+                const fechasAsistencia = asist.fechas_asistencia ? parsearFechasAsistencia(asist.fechas_asistencia) : [];
+                const diasAsistidos = fechasAsistencia.length; 
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                     <td >${asist.nombre_completo} </td >
+                     <td >${asist.telefono || '-'} </td >
+                     <td >${asist.iglesias?.nombre || 'Sin iglesia'} </td >
+                     <td >${asist.conferencias?.nombre || 'Sin conferencia'} </td >
+                     <td > <span class= "badge-asistencia " >${diasAsistidos} días </span > </td >
+                     <td >${asist.invitado_por || '-'} </td >
+                `;
+                tbody.appendChild(tr);
+            });
+            // ... (cálculo de estadísticas del reporte igual) ...
+        } else {
+            tbody.innerHTML = ' <tr > <td colspan= "6 " >No hay registros con los filtros seleccionados </td > </tr >';
+            // ... (resetear estadísticas a 0) ...
+        }
+    } catch (error) {
+        console.error('❌ Error filtrando reporte:', error);
+        mostrarMensaje('Error al filtrar reporte', 'error');
+    }
+}
+
+
+
 
 // ✅ Función auxiliar para parsear fechas de asistencia
 function parsearFechasAsistencia(fechasData) {

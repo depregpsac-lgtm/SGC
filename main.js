@@ -253,16 +253,20 @@ async function cargarIglesiasEnSelect(selectId) {
     }
 }
 
-async function cargarConferenciasEnSelect(selectId) {
-    try {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-        const conferencias = await obtenerConferencias();
-        select.innerHTML = '-- Seleccione Conferencia --' +
-            conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-    } catch (error) {
-        console.error('❌ Error cargando conferencias:', error);
-    }
+// ============================================
+// CARGAR CONFERENCIAS EN SELECT DE USUARIOS
+// ============================================
+async function cargarConferenciasEnSelectUsuario(selectId) {
+try {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    const conferencias = await obtenerConferencias();
+    select.innerHTML = '<option value="">-- Sin asignar (Admin) --</option>' +
+        conferencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+} catch (error) {
+    console.error('❌ Error cargando conferencias:', error);
+}
 }
 
 // ✅ NUEVO: Cargar conferencias para select de usuarios
@@ -540,37 +544,41 @@ function limpiarBuscadorAsistentes() {
     }
 }
 
-async function cargarUsuarios() {
-    try {
-        const usuarios = await obtenerUsuarios();
-        const tbody = document.querySelector('#tablaUsuarios tbody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        
-        if (usuarios && usuarios.length > 0) {
-            usuarios.forEach(usuario => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${usuario.nombre_completo}</td>
-                    <td>${usuario.email}</td>
-                    <td>${usuario.rol}</td>
-                    <td><span class="badge-estado ${usuario.estado}">${usuario.estado}</span></td>
-                    <td>${usuario.conferencias?.nombre || 'Todas'}</td>
-                    <td>
-                        <button onclick="editarUsuario(${usuario.id})" class="btn-edit">✏️</button>
-                        <button onclick="confirmarEliminarUsuario(${usuario.id})" class="btn-delete">🗑️</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = '<tr><td colspan="6">Sin usuarios registrados</td></tr>';
-        }
-    } catch (error) {
-        console.error('❌ Error cargando usuarios:', error);
-        const tbody = document.querySelector('#tablaUsuarios tbody');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6">Error cargando datos</td></tr>';
+// ============================================
+// GUARDAR USUARIO (MODIFICADO CON CONFERENCIA)
+// ============================================
+async function guardarUsuario(e) {
+e.preventDefault();
+if (!esAdmin()) {
+    mostrarMensaje('⛔ Acceso denegado. Solo administradores pueden crear usuarios', 'error');
+    return;
+}
+try {
+    const nombre_completo = document.getElementById('usuarioNombre').value.trim();
+    const email = document.getElementById('usuarioEmail').value.trim();
+    const password = document.getElementById('usuarioPassword').value;
+    const rol = document.getElementById('usuarioRol').value;
+    const estado = document.getElementById('usuarioEstado').value;
+    const conferencia_id = document.getElementById('usuarioConferencia')?.value || null; // ✅ NUEVO
+    
+    const permisos = [];
+    document.querySelectorAll('.permiso-checkbox:checked').forEach(cb => {
+        permisos.push(cb.value);
+    });
+    
+    if (!nombre_completo || !email || !password) {
+        mostrarMensaje('Nombre, correo y contraseña son requeridos', 'error');
+        return;
     }
+    
+    await crearUsuario(nombre_completo, email, password, rol, JSON.stringify(permisos), estado, conferencia_id);
+    mostrarMensaje('✅ Usuario creado exitosamente', 'success');
+    cerrarModal('modalNuevoUsuario');
+    await cargarUsuarios();
+} catch (error) {
+    console.error('❌ Error guardando usuario:', error);
+    mostrarMensaje('Error al guardar usuario: ' + error.message, 'error');
+}
 }
 
 // ✅ CARGAR ESTADÍSTICAS (MODIFICADO CON FILTRO)

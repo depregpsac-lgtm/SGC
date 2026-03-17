@@ -436,18 +436,6 @@
             }
         }
     </style>
-
-<div class="user-info">
-    <span id="userName">Administrador</span>
-    <span id="userRole">Administrador</span>
-    <!-- ✅ NUEVO: Mostrar conferencia asignada -->
-    <span id="userConferencia" class="badge-conferencia" style="display: none;">
-        📅 <span></span>
-    </span>
-</div>
-
-
-    
 </head>
 <body>
     <div id="loginScreen">
@@ -918,9 +906,10 @@
                     <table id="tablaUsuarios">
                         <thead>
                             <tr>
-                                <th>Nombre</th>
+        <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Rol</th>
+                                <th>Conferencia</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -1162,18 +1151,10 @@
                         <option value="usuario">Usuario</option>
                         <option value="administrador">Administrador</option>
                     </select>
-
-                  <!-- En el modal de usuario, agregar campo para asignar conferencia -->
-<div class="form-group">
-    <label>Conferencia Asignada</label>
-    <select id="usuarioConferencia" class="form-control">
-        <option value="">-- Sin asignar (Admin) --</option>
-        <!-- Se llena dinámicamente con las conferencias -->
-    </select>
-    <small class="text-muted">Dejar vacío para usuarios administradores</small>
-</div>
-
-                    
+                </div>
+                <div class="form-group">
+                    <label>Conferencia *</label>
+                    <select id="usuarioConferencia" required></select>
                 </div>
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalUsuario')">Cancelar</button>
@@ -2337,6 +2318,7 @@
                             <td>${usuario.nombre_completo}</td>
                             <td>${usuario.email}</td>
                             <td><span class="badge bg-${usuario.rol === 'administrador' ? 'danger' : 'primary'}">${usuario.rol}</span></td>
+                            <td>${usuario.conferencias?.nombre || 'N/A'}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" onclick="editarUsuario(${usuario.id})" title="Editar">
                                     <i class="fas fa-edit"></i>
@@ -2510,6 +2492,7 @@
                     document.getElementById('usuarioEmail').value = usuario.email;
                     document.getElementById('usuarioPassword').value = '';
                     document.getElementById('usuarioRol').value = usuario.rol;
+                    document.getElementById('usuarioConferencia').value = usuario.conferencia_id || '';
                     document.getElementById('modalUsuarioTitle').textContent = '👤 Editar Usuario';
                     document.getElementById('modalUsuario').classList.add('active');
                 }
@@ -2562,9 +2545,10 @@
             document.getElementById('modalRegistro').classList.add('active');
         }
 
-        function abrirModalUsuario() {
+        async function abrirModalUsuario() {
             document.getElementById('usuarioId').value = '';
             document.getElementById('formUsuario').reset();
+            await cargarConferenciasEnSelect('usuarioConferencia');
             document.getElementById('modalUsuarioTitle').textContent = '👤 Nuevo Usuario';
             document.getElementById('modalUsuario').classList.add('active');
         }
@@ -2935,14 +2919,15 @@
             const email = document.getElementById('usuarioEmail').value;
             const password = document.getElementById('usuarioPassword').value;
             const rol = document.getElementById('usuarioRol').value;
+            const conferencia_id = document.getElementById('usuarioConferencia').value;
 
             try {
                 if (dbInitialized && typeof (id ? actualizarUsuario : crearUsuario) === 'function') {
                     if (id) {
-                        await actualizarUsuario(id, nombre_completo, email, password, rol, null, 'activo');
+                        await actualizarUsuario(id, nombre_completo, email, password, rol, conferencia_id, 'activo');
                         mostrarNotificacion('✅ Usuario actualizado correctamente', 'success');
                     } else {
-                        await crearUsuario(nombre_completo, email, password, rol, null, 'activo');
+                        await crearUsuario(nombre_completo, email, password, rol, conferencia_id, 'activo');
                         mostrarNotificacion('✅ Usuario creado correctamente', 'success');
                     }
                 } else {

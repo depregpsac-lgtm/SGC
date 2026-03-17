@@ -38,7 +38,7 @@ async function iniciarSesion(email, password) {
         console.log('🔐 Intentando iniciar sesión...', email);
         
         // Usuario demo hardcodeado para pruebas
-        if (email === 'ministrylion@gmail.com' && password === 'admin') {
+        if (email === 'admin@ministrylion.com' && password === 'admin123') {
             const userDemo = {
                 id: '1',
                 nombre: 'Administrador',

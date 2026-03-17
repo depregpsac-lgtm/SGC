@@ -1,4 +1,5 @@
 // auth.js - Sistema de Autenticación MinistryLion
+// ============================================
 console.log('🔐 auth.js cargado');
 
 // ============================================
@@ -43,8 +44,7 @@ async function iniciarSesion(email, password) {
                 nombre: 'Administrador',
                 email: email,
                 rol: 'admin',
-                permisos: ['dashboard', 'conferencias', 'registros', 'configuracion', 'usuarios', 'reportes'],
-                conferencias_asignadas: [] // Admin ve todo
+                permisos: ['dashboard', 'conferencias', 'registros', 'configuracion', 'usuarios', 'reportes']
             };
             
             localStorage.setItem('user', JSON.stringify(userDemo));
@@ -70,39 +70,26 @@ async function iniciarSesion(email, password) {
             return { success: false, message: 'Correo o contraseña incorrectos' };
         }
         
-        // ✅ Parsear permisos de forma segura
+        // ✅ Parsear permisos de forma segura (maneja string o JSON)
         let permisosArray = [];
         if (data.permisos) {
             try {
-                if (typeof data.permisos === 'string' && data.permisos.startsWith('\\"[')) {
-                    const cleanPermisos = data.permisos.replace(/^\\"|\\"$/g, '').replace(/^"|"$/g, '');
+                // Si es string con comillas escapadas, removerlas primero
+                if (typeof data.permisos === 'string' && data.permisos.startsWith('"[')) {
+                    // Remover las comillas externas y escapar
+                    const cleanPermisos = data.permisos.replace(/^"|"$/g, '').replace(/\\"/g, '"');
                     permisosArray = JSON.parse(cleanPermisos);
                 } else {
+                    // Intentar parsear como JSON normal
                     permisosArray = typeof data.permisos === 'string' 
                         ? JSON.parse(data.permisos) 
                         : data.permisos;
                 }
             } catch (e) {
                 console.error('❌ Error parseando permisos:', e);
+                // Si falla, usar array vacío o convertir string separado por comas
                 if (typeof data.permisos === 'string') {
                     permisosArray = data.permisos.split(',').map(p => p.trim()).filter(p => p);
-                }
-            }
-        }
-        
-        // ✅ Obtener conferencias asignadas
-        let conferenciasAsignadas = [];
-        if (data.rol !== 'admin' && data.rol !== 'administrador') {
-            if (window.obtenerAsignacionesUsuario) {
-                const asignaciones = await window.obtenerAsignacionesUsuario(data.id);
-                conferenciasAsignadas = asignaciones.map(a => a.conferencia_id);
-            } else if (data.conferencias_asignadas) {
-                try {
-                    conferenciasAsignadas = typeof data.conferencias_asignadas === 'string' 
-                        ? JSON.parse(data.conferencias_asignadas) 
-                        : data.conferencias_asignadas;
-                } catch (e) {
-                    conferenciasAsignadas = [];
                 }
             }
         }
@@ -112,8 +99,7 @@ async function iniciarSesion(email, password) {
             nombre: data.nombre_completo,
             email: data.email,
             rol: data.rol,
-            permisos: permisosArray,
-            conferencias_asignadas: conferenciasAsignadas // ✅ NUEVO
+            permisos: permisosArray
         };
         
         localStorage.setItem('user', JSON.stringify(user));
@@ -155,42 +141,6 @@ function esAdmin() {
 }
 
 // ============================================
-// ✅ VERIFICAR ACCESO A CONFERENCIA
-// ============================================
-function tieneAccesoConferencia(conferencia_id) {
-    const user = checkAuth();
-    if (!user) return false;
-    
-    // Admin tiene acceso a todo
-    if (user.rol === 'admin' || user.rol === 'administrador') {
-        return true;
-    }
-    
-    // Verificar si la conferencia está en las asignadas
-    if (user.conferencias_asignadas && user.conferencias_asignadas.length > 0) {
-        return user.conferencias_asignadas.includes(conferencia_id) || 
-               user.conferencias_asignadas.includes(String(conferencia_id));
-    }
-    
-    return false;
-}
-
-// ============================================
-// ✅ OBTENER CONFERENCIAS PERMITIDAS
-// ============================================
-function obtenerConferenciasPermitidas() {
-    const user = checkAuth();
-    if (!user) return [];
-    
-    // Admin puede ver todas
-    if (user.rol === 'admin' || user.rol === 'administrador') {
-        return 'all';
-    }
-    
-    return user.conferencias_asignadas || [];
-}
-
-// ============================================
 // OBTENER USUARIO ACTUAL
 // ============================================
 function obtenerUsuarioActual() {
@@ -206,7 +156,4 @@ window.cerrarSesion = cerrarSesion;
 window.tienePermiso = tienePermiso;
 window.obtenerUsuarioActual = obtenerUsuarioActual;
 window.esAdmin = esAdmin;
-window.tieneAccesoConferencia = tieneAccesoConferencia;
-window.obtenerConferenciasPermitidas = obtenerConferenciasPermitidas;
-
 console.log('✅ auth.js inicializado correctamente');

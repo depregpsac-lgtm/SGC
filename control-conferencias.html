@@ -436,6 +436,18 @@
             }
         }
     </style>
+
+<div class="user-info">
+    <span id="userName">Administrador</span>
+    <span id="userRole">Administrador</span>
+    <!-- ✅ NUEVO: Mostrar conferencia asignada -->
+    <span id="userConferencia" class="badge-conferencia" style="display: none;">
+        📅 <span></span>
+    </span>
+</div>
+
+
+    
 </head>
 <body>
     <div id="loginScreen">
@@ -1150,6 +1162,18 @@
                         <option value="usuario">Usuario</option>
                         <option value="administrador">Administrador</option>
                     </select>
+
+                  <!-- En el modal de usuario, agregar campo para asignar conferencia -->
+<div class="form-group">
+    <label>Conferencia Asignada</label>
+    <select id="usuarioConferencia" class="form-control">
+        <option value="">-- Sin asignar (Admin) --</option>
+        <!-- Se llena dinámicamente con las conferencias -->
+    </select>
+    <small class="text-muted">Dejar vacío para usuarios administradores</small>
+</div>
+
+                    
                 </div>
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalUsuario')">Cancelar</button>

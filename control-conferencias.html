@@ -1265,6 +1265,7 @@
             const session = localStorage.getItem('ministrylion_session');
             if (session) {
                 currentUser = JSON.parse(session);
+                console.log('🔄 Sesión restaurada:', currentUser);
                 showDashboard();
             } else {
                 document.getElementById('loginScreen').style.display = 'flex';
@@ -1339,10 +1340,18 @@
             document.getElementById('userEmail').textContent = currentUser.email;
             document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
 
-            // Ocultar menú Usuarios si no es administrador
+            // Debug: Verificar rol del usuario
+            console.log('🔐 Usuario logueado:', currentUser);
+            console.log('📋 Rol del usuario:', currentUser.role);
+
+            // Mostrar/Ocultar menú Usuarios según rol
             const menuUsuarios = document.getElementById('menuUsuarios');
             if (menuUsuarios) {
-                menuUsuarios.style.display = (currentUser.role === 'administrador') ? 'block' : 'none';
+                const esAdmin = currentUser.role === 'administrador';
+                console.log('👤 ¿Es administrador?', esAdmin);
+                menuUsuarios.style.display = esAdmin ? 'block' : 'none';
+            } else {
+                console.error('❌ No se encontró el elemento #menuUsuarios');
             }
 
             cargarDashboard();

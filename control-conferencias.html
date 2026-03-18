@@ -3131,18 +3131,47 @@ async function guardarUsuario() {
         async function eliminarConferencia(id) {
             if (!confirm('¿Está seguro de eliminar esta conferencia? Se eliminarán también los asistentes.')) return;
 
+            const deleteBtn = event?.target?.closest('button');
+            if (deleteBtn) {
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+
             try {
-                if (typeof window.eliminarConferencia === 'function') {
-                    await window.eliminarConferencia(id);
+                console.log('🗑️ Eliminando conferencia ID:', id);
+                console.log('🔍 window.eliminarConferencia:', typeof window.eliminarConferencia);
+                console.log('🔍 window.db:', typeof window.db);
+                
+                // Usar la función global de db.js explícitamente
+                const eliminarFn = window.eliminarConferencia;
+                if (typeof eliminarFn === 'function') {
+                    await eliminarFn(id);
                     mostrarNotificacion('✅ Conferencia eliminada correctamente', 'success');
                     cargarConferencias();
                     cargarDashboard();
                 } else {
-                    mostrarNotificacion('⚠️ Función eliminarConferencia no disponible', 'warning');
+                    // Intentar llamar directamente a la función de db.js
+                    if (typeof window.db !== 'undefined' && window.db) {
+                        // Eliminar asistentes primero
+                        await window.db.from('asistentes').delete().eq('conferencia_id', id);
+                        // Eliminar conferencia
+                        const { error } = await window.db.from('conferencias').delete().eq('id', id);
+                        if (error) throw error;
+                        mostrarNotificacion('✅ Conferencia eliminada correctamente', 'success');
+                        cargarConferencias();
+                        cargarDashboard();
+                    } else {
+                        mostrarNotificacion('⚠️ Base de datos no disponible', 'warning');
+                    }
                 }
             } catch (error) {
                 console.error('Error eliminando conferencia:', error);
                 mostrarNotificacion('❌ Error al eliminar conferencia: ' + (error.message || 'Error desconocido'), 'danger');
+            } finally {
+                if (deleteBtn) {
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                }
             }
         }
 

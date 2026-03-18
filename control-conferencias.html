@@ -1347,7 +1347,8 @@
             // Mostrar/Ocultar menú Usuarios según rol
             const menuUsuarios = document.getElementById('menuUsuarios');
             if (menuUsuarios) {
-                const esAdmin = currentUser.role === 'administrador';
+                // Verificar si es administrador (acepta 'administrador' o 'admin')
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
                 console.log('👤 ¿Es administrador?', esAdmin);
                 menuUsuarios.style.display = esAdmin ? 'block' : 'none';
             } else {
@@ -1367,7 +1368,8 @@
 
         function navigateTo(section) {
             // Validar que solo administradores puedan acceder a Usuarios
-            if (section === 'usuarios' && currentUser.role !== 'administrador') {
+            const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+            if (section === 'usuarios' && !esAdmin) {
                 mostrarNotificacion('⛔ Acceso denegado. Solo administradores pueden ver esta sección.', 'danger');
                 navigateTo('dashboard');
                 return;

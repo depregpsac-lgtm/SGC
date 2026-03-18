@@ -232,10 +232,28 @@ async function actualizarConferencia(id, iglesia_id, nombre, fecha_inicio, fecha
 }
 
 async function eliminarConferencia(id) {
-    // Primero eliminar asistentes relacionados
-    await window.db.from('asistentes').delete().eq('conferencia_id', id);
-    const { error } = await window.db.from('conferencias').delete().eq('id', id);
-    if (error) throw error;
+    // Primero eliminar asistentes relacionados (si existen)
+    try {
+        await window.db.from('asistentes').delete().eq('conferencia_id', id);
+    } catch (assistError) {
+        // Ignorar error si no hay asistentes o si falla esta operación
+        console.warn('⚠️ No se pudo eliminar asistentes o no existen:', assistError.message);
+    }
+    
+    // Eliminar la conferencia
+    const { data, error } = await window.db.from('conferencias').delete().eq('id', id).select();
+    
+    if (error) {
+        console.error('❌ Error eliminando conferencia:', error);
+        throw error;
+    }
+    
+    if (!data || data.length === 0) {
+        console.warn('⚠️ No se eliminó ninguna conferencia, ID no encontrado:', id);
+        throw new Error('Conferencia no encontrada');
+    }
+    
+    console.log('✅ Conferencia eliminada exitosamente:', id);
     return true;
 }
 
@@ -289,17 +307,27 @@ async function eliminarAsistente(id) {
 // 👤 USUARIOS DEL SISTEMA
 // ============================================
 async function obtenerUsuarios() {
+    console.log('🔍 db.obtenerUsuarios() called');
     try {
-        const { data, error } = await window.db.from('usuarios_sistema').select('*').order('nombre_completo');
-        if (error) throw error;
+        const { data, error } = await window.db
+            .from('usuarios_sistema')
+            .select('*, conferencias(nombre)')
+            .order('nombre_completo');
+        
+        if (error) {
+            console.error('❌ Supabase query error:', error);
+            throw error;
+        }
+        
+        console.log('✅ Fetched', data?.length || 0, 'users from Supabase');
         return data || [];
     } catch (error) {
-        console.error('❌ Error obteniendo usuarios:', error);
+        console.error('💥 obtenerUsuarios full error:', error);
         return [];
     }
 }
 
-async function crearUsuario(nombre_completo, email, password, rol, permisos, estado) {
+async function crearUsuario(nombre_completo, email, password, rol, conferencia_id, estado) {
     const { data, error } = await window.db
         .from('usuarios_sistema')
         .insert([{
@@ -307,7 +335,7 @@ async function crearUsuario(nombre_completo, email, password, rol, permisos, est
             email,
             password_hash: password,
             rol,
-            permisos,
+            conferencia_id,
             estado
         }])
         .select();
@@ -315,8 +343,8 @@ async function crearUsuario(nombre_completo, email, password, rol, permisos, est
     return data[0];
 }
 
-async function actualizarUsuario(id, nombre_completo, email, password, rol, permisos, estado) {
-    const updateData = { nombre_completo, email, rol, permisos, estado };
+async function actualizarUsuario(id, nombre_completo, email, password, rol, conferencia_id, estado) {
+    const updateData = { nombre_completo, email, rol, conferencia_id, estado };
     if (password && password.trim() !== '') {
         updateData.password_hash = password;
     }
@@ -330,9 +358,24 @@ async function actualizarUsuario(id, nombre_completo, email, password, rol, perm
 }
 
 async function eliminarUsuario(id) {
-    const { error } = await window.db.from('usuarios_sistema').delete().eq('id', id);
-    if (error) throw error;
-    return true;
+    console.log('🗑️ db.eliminarUsuario called with ID:', id);
+    try {
+        const { error } = await window.db
+            .from('usuarios_sistema')
+            .delete()
+            .eq('id', id);
+        
+        if (error) {
+            console.error('❌ Supabase DELETE error:', error);
+            throw new Error(`Database error: ${error.message}`);
+        }
+        
+        console.log('✅ User successfully deleted from Supabase');
+        return true;
+    } catch (error) {
+        console.error('💥 eliminarUsuario full error:', error);
+        throw error;
+    }
 }
 
 // ============================================
@@ -408,4 +451,6 @@ window.eliminarUsuario = eliminarUsuario;
 window.obtenerEstadisticas = obtenerEstadisticas;
 
 console.log('✅ db.js inicializado con todas las funciones CRUD y autenticación');
+
+
 

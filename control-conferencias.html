@@ -3079,96 +3079,117 @@ async function guardarUsuario() {
 
         async function eliminarZona(id) {
             if (!confirm('¿Está seguro de eliminar esta zona?')) return;
-            
+
             try {
-                if (dbInitialized && typeof eliminarZona === 'function') {
-                    await eliminarZona(id);
+                if (typeof window.eliminarZona === 'function') {
+                    await window.eliminarZona(id);
                     mostrarNotificacion('✅ Zona eliminada correctamente', 'success');
                     cargarZonas();
+                } else {
+                    mostrarNotificacion('⚠️ Función eliminarZona no disponible', 'warning');
                 }
             } catch (error) {
                 console.error('Error eliminando zona:', error);
-                mostrarNotificacion('❌ Error al eliminar zona', 'danger');
+                mostrarNotificacion('❌ Error al eliminar zona: ' + (error.message || 'Error desconocido'), 'danger');
             }
         }
 
         async function eliminarDistrito(id) {
             if (!confirm('¿Está seguro de eliminar este distrito?')) return;
-            
+
             try {
-                if (dbInitialized && typeof eliminarDistrito === 'function') {
-                    await eliminarDistrito(id);
+                if (typeof window.eliminarDistrito === 'function') {
+                    await window.eliminarDistrito(id);
                     mostrarNotificacion('✅ Distrito eliminado correctamente', 'success');
                     cargarDistritos();
+                } else {
+                    mostrarNotificacion('⚠️ Función eliminarDistrito no disponible', 'warning');
                 }
             } catch (error) {
                 console.error('Error eliminando distrito:', error);
-                mostrarNotificacion('❌ Error al eliminar distrito', 'danger');
+                mostrarNotificacion('❌ Error al eliminar distrito: ' + (error.message || 'Error desconocido'), 'danger');
             }
         }
 
         async function eliminarIglesia(id) {
             if (!confirm('¿Está seguro de eliminar esta iglesia?')) return;
-            
+
             try {
-                if (dbInitialized && typeof eliminarIglesia === 'function') {
-                    await eliminarIglesia(id);
+                if (typeof window.eliminarIglesia === 'function') {
+                    await window.eliminarIglesia(id);
                     mostrarNotificacion('✅ Iglesia eliminada correctamente', 'success');
                     cargarIglesias();
+                } else {
+                    mostrarNotificacion('⚠️ Función eliminarIglesia no disponible', 'warning');
                 }
             } catch (error) {
                 console.error('Error eliminando iglesia:', error);
-                mostrarNotificacion('❌ Error al eliminar iglesia', 'danger');
+                mostrarNotificacion('❌ Error al eliminar iglesia: ' + (error.message || 'Error desconocido'), 'danger');
             }
         }
 
         async function eliminarConferencia(id) {
             if (!confirm('¿Está seguro de eliminar esta conferencia? Se eliminarán también los asistentes.')) return;
-            
+
             try {
-                if (dbInitialized && typeof eliminarConferencia === 'function') {
-                    await eliminarConferencia(id);
+                if (typeof window.eliminarConferencia === 'function') {
+                    await window.eliminarConferencia(id);
                     mostrarNotificacion('✅ Conferencia eliminada correctamente', 'success');
                     cargarConferencias();
                     cargarDashboard();
+                } else {
+                    mostrarNotificacion('⚠️ Función eliminarConferencia no disponible', 'warning');
                 }
             } catch (error) {
                 console.error('Error eliminando conferencia:', error);
-                mostrarNotificacion('❌ Error al eliminar conferencia', 'danger');
+                mostrarNotificacion('❌ Error al eliminar conferencia: ' + (error.message || 'Error desconocido'), 'danger');
             }
         }
 
         async function eliminarRegistro(id) {
             if (!confirm('¿Está seguro de eliminar este registro?')) return;
-            
+
+            const deleteBtn = event?.target?.closest('button');
+            if (deleteBtn) {
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+
             try {
-                if (dbInitialized && typeof eliminarAsistente === 'function') {
-                    await eliminarAsistente(id);
+                if (typeof window.eliminarAsistente === 'function') {
+                    await window.eliminarAsistente(id);
                     mostrarNotificacion('✅ Registro eliminado correctamente', 'success');
                     await cargarRegistros();
                     cargarDashboard();
+                } else {
+                    mostrarNotificacion('⚠️ Función eliminarAsistente no disponible', 'warning');
                 }
             } catch (error) {
                 console.error('Error eliminando registro:', error);
-                mostrarNotificacion('❌ Error al eliminar registro', 'danger');
+                mostrarNotificacion('❌ Error al eliminar registro: ' + (error.message || 'Error desconocido'), 'danger');
+            } finally {
+                if (deleteBtn) {
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                }
             }
         }
 
 async function eliminarUsuario(id) {
             console.log('🗑️ Attempting to delete user ID:', id, 'Current user ID:', currentUser?.id);
-            
+
             // 🔒 Self-delete protection
             if (currentUser && currentUser.id == id) {
                 mostrarNotificacion('❌ No puedes eliminar tu propia cuenta', 'danger');
                 return;
             }
-            
+
             // 🔒 Last admin protection
             try {
                 const allUsers = await obtenerUsuarios();
                 const activeAdmins = allUsers.filter(u => u.rol === 'administrador' && u.estado === 'activo');
                 console.log('📊 Active admins found:', activeAdmins.length, activeAdmins.map(u => u.nombre_completo));
-                
+
                 if (activeAdmins.length <= 1) {
                     mostrarNotificacion('❌ No se puede eliminar: debe quedar al menos un administrador activo', 'danger');
                     return;
@@ -3176,42 +3197,40 @@ async function eliminarUsuario(id) {
             } catch (e) {
                 console.warn('⚠️ Could not verify admin count:', e);
             }
-            
+
             if (!confirm(`⚠️ ¿Eliminar usuario permanentemente?\n\nEsta acción NO se puede deshacer.`)) {
                 return;
             }
-            
+
             const deleteBtn = event?.target?.closest('button');
             if (deleteBtn) {
-                const originalText = deleteBtn.innerHTML;
-                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
                 deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
             }
-            
+
             try {
-                console.log('🗑️ Calling db.eliminarUsuario(', id, ')');
-                
-                if (dbInitialized && typeof window.eliminarUsuario === 'function') {
+                console.log('🗑️ Calling window.eliminarUsuario(', id, ')');
+
+                if (typeof window.eliminarUsuario === 'function') {
                     const result = await window.eliminarUsuario(id);
                     console.log('✅ DB Delete result:', result);
                     mostrarNotificacion('✅ Usuario eliminado correctamente', 'success');
                 } else {
-                    console.warn('⚠️ dbInitialized=', dbInitialized, 'eliminarUsuario available=', !!window.eliminarUsuario);
-                    mostrarNotificacion('⚠️ Modo demo - Usuario marcado como eliminado', 'warning');
-                    // Simulate delete for demo
+                    console.warn('⚠️ window.eliminarUsuario function not available');
+                    mostrarNotificacion('⚠️ Función eliminarUsuario no disponible', 'warning');
                 }
-                
+
                 // ✅ CRITICAL: Refresh table after successful delete
                 await cargarUsuarios();
                 console.log('✅ Tabla usuarios refrescada después de eliminar');
-                
+
             } catch (error) {
                 console.error('❌ Error eliminando usuario ID', id, ':', error);
                 mostrarNotificacion(`❌ Error al eliminar: ${error.message || 'Error desconocido'}`, 'danger');
             } finally {
                 if (deleteBtn) {
-                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                     deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                 }
             }
         }

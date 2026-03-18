@@ -246,11 +246,6 @@
             color: white;
         }
 
-        .btn-info {
-            background: #17a2b8;
-            color: white;
-        }
-
         .btn-sm {
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
@@ -385,36 +380,6 @@
             margin-bottom: 0.5rem;
         }
 
-        .numero-fila {
-            font-weight: bold;
-            color: var(--secondary-color);
-            text-align: center;
-        }
-
-        .dia-asistido-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .dia-asistido-container .form-check {
-            margin: 0;
-        }
-
-        .dia-asistido-container .form-check-input:checked {
-            background-color: var(--success-color);
-            border-color: var(--success-color);
-        }
-
-        .badge-interesado {
-            background-color: #17a2b8;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 5px;
-            font-size: 0.75rem;
-        }
-
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -472,7 +437,6 @@
                 <li><a href="#" class="active" onclick="navigateTo('dashboard')"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="#" onclick="navigateTo('conferencias')"><i class="fas fa-calendar-alt"></i> Conferencias</a></li>
                 <li><a href="#" onclick="navigateTo('registros')"><i class="fas fa-users"></i> Registros</a></li>
-                <li><a href="#" onclick="navigateTo('interesados')"><i class="fas fa-hand-holding-water"></i> Interesados</a></li>
                 <li><a href="#" onclick="navigateTo('reportes')"><i class="fas fa-chart-bar"></i> Reportes</a></li>
                 <li><a href="#" onclick="navigateTo('configuracion')"><i class="fas fa-cog"></i> Configuración</a></li>
                 <li><a href="#" onclick="navigateTo('usuarios')"><i class="fas fa-user-shield"></i> Usuarios</a></li>
@@ -578,6 +542,7 @@
                 </div>
             </section>
 
+            <!-- SECCIÓN REGISTROS CON BARRA DE BÚSQUEDA POR NOMBRE -->
             <section id="registros" class="section">
                 <div class="table-container">
                     <div class="table-header">
@@ -592,6 +557,7 @@
                         </div>
                     </div>
                     
+                    <!-- BARRA DE BÚSQUEDA POR NOMBRE -->
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <div class="input-group">
@@ -605,7 +571,6 @@
                         <table id="tablaRegistros">
                             <thead>
                                 <tr>
-                                    <th style="width: 50px;">N°</th>
                                     <th>Nombre</th>
                                     <th>Teléfono</th>
                                     <th>Iglesia</th>
@@ -615,104 +580,19 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando...</td></tr>
+                                <tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- ✅ NUEVA SECCIÓN INTERESADOS EN BAUTISMO -->
-            <section id="interesados" class="section">
-                <div class="table-container">
-                    <div class="table-header">
-                        <h4>💧 Interesados en Bautismo</h4>
-                        <div>
-                            <button class="btn btn-success me-2" onclick="exportarInteresadosPDF()">
-                                <i class="fas fa-file-pdf"></i> Exportar PDF
-                            </button>
-                            <button class="btn btn-info" onclick="exportarInteresadosExcel()">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- ✅ BARRA DE BÚSQUEDA POR NOMBRE AGREGADA -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                <input type="text" id="filtroNombreInteresados" class="form-control" placeholder="🔍 Buscar interesado por nombre...">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Filtro por Conferencia -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label small">Filtrar por Conferencia</label>
-                            <select id="filtroConferenciaInteresados" class="form-select" onchange="cargarInteresados()">
-                                <option value="">-- Todas las Conferencias --</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label small">Estado de Interés</label>
-                            <select id="filtroEstadoInteres" class="form-select" onchange="cargarInteresados()">
-                                <option value="">-- Todos --</option>
-                                <option value="si">✅ Sí Interesado</option>
-                                <option value="no">❌ No Interesado</option>
-                                <option value="pendiente">⏳ Pendiente</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 d-flex align-items-end">
-                            <button class="btn btn-secondary w-100" onclick="cargarInteresados()">
-                                <i class="fas fa-sync-alt"></i> Actualizar
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Estadísticas -->
-                    <div class="stats-grid mb-3">
-                        <div class="stat-card">
-                            <h3 id="totalInteresados">0</h3>
-                            <p>Total Interesados</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="totalPendientes">0</h3>
-                            <p>Pendientes</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="totalNoInteresados">0</h3>
-                            <p>No Interesados</p>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table id="tablaInteresados">
-                            <thead>
-                                <tr>
-                                    <th style="width: 50px;">N°</th>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Iglesia</th>
-                                    <th>Conferencia</th>
-                                    <th>¿Interesado en Bautismo?</th>
-                                    <th>Fecha Registro</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="8" class="loading"><div class="spinner"></div>Cargando...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
+            <!-- SECCIÓN REPORTES CON FILTRO POR DÍA DE CONFERENCIA -->
             <section id="reportes" class="section">
                 <div class="table-container">
                     <h4>📊 Reportes y Estadísticas</h4>
                     
+                    <!-- FILTROS DE REPORTES -->
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label class="form-label small">Conferencia</label>
@@ -790,7 +670,6 @@
                         <table id="tablaReporte">
                             <thead>
                                 <tr>
-                                    <th style="width: 50px;">N°</th>
                                     <th>Nombre</th>
                                     <th>Teléfono</th>
                                     <th>Iglesia</th>
@@ -800,7 +679,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td colspan="7" class="loading">Seleccione filtros para ver el reporte</td></tr>
+                                <tr><td colspan="6" class="loading">Seleccione filtros para ver el reporte</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1108,12 +987,11 @@
                     <textarea id="registroDireccion" rows="2"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>✅ Días que asistió (puede marcar CUALQUIER día sin orden):</label>
-                    <div id="diasAsistidosContainer" class="dia-asistido-container"></div>
+                    <label>✅ Días que asistió:</label>
+                    <div id="diasAsistidosContainer"></div>
                     <input type="hidden" id="registroDiasAsistidos" value="0">
                     <input type="hidden" id="registroDiasEspecificos" value="">
-                    <small id="diasContador" class="text-muted">0 de 0 días seleccionados</small>
-                    <small class="text-info d-block mt-1">💡 Ejemplo: Puede marcar Día 1, 3, 5 sin marcar 2 y 4</small>
+                    <small id="diasContador">0 de 0 días</small>
                 </div>
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalRegistro')">Cancelar</button>
@@ -1159,52 +1037,6 @@
         </div>
     </div>
 
-    <!-- ✅ MODAL PARA MARCAR INTERÉS EN BAUTISMO -->
-    <div id="modalInteresBautismo" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 id="modalInteresTitle">💧 Interés en Bautismo</h4>
-                <button class="modal-close" onclick="cerrarModal('modalInteresBautismo')">&times;</button>
-            </div>
-            <form id="formInteresBautismo">
-                <input type="hidden" id="interesId">
-                <div class="form-group">
-                    <label>Nombre del Asistente</label>
-                    <input type="text" id="interesNombre" readonly class="form-control-plaintext">
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="text" id="interesTelefono" readonly class="form-control-plaintext">
-                </div>
-                <div class="form-group">
-                    <label>Iglesia</label>
-                    <input type="text" id="interesIglesia" readonly class="form-control-plaintext">
-                </div>
-                <div class="form-group">
-                    <label>Conferencia</label>
-                    <input type="text" id="interesConferencia" readonly class="form-control-plaintext">
-                </div>
-                <div class="form-group">
-                    <label>¿Está interesado en bautizarse?</label>
-                    <select id="interesBautismo" class="form-select" required>
-                        <option value="">-- Seleccione --</option>
-                        <option value="si">✅ Sí, estoy interesado</option>
-                        <option value="no">❌ No, no estoy interesado</option>
-                        <option value="pendiente">⏳ Pendiente de decidir</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Notas Adicionales</label>
-                    <textarea id="interesNotas" rows="3" placeholder="Comentarios adicionales sobre el interés en bautismo..."></textarea>
-                </div>
-                <div class="d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalInteresBautismo')">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script src="config.js"></script>
     <script src="db.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1213,7 +1045,6 @@
         let dbInitialized = false;
         let reporteActual = [];
         let registrosActuales = [];
-        let interesadosActuales = [];
         let conferenciasCache = [];
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1346,7 +1177,6 @@
                 'dashboard': 'Dashboard',
                 'conferencias': 'Conferencias',
                 'registros': 'Registros',
-                'interesados': 'Interesados en Bautismo',
                 'reportes': 'Reportes',
                 'configuracion': 'Configuración',
                 'usuarios': 'Usuarios'
@@ -1362,10 +1192,6 @@
                     break;
                 case 'registros':
                     cargarRegistros();
-                    break;
-                case 'interesados':
-                    cargarFiltroConferenciasInteresados();
-                    cargarInteresados();
                     break;
                 case 'reportes':
                     cargarFiltrosReporte();
@@ -1493,6 +1319,9 @@
             }
         }
 
+        // ============================================
+        // CARGA DE REGISTROS CON BÚSQUEDA POR NOMBRE
+        // ============================================
         async function actualizarRegistros() {
             const btn = document.getElementById('btnActualizarRegistros');
             const originalContent = btn.innerHTML;
@@ -1516,7 +1345,7 @@
 
         async function cargarRegistros() {
             const tbody = document.querySelector('#tablaRegistros tbody');
-            tbody.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando...</td></tr>';
 
             try {
                 let asistentes = [];
@@ -1528,6 +1357,7 @@
 
                 registrosActuales = asistentes;
 
+                // Aplicar filtro de búsqueda por nombre si existe
                 const nombreBusqueda = document.getElementById('filtroNombreRegistros')?.value.toLowerCase().trim() || '';
                 
                 if (nombreBusqueda) {
@@ -1537,9 +1367,8 @@
                 }
 
                 if (asistentes.length > 0) {
-                    tbody.innerHTML = asistentes.map((asist, index) => `
+                    tbody.innerHTML = asistentes.map(asist => `
                         <tr>
-                            <td class="numero-fila">${index + 1}</td>
                             <td>${asist.nombre_completo}</td>
                             <td>${asist.telefono || 'N/A'}</td>
                             <td>${asist.iglesias?.nombre || 'N/A'}</td>
@@ -1558,280 +1387,19 @@
                 } else {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="7" class="text-center text-muted">No hay registros de asistentes</td>
+                            <td colspan="6" class="text-center text-muted">No hay registros de asistentes</td>
                         </tr>
                     `;
                 }
             } catch (error) {
                 console.error('Error cargando registros:', error);
-                tbody.innerHTML = '<tr><td colspan="7" class="text-danger">Error al cargar datos</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-danger">Error al cargar datos</td></tr>';
             }
         }
 
-        // ✅ FUNCIONES PARA INTERESADOS EN BAUTISMO
-        async function cargarFiltroConferenciasInteresados() {
-            const select = document.getElementById('filtroConferenciaInteresados');
-            select.innerHTML = '<option value="">-- Todas las Conferencias --</option>';
-            
-            try {
-                if (dbInitialized && typeof obtenerConferencias === 'function') {
-                    const conferencias = await obtenerConferencias();
-                    conferencias.forEach(conf => {
-                        select.innerHTML += `<option value="${conf.id}">${conf.nombre}</option>`;
-                    });
-                }
-            } catch (error) {
-                console.error('Error cargando conferencias:', error);
-            }
-        }
-
-        async function cargarInteresados() {
-            const tbody = document.querySelector('#tablaInteresados tbody');
-            tbody.innerHTML = '<tr><td colspan="8" class="loading"><div class="spinner"></div>Cargando...</td></tr>';
-
-            try {
-                let asistentes = [];
-                
-                if (dbInitialized && typeof obtenerAsistentes === 'function') {
-                    asistentes = await obtenerAsistentes();
-                }
-
-                interesadosActuales = asistentes;
-
-                // ✅ Aplicar filtro de búsqueda por nombre
-                const nombreBusqueda = document.getElementById('filtroNombreInteresados')?.value.toLowerCase().trim() || '';
-                
-                if (nombreBusqueda) {
-                    asistentes = asistentes.filter(a => 
-                        a.nombre_completo.toLowerCase().includes(nombreBusqueda)
-                    );
-                }
-
-                // Aplicar filtros
-                const confId = document.getElementById('filtroConferenciaInteresados').value;
-                const estadoInteres = document.getElementById('filtroEstadoInteres').value;
-
-                if (confId) {
-                    asistentes = asistentes.filter(a => a.conferencia_id == confId);
-                }
-
-                if (estadoInteres) {
-                    asistentes = asistentes.filter(a => a.interes_bautismo === estadoInteres);
-                }
-
-                // Actualizar estadísticas
-                const totalInteresados = asistentes.filter(a => a.interes_bautismo === 'si').length;
-                const totalPendientes = asistentes.filter(a => a.interes_bautismo === 'pendiente' || !a.interes_bautismo).length;
-                const totalNoInteresados = asistentes.filter(a => a.interes_bautismo === 'no').length;
-
-                document.getElementById('totalInteresados').textContent = totalInteresados;
-                document.getElementById('totalPendientes').textContent = totalPendientes;
-                document.getElementById('totalNoInteresados').textContent = totalNoInteresados;
-
-                if (asistentes.length > 0) {
-                    tbody.innerHTML = asistentes.map((asist, index) => {
-                        const badgeColor = asist.interes_bautismo === 'si' ? 'success' : 
-                                          (asist.interes_bautismo === 'no' ? 'danger' : 'warning');
-                        const badgeText = asist.interes_bautismo === 'si' ? '✅ Sí' : 
-                                         (asist.interes_bautismo === 'no' ? '❌ No' : '⏳ Pendiente');
-                        
-                        return `
-                            <tr>
-                                <td class="numero-fila">${index + 1}</td>
-                                <td>${asist.nombre_completo}</td>
-                                <td>${asist.telefono || 'N/A'}</td>
-                                <td>${asist.iglesias?.nombre || 'N/A'}</td>
-                                <td>${asist.conferencias?.nombre || 'N/A'}</td>
-                                <td><span class="badge bg-${badgeColor}">${badgeText}</span></td>
-                                <td>${formatFecha(asist.created_at)}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-info" onclick="marcarInteresBautismo(${asist.id})" title="Marcar Interés">
-                                        <i class="fas fa-hand-holding-water"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-warning" onclick="editarRegistro(${asist.id})" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('');
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="8" class="text-center text-muted">No hay registros de asistentes</td>
-                        </tr>
-                    `;
-                }
-            } catch (error) {
-                console.error('Error cargando interesados:', error);
-                tbody.innerHTML = '<tr><td colspan="8" class="text-danger">Error al cargar datos</td></tr>';
-            }
-        }
-
-        function marcarInteresBautismo(id) {
-            const asistente = interesadosActuales.find(a => a.id == id);
-            
-            if (asistente) {
-                document.getElementById('interesId').value = asistente.id;
-                document.getElementById('interesNombre').value = asistente.nombre_completo;
-                document.getElementById('interesTelefono').value = asistente.telefono || 'N/A';
-                document.getElementById('interesIglesia').value = asistente.iglesias?.nombre || 'N/A';
-                document.getElementById('interesConferencia').value = asistente.conferencias?.nombre || 'N/A';
-                document.getElementById('interesBautismo').value = asistente.interes_bautismo || '';
-                document.getElementById('interesNotas').value = asistente.notas_bautismo || '';
-                
-                document.getElementById('modalInteresTitle').textContent = '💧 Interés en Bautismo';
-                document.getElementById('modalInteresBautismo').classList.add('active');
-            }
-        }
-
-        async function guardarInteresBautismo() {
-            const id = document.getElementById('interesId').value;
-            const interesBautismo = document.getElementById('interesBautismo').value;
-            const notas = document.getElementById('interesNotas').value;
-
-            try {
-                if (dbInitialized && typeof actualizarAsistente === 'function') {
-                    await actualizarAsistente(id, {
-                        interes_bautismo: interesBautismo,
-                        notas_bautismo: notas
-                    });
-                    mostrarNotificacion('✅ Interés en bautismo guardado correctamente', 'success');
-                    cerrarModal('modalInteresBautismo');
-                    cargarInteresados();
-                }
-            } catch (error) {
-                console.error('Error guardando interés:', error);
-                mostrarNotificacion('❌ Error al guardar interés', 'danger');
-            }
-        }
-
-        // ✅ EXPORTAR INTERESADOS A PDF
-        async function exportarInteresadosPDF() {
-            const interesadosSi = interesadosActuales.filter(a => a.interes_bautismo === 'si');
-            
-            if (interesadosSi.length === 0) {
-                mostrarNotificacion('⚠️ No hay interesados en bautismo para exportar', 'warning');
-                return;
-            }
-
-            try {
-                mostrarNotificacion('📄 Generando PDF...', 'info');
-
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-
-                // Encabezado
-                doc.setFillColor(23, 162, 184);
-                doc.rect(0, 0, 210, 20, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(16);
-                doc.text('MinistryLion - Interesados en Bautismo', 105, 13, { align: 'center' });
-
-                doc.setTextColor(0, 0, 0);
-                doc.setFontSize(10);
-                const fechaReporte = new Date().toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                doc.text(`Fecha del Reporte: ${fechaReporte}`, 14, 30);
-
-                // Estadísticas
-                doc.setFontSize(11);
-                doc.text(`Total Interesados: ${interesadosSi.length}`, 14, 40);
-
-                const tableData = interesadosSi.map((asist, index) => [
-                    index + 1,
-                    asist.nombre_completo,
-                    asist.telefono || 'N/A',
-                    asist.iglesias?.nombre || 'N/A',
-                    asist.conferencias?.nombre || 'N/A',
-                    asist.notas_bautismo || '-'
-                ]);
-
-                doc.autoTable({
-                    startY: 45,
-                    head: [['N°', 'Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Notas']],
-                    body: tableData,
-                    theme: 'striped',
-                    headStyles: { fillColor: [23, 162, 184] },
-                    styles: { fontSize: 8 },
-                    columnStyles: {
-                        0: { cellWidth: 10, halign: 'center' },
-                        1: { cellWidth: 45 },
-                        2: { cellWidth: 30 },
-                        3: { cellWidth: 40 },
-                        4: { cellWidth: 40 },
-                        5: { cellWidth: 35 }
-                    }
-                });
-
-                const pageCount = doc.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    doc.setFontSize(8);
-                    doc.setTextColor(150);
-                    doc.text(
-                        `© Elaborado por: Natanael León Veras, edición 2026 - Página ${i} de ${pageCount}`,
-                        105,
-                        doc.internal.pageSize.height - 10,
-                        { align: 'center' }
-                    );
-                }
-
-                const nombreArchivo = `interesados_bautismo_${new Date().toISOString().slice(0, 10)}.pdf`;
-                doc.save(nombreArchivo);
-
-                mostrarNotificacion('✅ PDF generado exitosamente', 'success');
-            } catch (error) {
-                console.error('Error generando PDF:', error);
-                mostrarNotificacion('❌ Error al generar PDF', 'danger');
-            }
-        }
-
-        // ✅ EXPORTAR INTERESADOS A EXCEL
-        function exportarInteresadosExcel() {
-            const interesadosSi = interesadosActuales.filter(a => a.interes_bautismo === 'si');
-            
-            if (interesadosSi.length === 0) {
-                mostrarNotificacion('⚠️ No hay interesados en bautismo para exportar', 'warning');
-                return;
-            }
-
-            try {
-                mostrarNotificacion('📊 Exportando a Excel...', 'info');
-
-                let csvContent = "text/csv;charset=utf-8,";
-                csvContent += "N°,Nombre,Teléfono,Iglesia,Conferencia,Notas\n";
-
-                interesadosSi.forEach((asist, index) => {
-                    const row = [
-                        index + 1,
-                        asist.nombre_completo,
-                        asist.telefono || 'N/A',
-                        asist.iglesias?.nombre || 'N/A',
-                        asist.conferencias?.nombre || 'N/A',
-                        asist.notas_bautismo || '-'
-                    ].map(field => `"${field}"`).join(",");
-                    csvContent += row + "\n";
-                });
-
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", `interesados_bautismo_${new Date().toISOString().slice(0, 10)}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                mostrarNotificacion('✅ Excel exportado exitosamente', 'success');
-            } catch (error) {
-                console.error('Error exportando Excel:', error);
-                mostrarNotificacion('❌ Error al exportar Excel', 'danger');
-            }
-        }
-
+        // ============================================
+        // FILTROS DE REPORTES - ACTUALIZADO CON DÍA DE CONFERENCIA
+        // ============================================
         async function cargarFiltrosReporte() {
             try {
                 const conferenciaSelect = document.getElementById('filtroConferencia');
@@ -1861,11 +1429,15 @@
             }
         }
 
+        // Función para actualizar los días disponibles según la conferencia seleccionada
         function actualizarDiasConferencia() {
             const confId = document.getElementById('filtroConferencia').value;
             const diaSelect = document.getElementById('filtroDiaConferencia');
             
+            // Guardar selección actual
             const seleccionActual = diaSelect.value;
+            
+            // Resetear opciones
             diaSelect.innerHTML = '<option value="">-- Todos --</option>';
             
             if (confId && conferenciasCache.length > 0) {
@@ -1873,16 +1445,19 @@
                 if (conferencia) {
                     const diasTotales = calcularDiasEntreFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
                     
+                    // Agregar opciones dinámicas según los días de la conferencia
                     for (let i = 1; i <= diasTotales; i++) {
                         diaSelect.innerHTML += `<option value="${i}">Día ${i}</option>`;
                     }
                 }
             } else {
+                // Si no hay conferencia seleccionada, mostrar días genéricos
                 for (let i = 1; i <= 7; i++) {
                     diaSelect.innerHTML += `<option value="${i}">Día ${i}</option>`;
                 }
             }
             
+            // Restaurar selección si es válida
             if (seleccionActual && diaSelect.querySelector(`option[value="${seleccionActual}"]`)) {
                 diaSelect.value = seleccionActual;
             }
@@ -1890,7 +1465,7 @@
 
         async function aplicarFiltros() {
             const tbody = document.querySelector('#tablaReporte tbody');
-            tbody.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando reporte...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando reporte...</td></tr>';
 
             try {
                 let asistentes = [];
@@ -1904,24 +1479,29 @@
                 const diaConferencia = document.getElementById('filtroDiaConferencia').value;
                 const diasAsistidosFiltro = document.getElementById('filtroDiasAsistidos').value;
 
+                // Aplicar filtro por conferencia
                 if (confId) {
                     asistentes = asistentes.filter(a => a.conferencia_id == confId);
                 }
 
+                // Aplicar filtro por iglesia
                 if (iglesiaId) {
                     asistentes = asistentes.filter(a => a.iglesia_id == iglesiaId);
                 }
 
+                // Aplicar filtro por DÍA DE CONFERENCIA específico
                 if (diaConferencia) {
-                    const diaSeleccionado = parseInt(diaConferencia);
                     asistentes = asistentes.filter(a => {
                         const diasAsistidos = parseInt(a.dias_asistidos) || 0;
-                        return diasAsistidos >= diaSeleccionado;
+                        // Filtrar asistentes que asistieron al menos hasta ese día
+                        return diasAsistidos >= parseInt(diaConferencia);
                     });
                 }
 
+                // Aplicar filtro por cantidad de días asistidos
                 if (diasAsistidosFiltro) {
                     if (diasAsistidosFiltro === 'completo') {
+                        // Asistencia completa a la conferencia seleccionada
                         if (confId && conferenciasCache.length > 0) {
                             const conferencia = conferenciasCache.find(c => c.id == confId);
                             if (conferencia) {
@@ -1941,9 +1521,8 @@
                 reporteActual = asistentes;
 
                 if (asistentes.length > 0) {
-                    tbody.innerHTML = asistentes.map((asist, index) => `
+                    tbody.innerHTML = asistentes.map(asist => `
                         <tr>
-                            <td class="numero-fila">${index + 1}</td>
                             <td>${asist.nombre_completo}</td>
                             <td>${asist.telefono || 'N/A'}</td>
                             <td>${asist.iglesias?.nombre || 'N/A'}</td>
@@ -1963,7 +1542,7 @@
                 } else {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="7" class="text-center text-muted">No hay datos para mostrar con los filtros seleccionados</td>
+                            <td colspan="6" class="text-center text-muted">No hay datos para mostrar con los filtros seleccionados</td>
                         </tr>
                     `;
 
@@ -1974,7 +1553,7 @@
                 }
             } catch (error) {
                 console.error('Error aplicando filtros:', error);
-                tbody.innerHTML = '<tr><td colspan="7" class="text-danger">Error al cargar reporte</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-danger">Error al cargar reporte</td></tr>';
             }
         }
 
@@ -1986,6 +1565,9 @@
             return 'secondary';
         }
 
+        // ============================================
+        // GENERAR PDF - ACTUALIZADO CON DÍA DE CONFERENCIA
+        // ============================================
         async function descargarPDF() {
             if (reporteActual.length === 0) {
                 mostrarNotificacion('⚠️ No hay datos para generar el PDF', 'warning');
@@ -2045,8 +1627,7 @@
                 doc.text(`Total Iglesias: ${document.getElementById('reporteIglesias').textContent}`, 120, 45);
                 doc.text(`Promedio Días: ${document.getElementById('reportePromedioDias').textContent}`, 160, 45);
 
-                const tableData = reporteActual.map((asist, index) => [
-                    index + 1,
+                const tableData = reporteActual.map(asist => [
                     asist.nombre_completo,
                     asist.telefono || 'N/A',
                     asist.iglesias?.nombre || 'N/A',
@@ -2057,19 +1638,18 @@
 
                 doc.autoTable({
                     startY: 52,
-                    head: [['N°', 'Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
+                    head: [['Nombre', 'Teléfono', 'Iglesia', 'Conferencia', 'Días', 'Invitado Por']],
                     body: tableData,
                     theme: 'striped',
                     headStyles: { fillColor: [52, 152, 219] },
                     styles: { fontSize: 8 },
                     columnStyles: {
-                        0: { cellWidth: 10, halign: 'center' },
-                        1: { cellWidth: 40 },
-                        2: { cellWidth: 25 },
+                        0: { cellWidth: 45 },
+                        1: { cellWidth: 25 },
+                        2: { cellWidth: 35 },
                         3: { cellWidth: 35 },
-                        4: { cellWidth: 35 },
-                        5: { cellWidth: 15 },
-                        6: { cellWidth: 35 }
+                        4: { cellWidth: 15 },
+                        5: { cellWidth: 35 }
                     }
                 });
 
@@ -2096,6 +1676,9 @@
             }
         }
 
+        // ============================================
+        // EXPORTAR EXCEL
+        // ============================================
         function exportarExcel() {
             if (reporteActual.length === 0) {
                 mostrarNotificacion('⚠️ No hay datos para exportar', 'warning');
@@ -2106,11 +1689,10 @@
                 mostrarNotificacion('📊 Exportando a Excel...', 'info');
 
                 let csvContent = "text/csv;charset=utf-8,";
-                csvContent += "N°,Nombre,Teléfono,Iglesia,Conferencia,Días Asistidos,Invitado Por\n";
+                csvContent += "Nombre,Teléfono,Iglesia,Conferencia,Días Asistidos,Invitado Por\n";
 
-                reporteActual.forEach((asist, index) => {
+                reporteActual.forEach(asist => {
                     const row = [
-                        index + 1,
                         asist.nombre_completo,
                         asist.telefono || 'N/A',
                         asist.iglesias?.nombre || 'N/A',
@@ -2336,6 +1918,9 @@
             }
         }
 
+        // ============================================
+        // FUNCIONES DE EDICIÓN
+        // ============================================
         async function editarZona(id) {
             try {
                 const zonas = await obtenerZonas();
@@ -2443,28 +2028,18 @@
                     document.getElementById('registroDireccion').value = asistente.direccion || '';
                     document.getElementById('registroDiasAsistidos').value = asistente.dias_asistidos || 0;
                     
-                    // ✅ Cargar información de la conferencia primero
                     await cargarInfoConferencia();
                     
-                    // ✅ ESPERAR a que se generen los checkboxes y luego marcar los días guardados
                     setTimeout(() => {
                         const checkboxes = document.querySelectorAll('.dia-asistido');
-                        const diasEspecificosGuardados = asistente.dias_especificos || '';
-                        const diasArray = diasEspecificosGuardados.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d));
-                        
-                        console.log('📋 Editando registro:', asistente.nombre_completo);
-                        console.log('📋 Días específicos guardados:', diasEspecificosGuardados);
-                        console.log('📋 Array de días:', diasArray);
-                        
-                        // ✅ Marcar SOLO los días que están en el array
-                        checkboxes.forEach(cb => {
-                            const diaNumero = parseInt(cb.value);
-                            cb.checked = diasArray.includes(diaNumero);
-                            console.log(`Día ${diaNumero}: ${cb.checked ? '✅ marcado' : '❌ desmarcado'}`);
+                        const diasAsistidos = parseInt(asistente.dias_asistidos) || 0;
+                        checkboxes.forEach((cb, index) => {
+                            if (index < diasAsistidos) {
+                                cb.checked = true;
+                            }
                         });
-                        
                         actualizarContadorDias();
-                    }, 800);
+                    }, 500);
                     
                     document.getElementById('modalRegistroTitle').textContent = '👥 Editar Registro de Asistente';
                     document.getElementById('modalRegistro').classList.add('active');
@@ -2495,6 +2070,9 @@
             }
         }
 
+        // ============================================
+        // FUNCIONES DE MODALES
+        // ============================================
         function abrirModalZona() {
             document.getElementById('zonaId').value = '';
             document.getElementById('formZona').reset();
@@ -2531,7 +2109,7 @@
             document.getElementById('registroId').value = '';
             document.getElementById('formRegistro').reset();
             document.getElementById('diasAsistidosContainer').innerHTML = '';
-            document.getElementById('diasContador').textContent = '0 de 0 días seleccionados';
+            document.getElementById('diasContador').textContent = '0 de 0 días';
             cargarIglesiasEnSelect('registroIglesia');
             cargarConferenciasEnSelect('registroConferencia');
             document.getElementById('modalRegistroTitle').textContent = '👥 Nuevo Registro de Asistente';
@@ -2611,13 +2189,10 @@
 
         function calcularDiasEntreFechas(fechaInicio, fechaFin) {
             if (!fechaInicio || !fechaFin) return 0;
-            
-            const start = new Date(fechaInicio + 'T00:00:00');
-            const end = new Date(fechaFin + 'T00:00:00');
-            
-            const diffTime = end - start;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            
+            const start = new Date(fechaInicio);
+            const end = new Date(fechaFin);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             return diffDays;
         }
 
@@ -2648,22 +2223,17 @@
                             <p><strong>Total de días:</strong> ${diasTotales}</p>
                         `;
 
-                        // ✅ Generar checkboxes para cada día
                         diasContainer.innerHTML = '';
                         for (let i = 1; i <= diasTotales; i++) {
                             diasContainer.innerHTML += `
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input dia-asistido" 
-                                           type="checkbox" 
-                                           value="${i}" 
-                                           id="dia_${i}" 
-                                           onchange="actualizarContadorDias()">
-                                    <label class="form-check-label" for="dia_${i}">Día ${i}</label>
+                                    <input class="form-check-input dia-asistido" type="checkbox" value="${i}" onchange="actualizarContadorDias()">
+                                    <label class="form-check-label">Día ${i}</label>
                                 </div>
                             `;
                         }
                         
-                        document.getElementById('diasContador').textContent = `0 de ${diasTotales} días seleccionados`;
+                        document.getElementById('diasContador').textContent = `0 de ${diasTotales} días`;
                     } else {
                         infoDiv.innerHTML = '<p class="text-danger">Conferencia no encontrada</p>';
                     }
@@ -2677,29 +2247,16 @@
         function actualizarContadorDias() {
             const checkboxes = document.querySelectorAll('.dia-asistido:checked');
             const totalDias = document.querySelectorAll('.dia-asistido').length;
-            
             document.getElementById('registroDiasAsistidos').value = checkboxes.length;
-            
-            const diasEspecificos = Array.from(checkboxes).map(cb => cb.value).join(',');
-            document.getElementById('registroDiasEspecificos').value = diasEspecificos;
-            
-            document.getElementById('diasContador').textContent = `${checkboxes.length} de ${totalDias} días seleccionados`;
+            document.getElementById('diasContador').textContent = `${checkboxes.length} de ${totalDias} días`;
         }
 
         function setupEventListeners() {
-            // ✅ Event listener para búsqueda en Registros
+            // Búsqueda en tiempo real en Registros
             const filtroNombreRegistros = document.getElementById('filtroNombreRegistros');
             if (filtroNombreRegistros) {
                 filtroNombreRegistros.addEventListener('input', () => {
                     cargarRegistros();
-                });
-            }
-
-            // ✅ Event listener para búsqueda en Interesados
-            const filtroNombreInteresados = document.getElementById('filtroNombreInteresados');
-            if (filtroNombreInteresados) {
-                filtroNombreInteresados.addEventListener('input', () => {
-                    cargarInteresados();
                 });
             }
 
@@ -2731,12 +2288,6 @@
             document.getElementById('formUsuario').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await guardarUsuario();
-            });
-
-            // ✅ FORMULARIO DE INTERÉS EN BAUTISMO
-            document.getElementById('formInteresBautismo').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                await guardarInteresBautismo();
             });
 
             document.querySelectorAll('.modal').forEach(modal => {
@@ -2879,8 +2430,7 @@
                 conferencia_id: document.getElementById('registroConferencia').value,
                 invitado_por: document.getElementById('registroInvitadoPor').value,
                 direccion: document.getElementById('registroDireccion').value,
-                dias_asistidos: document.getElementById('registroDiasAsistidos').value,
-                dias_especificos: document.getElementById('registroDiasEspecificos').value
+                dias_asistidos: document.getElementById('registroDiasAsistidos').value
             };
 
             try {
@@ -3061,7 +2611,7 @@
 
         function formatFecha(fecha) {
             if (!fecha) return 'N/A';
-            const d = new Date(fecha + 'T00:00:00');
+            const d = new Date(fecha);
             return d.toLocaleDateString('es-ES', { 
                 year: 'numeric', 
                 month: 'short', 

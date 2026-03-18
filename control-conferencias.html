@@ -3213,7 +3213,8 @@ async function guardarUsuario() {
         }
 
 async function eliminarUsuario(id) {
-            console.log('🗑️ Attempting to delete user ID:', id, 'Current user ID:', currentUser?.id);
+            console.log('🗑️ Eliminar usuario ID:', id);
+            console.log('👤 Usuario actual:', currentUser);
 
             // 🔒 Self-delete protection
             if (currentUser && currentUser.id == id) {
@@ -3222,11 +3223,12 @@ async function eliminarUsuario(id) {
             }
 
             // 🔒 Obtener información del usuario a eliminar
-            let usuarioAEliminar;
+            let usuarioAEliminar = null;
             try {
                 const allUsers = await obtenerUsuarios();
                 usuarioAEliminar = allUsers.find(u => u.id == id);
-                
+                console.log('📋 Usuario a eliminar:', usuarioAEliminar);
+
                 if (!usuarioAEliminar) {
                     mostrarNotificacion('❌ Usuario no encontrado', 'danger');
                     return;
@@ -3235,7 +3237,7 @@ async function eliminarUsuario(id) {
                 // 🔒 Last admin protection - SOLO si el usuario a eliminar es administrador
                 if (usuarioAEliminar.rol === 'administrador' && usuarioAEliminar.estado === 'activo') {
                     const activeAdmins = allUsers.filter(u => u.rol === 'administrador' && u.estado === 'activo');
-                    console.log('📊 Active admins found:', activeAdmins.length, activeAdmins.map(u => u.nombre_completo));
+                    console.log('📊 Administradores activos:', activeAdmins.length, activeAdmins.map(u => u.nombre_completo));
 
                     if (activeAdmins.length <= 1) {
                         mostrarNotificacion('❌ No se puede eliminar: debe quedar al menos un administrador activo', 'danger');
@@ -3243,38 +3245,52 @@ async function eliminarUsuario(id) {
                     }
                 }
             } catch (e) {
-                console.warn('⚠️ Could not verify admin count:', e);
+                console.error('⚠️ Error obteniendo usuarios:', e);
             }
 
             if (!confirm(`⚠️ ¿Eliminar usuario permanentemente?\n\nEsta acción NO se puede deshacer.`)) {
+                console.log('❌ Usuario canceló la eliminación');
                 return;
             }
 
             const deleteBtn = event?.target?.closest('button');
+            console.log('🔘 Botón eliminar:', deleteBtn);
+            
             if (deleteBtn) {
                 deleteBtn.disabled = true;
                 deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
             }
 
             try {
-                console.log('🗑️ Calling window.eliminarUsuario(', id, ')');
-
-                if (typeof window.eliminarUsuario === 'function') {
-                    const result = await window.eliminarUsuario(id);
-                    console.log('✅ DB Delete result:', result);
-                    mostrarNotificacion('✅ Usuario eliminado correctamente', 'success');
-                } else {
-                    console.warn('⚠️ window.eliminarUsuario function not available');
-                    mostrarNotificacion('⚠️ Función eliminarUsuario no disponible', 'warning');
+                // Verificar conexión a la base de datos
+                if (!window.db) {
+                    throw new Error('No hay conexión a la base de datos');
                 }
 
-                // ✅ CRITICAL: Refresh table after successful delete
+                console.log('🗑️ Eliminando de la base de datos, ID:', id);
+                
+                // Eliminar directamente usando window.db
+                const { data, error } = await window.db
+                    .from('usuarios_sistema')
+                    .delete()
+                    .eq('id', id);
+
+                console.log('📤 Resultado de eliminar:', { data, error });
+
+                if (error) {
+                    console.error('❌ Error de Supabase:', error);
+                    throw new Error('Error al eliminar: ' + error.message);
+                }
+
+                mostrarNotificacion('✅ Usuario eliminado correctamente', 'success');
+                
+                // Recargar la tabla
+                console.log('🔄 Recargando tabla de usuarios...');
                 await cargarUsuarios();
-                console.log('✅ Tabla usuarios refrescada después de eliminar');
 
             } catch (error) {
-                console.error('❌ Error eliminando usuario ID', id, ':', error);
-                mostrarNotificacion(`❌ Error al eliminar: ${error.message || 'Error desconocido'}`, 'danger');
+                console.error('❌ Error eliminando usuario:', error);
+                mostrarNotificacion('❌ Error al eliminar: ' + (error.message || 'Error desconocido'), 'danger');
             } finally {
                 if (deleteBtn) {
                     deleteBtn.disabled = false;

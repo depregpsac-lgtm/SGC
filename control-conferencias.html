@@ -589,6 +589,9 @@
                             <button class="btn btn-secondary" onclick="actualizarRegistros()" title="Actualizar lista" id="btnActualizarRegistros">
                                 <i class="fas fa-sync-alt"></i> Actualizar
                             </button>
+                            <button class="btn btn-danger ms-2" onclick="borrarTodosRegistros()" title="Borrar todos los registros" id="btnBorrarRegistros" style="display: none;">
+                                <i class="fas fa-trash-alt"></i> Borrar Todo
+                            </button>
                         </div>
                     </div>
                     
@@ -1351,6 +1354,12 @@
                 const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
                 console.log('👤 ¿Es administrador?', esAdmin);
                 menuUsuarios.style.display = esAdmin ? 'block' : 'none';
+                
+                // Mostrar/Ocultar botón de borrar todos los registros
+                const btnBorrarRegistros = document.getElementById('btnBorrarRegistros');
+                if (btnBorrarRegistros) {
+                    btnBorrarRegistros.style.display = esAdmin ? 'inline-block' : 'none';
+                }
             } else {
                 console.error('❌ No se encontró el elemento #menuUsuarios');
             }
@@ -3245,6 +3254,33 @@ async function guardarUsuario() {
                     deleteBtn.disabled = false;
                     deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                 }
+            }
+        }
+
+        async function borrarTodosRegistros() {
+            // Verificar que solo administradores puedan borrar
+            const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+            if (!esAdmin) {
+                mostrarNotificacion('⛔ Acceso denegado. Solo administradores pueden realizar esta acción.', 'danger');
+                return;
+            }
+
+            if (!confirm('⚠️ ¿Está seguro de BORRAR TODOS los registros de asistentes?\n\nEsta acción NO se puede deshacer y eliminará permanentemente todos los datos.')) {
+                return;
+            }
+
+            try {
+                if (typeof window.borrarTodosLosRegistros === 'function') {
+                    await window.borrarTodosLosRegistros();
+                    mostrarNotificacion('✅ Todos los registros han sido eliminados correctamente', 'success');
+                    await cargarRegistros();
+                    cargarDashboard();
+                } else {
+                    mostrarNotificacion('⚠️ Función borrarTodosLosRegistros no disponible', 'warning');
+                }
+            } catch (error) {
+                console.error('Error borrando registros:', error);
+                mostrarNotificacion('❌ Error al borrar registros: ' + (error.message || 'Error desconocido'), 'danger');
             }
         }
 

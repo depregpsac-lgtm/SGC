@@ -303,6 +303,12 @@ async function eliminarAsistente(id) {
     return true;
 }
 
+async function borrarTodosLosRegistros() {
+    const { error } = await window.db.from('asistentes').delete().neq('id', 0);
+    if (error) throw error;
+    return true;
+}
+
 // ============================================
 // 👤 USUARIOS DEL SISTEMA
 // ============================================
@@ -442,6 +448,7 @@ window.obtenerAsistentes = obtenerAsistentes;
 window.crearAsistente = crearAsistente;
 window.actualizarAsistente = actualizarAsistente;
 window.eliminarAsistente = eliminarAsistente;
+window.borrarTodosLosRegistros = borrarTodosLosRegistros;
 
 window.obtenerUsuarios = obtenerUsuarios;
 window.crearUsuario = crearUsuario;
@@ -451,6 +458,7 @@ window.eliminarUsuario = eliminarUsuario;
 window.obtenerEstadisticas = obtenerEstadisticas;
 
 console.log('✅ db.js inicializado con todas las funciones CRUD y autenticación');
+
 
 
 

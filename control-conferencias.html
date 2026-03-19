@@ -474,7 +474,7 @@
                 <li><a href="#" onclick="navigateTo('registros')"><i class="fas fa-users"></i> Registros</a></li>
                 <li><a href="#" onclick="navigateTo('interesados')"><i class="fas fa-hand-holding-water"></i> Interesados</a></li>
                 <li><a href="#" onclick="navigateTo('reportes')"><i class="fas fa-chart-bar"></i> Reportes</a></li>
-                <li><a href="#" onclick="navigateTo('configuracion')"><i class="fas fa-cog"></i> Configuración</a></li>
+                <li id="menuConfiguracion"><a href="#" onclick="navigateTo('configuracion')"><i class="fas fa-cog"></i> Configuración</a></li>
                 <li id="menuUsuarios"><a href="#" onclick="navigateTo('usuarios')"><i class="fas fa-user-shield"></i> Usuarios</a></li>
                 <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
             </ul>
@@ -1300,7 +1300,8 @@
                             id: usuarioEncontrado.id,
                             email: usuarioEncontrado.email,
                             name: usuarioEncontrado.nombre_completo,
-                            role: usuarioEncontrado.rol
+                            role: usuarioEncontrado.rol,
+                            conferencia_id: usuarioEncontrado.conferencia_id
                         };
                     } else if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
                         // Login de administrador maestro
@@ -1308,7 +1309,8 @@
                             id: 1,
                             email: ADMIN_EMAIL,
                             name: 'Administrador',
-                            role: 'administrador'
+                            role: 'administrador',
+                            conferencia_id: null
                         };
                     } else {
                         statusEl.innerHTML = '<p class="text-danger">❌ Correo o contraseña incorrectos</p>';
@@ -1320,7 +1322,8 @@
                         id: 1,
                         email: ADMIN_EMAIL,
                         name: 'Administrador',
-                        role: 'administrador'
+                        role: 'administrador',
+                        conferencia_id: null
                     };
                 } else {
                     statusEl.innerHTML = '<p class="text-danger">❌ Correo o contraseña incorrectos</p>';
@@ -1335,6 +1338,18 @@
             }
         });
 
+        // Check for existing session on page load
+        const savedSession = localStorage.getItem('ministrylion_session');
+        if (savedSession) {
+            try {
+                currentUser = JSON.parse(savedSession);
+                showDashboard();
+            } catch (e) {
+                console.error('Error loading session:', e);
+                localStorage.removeItem('ministrylion_session');
+            }
+        }
+
         function showDashboard() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboardScreen').style.display = 'block';
@@ -1347,21 +1362,30 @@
             console.log('🔐 Usuario logueado:', currentUser);
             console.log('📋 Rol del usuario:', currentUser.role);
 
+            // Verificar si es administrador (acepta 'administrador' o 'admin')
+            const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+            console.log('👤 ¿Es administrador?', esAdmin);
+
             // Mostrar/Ocultar menú Usuarios según rol
             const menuUsuarios = document.getElementById('menuUsuarios');
             if (menuUsuarios) {
-                // Verificar si es administrador (acepta 'administrador' o 'admin')
-                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
-                console.log('👤 ¿Es administrador?', esAdmin);
                 menuUsuarios.style.display = esAdmin ? 'block' : 'none';
-                
-                // Mostrar/Ocultar botón de borrar todos los registros
-                const btnBorrarRegistros = document.getElementById('btnBorrarRegistros');
-                if (btnBorrarRegistros) {
-                    btnBorrarRegistros.style.display = esAdmin ? 'inline-block' : 'none';
-                }
             } else {
                 console.error('❌ No se encontró el elemento #menuUsuarios');
+            }
+
+            // Mostrar/Ocultar menú Configuración según rol
+            const menuConfiguracion = document.getElementById('menuConfiguracion');
+            if (menuConfiguracion) {
+                menuConfiguracion.style.display = esAdmin ? 'block' : 'none';
+            } else {
+                console.error('❌ No se encontró el elemento #menuConfiguracion');
+            }
+
+            // Mostrar/Ocultar botón de borrar todos los registros
+            const btnBorrarRegistros = document.getElementById('btnBorrarRegistros');
+            if (btnBorrarRegistros) {
+                btnBorrarRegistros.style.display = esAdmin ? 'inline-block' : 'none';
             }
 
             cargarDashboard();
@@ -1376,9 +1400,14 @@
         }
 
         function navigateTo(section) {
-            // Validar que solo administradores puedan acceder a Usuarios
+            // Validar que solo administradores puedan acceder a Usuarios y Configuración
             const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
             if (section === 'usuarios' && !esAdmin) {
+                mostrarNotificacion('⛔ Acceso denegado. Solo administradores pueden ver esta sección.', 'danger');
+                navigateTo('dashboard');
+                return;
+            }
+            if (section === 'configuracion' && !esAdmin) {
                 mostrarNotificacion('⛔ Acceso denegado. Solo administradores pueden ver esta sección.', 'danger');
                 navigateTo('dashboard');
                 return;
@@ -1431,13 +1460,28 @@
 
         async function cargarDashboard() {
             try {
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+                
                 if (dbInitialized && typeof obtenerEstadisticas === 'function') {
                     const stats = await obtenerEstadisticas();
-                    document.getElementById('totalZonas').textContent = stats.total_zonas;
-                    document.getElementById('totalDistritos').textContent = stats.total_distritos;
-                    document.getElementById('totalIglesias').textContent = stats.total_iglesias;
-                    document.getElementById('totalConferencias').textContent = stats.total_conferencias;
-                    document.getElementById('totalAsistentes').textContent = stats.total_asistentes;
+                    
+                    // Si no es admin, filtrar estadísticas por su conferencia
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        const asistentes = await obtenerAsistentes();
+                        const asistentesFiltrados = asistentes.filter(a => a.conferencia_id === currentUser.conferencia_id);
+                        
+                        document.getElementById('totalZonas').textContent = '-';
+                        document.getElementById('totalDistritos').textContent = '-';
+                        document.getElementById('totalIglesias').textContent = '-';
+                        document.getElementById('totalConferencias').textContent = '1';
+                        document.getElementById('totalAsistentes').textContent = asistentesFiltrados.length;
+                    } else {
+                        document.getElementById('totalZonas').textContent = stats.total_zonas;
+                        document.getElementById('totalDistritos').textContent = stats.total_distritos;
+                        document.getElementById('totalIglesias').textContent = stats.total_iglesias;
+                        document.getElementById('totalConferencias').textContent = stats.total_conferencias;
+                        document.getElementById('totalAsistentes').textContent = stats.total_asistentes;
+                    }
                 } else {
                     document.getElementById('totalZonas').textContent = '0';
                     document.getElementById('totalDistritos').textContent = '0';
@@ -1459,9 +1503,16 @@
 
             try {
                 let conferencias = [];
-                
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+
                 if (dbInitialized && typeof obtenerConferencias === 'function') {
                     conferencias = await obtenerConferencias();
+                    
+                    // Filtrar por conferencia asignada si no es admin
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        conferencias = conferencias.filter(c => c.id === currentUser.conferencia_id);
+                    }
+                    
                     conferenciasCache = conferencias;
                 }
 
@@ -1502,9 +1553,16 @@
 
             try {
                 let conferencias = [];
-                
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+
                 if (dbInitialized && typeof obtenerConferencias === 'function') {
                     conferencias = await obtenerConferencias();
+                    
+                    // Filtrar por conferencia asignada si no es admin
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        conferencias = conferencias.filter(c => c.id === currentUser.conferencia_id);
+                    }
+                    
                     conferenciasCache = conferencias;
                 }
 
@@ -1570,18 +1628,25 @@
 
             try {
                 let asistentes = [];
-                
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+
                 if (dbInitialized && typeof obtenerAsistentes === 'function') {
                     asistentes = await obtenerAsistentes();
+                    
+                    // Filtrar por conferencia asignada si no es admin
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        asistentes = asistentes.filter(a => a.conferencia_id === currentUser.conferencia_id);
+                    }
+                    
                     console.log('📋 Registros cargados:', asistentes.length);
                 }
 
                 registrosActuales = asistentes;
 
                 const nombreBusqueda = document.getElementById('filtroNombreRegistros')?.value.toLowerCase().trim() || '';
-                
+
                 if (nombreBusqueda) {
-                    asistentes = asistentes.filter(a => 
+                    asistentes = asistentes.filter(a =>
                         a.nombre_completo.toLowerCase().includes(nombreBusqueda)
                     );
                 }
@@ -1625,7 +1690,14 @@
             
             try {
                 if (dbInitialized && typeof obtenerConferencias === 'function') {
-                    const conferencias = await obtenerConferencias();
+                    let conferencias = await obtenerConferencias();
+                    
+                    // Filtrar por conferencia asignada si no es admin
+                    const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        conferencias = conferencias.filter(c => c.id === currentUser.conferencia_id);
+                    }
+                    
                     conferencias.forEach(conf => {
                         select.innerHTML += `<option value="${conf.id}">${conf.nombre}</option>`;
                     });
@@ -1641,18 +1713,24 @@
 
             try {
                 let asistentes = [];
-                
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+
                 if (dbInitialized && typeof obtenerAsistentes === 'function') {
                     asistentes = await obtenerAsistentes();
+                    
+                    // Filtrar por conferencia asignada si no es admin
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        asistentes = asistentes.filter(a => a.conferencia_id === currentUser.conferencia_id);
+                    }
                 }
 
                 interesadosActuales = asistentes;
 
                 // ✅ Aplicar filtro de búsqueda por nombre
                 const nombreBusqueda = document.getElementById('filtroNombreInteresados')?.value.toLowerCase().trim() || '';
-                
+
                 if (nombreBusqueda) {
-                    asistentes = asistentes.filter(a => 
+                    asistentes = asistentes.filter(a =>
                         a.nombre_completo.toLowerCase().includes(nombreBusqueda)
                     );
                 }
@@ -1680,11 +1758,11 @@
 
                 if (asistentes.length > 0) {
                     tbody.innerHTML = asistentes.map((asist, index) => {
-                        const badgeColor = asist.interes_bautismo === 'si' ? 'success' : 
+                        const badgeColor = asist.interes_bautismo === 'si' ? 'success' :
                                           (asist.interes_bautismo === 'no' ? 'danger' : 'warning');
-                        const badgeText = asist.interes_bautismo === 'si' ? '✅ Sí' : 
+                        const badgeText = asist.interes_bautismo === 'si' ? '✅ Sí' :
                                          (asist.interes_bautismo === 'no' ? '❌ No' : '⏳ Pendiente');
-                        
+
                         return `
                             <tr>
                                 <td class="numero-fila">${index + 1}</td>
@@ -1886,13 +1964,20 @@
             try {
                 const conferenciaSelect = document.getElementById('filtroConferencia');
                 const iglesiaSelect = document.getElementById('filtroIglesia');
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
 
                 conferenciaSelect.innerHTML = '<option value="">-- Todas --</option>';
                 iglesiaSelect.innerHTML = '<option value="">-- Todas --</option>';
 
                 if (dbInitialized) {
                     if (typeof obtenerConferencias === 'function') {
-                        const conferencias = await obtenerConferencias();
+                        let conferencias = await obtenerConferencias();
+                        
+                        // Filtrar por conferencia asignada si no es admin
+                        if (!esAdmin && currentUser.conferencia_id) {
+                            conferencias = conferencias.filter(c => c.id === currentUser.conferencia_id);
+                        }
+                        
                         conferenciasCache = conferencias;
                         conferencias.forEach(conf => {
                             conferenciaSelect.innerHTML += `<option value="${conf.id}">${conf.nombre}</option>`;
@@ -1944,9 +2029,15 @@
 
             try {
                 let asistentes = [];
-                
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+
                 if (dbInitialized && typeof obtenerAsistentes === 'function') {
                     asistentes = await obtenerAsistentes();
+                    
+                    // Filtrar por conferencia asignada si no es admin
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        asistentes = asistentes.filter(a => a.conferencia_id === currentUser.conferencia_id);
+                    }
                 }
 
                 const confId = document.getElementById('filtroConferencia').value;
@@ -2353,15 +2444,22 @@ async function cargarUsuarios() {
                 console.error('❌ #tablaUsuarios tbody no encontrado');
                 return;
             }
-            
+
             // Show loading - FIXED colspan to 5 (matches 5 columns)
             tbody.innerHTML = '<tr><td colspan="5" class="loading"><div class="spinner"></div>Refrescando usuarios...</td></tr>';
 
             try {
                 let usuarios = [];
-                
+                const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+
                 if (dbInitialized && typeof obtenerUsuarios === 'function') {
                     usuarios = await obtenerUsuarios();
+                    
+                    // Filtrar por conferencia asignada si no es admin
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        usuarios = usuarios.filter(u => u.conferencia_id === currentUser.conferencia_id);
+                    }
+                    
                     console.log('📋 Usuarios cargados:', usuarios.length, usuarios.map(u => ({id: u.id, nombre: u.nombre_completo, email: u.email, rol: u.rol, conf: u.conferencias?.nombre})));
                 } else {
                     console.warn('⚠️ dbInitialized=false or obtenerUsuarios not available');
@@ -2720,13 +2818,20 @@ async function cargarConferenciasEnSelect(selectId) {
                 return false;
             }
             select.innerHTML = '<option value="">-- Cargando conferencias... --</option>';
-            
+
             try {
                 console.log('🔄 Cargando conferencias para:', selectId);
                 if (dbInitialized && typeof obtenerConferencias === 'function') {
-                    const conferencias = await obtenerConferencias();
-                    console.log('📋 Conferencias encontradas:', conferencias?.length || 0);
+                    let conferencias = await obtenerConferencias();
                     
+                    // Filtrar por conferencia asignada si no es admin
+                    const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+                    if (!esAdmin && currentUser.conferencia_id) {
+                        conferencias = conferencias.filter(c => c.id === currentUser.conferencia_id);
+                    }
+                    
+                    console.log('📋 Conferencias encontradas:', conferencias?.length || 0);
+
                     select.innerHTML = '<option value="">-- Seleccionar Conferencia --</option>';
                     if (conferencias && conferencias.length > 0) {
                         conferencias.forEach(conf => {

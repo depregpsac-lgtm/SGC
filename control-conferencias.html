@@ -2056,8 +2056,9 @@
                 if (diaConferencia) {
                     const diaSeleccionado = parseInt(diaConferencia);
                     asistentes = asistentes.filter(a => {
-                        const diasAsistidos = parseInt(a.dias_asistidos) || 0;
-                        return diasAsistidos >= diaSeleccionado;
+                        const diasEspecificos = a.dias_especificos || '';
+                        const diasArray = diasEspecificos.split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d));
+                        return diasArray.includes(diaSeleccionado);
                     });
                 }
 

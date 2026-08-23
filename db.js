@@ -168,6 +168,54 @@ async function actualizarDistrito(id, zona_id, nombre, responsable, telefono) {
 }
 
 async function eliminarDistrito(id) {
+    const { data: iglesias, error: iglesiasError } = await window.db
+        .from('iglesias')
+        .select('id')
+        .eq('distrito_id', id);
+    if (iglesiasError) throw iglesiasError;
+
+    const iglesiaIds = (iglesias || []).map(iglesia => iglesia.id);
+    if (iglesiaIds.length > 0) {
+        const { data: conferencias, error: conferenciasError } = await window.db
+            .from('conferencias')
+            .select('id')
+            .in('iglesia_id', iglesiaIds);
+        if (conferenciasError) throw conferenciasError;
+
+        const conferenciaIds = (conferencias || []).map(conferencia => conferencia.id);
+        if (conferenciaIds.length > 0) {
+            const { error: asistentesError } = await window.db
+                .from('asistentes')
+                .delete()
+                .in('conferencia_id', conferenciaIds);
+            if (asistentesError) throw asistentesError;
+
+            const { error: usuariosError } = await window.db
+                .from('usuarios_sistema')
+                .update({ conferencia_id: null })
+                .in('conferencia_id', conferenciaIds);
+            if (usuariosError) throw usuariosError;
+
+            const { error: conferenciasDeleteError } = await window.db
+                .from('conferencias')
+                .delete()
+                .in('id', conferenciaIds);
+            if (conferenciasDeleteError) throw conferenciasDeleteError;
+        }
+
+        const { error: asistentesIglesiaError } = await window.db
+            .from('asistentes')
+            .delete()
+            .in('iglesia_id', iglesiaIds);
+        if (asistentesIglesiaError) throw asistentesIglesiaError;
+
+        const { error: iglesiasDeleteError } = await window.db
+            .from('iglesias')
+            .delete()
+            .in('id', iglesiaIds);
+        if (iglesiasDeleteError) throw iglesiasDeleteError;
+    }
+
     const { error } = await window.db.from('distritos').delete().eq('id', id);
     if (error) throw error;
     return true;
@@ -200,6 +248,39 @@ async function actualizarIglesia(id, zona_id, distrito_id, nombre, pastor, direc
 }
 
 async function eliminarIglesia(id) {
+    const { data: conferencias, error: conferenciasError } = await window.db
+        .from('conferencias')
+        .select('id')
+        .eq('iglesia_id', id);
+    if (conferenciasError) throw conferenciasError;
+
+    const conferenciaIds = (conferencias || []).map(conferencia => conferencia.id);
+    if (conferenciaIds.length > 0) {
+        const { error: asistentesError } = await window.db
+            .from('asistentes')
+            .delete()
+            .in('conferencia_id', conferenciaIds);
+        if (asistentesError) throw asistentesError;
+
+        const { error: usuariosError } = await window.db
+            .from('usuarios_sistema')
+            .update({ conferencia_id: null })
+            .in('conferencia_id', conferenciaIds);
+        if (usuariosError) throw usuariosError;
+
+        const { error: conferenciasDeleteError } = await window.db
+            .from('conferencias')
+            .delete()
+            .in('id', conferenciaIds);
+        if (conferenciasDeleteError) throw conferenciasDeleteError;
+    }
+
+    const { error: asistentesIglesiaError } = await window.db
+        .from('asistentes')
+        .delete()
+        .eq('iglesia_id', id);
+    if (asistentesIglesiaError) throw asistentesIglesiaError;
+
     const { error } = await window.db.from('iglesias').delete().eq('id', id);
     if (error) throw error;
     return true;
@@ -428,16 +509,19 @@ window.obtenerZonas = obtenerZonas;
 window.crearZona = crearZona;
 window.actualizarZona = actualizarZona;
 window.eliminarZona = eliminarZona;
+window.eliminarZonaDB = eliminarZona;
 
 window.obtenerDistritos = obtenerDistritos;
 window.crearDistrito = crearDistrito;
 window.actualizarDistrito = actualizarDistrito;
 window.eliminarDistrito = eliminarDistrito;
+window.eliminarDistritoDB = eliminarDistrito;
 
 window.obtenerIglesias = obtenerIglesias;
 window.crearIglesia = crearIglesia;
 window.actualizarIglesia = actualizarIglesia;
 window.eliminarIglesia = eliminarIglesia;
+window.eliminarIglesiaDB = eliminarIglesia;
 
 window.obtenerConferencias = obtenerConferencias;
 window.crearConferencia = crearConferencia;

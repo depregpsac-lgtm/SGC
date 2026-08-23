@@ -3232,8 +3232,8 @@ async function guardarUsuario() {
             if (!confirm('¿Está seguro de eliminar esta zona?')) return;
 
             try {
-                if (typeof window.eliminarZona === 'function') {
-                    await window.eliminarZona(id);
+                if (typeof window.eliminarZonaDB === 'function') {
+                    await window.eliminarZonaDB(id);
                     mostrarNotificacion('✅ Zona eliminada correctamente', 'success');
                     cargarZonas();
                 } else {
@@ -3249,8 +3249,8 @@ async function guardarUsuario() {
             if (!confirm('¿Está seguro de eliminar este distrito?')) return;
 
             try {
-                if (typeof window.eliminarDistrito === 'function') {
-                    await window.eliminarDistrito(id);
+                if (typeof window.eliminarDistritoDB === 'function') {
+                    await window.eliminarDistritoDB(id);
                     mostrarNotificacion('✅ Distrito eliminado correctamente', 'success');
                     cargarDistritos();
                 } else {
@@ -3266,8 +3266,8 @@ async function guardarUsuario() {
             if (!confirm('¿Está seguro de eliminar esta iglesia?')) return;
 
             try {
-                if (typeof window.eliminarIglesia === 'function') {
-                    await window.eliminarIglesia(id);
+                if (typeof window.eliminarIglesiaDB === 'function') {
+                    await window.eliminarIglesiaDB(id);
                     mostrarNotificacion('✅ Iglesia eliminada correctamente', 'success');
                     cargarIglesias();
                 } else {
@@ -3365,7 +3365,8 @@ async function guardarUsuario() {
 
         async function borrarTodosRegistros() {
             // Verificar que solo administradores puedan borrar
-            const esAdmin = currentUser.role === 'administrador' || currentUser.role === 'admin';
+            const rolUsuario = currentUser?.rol || currentUser?.role;
+            const esAdmin = rolUsuario === 'administrador' || rolUsuario === 'admin';
             if (!esAdmin) {
                 mostrarNotificacion('⛔ Acceso denegado. Solo administradores pueden realizar esta acción.', 'danger');
                 return;

@@ -1982,6 +1982,7 @@
                         conferencias.forEach(conf => {
                             conferenciaSelect.innerHTML += `<option value="${conf.id}">${conf.nombre}</option>`;
                         });
+                        actualizarDiasConferencia();
                     }
 
                     if (typeof obtenerIglesias === 'function') {
@@ -1999,25 +2000,24 @@
         function actualizarDiasConferencia() {
             const confId = document.getElementById('filtroConferencia').value;
             const diaSelect = document.getElementById('filtroDiaConferencia');
-            
+
             const seleccionActual = diaSelect.value;
             diaSelect.innerHTML = '<option value="">-- Todos --</option>';
-            
-            if (confId && conferenciasCache.length > 0) {
-                const conferencia = conferenciasCache.find(c => c.id == confId);
-                if (conferencia) {
-                    const diasTotales = calcularDiasEntreFechas(conferencia.fecha_inicio, conferencia.fecha_fin);
-                    
-                    for (let i = 1; i <= diasTotales; i++) {
-                        diaSelect.innerHTML += `<option value="${i}">Día ${i}</option>`;
-                    }
-                }
-            } else {
-                for (let i = 1; i <= 7; i++) {
-                    diaSelect.innerHTML += `<option value="${i}">Día ${i}</option>`;
-                }
+
+            const conferencia = confId
+                ? conferenciasCache.find(c => c.id == confId)
+                : null;
+            const diasTotales = conferencia
+                ? calcularDiasEntreFechas(conferencia.fecha_inicio, conferencia.fecha_fin)
+                : conferenciasCache.reduce((maximo, conf) => Math.max(
+                    maximo,
+                    calcularDiasEntreFechas(conf.fecha_inicio, conf.fecha_fin)
+                ), 0);
+
+            for (let i = 1; i <= diasTotales; i++) {
+                diaSelect.innerHTML += `<option value="${i}">Día ${i}</option>`;
             }
-            
+
             if (seleccionActual && diaSelect.querySelector(`option[value="${seleccionActual}"]`)) {
                 diaSelect.value = seleccionActual;
             }
@@ -2870,14 +2870,18 @@ async function cargarConferenciasEnSelect(selectId) {
 
         function calcularDiasEntreFechas(fechaInicio, fechaFin) {
             if (!fechaInicio || !fechaFin) return 0;
-            
-            const start = new Date(fechaInicio + 'T00:00:00');
-            const end = new Date(fechaFin + 'T00:00:00');
-            
+
+            // Usar solo la fecha evita que la hora o la zona horaria resten un día.
+            const inicio = String(fechaInicio).slice(0, 10).split('-').map(Number);
+            const fin = String(fechaFin).slice(0, 10).split('-').map(Number);
+            if (inicio.length !== 3 || fin.length !== 3 || inicio.some(Number.isNaN) || fin.some(Number.isNaN)) {
+                return 0;
+            }
+
+            const start = Date.UTC(inicio[0], inicio[1] - 1, inicio[2]);
+            const end = Date.UTC(fin[0], fin[1] - 1, fin[2]);
             const diffTime = end - start;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            
-            return diffDays;
+            return diffTime >= 0 ? Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1 : 0;
         }
 
         async function cargarInfoConferencia() {
@@ -3524,3 +3528,4 @@ async function eliminarUsuario(id) {
     </script>
 </body>
 </html>
+
